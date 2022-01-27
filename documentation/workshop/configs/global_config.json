@@ -1,0 +1,32 @@
+{
+  "variables": {
+    "month": "2021-06",
+    "next_month": "2021-07"
+  },
+  "storage": {
+    "manager": "eogrow.core.storage.StorageManager",
+    "project_folder": "s3://eogrow-workshop/project/",
+    "aws_profile": "workshop",
+    "structure": {
+      "data": "data/${var:month}",
+      "results": "results/${var:month}",
+      "vector_results": "vector-results/${var:month}"
+    }
+  },
+  "area": {
+    "manager": "eogrow.core.area.UtmZoneAreaManager",
+    "area_filename": "bohinj-aoi.geojson",
+    "area_buffer": 0.01,
+    "patch_size_x": 2500,
+    "patch_size_y": 2500
+  },
+  "eopatch": {
+    "manager": "eogrow.core.eopatch.EOPatchManager"
+  },
+  "logging": {
+    "manager": "eogrow.core.logging.LoggingManager",
+    "save_logs": true,
+    "show_logs": true
+  },
+  "use_ray": true // false for local execution
+}

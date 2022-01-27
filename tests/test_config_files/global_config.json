@@ -1,0 +1,40 @@
+{
+  "area": {
+    "manager": "eogrow.core.area.UtmZoneAreaManager",
+    "area_filename": "test_area.geojson",
+    "area_buffer": 0.001,
+    "patch_size_x": 2400,
+    "patch_size_y": 1100,
+    "patch_buffer": 0.1,
+    "offset_x": 0,
+    "offset_y": 0
+  },
+  "eopatch": {
+    "manager": "eogrow.core.eopatch.EOPatchManager"
+  },
+  "logging": {
+    "manager": "eogrow.core.logging.LoggingManager",
+    "save_logs": true,
+    "show_logs": true,
+    "capture_warnings": false
+  },
+  "storage": {
+    "manager": "eogrow.core.storage.StorageManager",
+    "project_folder": "${config_path}/../test_project",
+    "structure": {
+      "data": "data",
+      "data_2019": "data-2019",  // these two are custom for testing features pipelines
+      "data_custom_range": "data-custom-range",  // these two are custom for testing features pipelines
+      "data_sampled": "data-sampled",
+      "features": "features",
+      "features_sampled": "features-sampled",
+      "training_data": "training_data",
+      "reference": "reference",
+      "models": "models",
+      "predictions": "predictions",
+      "maps": "maps",
+      "production_maps": "production-maps",
+      "temp": "temp" // used by all pipelines whose results do not matter afterwards
+    }
+  }
+}

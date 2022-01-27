@@ -1,0 +1,11 @@
+[tool.black]
+line-length = 120
+experimental-string-processing = true
+
+[tool.pytest.ini_options]
+log_cli_level = "INFO"
+markers = [
+    "fast: marks unit tests that are fast to execute",
+    "chain: marks tests that represent an end-to-end pipeline execution"
+]
+

@@ -1,0 +1,38 @@
+{
+  "pipeline": "eogrow.pipelines.download.DownloadPipeline",
+  "storage": {
+    "manager": "eogrow.core.storage.StorageManager",
+    "project_folder": "s3://eogrow-workshop/project/",
+    "aws_profile": "workshop",
+    "structure": {
+      "data": "data/2021-06"
+    }
+  },
+  "area": {
+    "manager": "eogrow.core.area.UtmZoneAreaManager",
+    "area_filename": "bohinj-aoi.geojson",
+    "area_buffer": 0.01,
+    "patch_size_x": 2500,
+    "patch_size_y": 2500
+  },
+  "eopatch": {
+    "manager": "eogrow.core.eopatch.EOPatchManager"
+  },
+  "logging": {
+    "manager": "eogrow.core.logging.LoggingManager",
+    "save_logs": true,
+    "show_logs": true
+  },
+  "use_ray": false, // false for local execution
+  "output_folder_key": "data",
+  "time_period": [
+    "2021-06-01",
+    "2021-07-01"
+  ],
+  "data_collection": "SENTINEL2_L1C",
+  "resolution": 10,
+  "bands_feature": "BANDS",
+  "maxcc": 1.0,
+  "time_difference": 120,
+  "threads_per_worker": 5
+}

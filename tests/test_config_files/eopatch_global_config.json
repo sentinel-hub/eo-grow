@@ -1,0 +1,21 @@
+{
+  "storage": {
+    "manager": "eogrow.core.storage.StorageManager",
+    "project_folder": "${config_path}/../test_project/"
+  },
+  "area": {
+    "manager": "eogrow.core.area.UtmZoneAreaManager",
+    "area_filename": "test_area.geojson",
+    "area_buffer": 0.005,
+    "patch_size_x": 100,
+    "patch_size_y": 100,
+    "patch_buffer": 0.3,
+    "offset_x": 0,
+    "offset_y": 0,
+    "region_column_name": "Regions",
+    "region_names": ["Region A", "Region B"]
+  },
+  "eopatch": {
+    "manager": "eogrow.core.eopatch.EOPatchManager"
+  }
+}

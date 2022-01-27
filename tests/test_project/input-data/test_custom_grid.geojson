@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::32638" } },
+"features": [
+{ "type": "Feature", "properties": { "index_n": 0, "index_x": 0, "index_y": 0, "name": "patch0" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 729480.0, 4390045.0 ], [ 729480.0, 4391255.0 ], [ 732120.0, 4391255.0 ], [ 732120.0, 4390045.0 ], [ 729480.0, 4390045.0 ] ] ] } },
+{ "type": "Feature", "properties": { "index_n": 1, "index_x": 0, "index_y": 1, "name": "patch1" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 729480.0, 4391145.0 ], [ 729480.0, 4392355.0 ], [ 732120.0, 4392355.0 ], [ 732120.0, 4391145.0 ], [ 729480.0, 4391145.0 ] ] ] } }
+]
+}

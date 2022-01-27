@@ -1,0 +1,23 @@
+{
+  "pipeline": "eogrow.pipelines.features.MosaickingFeaturesPipeline",
+  "**global_config": "${config_path}/global_config.json",
+  "input_folder_key": "data",
+  "output_folder_key": "features",
+  "bands_feature_name": "BANDS-S2-L1C",
+  "data_preparation": {
+    "validity_threshold": 0.8,
+    "cloud_mask_feature_name": "CLM",
+    "valid_data_feature_name": "dataMask"
+  },
+  "ndis": {
+    "NDVI": [7, 3], 
+    "NDWI": [2, 7],
+    "NDBI": [11, 7]
+  },
+  "mosaicking": {
+    "time_period": ["yearly", 2018],
+    "n_mosaics": 12,
+    "max_ndi_indices": [7, 3]
+  },
+  "output_feature_name": "FEATURES"
+}
