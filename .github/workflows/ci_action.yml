@@ -10,7 +10,7 @@ jobs:
   check-code-formatting:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out current branch in case of a push event
+      - name: Check out current branch
         if: github.event_name == 'push'
         uses: actions/checkout@v2
 
