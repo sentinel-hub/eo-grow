@@ -3,28 +3,29 @@
 
 Analyzing Earth Observation (EO) data is complex and solutions often require custom tailored algorithms. In the EO domain most problems come with an additional challenge: *How do we apply the solution on a larger scale?*
 
-Working with EO data is made easy by the [`eo-learn`](https://github.com/sentinel-hub/eo-learn) package, while the **`eo-grow`** package takes care of running the solutions at a large scale. In **`eo-grow`** an `EOWorkflow` based solution is wrapped in a **pipeline** object, which takes care of parametrization, logging, storage, multi-processing, EOPatch management and more. However **pipelines** are not necessarily bound to `EOWorkflow` execution and can be used for other tasks such as training ML models.
+Working with EO data is made easy by the [`eo-learn`](https://github.com/sentinel-hub/eo-learn) package, while the **`eo-grow`** package takes care of running the solutions at a large scale. In **`eo-grow`** an `EOWorkflow` based solution is wrapped in a **pipeline** object, which takes care of parametrization, logging, storage, multi-processing, EOPatch management and more. However, **pipelines** are not necessarily bound to `EOWorkflow` execution and can be used for other tasks such as training ML models.
 
 Features of **`eo-grow`** include:
-- Direct use of `EOWorkflow` procedures
-- Parametrizing workflows by using validated configuration files, making executions easy to reproduce and adjust
-- Easy use of both local and S3 storage with no required code adaptation
-- Workflows can be run either single-process, multi-process, or even on multiple machines (by using `ray` clusters)
-- A collection of basic pipelines, with methods that can be overridden to tailor to a large amount of use-cases
-- Execution reports and customizable logging
-- Options for skipping already processed data when re-running a pipeline
-- Offers a CLI interface for running pipelines, validating configuration files, and generating templates
+- Direct use of `EOWorkflow` procedures.
+- Parametrizing workflows by using validated configuration files, making executions easy to reproduce and adjust.
+- Easy use of both local and AWS S3 storage with no required code adaptation.
+- Splitting large areas of interest into grids and defining collections of EOPatches.
+- Workflows can be run either single-process, multi-process, or even on multiple machines (by using `ray` clusters).
+- Execution reports and customizable logging.
+- Options for skipping already processed data when re-running a pipeline.
+- Offers a CLI interface for running pipelines, validating configuration files, and generating templates.
+- A collection of basic pipelines, with methods that can be overridden to tailor to a large amount of use-cases.
 
 
 ## General Structure Overview
 
-The core object of **`eo-grow`** is the `Pipeline`. Each pipeline has a `run_procedure` method, which is executed after the pipeline is set up. By default the `run_procedure` executes an `EOWorkflow` which is built by the (user-defined) `build_workflow` method.
+The core object of **`eo-grow`** is the `Pipeline`. Each pipeline has a `run_procedure` method, which is executed after the pipeline is set up. By default, the `run_procedure` executes an `EOWorkflow` which is built by the (user-defined) `build_workflow` method.
 
 Each pipeline is linked to so called *managers*:
-- `StorageManager` handles loading and saving of files
-- `AreaManager` defines the area of interest and how it should be split into EOPatches
-- `EOPatchManager` takes care of listing eopatches and handling their storage details
-- `LoggingManager` provides control over logging 
+- `StorageManager` handles loading and saving of files,
+- `AreaManager` defines the area of interest and how it should be split into EOPatches,
+- `EOPatchManager` takes care of listing eopatches and handling their storage details,
+- `LoggingManager` provides control over logging.
 
 ![eo-grow-structure](documentation/eo-grow.png)
 
@@ -50,11 +51,11 @@ pip install eo-grow
 
 Running pipelines is easiest by using the CLI provided by **`eo-grow`**. For all options use the `--help` flag with each command.
 
-- `eogrow <config>` executes the pipeline defined in the `<config>` file
-- `eogrow-validate <config>` only performs validation of the `<config>` file
-- `eogrow-test <config>` initializes the pipeline/object but does not run it. Useful for testing if managers are set correctly or for generating area-split grids
-- `eogrow-ray <cluster> <config>` executes the pipeline defined in `<config>` on the active Ray cluster defined by the `<cluster>` file
-- `eogrow-template <import path> <template>` generates a template config for the object specified by the `<import path>` and saves it to the `<template>` file (or outputs it directly if `<template>` is not provided) 
+- `eogrow <config>` executes the pipeline defined in the `<config>` file.
+- `eogrow-validate <config>` only performs validation of the `<config>` file.
+- `eogrow-test <config>` initializes the pipeline/object but does not run it. Useful for testing if managers are set correctly or for generating area-split grids.
+- `eogrow-ray <cluster> <config>` executes the pipeline defined in `<config>` on the active Ray cluster defined by the `<cluster>` file.
+- `eogrow-template <import path> <template>` generates a template config for the object specified by the `<import path>` and saves it to the `<template>` file (or outputs it directly if `<template>` is not provided).
 
 ## Documentation
 
