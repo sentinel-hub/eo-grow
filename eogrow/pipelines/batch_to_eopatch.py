@@ -137,7 +137,7 @@ class BatchToEOPatchPipeline(Pipeline):
             # Filename is written into the dependency name to be used later for execution arguments:
             import_node = EONode(import_task, inputs=[previous_node], name=f"{batch_file} import")
 
-            if feature_type.is_time_dependent():
+            if feature_type.is_temporal():
                 fix_task = FixImportedTimeDependentFeatureTask(tmp_timeless_feature, feature)
                 end_nodes.append(EONode(fix_task, inputs=[import_node]))
             else:

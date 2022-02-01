@@ -12,7 +12,7 @@ from fs.tempfs import TempFS
 from pydantic import Field
 from eolearn.io import ExportToTiffTask
 from eolearn.core import LoadTask, EOWorkflow, FeatureType, linearly_connect_tasks
-from eolearn.core.fs_utils import join_path, get_full_path
+from eolearn.core.utils.fs import join_path, get_full_path
 from eolearn.features import LinearFunctionTask
 
 from ..core.pipeline import Pipeline

@@ -5,7 +5,7 @@ from typing import List, Optional, Union, Callable
 
 import numpy as np
 from eolearn.core import EOPatch, EOTask, MapFeatureTask
-from eolearn.ml_tools import MorphologicalOperations
+from eolearn.geometry import MorphologicalOperations
 
 from ..utils.types import Feature
 

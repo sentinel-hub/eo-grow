@@ -9,7 +9,7 @@ import fs
 import numpy as np
 from sentinelhub import parse_time, SHConfig
 from eolearn.core import EOPatch, EOTask
-from eolearn.core.fs_utils import get_base_filesystem_and_path
+from eolearn.core.utils.fs import get_base_filesystem_and_path
 
 from ..utils.meta import import_object
 from ..utils.types import Feature

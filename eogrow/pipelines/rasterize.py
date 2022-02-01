@@ -23,8 +23,8 @@ from eolearn.core import (
 )
 from eolearn.io import VectorImportTask
 from eolearn.geometry import VectorToRasterTask
-from eolearn.core.fs_utils import join_path
-from eolearn.core.utilities import parse_feature
+from eolearn.core.utils.fs import join_path
+from eolearn.core.utils.parsing import parse_feature
 
 from ..core.config import Config
 from ..core.pipeline import Pipeline
