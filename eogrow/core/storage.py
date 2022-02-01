@@ -8,7 +8,7 @@ import fs
 from pydantic import Field
 
 from sentinelhub import SHConfig
-from eolearn.core.fs_utils import get_filesystem, is_s3_path, get_aws_credentials
+from eolearn.core.utils.fs import get_filesystem, is_s3_path, get_aws_credentials
 
 from .base import EOGrowObject
 from .schemas import ManagerSchema

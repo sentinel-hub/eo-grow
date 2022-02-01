@@ -16,13 +16,8 @@ from eolearn.core import (
     MergeEOPatchesTask,
     EONode,
 )
-from eolearn.ml_tools import (
-    FractionSamplingTask,
-    BlockSamplingTask,
-    GridSamplingTask,
-    MorphologicalStructFactory,
-    MorphologicalOperations,
-)
+from eolearn.ml_tools import FractionSamplingTask, BlockSamplingTask, GridSamplingTask
+from eolearn.geometry import MorphologicalStructFactory, MorphologicalOperations
 
 from ..core.config import Config
 from ..core.pipeline import Pipeline
@@ -107,7 +102,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
                     load_features.append((feature_type, feature_name))
 
             load_features.append(FeatureType.BBOX)
-            if any(FeatureType(feature_type).is_time_dependent() for feature_type in features):
+            if any(FeatureType(feature_type).is_temporal() for feature_type in features):
                 load_features.append(FeatureType.TIMESTAMP)
 
             load_task = LoadTask(
@@ -162,7 +157,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
         if self.config.mask_of_samples_name:
             output_features.append(self._get_mask_of_samples_feature())
 
-        if any(feature_type.is_time_dependent() for feature_type, _, _ in features_to_sample):
+        if any(feature_type.is_temporal() for feature_type, _, _ in features_to_sample):
             output_features.append(FeatureType.TIMESTAMP)
         return output_features
 
@@ -190,7 +185,7 @@ class BaseRandomSamplingPipeline(BaseSamplingPipeline, metaclass=abc.ABCMeta):
         generator = np.random.default_rng(seed=self.config.seed)
 
         for arg_index in range(len(self.patch_list)):
-            exec_args[arg_index][sampling_node] = dict(seed=generator.integers(low=0, high=2 ** 32))
+            exec_args[arg_index][sampling_node] = dict(seed=generator.integers(low=0, high=2**32))
 
         return exec_args
 

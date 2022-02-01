@@ -9,7 +9,7 @@ from fs.osfs import OSFS
 from fs.tempfs import TempFS
 
 from sentinelhub import SHConfig
-from eolearn.core.fs_utils import get_base_filesystem_and_path
+from eolearn.core.utils.fs import get_base_filesystem_and_path
 
 
 class LocalFile:

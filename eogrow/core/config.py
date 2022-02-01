@@ -13,7 +13,7 @@ from typing import Optional, Set, Dict, Callable, Tuple, Sequence, Union
 import rapidjson
 import fs.path
 from munch import Munch, munchify, unmunchify
-from eolearn.core.fs_utils import get_base_filesystem_and_path, join_path, get_full_path
+from eolearn.core.utils.fs import get_base_filesystem_and_path, join_path, get_full_path
 
 from ..utils.general import jsonify
 from ..utils.meta import get_os_import_path

@@ -12,7 +12,7 @@ import fs
 from fs.errors import FilesystemClosed
 from pydantic import Field
 from sentinelhub import SHConfig
-from eolearn.core.fs_utils import join_path
+from eolearn.core.utils.fs import join_path
 
 from .base import EOGrowObject
 from .config import Config

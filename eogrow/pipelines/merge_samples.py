@@ -9,8 +9,8 @@ import numpy as np
 from pydantic import Field
 
 from eolearn.core import FeatureType, linearly_connect_tasks, LoadTask, OutputTask, EOWorkflow, EOPatch
-from eolearn.core.fs_utils import get_full_path
-from eolearn.core.utilities import parse_features
+from eolearn.core.utils.fs import get_full_path
+from eolearn.core.utils.parsing import parse_features
 
 from ..core.pipeline import Pipeline
 from ..utils.types import Feature
