@@ -45,8 +45,6 @@ To make config files easier to write **`eo-grow`** uses a simple [config languag
 
 ### PyPi distribution
 
-**Unavailable until `eo-learn 1.0.0` release.** 
-
 The `eo-grow` package requires Python version `>= 3.8` and can be installed with
 
 ```

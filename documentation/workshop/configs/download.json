@@ -8,7 +8,7 @@
   ],
   "data_collection": "SENTINEL2_L1C",
   "resolution": 10,
-  "bands_feature": "BANDS",
+  "bands_feature_name": "BANDS",
   "maxcc": 1.0,
   "time_difference": 120,
   "threads_per_worker": 5
