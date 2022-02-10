@@ -28,5 +28,5 @@
     "save_logs": true,
     "show_logs": true
   },
-  "use_ray": true // false for local execution
+  "use_ray": "auto"
 }
