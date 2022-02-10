@@ -2,7 +2,6 @@
 Module with utilities for logging
 """
 import json
-import time  # deliberate mistake
 import logging
 import sys
 import time
