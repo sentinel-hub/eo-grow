@@ -51,8 +51,14 @@ jobs:
           pip install -e .[DEV]
 
       - name: Run fast tests
+        if: matrix.python-version != '3.9'
         run: |
           pytest -m "fast"
+
+      - name: Run fast and chain integration tests
+        if: matrix.python-version == '3.9'
+        run: |
+          pytest -m "fast or chain"
 
   mirror-to-gitlab:
     if: github.event_name == 'push'
