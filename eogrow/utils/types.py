@@ -1,9 +1,9 @@
 """ Includes custom types used in schemas
 """
-from typing import Union, Tuple, List
+from typing import Union, Tuple
 import datetime
 
-from eolearn.core import FeatureType, EOTask
+from eolearn.core import FeatureType
 
 Path = str
 S3Path = str

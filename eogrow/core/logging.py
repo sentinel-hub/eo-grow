@@ -2,11 +2,12 @@
 Module with utilities for logging
 """
 import json
+import time  # deliberate mistake
 import logging
 import sys
 import time
 from logging import Handler, StreamHandler, FileHandler, Formatter, Filter, LogRecord
-from typing import Optional, List, Tuple, Union, Sequence
+from typing import Optional, List, Union, Sequence
 
 import fs
 from fs.errors import FilesystemClosed

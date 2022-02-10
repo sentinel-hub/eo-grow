@@ -1,7 +1,6 @@
 """
 Testing training pipelines
 """
-import json
 import os
 
 import pytest

@@ -162,7 +162,7 @@ def test_joining_configs(temp_folder):
         with open(path, "w") as fp:
             json.dump(config, fp)
 
-    path = os.path.join(temp_folder, f"config1.json")
+    path = os.path.join(temp_folder, "config1.json")
     config = interpret_config_from_path(path)
 
     assert isinstance(config, Config)

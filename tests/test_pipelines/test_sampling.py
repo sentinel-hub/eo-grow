@@ -31,6 +31,6 @@ def test_sampling_pipeline(config_folder, config_name, stats_folder, stats_name)
         ("sampling_config.json", "sampling_stats.json"),
     ],
 )
-def test_sampling_pipeline(config_folder, config_name, stats_folder, stats_name):
+def test_sampling_chain(config_folder, config_name, stats_folder, stats_name):
     config = Config.from_path(os.path.join(config_folder, config_name))
     run_and_test_pipeline(config_folder, config_name, stats_folder, stats_name, config.output_folder_key)
