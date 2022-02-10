@@ -3,32 +3,38 @@
   "**global_config": "${config_path}/global_config.json",
   "input_folder_key": "reference",  // This one rasterizes from a vector feature, that is added in tests 
   "output_folder_key": "reference",
-  "resolution": 10,
   "vector_input": ["vector_timeless", "LULC_VECTOR"],
   "columns": [
     {
-      "column_name": "LULC_ID",
-      "output_feature": "LULC_ID",
-      "polygon_buffer": 0
+      "values_column": "LULC_ID",
+      "output_feature": ["mask_timeless", "LULC_ID"],
+      "resolution": 10,
+      "overlap_value": 0,
+      "dtype": "int16"
     },
     {
-      "column_name": "LULC_POLYGON_ID",
-      "output_feature": "LULC_POLYGON_ID",
-      "polygon_buffer": 0
+      "values_column": "LULC_POLYGON_ID",
+      "output_feature": ["mask_timeless", "LULC_POLYGON_ID"],
+      "resolution": 10,
+      "overlap_value": 0,
+      "dtype": "int16"
     },
     {
-      "column_name": "LULC_POLYGON_ID",
-      "output_feature": "LULC_POLYGON_ERODED_01",
+      "values_column": "LULC_POLYGON_ID",
+      "output_feature": ["mask_timeless", "LULC_POLYGON_ERODED_01"],
+      "resolution": 10,
+      "dtype": "int16",
+      "overlap_value": 0,
       "polygon_buffer": -10
     },
     {
-      "column_name": "LULC_POLYGON_ID",
-      "output_feature": "LULC_POLYGON_ERODED_02",
+      "values_column": "LULC_POLYGON_ID",
+      "output_feature": ["mask_timeless", "LULC_POLYGON_ERODED_02"],
+      "resolution": 10,
+      "dtype": "int16",
+      "overlap_value": 0,
       "polygon_buffer": -15
     }
   ],
-  "overlap_value": 0,
-  "dtype": "int16",
-  "no_data_value": 0,
   "workers": 2
 }
