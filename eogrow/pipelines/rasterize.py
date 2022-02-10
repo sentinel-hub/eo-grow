@@ -40,28 +40,25 @@ LOGGER = logging.getLogger(__name__)
 class VectorColumnSchema(BaseSchema):
     """Parameter structure for individual feature / dataset column to be rasterized"""
 
+    value: Optional[float] = Field(
+        description="Value to use for all rasterized polygons. Use either this or `values_column`."
+    )
     values_column: Optional[str] = Field(
         description=(
             "GeoPandas dataframe column name from which to read values for geometries. Use either this or `value`."
         )
-    )
-    value: Optional[float] = Field(
-        description="Value to use for all rasterized polygons. Use either this or `values_column`."
     )
     output_feature: Feature = Field(description="Output feature of rasterization.")
     polygon_buffer: float = Field(0, description="The size of polygon buffering to be applied before rasterization.")
     resolution: float = Field(description="Rendering resolution in meters.")
     overlap_value: Optional[int] = Field(description="Value to write over the areas where polygons overlap.")
     dtype: str = Field("int32", description="Numpy dtype of the output feature.")
-    no_data_value: int = Field(0, description="The no_data_value argument to be passed to VectorToRasterTaskTask")
+    no_data_value: int = Field(0, description="The no_data_value argument to be passed to VectorToRasterTask")
 
-    @validator("value")
+    @validator("values_column")
     def check_value_settings(cls, v, values):  # pylint ignore:invalid-name,no-self-use,no-self-argument
         """Ensures that precisely one of `value` and `values_column` is set."""
-        if values["values_column"] is None:
-            assert v is not None, "Only one of `values_column` and `value` should be given."
-        else:
-            assert v is None, "Only one of `values_column` and `value` should be given."
+        assert (v is None) != (values["value"] is None), "Only one of `values_column` and `value` should be given."
         return v
 
 
