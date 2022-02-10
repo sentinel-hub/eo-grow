@@ -14,11 +14,18 @@ jobs:
         if: github.event_name == 'push'
         uses: actions/checkout@v2
 
-      - name: Check code is compliant with black formatter
+      - name: Setup Python
         if: github.event_name == 'push'
-        uses: psf/black@stable
+        uses: actions/setup-python@v2
         with:
-          options: "--line-length 120 --check --experimental-string-processing"
+          python-version: "3.8"
+          architecture: x64
+      
+      - name: Run black
+        if: github.event_name == 'push'
+        run: |
+          pip install black[jupyter]
+          black . --check --diff
   
   check-code-flake8:
     runs-on: ubuntu-latest
