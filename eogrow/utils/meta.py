@@ -1,16 +1,21 @@
 """
 Utilities for solving different problems in `eo-grow` package structure, which are mostly a pure Python magic.
 """
+from __future__ import annotations
+
 import importlib
 import inspect
-from typing import Any, Type, Dict
+from typing import Any, Type, Dict, TYPE_CHECKING
 
 from pydantic import BaseModel
+
+if TYPE_CHECKING:
+    from ..core.pipeline import Pipeline
 
 _PIPELINE_PARAM_NAME = "pipeline"
 
 
-def load_pipeline(config: dict) -> "eogrow.core.pipeline.Pipeline":
+def load_pipeline(config: dict) -> Pipeline:
     """Given a config object it loads and initializes a pipeline object referenced in the config"""
     pipeline_class_name = config.get(_PIPELINE_PARAM_NAME)
     if pipeline_class_name is None:

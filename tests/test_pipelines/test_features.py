@@ -24,7 +24,7 @@ def test_features_pipeline(config_folder, config_name, stats_folder, stats_name)
 
 
 @pytest.mark.chain
-@pytest.mark.order(after="test_sampling.py::test_sampling_pipeline")
+@pytest.mark.order(after="test_sampling.py::test_sampling_chain")
 @pytest.mark.parametrize(
     "config_name, stats_name",
     [
