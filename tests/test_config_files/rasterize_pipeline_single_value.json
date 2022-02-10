@@ -5,7 +5,8 @@
   "output_folder_key": "reference",
   "resolution": 10,
   "vector_input": "test_area_crops.geojson",
-  "values_column": "CROP_ID",
-  "output_feature": ["mask_timeless", "CROP_ID"],
-  "preprocess_dataset": {}
+  "output_feature": ["data_timeless", "DUMMY_FEATURE"],
+  "value": 5.3,
+  "dtype": "float32",
+  "no_data_value": 0
 }

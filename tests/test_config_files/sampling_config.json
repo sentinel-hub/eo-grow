@@ -6,8 +6,7 @@
   "apply_to": {
     "reference": {
       "mask_timeless": [
-        "LULC_ID",
-        "POLYGON_ID"
+        "LULC_ID"
       ]
     },
     "data": {

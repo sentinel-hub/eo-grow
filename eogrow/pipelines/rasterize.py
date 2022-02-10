@@ -19,7 +19,6 @@ from eolearn.core import (
     SaveTask,
     OverwritePermission,
     EONode,
-    MergeEOPatchesTask,
 )
 from eolearn.io import VectorImportTask
 from eolearn.geometry import VectorToRasterTask
@@ -33,16 +32,18 @@ from ..utils.fs import LocalFile
 from ..utils.vector import concat_gdf
 from ..utils.types import Feature
 from ..utils.filter import get_patches_without_all_features
+from ..utils.validators import field_validator
 
 LOGGER = logging.getLogger(__name__)
 
 
-class VectorColumnSchema(BaseSchema):
-    """Parameter structure for individual feature / dataset column to be rasterized"""
-
-    column_name: str = Field(description="GeoPandas dataframe column name from which to read geometry.")
-    output_feature: str = Field(description="Name of the rasterization output feature.")
-    polygon_buffer: float = Field(description="The size of polygon buffering to be applied before rasterization.")
+def check_value_settings(cls, v, values):  # pylint ignore:invalid-name
+    """Ensures that precisely one of `value` and `values_column` is set."""
+    if values["values_column"] is None:
+        assert v is not None, "Only one of `values_column` and `value` should be given."
+    else:
+        assert v is None, "Only one of `values_column` and `value` should be given."
+    return v
 
 
 class Preprocessing(BaseSchema):
@@ -70,11 +71,25 @@ class RasterizePipeline(Pipeline):
         dataset_layer: Optional[str] = Field(
             description="Name of a layer with data to be rasterized in a multi-layer file."
         )
-        columns: List[VectorColumnSchema]
+        output_feature: Feature = Field(description="Output feature of the rasterization.")
+
+        values_column: Optional[str] = Field(
+            description=(
+                "GeoPandas dataframe column name from which to read values for geometries. Use either this or `value`."
+            )
+        )
+        value: Optional[float] = Field(
+            description="Value to use for all rasterized polygons. Use either this or `column_name`."
+        )
+        validate_values = field_validator("value", check_value_settings)
+
+        polygon_buffer: float = Field(
+            0, description="The size of polygon buffering to be applied before rasterization."
+        )
         resolution: float = Field(description="Rendering resolution in meters.")
         overlap_value: Optional[int] = Field(description="Value to write over the areas where polygons overlap.")
-        dtype: str = Field("int32", description="Numpy dtype of the output feature.")
         no_data_value: int = Field(0, description="The no_data_value argument to be passed to VectorToRasterTaskTask")
+        dtype: str = Field("int32", description="Numpy dtype of the output feature.")
         preprocess_dataset: Optional[Preprocessing] = Field(
             description=(
                 "Parameters used by self.preprocess_dataset method. If set to `None` it skips the dataframe preprocess"
@@ -175,26 +190,20 @@ class RasterizePipeline(Pipeline):
     def get_rasterization_node(self, previous_node: EONode) -> EONode:
         """Builds nodes containing rasterization tasks"""
 
-        rasterization_nodes = [
-            EONode(
-                inputs=[previous_node],
-                task=VectorToRasterTask(
-                    values_column=column.column_name,
-                    raster_feature=(FeatureType.MASK_TIMELESS, column.output_feature),
-                    buffer=column.polygon_buffer,
-                    vector_input=self.vector_feature,
-                    raster_resolution=self.config.resolution,
-                    raster_dtype=np.dtype(self.config.dtype),
-                    no_data_value=self.config.no_data_value,
-                    overlap_value=self.config.overlap_value,
-                ),
-            )
-            for column in self.config.columns
-        ]
-
-        if len(rasterization_nodes) == 1:
-            return rasterization_nodes[0]
-        return EONode(MergeEOPatchesTask(), inputs=rasterization_nodes)
+        return EONode(
+            inputs=[previous_node],
+            task=VectorToRasterTask(
+                vector_input=self.vector_feature,
+                raster_feature=self.config.output_feature,
+                values=self.config.value,
+                values_column=self.config.values_column,
+                buffer=self.config.polygon_buffer,
+                raster_resolution=self.config.resolution,
+                raster_dtype=np.dtype(self.config.dtype),
+                no_data_value=self.config.no_data_value,
+                overlap_value=self.config.overlap_value,
+            ),
+        )
 
     def get_postrasterization_node(self, previous_node: EONode) -> EONode:  # pylint: disable=no-self-use
         """Builds node with tasks to be applied after rasterization"""
@@ -221,6 +230,4 @@ class RasterizePipeline(Pipeline):
 
     def _get_output_features(self) -> List[Feature]:
         """Lists all features that are to be saved upon the pipeline completion"""
-        base_features = [FeatureType.BBOX]
-        rasterized_features = [(FeatureType.MASK_TIMELESS, column.output_feature) for column in self.config.columns]
-        return base_features + rasterized_features
+        return [FeatureType.BBOX, self.config.output_feature]
