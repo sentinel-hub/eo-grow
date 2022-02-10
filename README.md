@@ -1,3 +1,10 @@
+[![Package version](https://badge.fury.io/py/eo-grow.svg)](https://pypi.org/project/eo-grow)
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/eo-grow.svg?style=flat-square)](https://pypi.org/project/eo-grow)
+[![Build Status](https://github.com/sentinel-hub/eo-grow/actions/workflows/ci_action.yml/badge.svg?branch=master)](https://github.com/sentinel-hub/eo-grow/actions)
+[![License](https://img.shields.io/pypi/l/eo-grow.svg)](https://github.com/sentinel-hub/eo-grow/blob/master/LICENSE)
+[![Overall downloads](http://pepy.tech/badge/eo-grow)](https://pepy.tech/project/eo-grow)
+[![Last month downloads](https://pepy.tech/badge/eo-grow/month)](https://pepy.tech/project/eo-grow)
+
 # eo-grow
 **Earth observation framework for scaled-up processing in Python.**
 
