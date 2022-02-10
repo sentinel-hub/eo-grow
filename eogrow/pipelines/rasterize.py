@@ -10,7 +10,7 @@ import fiona
 import fs
 import numpy as np
 import geopandas as gpd
-from pydantic import Field
+from pydantic import Field, validator
 from eolearn.core import (
     EOWorkflow,
     FeatureType,
@@ -40,9 +40,29 @@ LOGGER = logging.getLogger(__name__)
 class VectorColumnSchema(BaseSchema):
     """Parameter structure for individual feature / dataset column to be rasterized"""
 
-    column_name: str = Field(description="GeoPandas dataframe column name from which to read geometry.")
-    output_feature: str = Field(description="Name of the rasterization output feature.")
-    polygon_buffer: float = Field(description="The size of polygon buffering to be applied before rasterization.")
+    values_column: Optional[str] = Field(
+        description=(
+            "GeoPandas dataframe column name from which to read values for geometries. Use either this or `value`."
+        )
+    )
+    value: Optional[float] = Field(
+        description="Value to use for all rasterized polygons. Use either this or `values_column`."
+    )
+    output_feature: Feature = Field(description="Output feature of rasterization.")
+    polygon_buffer: float = Field(0, description="The size of polygon buffering to be applied before rasterization.")
+    resolution: float = Field(description="Rendering resolution in meters.")
+    overlap_value: Optional[int] = Field(description="Value to write over the areas where polygons overlap.")
+    dtype: str = Field("int32", description="Numpy dtype of the output feature.")
+    no_data_value: int = Field(0, description="The no_data_value argument to be passed to VectorToRasterTaskTask")
+
+    @validator("value")
+    def check_value_settings(cls, v, values):  # pylint ignore:invalid-name,no-self-use,no-self-argument
+        """Ensures that precisely one of `value` and `values_column` is set."""
+        if values["values_column"] is None:
+            assert v is not None, "Only one of `values_column` and `value` should be given."
+        else:
+            assert v is None, "Only one of `values_column` and `value` should be given."
+        return v
 
 
 class Preprocessing(BaseSchema):
@@ -71,10 +91,6 @@ class RasterizePipeline(Pipeline):
             description="Name of a layer with data to be rasterized in a multi-layer file."
         )
         columns: List[VectorColumnSchema]
-        resolution: float = Field(description="Rendering resolution in meters.")
-        overlap_value: Optional[int] = Field(description="Value to write over the areas where polygons overlap.")
-        dtype: str = Field("int32", description="Numpy dtype of the output feature.")
-        no_data_value: int = Field(0, description="The no_data_value argument to be passed to VectorToRasterTaskTask")
         preprocess_dataset: Optional[Preprocessing] = Field(
             description=(
                 "Parameters used by self.preprocess_dataset method. If set to `None` it skips the dataframe preprocess"
@@ -179,14 +195,15 @@ class RasterizePipeline(Pipeline):
             EONode(
                 inputs=[previous_node],
                 task=VectorToRasterTask(
-                    values_column=column.column_name,
-                    raster_feature=(FeatureType.MASK_TIMELESS, column.output_feature),
-                    buffer=column.polygon_buffer,
                     vector_input=self.vector_feature,
-                    raster_resolution=self.config.resolution,
-                    raster_dtype=np.dtype(self.config.dtype),
-                    no_data_value=self.config.no_data_value,
-                    overlap_value=self.config.overlap_value,
+                    raster_feature=column.output_feature,
+                    values_column=column.values_column,
+                    values=column.value,
+                    buffer=column.polygon_buffer,
+                    raster_resolution=column.resolution,
+                    raster_dtype=np.dtype(column.dtype),
+                    no_data_value=column.no_data_value,
+                    overlap_value=column.overlap_value,
                 ),
             )
             for column in self.config.columns
@@ -222,5 +239,5 @@ class RasterizePipeline(Pipeline):
     def _get_output_features(self) -> List[Feature]:
         """Lists all features that are to be saved upon the pipeline completion"""
         base_features = [FeatureType.BBOX]
-        rasterized_features = [(FeatureType.MASK_TIMELESS, column.output_feature) for column in self.config.columns]
+        rasterized_features = [column.output_feature for column in self.config.columns]
         return base_features + rasterized_features
