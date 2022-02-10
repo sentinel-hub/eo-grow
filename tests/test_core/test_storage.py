@@ -8,7 +8,7 @@ from fs.osfs import OSFS
 from eogrow.core.config import Config
 from eogrow.core.storage import StorageManager
 
-# pytestmark = pytest.mark.fast
+pytestmark = pytest.mark.fast
 
 
 @pytest.fixture(scope="session", name="local_storage_manager")
