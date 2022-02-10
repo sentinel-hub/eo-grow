@@ -58,6 +58,9 @@ jobs:
       - name: Run fast and chain integration tests
         if: matrix.python-version == '3.9'
         run: |
+          sentinelhub.config \
+            --sh_client_id "${{ secrets.SH_CLIENT_ID }}" \
+            --sh_client_secret "${{ secrets.SH_CLIENT_SECRET }}"
           pytest -m "fast or chain"
 
   mirror-to-gitlab:
