@@ -5,8 +5,9 @@ import pytest
 from geopandas import GeoDataFrame
 
 from sentinelhub import BBox, Geometry
-from eogrow.core.config import Config
+
 from eogrow.core.area import UtmZoneAreaManager
+from eogrow.core.config import Config
 from eogrow.utils.vector import count_points
 
 pytestmark = pytest.mark.fast

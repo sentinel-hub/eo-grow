@@ -1,12 +1,13 @@
 """
 Tests for general utilities
 """
-import json
 import datetime as dt
+import json
 
 import pytest
-from sentinelhub import DataCollection
+
 from eolearn.core import FeatureType
+from sentinelhub import DataCollection
 
 from eogrow.utils.enum import BaseEOGrowEnum
 from eogrow.utils.general import jsonify

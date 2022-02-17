@@ -3,8 +3,8 @@ Unit tests for DownloadPipeline
 """
 import os
 
-from pydantic import ValidationError
 import pytest
+from pydantic import ValidationError
 
 from eogrow.core.config import Config
 from eogrow.utils.testing import run_and_test_pipeline

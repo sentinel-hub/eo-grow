@@ -1,8 +1,9 @@
 from typing import Type
+
 from pydantic import BaseModel
 
-from .config import Config
 from ..utils.meta import collect_schema
+from .config import Config
 
 
 class EOGrowObject:

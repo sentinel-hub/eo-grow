@@ -3,8 +3,8 @@ Testing training pipelines
 """
 import os
 
-import pytest
 import joblib
+import pytest
 
 from eogrow.core.config import Config
 from eogrow.pipelines.training import ClassificationTrainingPipeline

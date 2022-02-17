@@ -1,38 +1,39 @@
 """
 A pipeline module for rasterizing vector datasets.
 """
-import os
 import logging
+import os
 import uuid
-from typing import List, Optional, Union, Tuple
+from typing import List, Optional, Tuple, Union
 
 import fiona
 import fs
-import numpy as np
 import geopandas as gpd
+import numpy as np
 from pydantic import Field, validator
+
 from eolearn.core import (
+    CreateEOPatchTask,
+    EONode,
     EOWorkflow,
     FeatureType,
-    CreateEOPatchTask,
     LoadTask,
-    SaveTask,
-    OverwritePermission,
-    EONode,
     MergeEOPatchesTask,
+    OverwritePermission,
+    SaveTask,
 )
-from eolearn.io import VectorImportTask
-from eolearn.geometry import VectorToRasterTask
 from eolearn.core.utils.fs import join_path
 from eolearn.core.utils.parsing import parse_feature
+from eolearn.geometry import VectorToRasterTask
+from eolearn.io import VectorImportTask
 
 from ..core.config import Config
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
-from ..utils.fs import LocalFile
-from ..utils.vector import concat_gdf
-from ..utils.types import Feature
 from ..utils.filter import get_patches_without_all_features
+from ..utils.fs import LocalFile
+from ..utils.types import Feature
+from ..utils.vector import concat_gdf
 
 LOGGER = logging.getLogger(__name__)
 

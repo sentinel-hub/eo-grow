@@ -1,27 +1,27 @@
 """
 Conversion of batch results to EOPatches
 """
-from typing import Optional, List, Dict
+from typing import Dict, List, Optional
 
 import fs
 from pydantic import Field
 
 from eolearn.core import (
-    FeatureType,
-    EOWorkflow,
     EONode,
-    SaveTask,
-    OverwritePermission,
-    MergeFeatureTask,
-    RemoveFeature,
+    EOWorkflow,
+    FeatureType,
     MergeEOPatchesTask,
+    MergeFeatureTask,
+    OverwritePermission,
+    RemoveFeature,
+    SaveTask,
 )
-from eolearn.io import ImportFromTiff
 from eolearn.features import LinearFunctionTask
+from eolearn.io import ImportFromTiff
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
-from ..tasks.batch_to_eopatch import LoadUserDataTask, FixImportedTimeDependentFeatureTask, DeleteFilesTask
+from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
 
 
 class FeatureMappingSchema(BaseSchema):

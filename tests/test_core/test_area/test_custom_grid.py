@@ -1,9 +1,10 @@
 import pytest
 from geopandas import GeoDataFrame
 
-from sentinelhub import BBox, Geometry, CRS
-from eogrow.core.config import Config
+from sentinelhub import CRS, BBox, Geometry
+
 from eogrow.core.area import CustomGridAreaManager
+from eogrow.core.config import Config
 
 pytestmark = pytest.mark.fast
 

@@ -3,9 +3,9 @@ from tempfile import NamedTemporaryFile
 
 import pytest
 
-from eogrow.core.area import UtmZoneAreaManager, CustomGridAreaManager
+from eogrow.core.area import CustomGridAreaManager, UtmZoneAreaManager
 from eogrow.core.config import Config
-from eogrow.core.eopatch import EOPatchManager, CustomGridEOPatchManager
+from eogrow.core.eopatch import CustomGridEOPatchManager, EOPatchManager
 
 pytestmark = pytest.mark.fast
 

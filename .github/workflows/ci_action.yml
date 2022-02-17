@@ -47,6 +47,26 @@ jobs:
           pip install flake8
           flake8
 
+  check-code-isort:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out current branch
+        if: github.event_name == 'push'
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        if: github.event_name == 'push'
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+          architecture: x64
+      
+      - name: Run isort
+        if: github.event_name == 'push'
+        run: |
+          pip install isort
+          isort . --diff --check
+
   test-on-github:
     runs-on: ubuntu-latest
     strategy:

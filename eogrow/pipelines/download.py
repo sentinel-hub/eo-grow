@@ -1,31 +1,32 @@
 """
 Module implementing pipelines for downloading data
 """
+import abc
 import datetime as dt
 import logging
-import abc
-from typing import Optional, List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 from pydantic import Field
-from sentinelhub import DataCollection, read_data, MimeType, Band, Unit
-from eolearn.core import FeatureType, OverwritePermission, EOWorkflow, EONode, SaveTask
-from eolearn.io import SentinelHubInputTask, SentinelHubDemTask, SentinelHubEvalscriptTask
+
+from eolearn.core import EONode, EOWorkflow, FeatureType, OverwritePermission, SaveTask
 from eolearn.features import LinearFunctionTask
+from eolearn.io import SentinelHubDemTask, SentinelHubEvalscriptTask, SentinelHubInputTask
+from sentinelhub import Band, DataCollection, MimeType, Unit, read_data
 
 from ..core.config import Config
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
+from ..utils.filter import get_patches_without_all_features
+from ..utils.types import Feature, Path, TimePeriod
 from ..utils.validators import (
     field_validator,
     optional_field_validator,
-    parse_time_period,
     parse_data_collection,
+    parse_time_period,
     validate_mosaicking_order,
     validate_resampling,
 )
-from ..utils.types import TimePeriod, Path, Feature
-from ..utils.filter import get_patches_without_all_features
 
 LOGGER = logging.getLogger(__name__)
 

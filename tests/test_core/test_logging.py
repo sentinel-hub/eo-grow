@@ -9,9 +9,9 @@ from fs.tempfs import TempFS
 from fs_s3fs import S3FS
 from moto import mock_s3
 
-from eolearn.core import EOTask, EOWorkflow, EONode, EOExecutor
+from eolearn.core import EOExecutor, EONode, EOTask, EOWorkflow
 
-from eogrow.core.logging import EOExecutionHandler, RegularBackupHandler, EOExecutionFilter
+from eogrow.core.logging import EOExecutionFilter, EOExecutionHandler, RegularBackupHandler
 
 pytestmark = pytest.mark.fast
 

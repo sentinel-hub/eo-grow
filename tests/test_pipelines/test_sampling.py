@@ -2,6 +2,7 @@
 Unit tests for sampling pipeline
 """
 import os
+
 import pytest
 
 from eogrow.core.config import Config

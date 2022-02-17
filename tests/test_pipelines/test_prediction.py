@@ -2,6 +2,7 @@
 Tests for prediction pipeline
 """
 import os
+
 import pytest
 
 from eogrow.core.config import Config

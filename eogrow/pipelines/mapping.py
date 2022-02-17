@@ -2,8 +2,10 @@
 Pipelines that transform data
 """
 from typing import Dict
+
 from pydantic import Field
-from eolearn.core import LoadTask, EOWorkflow, linearly_connect_tasks, SaveTask, FeatureType, OverwritePermission
+
+from eolearn.core import EOWorkflow, FeatureType, LoadTask, OverwritePermission, SaveTask, linearly_connect_tasks
 
 from ..core.pipeline import Pipeline
 from ..tasks.common import MappingTask

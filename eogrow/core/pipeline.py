@@ -1,25 +1,26 @@
 """
 Module where base Pipeline class is implemented
 """
+import datetime as dt
 import functools
 import logging
-import uuid
 import time
+import uuid
 import warnings
-import datetime as dt
-from typing import List, Union, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 import ray
-from eolearn.core import CreateEOPatchTask, SaveTask, LoadTask, EOExecutor, EOWorkflow, WorkflowResults
+
+from eolearn.core import CreateEOPatchTask, EOExecutor, EOWorkflow, LoadTask, SaveTask, WorkflowResults
 from eolearn.core.extra.ray import RayExecutor
 
-from .base import EOGrowObject
-from .storage import StorageManager
-from .area.base import AreaManager
-from .eopatch import EOPatchManager
-from .logging import LoggingManager, EOExecutionHandler, EOExecutionFilter
-from .schemas import PipelineSchema
 from ..utils.meta import import_object
+from .area.base import AreaManager
+from .base import EOGrowObject
+from .eopatch import EOPatchManager
+from .logging import EOExecutionFilter, EOExecutionHandler, LoggingManager
+from .schemas import PipelineSchema
+from .storage import StorageManager
 
 LOGGER = logging.getLogger(__name__)
 

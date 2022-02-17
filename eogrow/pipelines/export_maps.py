@@ -1,19 +1,20 @@
 """
 Module implementing export_maps pipelines
 """
-import logging
 import itertools as it
-from typing import List, Optional, Literal, Tuple
+import logging
+from typing import List, Literal, Optional, Tuple
 
-import numpy as np
 import fs
 import fs.copy
+import numpy as np
 from fs.tempfs import TempFS
 from pydantic import Field
-from eolearn.io import ExportToTiffTask
-from eolearn.core import LoadTask, EOWorkflow, FeatureType, linearly_connect_tasks
-from eolearn.core.utils.fs import join_path, get_full_path
+
+from eolearn.core import EOWorkflow, FeatureType, LoadTask, linearly_connect_tasks
+from eolearn.core.utils.fs import get_full_path, join_path
 from eolearn.features import LinearFunctionTask
+from eolearn.io import ExportToTiffTask
 
 from ..core.pipeline import Pipeline
 from ..utils.map import merge_maps

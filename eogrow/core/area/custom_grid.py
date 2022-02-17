@@ -11,10 +11,10 @@ from pydantic import Field
 
 from sentinelhub import CRS, Geometry
 
-from .base import AreaManager
-from ..schemas import ManagerSchema
-from ...utils.vector import concat_gdf
 from ...utils.types import Path
+from ...utils.vector import concat_gdf
+from ..schemas import ManagerSchema
+from .base import AreaManager
 
 LOGGER = logging.getLogger(__name__)
 

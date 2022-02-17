@@ -3,10 +3,10 @@ Module containing useful utilities for working with vector data
 """
 from typing import List, Union
 
-import pandas as pd
 import geopandas as gpd
+import pandas as pd
 from geopandas import GeoDataFrame
-from shapely.geometry import Polygon, MultiPolygon
+from shapely.geometry import MultiPolygon, Polygon
 
 from sentinelhub import CRS
 

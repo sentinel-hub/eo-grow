@@ -1,7 +1,7 @@
 """ Includes custom types used in schemas
 """
-from typing import Union, Tuple
 import datetime
+from typing import Tuple, Union
 
 from eolearn.core import FeatureType
 

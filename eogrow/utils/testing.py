@@ -1,16 +1,16 @@
 """
 Module implementing utilities for unit testing pipeline results
 """
-import os
-import json
 import functools
-from typing import Tuple, Optional, Dict, List
+import json
+import os
+from typing import Dict, List, Optional, Tuple
 
 import fs
-import pandas as pd
-import shapely.ops
 import numpy as np
+import pandas as pd
 import rasterio
+import shapely.ops
 from deepdiff import DeepDiff
 
 from eolearn.core import EOPatch, FeatureType

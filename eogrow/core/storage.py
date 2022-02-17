@@ -1,14 +1,14 @@
 """
 This module handles everything regarding storage of the data
 """
-from typing import Optional, Dict, List
 from io import StringIO
+from typing import Dict, List, Optional
 
 import fs
 from pydantic import Field
 
+from eolearn.core.utils.fs import get_aws_credentials, get_filesystem, is_s3_path
 from sentinelhub import SHConfig
-from eolearn.core.utils.fs import get_filesystem, is_s3_path, get_aws_credentials
 
 from .base import EOGrowObject
 from .schemas import ManagerSchema

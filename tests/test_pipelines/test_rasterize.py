@@ -3,13 +3,14 @@ Testing rasterization pipeline
 """
 import os
 
-import pytest
 import geopandas as gpd
-from eolearn.core import FeatureType, EOPatch, MapFeatureTask, EONode
+import pytest
+
+from eolearn.core import EONode, EOPatch, FeatureType, MapFeatureTask
 
 from eogrow.core.config import Config
-from eogrow.utils.testing import ContentTester, check_pipeline_logs, run_and_test_pipeline
 from eogrow.pipelines.rasterize import RasterizePipeline
+from eogrow.utils.testing import ContentTester, check_pipeline_logs, run_and_test_pipeline
 
 
 class CropPreprocessTask(MapFeatureTask):

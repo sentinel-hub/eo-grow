@@ -6,7 +6,7 @@ from typing import List
 from geopandas.geodataframe import GeoDataFrame
 from pydantic import Field
 
-from sentinelhub import BBox, SentinelHubBatch, BatchSplitter, BatchRequestStatus
+from sentinelhub import BatchRequestStatus, BatchSplitter, BBox, SentinelHubBatch
 from sentinelhub.sentinelhub_batch import BatchRequest
 
 from .base import AreaManager
