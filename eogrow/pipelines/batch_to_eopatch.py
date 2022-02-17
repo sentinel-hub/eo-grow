@@ -13,11 +13,11 @@ from eolearn.core import (
     MergeEOPatchesTask,
     MergeFeatureTask,
     OverwritePermission,
-    RemoveFeature,
+    RemoveFeatureTask,
     SaveTask,
 )
 from eolearn.features import LinearFunctionTask
-from eolearn.io import ImportFromTiff
+from eolearn.io import ImportFromTiffTask
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
@@ -133,7 +133,9 @@ class BatchToEOPatchPipeline(Pipeline):
                 FeatureType.MASK_TIMELESS if feature_type.is_discrete() else FeatureType.DATA_TIMELESS
             ), feature[1]
 
-            import_task = ImportFromTiff(tmp_timeless_feature, folder=self._processing_folder, config=self.sh_config)
+            import_task = ImportFromTiffTask(
+                tmp_timeless_feature, folder=self._processing_folder, config=self.sh_config
+            )
             # Filename is written into the dependency name to be used later for execution arguments:
             import_node = EONode(import_task, inputs=[previous_node], name=f"{batch_file} import")
 
@@ -152,7 +154,7 @@ class BatchToEOPatchPipeline(Pipeline):
         merge_feature_task = MergeFeatureTask(input_features=tmp_features, output_feature=final_feature)
         merge_node = EONode(merge_feature_task, inputs=[previous_node])
 
-        end_node = EONode(RemoveFeature(tmp_features), inputs=[merge_node])
+        end_node = EONode(RemoveFeatureTask(tmp_features), inputs=[merge_node])
 
         if mapping.multiply_factor is not None:
             multiply_task = LinearFunctionTask(final_feature, slope=mapping.multiply_factor)
@@ -173,7 +175,7 @@ class BatchToEOPatchPipeline(Pipeline):
 
         for name, single_exec_dict in zip(self.patch_list, exec_args):
             for node in nodes:
-                if isinstance(node.task, ImportFromTiff):
+                if isinstance(node.task, ImportFromTiffTask):
                     filename = node.name.split()[0]
                     path = f"{name}/{filename}"
                     single_exec_dict[node] = dict(filename=path)

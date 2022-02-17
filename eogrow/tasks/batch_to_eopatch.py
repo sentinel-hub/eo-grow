@@ -57,7 +57,7 @@ class LoadUserDataTask(EOTask):
 
         return [parse_time(time_string, force_datetime=True, ignoretz=True) for time_string in time_strings]
 
-    def execute(self, eopatch: Optional[EOPatch], *, folder: str) -> EOPatch:
+    def execute(self, eopatch: Optional[EOPatch] = None, *, folder: str = "") -> EOPatch:
         """Adds metadata to the given EOPatch
 
         :param eopatch: Name of the eopatch to process
