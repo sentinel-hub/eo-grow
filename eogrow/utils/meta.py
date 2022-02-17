@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import importlib
 import inspect
-from typing import Any, Type, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Type
 
 from pydantic import BaseModel
 

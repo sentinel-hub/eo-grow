@@ -2,10 +2,11 @@
 Unit tests for FeaturesPipeline
 """
 import os
+
 import pytest
 
-from eogrow.utils.testing import run_and_test_pipeline
 from eogrow.core.config import Config
+from eogrow.utils.testing import run_and_test_pipeline
 
 
 @pytest.mark.order(after="test_download.py::test_download_pipeline")

@@ -8,8 +8,8 @@ import fs.copy
 from fs.osfs import OSFS
 from fs.tempfs import TempFS
 
-from sentinelhub import SHConfig
 from eolearn.core.utils.fs import get_base_filesystem_and_path
+from sentinelhub import SHConfig
 
 
 class LocalFile:

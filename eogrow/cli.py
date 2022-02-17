@@ -9,11 +9,10 @@ from typing import Optional, Tuple
 import click
 
 from .core.config import Config, get_config_from_string, interpret_config_from_path
-from .core.schemas import build_schema_template, build_minimal_template
+from .core.schemas import build_minimal_template, build_schema_template
 from .pipelines.testing import TestPipeline
 from .utils.general import jsonify
-from .utils.meta import load_pipeline, import_object, collect_schema
-
+from .utils.meta import collect_schema, import_object, load_pipeline
 
 variables_option = click.option(
     "-v",

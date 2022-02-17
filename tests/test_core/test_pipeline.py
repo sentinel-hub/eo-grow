@@ -1,15 +1,15 @@
 """
 Testing basic pipeline functionalities
 """
-import os
 import logging
+import os
 
 import pytest
 
 from eolearn.core import EOWorkflow
 
-from eogrow.core.pipeline import Pipeline
 from eogrow.core.config import interpret_config_from_path
+from eogrow.core.pipeline import Pipeline
 
 pytestmark = pytest.mark.fast
 

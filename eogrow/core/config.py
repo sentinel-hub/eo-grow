@@ -5,15 +5,16 @@ import base64
 import binascii
 import copy
 import json
-import pprint
 import os
+import pprint
 import re
-from typing import Optional, Set, Dict, Callable, Tuple, Sequence, Union
+from typing import Callable, Dict, Optional, Sequence, Set, Tuple, Union
 
-import rapidjson
 import fs.path
+import rapidjson
 from munch import Munch, munchify, unmunchify
-from eolearn.core.utils.fs import get_base_filesystem_and_path, join_path, get_full_path
+
+from eolearn.core.utils.fs import get_base_filesystem_and_path, get_full_path, join_path
 
 from ..utils.general import jsonify
 from ..utils.meta import get_os_import_path

@@ -5,23 +5,24 @@ import json
 import logging
 import sys
 import time
-from logging import Handler, StreamHandler, FileHandler, Formatter, Filter, LogRecord
-from typing import Optional, List, Union, Sequence
+from logging import FileHandler, Filter, Formatter, Handler, LogRecord, StreamHandler
+from typing import List, Optional, Sequence, Union
 
 import fs
 from fs.errors import FilesystemClosed
 from pydantic import Field
-from sentinelhub import SHConfig
-from eolearn.core.utils.fs import join_path
 
-from .base import EOGrowObject
-from .config import Config
-from .schemas import ManagerSchema
-from .storage import StorageManager
+from eolearn.core.utils.fs import join_path
+from sentinelhub import SHConfig
+
 from ..utils.fs import LocalFile
 from ..utils.general import jsonify
 from ..utils.logging import get_instance_info
 from ..utils.meta import get_package_versions
+from .base import EOGrowObject
+from .config import Config
+from .schemas import ManagerSchema
+from .storage import StorageManager
 
 
 class LoggingManager(EOGrowObject):

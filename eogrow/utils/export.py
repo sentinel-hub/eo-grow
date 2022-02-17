@@ -2,11 +2,12 @@
 Utilities for exporting data
 """
 import logging
-from typing import Optional, List, Dict
+from typing import Dict, List, Optional
 
 import fs.base
 import geopandas as gpd
 import numpy as np
+
 from sentinelhub import BBox
 
 from .fs import LocalFile

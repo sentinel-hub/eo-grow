@@ -1,9 +1,10 @@
 """
 Common tasks shared between pipelines
 """
-from typing import List, Optional, Union, Callable
+from typing import Callable, List, Optional, Union
 
 import numpy as np
+
 from eolearn.core import EOPatch, EOTask, MapFeatureTask
 from eolearn.geometry import MorphologicalOperations
 

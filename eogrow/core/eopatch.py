@@ -3,15 +3,15 @@ Module for handling EOPatch naming conventions
 """
 import json
 import os
-from typing import Optional, List, Union, cast, Dict
 import warnings
+from typing import Dict, List, Optional, Union, cast
 
 import bidict
 import pandas
 from geopandas import GeoDataFrame
 from pydantic import Field
 
-from sentinelhub import BBox, CRS
+from sentinelhub import CRS, BBox
 
 from .area.base import AreaManager
 from .base import EOGrowObject

@@ -1,15 +1,16 @@
 """
 Tasks used to transform Sentinel Hub Batch results into EOPatches
 """
-import json
 import concurrent.futures
-from typing import Optional, List
+import json
+from typing import List, Optional
 
 import fs
 import numpy as np
-from sentinelhub import parse_time, SHConfig
+
 from eolearn.core import EOPatch, EOTask
 from eolearn.core.utils.fs import get_base_filesystem_and_path
+from sentinelhub import SHConfig, parse_time
 
 from ..utils.meta import import_object
 from ..utils.types import Feature

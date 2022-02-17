@@ -11,15 +11,15 @@ import geopandas as gpd
 import shapely.ops
 from pydantic import Field
 
-from sentinelhub import BBox, Geometry, CRS
+from sentinelhub import CRS, BBox, Geometry
 
+from ...utils.fs import LocalFile
+from ...utils.types import Path
+from ...utils.vector import count_points
 from ..base import EOGrowObject
 from ..config import Config
 from ..schemas import ManagerSchema
 from ..storage import StorageManager
-from ...utils.fs import LocalFile
-from ...utils.vector import count_points
-from ...utils.types import Path
 
 LOGGER = logging.getLogger(__name__)
 

@@ -3,24 +3,24 @@ Module implementing pipelines for training a ML classifier
 """
 import abc
 import logging
-from typing import Optional, List, Tuple, Any
+from typing import Any, List, Optional, Tuple
 
 import fs
-import numpy as np
 import joblib
+import numpy as np
+from lightgbm import LGBMClassifier, LGBMRegressor
 from pydantic import Field
-from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import (
     accuracy_score,
     f1_score,
-    recall_score,
-    precision_score,
-    r2_score,
     mean_absolute_error,
     mean_squared_error,
+    precision_score,
+    r2_score,
+    recall_score,
 )
-from lightgbm import LGBMClassifier, LGBMRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema

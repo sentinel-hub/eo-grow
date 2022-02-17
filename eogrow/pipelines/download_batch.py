@@ -2,32 +2,32 @@
 Download pipeline that works with Sentinel Hub batch service
 """
 import logging
-from typing import List, Optional, Tuple, Dict, DefaultDict
+from typing import DefaultDict, Dict, List, Optional, Tuple
 
 from pydantic import Field, conint
 
 from sentinelhub import (
-    SentinelHubRequest,
-    SentinelHubBatch,
     BatchRequest,
-    MimeType,
     BatchRequestStatus,
     BatchTileStatus,
+    DataCollection,
+    MimeType,
+    SentinelHubBatch,
+    SentinelHubRequest,
     monitor_batch_job,
     read_data,
-    DataCollection,
 )
 
 from ..core.pipeline import Pipeline
+from ..utils.types import Path, TimePeriod
 from ..utils.validators import (
     field_validator,
     optional_field_validator,
+    parse_data_collection,
+    parse_time_period,
     validate_mosaicking_order,
     validate_resampling,
-    parse_time_period,
-    parse_data_collection,
 )
-from ..utils.types import Path, TimePeriod
 
 LOGGER = logging.getLogger(__name__)
 

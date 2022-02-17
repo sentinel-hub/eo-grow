@@ -1,8 +1,8 @@
 """
 Utilities for parallelization of the code
 """
-from typing import Optional, Callable
 import concurrent.futures
+from typing import Callable, Optional
 
 
 def parallelize_with_threads(function: Callable, *params, workers: Optional[int] = None) -> list:

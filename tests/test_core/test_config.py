@@ -6,7 +6,7 @@ import os
 import pytest
 from fs.errors import ResourceNotFound
 
-from eogrow.core.config import Config, ConfigList, interpret_config_from_path, interpret_config_from_dict
+from eogrow.core.config import Config, ConfigList, interpret_config_from_dict, interpret_config_from_path
 from eogrow.utils.meta import get_os_import_path
 
 pytestmark = pytest.mark.fast

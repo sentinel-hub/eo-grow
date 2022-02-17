@@ -2,22 +2,14 @@
 Module implementing sampling pipelines
 """
 import abc
-from typing import Optional, Dict, List, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 from pydantic import Field, validator
 
-from eolearn.core import (
-    FeatureType,
-    SaveTask,
-    LoadTask,
-    OverwritePermission,
-    EOWorkflow,
-    MergeEOPatchesTask,
-    EONode,
-)
-from eolearn.ml_tools import FractionSamplingTask, BlockSamplingTask, GridSamplingTask
-from eolearn.geometry import MorphologicalStructFactory, MorphologicalOperations
+from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, MergeEOPatchesTask, OverwritePermission, SaveTask
+from eolearn.geometry import MorphologicalOperations, MorphologicalStructFactory
+from eolearn.ml_tools import BlockSamplingTask, FractionSamplingTask, GridSamplingTask
 
 from ..core.config import Config
 from ..core.pipeline import Pipeline

@@ -1,8 +1,8 @@
 """
 Utilities for filtering eopatch lists
 """
-from typing import List, Iterable
 from concurrent.futures import ThreadPoolExecutor
+from typing import Iterable, List
 
 import fs
 from fs.base import FS

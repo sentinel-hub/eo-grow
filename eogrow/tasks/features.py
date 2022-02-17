@@ -2,12 +2,12 @@
 Definition of tasks needed for calculating features
 """
 import abc
-from datetime import datetime, date, time, timedelta
-from typing import List, Optional, Tuple, Union, Sequence
+from datetime import date, datetime, time, timedelta
+from typing import List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
-from eolearn.core import EOTask, FeatureType, MapFeatureTask, EOPatch
+from eolearn.core import EOPatch, EOTask, FeatureType, MapFeatureTask
 
 from ..utils.types import Feature
 

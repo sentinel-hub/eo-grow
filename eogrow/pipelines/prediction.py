@@ -2,24 +2,16 @@
 Module implementing prediction pipeline
 """
 import abc
-from typing import Optional, List, Tuple
+from typing import List, Optional, Tuple
 
 from pydantic import Field, validator
 
-from eolearn.core import (
-    FeatureType,
-    EONode,
-    SaveTask,
-    LoadTask,
-    OverwritePermission,
-    EOWorkflow,
-    MergeEOPatchesTask,
-)
+from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, MergeEOPatchesTask, OverwritePermission, SaveTask
 
 from ..core.pipeline import Pipeline
 from ..tasks.prediction import ClassificationPredictionTask, RegressionPredictionTask
-from ..utils.types import Feature
 from ..utils.filter import get_patches_without_all_features
+from ..utils.types import Feature
 
 
 class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):

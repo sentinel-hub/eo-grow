@@ -2,10 +2,15 @@
 line-length = 120
 experimental-string-processing = true
 
+[tool.isort]
+profile = "black"
+known_first_party = ["sentinelhub", "eolearn"]
+known_local_folder = "eogrow"
+line_length = 120
+
 [tool.pytest.ini_options]
 log_cli_level = "INFO"
 markers = [
     "fast: marks unit tests that are fast to execute",
     "chain: marks tests that represent an end-to-end pipeline execution"
 ]
-

@@ -2,37 +2,35 @@
 A pipeline to construct features for training/prediction
 """
 import logging
-from typing import Optional, List, Dict, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from pydantic import Field
 
 from eolearn.core import (
-    EOWorkflow,
+    CopyTask,
     EONode,
+    EOWorkflow,
     FeatureType,
     LoadTask,
-    SaveTask,
-    OverwritePermission,
-    MergeFeatureTask,
     MergeEOPatchesTask,
-    CopyTask,
+    MergeFeatureTask,
+    OverwritePermission,
+    SaveTask,
 )
-from eolearn.features import SimpleFilterTask, LinearInterpolationTask, NormalizedDifferenceIndexTask
+from eolearn.features import LinearInterpolationTask, NormalizedDifferenceIndexTask, SimpleFilterTask
 from eolearn.mask import JoinMasksTask
-
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.features import (
-    MedianMosaickingTask,
-    join_valid_and_cloud_masks,
-    ValidDataFractionPredicate,
     MaxNDVIMosaickingTask,
+    MedianMosaickingTask,
+    ValidDataFractionPredicate,
+    join_valid_and_cloud_masks,
 )
-from ..utils.validators import parse_time_period, field_validator
-from ..utils.types import Feature, TimePeriod
 from ..utils.filter import get_patches_without_all_features
-
+from ..utils.types import Feature, TimePeriod
+from ..utils.validators import field_validator, parse_time_period
 
 LOGGER = logging.getLogger(__name__)
 

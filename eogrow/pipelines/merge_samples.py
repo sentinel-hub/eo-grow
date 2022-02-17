@@ -2,13 +2,13 @@
 Module implementing merge samples
 """
 import logging
-from typing import List, Optional, Sequence, Tuple, Literal
+from typing import List, Literal, Optional, Sequence, Tuple
 
 import fs
 import numpy as np
 from pydantic import Field
 
-from eolearn.core import FeatureType, linearly_connect_tasks, LoadTask, OutputTask, EOWorkflow, EOPatch
+from eolearn.core import EOPatch, EOWorkflow, FeatureType, LoadTask, OutputTask, linearly_connect_tasks
 from eolearn.core.utils.fs import get_full_path
 from eolearn.core.utils.parsing import parse_features
 

@@ -2,13 +2,13 @@
 Task definitions for prediction
 """
 import abc
-from typing import List, Optional, Tuple, Callable
+from typing import Callable, List, Optional, Tuple
 
-import numpy as np
 import joblib
+import numpy as np
 
-from sentinelhub import SHConfig
 from eolearn.core import EOPatch, EOTask, execute_with_mp_lock, get_filesystem
+from sentinelhub import SHConfig
 
 from ..utils.types import Feature
 

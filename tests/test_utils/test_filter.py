@@ -2,17 +2,17 @@
 Tests for fs_utils module
 """
 import datetime
-from itertools import combinations, chain
+from itertools import chain, combinations
 
+import boto3
 import numpy as np
 import pytest
 from fs.tempfs import TempFS
 from fs_s3fs import S3FS
 from moto import mock_s3
-import boto3
 
-from sentinelhub import BBox, CRS
 from eolearn.core import EOPatch, FeatureType
+from sentinelhub import CRS, BBox
 
 from eogrow.utils.filter import check_if_features_exist, get_patches_without_all_features
 
