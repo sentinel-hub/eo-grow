@@ -5,8 +5,8 @@ preview = true
 [tool.isort]
 profile = "black"
 known_first_party = ["sentinelhub", "eolearn"]
-known_local_folder = "eogrow"
-sections = ["FUTURE","STDLIB","THIRDPARTY","FIRSTPARTY","LOCALFOLDER"]
+known_absolute = "eogrow"
+sections = ["FUTURE","STDLIB","THIRDPARTY","FIRSTPARTY","ABSOLUTE","LOCALFOLDER"]
 line_length = 120
 
 [tool.pytest.ini_options]
