@@ -60,6 +60,12 @@ jobs:
         with:
           python-version: "3.8"
           architecture: x64
+      
+      - name: Run isort
+        if: github.event_name == 'push'
+        run: |
+          pip install isort
+          isort . --diff --check
 
   test-on-github:
     runs-on: ubuntu-latest
