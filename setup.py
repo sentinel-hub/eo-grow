@@ -42,6 +42,7 @@ setup(
     author_email="eoresearch@sinergise.com",
     license="MIT",
     packages=find_packages(),
+    package_data={"eogrow": ["py.typed"]},
     include_package_data=True,
     install_requires=parse_requirements("requirements.txt"),
     extras_require={"DEV": parse_requirements("requirements-dev.txt")},
