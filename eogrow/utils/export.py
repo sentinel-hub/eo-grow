@@ -2,13 +2,13 @@
 Utilities for exporting data
 """
 import logging
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import fs.base
 import geopandas as gpd
 import numpy as np
 
-from sentinelhub import BBox
+from sentinelhub import CRS, BBox
 
 from .fs import LocalFile
 
@@ -21,7 +21,7 @@ def export_grid_stats(
     path: str,
     filesystem: Optional[fs.base.FS] = None,
     names: Optional[List[str]] = None,
-):
+) -> None:
     """Exports stats per each bounding box (i.e. EOPatch) into a Geopackage file
 
     :param stats_list: Dictionaries of statistical values and names, one dictionary per each bounding box
@@ -40,7 +40,7 @@ def export_grid_stats(
             f"stats_list and names should have the same length but found {len(stats_list)} and {len(names)}"
         )
 
-    data_per_crs = {}
+    data_per_crs: Dict[CRS, List[Dict[str, Any]]] = {}
     for index, (stats, bbox) in enumerate(zip(stats_list, bbox_list)):
         data_dict = {"geometry": bbox.geometry, **stats}
         if names:

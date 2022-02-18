@@ -4,7 +4,7 @@ Module implementing utilities for unit testing pipeline results
 import functools
 import json
 import os
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 import fs
 import numpy as np
@@ -15,7 +15,7 @@ from deepdiff import DeepDiff
 
 from eolearn.core import EOPatch, FeatureType
 
-from ..core.config import Config
+from ..core.config import Config, ConfigList
 from ..core.pipeline import Pipeline
 from .meta import load_pipeline
 
@@ -60,7 +60,7 @@ class ContentTester:
 
         return DeepDiff(expected_stats, self.stats)
 
-    def save(self, filename: str):
+    def save(self, filename: str) -> None:
         """Saves statistics of given folder content into a JSON file
 
         :param filename: A JSON filename (with file path) where statistics should be saved
@@ -70,7 +70,7 @@ class ContentTester:
 
     def _calculate_stats(self, folder: Optional[str] = None) -> Dict[str, object]:
         """Calculates statistics of given folder and it's content"""
-        stats = {}
+        stats: Dict[str, object] = {}
         if folder is None:
             folder = self.main_folder
 
@@ -97,7 +97,7 @@ class ContentTester:
 
     def _calculate_eopatch_stats(self, eopatch: EOPatch) -> Dict[str, object]:
         """Calculates statistics of given EOPatch and it's content"""
-        stats = {}
+        stats: Dict[str, object] = {}
 
         for feature_type, feature_set in eopatch.get_features().items():
             feature_type_name = feature_type.value
@@ -109,17 +109,19 @@ class ContentTester:
                 stats[feature_type_name] = [time.isoformat() for time in eopatch.timestamp]
 
             else:
-                stats[feature_type_name] = {}
+                feature_stats_dict = {}
 
                 if feature_type.is_raster():
-                    calculation_method = self._calculate_raster_stats
+                    calculation_method: Callable = self._calculate_raster_stats
                 elif feature_type.is_vector():
                     calculation_method = self._calculate_vector_stats
                 else:  # Only FeatureType.META_INFO remains
                     calculation_method = str
 
                 for feature_name in feature_set:
-                    stats[feature_type_name][feature_name] = calculation_method(eopatch[feature_type][feature_name])
+                    feature_stats_dict[feature_name] = calculation_method(eopatch[feature_type][feature_name])
+
+                stats[feature_type_name] = feature_stats_dict
 
         return stats
 
@@ -176,7 +178,7 @@ class ContentTester:
         return stats
 
 
-def check_pipeline_logs(pipeline: Pipeline):
+def check_pipeline_logs(pipeline: Pipeline) -> None:
     """A utility function which checks pipeline logs and makes sure there are no failed executions"""
     if not pipeline.config.logging.save_logs:
         raise ValueError("Pipeline did not save logs, this test would be useless")
@@ -205,7 +207,7 @@ def run_and_test_pipeline(
     folder_key: str,
     reset_folder: bool = True,
     save_new_stats: bool = False,
-):
+) -> None:
     """A default way of testing a pipeline
 
     :param config_folder: A path to folder containing the config file
@@ -221,6 +223,8 @@ def run_and_test_pipeline(
     expected_stats_file = os.path.join(stats_folder, stats_name)
 
     config = Config.from_path(config_filename)
+    if isinstance(config, ConfigList):
+        raise ValueError("Cannot test config list with `run_and_test_pipeline`")
     pipeline = load_pipeline(config)
 
     folder = pipeline.storage.get_folder(folder_key)

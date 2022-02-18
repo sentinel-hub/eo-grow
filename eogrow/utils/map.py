@@ -11,7 +11,7 @@ from typing import List, Union
 LOGGER = logging.getLogger(__name__)
 
 
-def cogify_inplace(tiff_file: str, blocksize: int = 2048, nodata: Union[None, int, float] = None):
+def cogify_inplace(tiff_file: str, blocksize: int = 2048, nodata: Union[None, int, float] = None) -> None:
     """Make the (geotiff) file a cog
     :param tiff_file: .tiff file to cogify
     :param blocksize: block size of tiled COG
@@ -30,7 +30,7 @@ def cogify(
     blocksize: int = 2048,
     nodata: Union[None, int, float] = None,
     overwrite: bool = False,
-):
+) -> None:
     """Create a cloud optimized version of input file
 
     :param input_file: File to cogify
@@ -77,7 +77,7 @@ def merge_maps(
     nodata: Union[None, int, float] = None,
     cogify: bool = False,
     delete_input: bool = False,
-):
+) -> None:
     """Performs gdal_merge on a set of given geotiff images, make them pixel aligned cogs if `cogify` is True
 
     :param input_filename_list: A list of input tiff image filenames
@@ -96,7 +96,7 @@ def merge_maps(
 
 def merge_tiffs(
     input_filename_list: List[str], merged_filename: str, *, overwrite: bool = False, delete_input: bool = False
-):
+) -> None:
     """Performs gdal_merge on a set of given geotiff images
 
     :param input_filename_list: A list of input tiff image filenames

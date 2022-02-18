@@ -39,7 +39,7 @@ def get_patches_without_all_features(
     """Filters out patches that already contain all features"""
     eopatch_paths = [fs.path.combine(patches_folder, eopatch) for eopatch in patch_list]
 
-    def check_patch(eopatch_path):
+    def check_patch(eopatch_path: str) -> bool:
         return check_if_features_exist(filesystem, eopatch_path, features)
 
     with ThreadPoolExecutor() as pool:

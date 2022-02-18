@@ -89,8 +89,6 @@ class BaseEOGrowEnum(MultiValueEnum):
 
     @classmethod
     def get_sentinel_hub_legend(cls) -> str:
-        legend = {"type": "discrete", "items": []}
-        for class_enum in cls:
-            legend["items"].append({"color": class_enum.color, "label": class_enum.name})
+        items = [{"color": class_enum.color, "label": class_enum.name} for class_enum in cls]
 
-        return json.dumps(legend, indent=2)
+        return json.dumps({"type": "discrete", "items": items}, indent=2)

@@ -73,7 +73,7 @@ def get_os_import_path(import_path: str) -> str:
     E.g. `eogrow.utils.meta` -> `/home/ubuntu/.../eogrow/utils/meta.py`
     """
     module_spec = importlib.util.find_spec(import_path)
-    if module_spec:
+    if module_spec is not None and module_spec.origin is not None:
         return module_spec.origin
     raise ValueError(f"Given import path {import_path} not found")
 

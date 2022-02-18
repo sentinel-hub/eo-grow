@@ -1,7 +1,7 @@
 """
 Module containing useful utilities for working with vector data
 """
-from typing import List, Union
+from typing import List, Optional, Union
 
 import geopandas as gpd
 import pandas as pd
@@ -70,7 +70,7 @@ def spatial_difference(gdf1: GeoDataFrame, gdf2: GeoDataFrame) -> GeoDataFrame:
     return result_gdf
 
 
-def filter_intersecting(gdf: GeoDataFrame, filter_column: str = None) -> GeoDataFrame:
+def filter_intersecting(gdf: GeoDataFrame, filter_column: Optional[str] = None) -> GeoDataFrame:
     """Filters out intersecting geometries. A geometry is filtered out if it intersects a geometry with a lower index.
 
     E.g.: geometries 1 and 2 intersect and geometries 2 and 3 intersect. Then both geometries 2 and 3 will be removed.
