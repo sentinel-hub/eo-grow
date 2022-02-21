@@ -42,8 +42,8 @@ class BatchDownloadPipeline(Pipeline):
         data_collection: DataCollection = Field(description="Data collection from which data will be downloaded.")
         _validate_data_collection = field_validator("data_collection", parse_data_collection, pre=True)
 
-        time_period: TimePeriod
-        _validate_time_period = field_validator("time_period", parse_time_period, pre=True)
+        time_period: Optional[TimePeriod]
+        _validate_time_period = optional_field_validator("time_period", parse_time_period, pre=True)
 
         evalscript_path: Path
         tiff_outputs: List[str] = Field(default_factory=list, description="Names of TIFF outputs of a batch job")
