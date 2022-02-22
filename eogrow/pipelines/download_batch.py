@@ -190,7 +190,9 @@ class BatchDownloadPipeline(Pipeline):
             LOGGER.info(
                 "Didn't trigger analysis because current batch request status is %s.", batch_request.status.value
             )
-            return _BatchTriggerType.NONE
+            if batch_request.status is BatchRequestStatus.ANALYSIS_DONE:
+                return _BatchTriggerType.ANALYSIS
+            _BatchTriggerType.NONE
 
         if batch_request.status in [
             BatchRequestStatus.CREATED,
