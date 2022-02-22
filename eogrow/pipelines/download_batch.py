@@ -6,7 +6,7 @@ import time
 from enum import Enum
 from typing import DefaultDict, Dict, List, Optional, Tuple
 
-from pydantic import Field, conint
+from pydantic import Field
 
 from sentinelhub import (
     BatchRequest,
@@ -69,8 +69,17 @@ class BatchDownloadPipeline(Pipeline):
         mosaicking_order: Optional[str] = Field(description="The mosaicking order used by Sentinel Hub service")
         _validate_mosaicking_order = optional_field_validator("mosaicking_order", validate_mosaicking_order)
 
-        monitoring_sleep_time: conint(ge=60) = Field(
+        batch_output_kwargs: dict = Field(
+            default_factory=dict,
+            description=(
+                "Any other arguments to be added to a dictionary of parameters. Passed as **kwargs to the `output`"
+                " method of `SentinelHubBatch` during the creation process."
+            ),
+        )
+
+        monitoring_sleep_time: int = Field(
             120,
+            ge=60,
             description=(
                 "How many seconds to sleep between two consecutive queries about status of tiles in a batch "
                 "job. It should be at least 60 seconds."
@@ -164,7 +173,9 @@ class BatchDownloadPipeline(Pipeline):
                 resolution=self.config.area.resolution,
                 buffer=(self.config.area.tile_buffer, self.config.area.tile_buffer),
             ),
-            output=SentinelHubBatch.output(default_tile_path=f"{data_folder}/<tileName>/<outputId>.<format>"),
+            output=SentinelHubBatch.output(
+                default_tile_path=f"{data_folder}/<tileName>/<outputId>.<format>", **self.config.batch_output_kwargs
+            ),
             description=f"eo-grow - {self.__class__.__name__} pipeline with ID {self.pipeline_id}",
         )
 
