@@ -2,6 +2,8 @@
 Download pipeline that works with Sentinel Hub batch service
 """
 import logging
+import time
+from enum import Enum
 from typing import DefaultDict, Dict, List, Optional, Tuple
 
 from pydantic import Field, conint
@@ -30,6 +32,14 @@ from ..utils.validators import (
 )
 
 LOGGER = logging.getLogger(__name__)
+
+
+class _BatchTriggerType(Enum):
+    """How a batch request is triggered"""
+
+    ANALYSIS = "analysis"
+    RUN = "run"
+    NONE = "none"
 
 
 class BatchDownloadPipeline(Pipeline):
@@ -74,6 +84,13 @@ class BatchDownloadPipeline(Pipeline):
                 "existing batch job. If it is not given it will create a new batch job."
             ),
         )
+        analysis_only: bool = Field(
+            False,
+            description=(
+                "If set to True it will only create a batch request and wait for analysis phase to finish. It "
+                "will not start the actual batch job."
+            ),
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -82,38 +99,33 @@ class BatchDownloadPipeline(Pipeline):
 
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         """Procedure that downloads data to an s3 bucket using batch service"""
-        batch_request = self._prepare_and_run_batch_request()
+        batch_request = self._create_or_collect_batch_request()
         self.area_manager.batch_id = batch_request.request_id
+
+        trigger_type = self._trigger_batch_request(batch_request)
+
+        if trigger_type is _BatchTriggerType.ANALYSIS:
+            LOGGER.info("Waiting to finish analyzing job with ID %s", batch_request.request_id)
+            tile_names = self._monitor_batch_analysis(batch_request)
+            return tile_names, []
 
         LOGGER.info("Monitoring batch job with ID %s", batch_request.request_id)
         results = monitor_batch_job(batch_request, config=self.sh_config, sleep_time=self.config.monitoring_sleep_time)
-
-        if batch_request.value_estimate:
-            LOGGER.info("Estimated cost of the batch job: %.1f", batch_request.value_estimate)
 
         processed = self._get_tile_names_from_results(results, BatchTileStatus.PROCESSED)
         failed = self._get_tile_names_from_results(results, BatchTileStatus.FAILED)
         return processed, failed
 
-    def _prepare_and_run_batch_request(self) -> BatchRequest:
-        """Either creates a new job and starts running it or restarts partially failed job or just reports batch
-        request status.
-        """
+    def _create_or_collect_batch_request(self) -> BatchRequest:
+        """Either creates a new batch request or collects information about an existing one."""
         if not self.config.batch_id:
             batch_request = self._create_new_batch_request()
-            self.batch_client.start_job(batch_request)
-            LOGGER.info("Created a new batch job with ID %s", batch_request.request_id)
+            LOGGER.info("Created a new batch request with ID %s", batch_request.request_id)
             return batch_request
 
         batch_request = self.batch_client.get_request(self.config.batch_id)
         batch_request.raise_for_status(status=[BatchRequestStatus.FAILED, BatchRequestStatus.CANCELED])
-
-        if batch_request.status is BatchRequestStatus.PARTIAL:
-            self.batch_client.restart_job(batch_request)
-            LOGGER.info("Restarted batch job %s", batch_request.request_id)
-        else:
-            LOGGER.info("Current request status is %s", batch_request.status.value)
-
+        LOGGER.info("Collected existing batch request with ID %s", batch_request.request_id)
         return batch_request
 
     def _create_new_batch_request(self) -> BatchRequest:
@@ -156,8 +168,53 @@ class BatchDownloadPipeline(Pipeline):
             description=f"eo-grow - {self.__class__.__name__} pipeline with ID {self.pipeline_id}",
         )
 
+    def _trigger_batch_request(self, batch_request: BatchRequest) -> _BatchTriggerType:
+        """According to status and configuration parameters decide to trigger analysis or batch job run."""
+        if self.config.analysis_only:
+            if batch_request.status is BatchRequestStatus.CREATED:
+                self.batch_client.start_analysis(batch_request)
+                LOGGER.info("Triggered batch job analysis.")
+                return _BatchTriggerType.ANALYSIS
+
+            LOGGER.info(
+                "Didn't trigger analysis because current batch request status is %s.", batch_request.status.value
+            )
+            return _BatchTriggerType.NONE
+
+        if batch_request.status in [
+            BatchRequestStatus.CREATED,
+            BatchRequestStatus.ANALYSING,
+            BatchRequestStatus.ANALYSIS_DONE,
+        ]:
+            self.batch_client.start_job(batch_request)
+            LOGGER.info("Started running batch job.")
+            return _BatchTriggerType.RUN
+
+        if batch_request.status is BatchRequestStatus.PARTIAL:
+            self.batch_client.restart_job(batch_request)
+            LOGGER.info("Restarted partially failed batch job.")
+            return _BatchTriggerType.RUN
+
+        LOGGER.info("Didn't trigger batch job because current batch request status is %s", batch_request.status.value)
+        return _BatchTriggerType.NONE
+
     @staticmethod
     def _get_tile_names_from_results(results: DefaultDict[str, List[Dict]], tile_status: BatchTileStatus) -> List[str]:
         """Collects tile names from a dictionary of batch tile results ordered by status"""
         tile_list = results[tile_status.value]
         return [tile["name"] for tile in tile_list]
+
+    def _monitor_batch_analysis(self, batch_request, analysis_sleep_time=10) -> List[str]:
+        """Wait until the batch analysis finishes and provide a list of tiles"""
+        while batch_request.status in [BatchRequestStatus.CREATED, BatchRequestStatus.ANALYSING]:
+            LOGGER.info(
+                "Batch job has a status %s, sleeping for %d seconds", batch_request.status.value, analysis_sleep_time
+            )
+            time.sleep(analysis_sleep_time)
+
+            batch_request = self.batch_client.get_request(batch_request)
+
+        if batch_request.value_estimate:
+            LOGGER.info("Estimated cost of the batch job: %.1f", batch_request.value_estimate)
+
+        return [tile["name"] for tile in self.batch_client.iter_tiles(batch_request)]
