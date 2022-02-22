@@ -58,7 +58,7 @@ class BatchAreaManager(AreaManager):
         for index, info in enumerate(info_list):
             info["index_n"] = index
 
-        return self._to_dataframe_grid(bbox_list, info_list, ["index_n", "id", "name", "cost"])
+        return self._to_dataframe_grid(bbox_list, info_list, ["index_n", "id", "name"])
 
     def _verify_batch_request(self, batch_request: BatchRequest):
         """Verifies that given batch request has finished and that it has the same tiling grid parameters as
