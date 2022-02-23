@@ -62,19 +62,18 @@ class MosaickingTask(EOTask, metaclass=abc.ABCMeta):
             self.ndvi_feature_type, self.ndvi_feature_name = self.parse_feature(
                 ndvi_feature, allowed_feature_types={FeatureType.DATA}
             )
-        self._set_dates(dates)
+        self.dates = self._get_dates(dates)
 
-    def _set_dates(self, dates: Union[List[datetime], Tuple[datetime, datetime, int]]) -> None:
+    def _get_dates(self, dates: Union[List[datetime], Tuple[datetime, datetime, int]]) -> np.ndarray:
         """Set dates either from list of dates or a tuple (start_date, end_date, n_mosaics)"""
         if all(isinstance(d, (date, datetime)) for d in dates):
-            self.dates = np.array(dates) if isinstance(dates, list) else dates
-        elif len(dates) == 3 and isinstance(dates[-1], int):
-            self.dates = self._get_date_edges(*dates)
-        else:
-            raise ValueError(
-                "dates parameter can be either a list of date(time)s or a tuple "
-                "(start_date, end_date, n_mosaics) for equidistant intervals between start and end date."
-            )
+            return np.array(dates)
+        if len(dates) == 3 and isinstance(dates[-1], int):
+            return self._get_date_edges(*dates)
+        raise ValueError(
+            "dates parameter can be either a list of date(time)s or a tuple "
+            "(start_date, end_date, n_mosaics) for equidistant intervals between start and end date."
+        )
 
     @staticmethod
     def _get_date_edges(start_date: datetime, end_date: datetime, parts: int) -> np.ndarray:

@@ -4,7 +4,7 @@ Module for handling EOPatch naming conventions
 import json
 import os
 import warnings
-from typing import Dict, List, Optional, Union, cast
+from typing import Dict, List, Optional, Union, cast, Any
 
 import bidict
 import pandas
@@ -34,8 +34,8 @@ class EOPatchManager(EOGrowObject):
 
         self._area_manager = area_manager
 
-        self._name_to_id_map = None
-        self._name_to_bbox_map = None
+        self._name_to_id_map: Optional[bidict.bidict] = None
+        self._name_to_bbox_map: Optional[dict] = None
 
     @property
     def name_to_id_map(self) -> bidict.bidict:
@@ -53,7 +53,7 @@ class EOPatchManager(EOGrowObject):
             self._prepare_names()
         return self._name_to_bbox_map  # type: ignore
 
-    def _prepare_names(self):
+    def _prepare_names(self) -> None:
         """Collects bounding boxes from an instance of AreaManager class, generates EOPatch names and saves them into
         a private class variable _eopatch_name_list
         """
@@ -72,8 +72,7 @@ class EOPatchManager(EOGrowObject):
         self._name_to_id_map = self.generate_names(bbox_df, total_patch_num=total_patch_num)
         self._name_to_bbox_map = dict(zip(self._name_to_id_map, bbox_df["BBOX"]))
 
-    @staticmethod
-    def generate_names(bbox_dataframe: GeoDataFrame, total_patch_num: Optional[int] = None) -> bidict.bidict:
+    def generate_names(self, bbox_dataframe: GeoDataFrame, total_patch_num: Optional[int] = None) -> bidict.bidict:
         """Method that generates EOPatch names from a dataframe holding bounding boxes. This method can be overridden
         by a method that generates names in a different way.
 
@@ -111,7 +110,7 @@ class EOPatchManager(EOGrowObject):
             if using s3.
         :return: A list of EOPatch folder names
         """
-        filenames = self._eopatch_list_from_id_list(id_list)  # TODO
+        filenames = self._eopatch_list_from_id_list(id_list)
 
         if folder is None:
             return filenames
@@ -128,7 +127,7 @@ class EOPatchManager(EOGrowObject):
                 )
         return file_paths
 
-    def save_eopatch_filenames(self, filename: str, eopatch_list: Union[List[int], List[str], None] = None):
+    def save_eopatch_filenames(self, filename: str, eopatch_list: Union[List[int], List[str], None] = None) -> None:
         """Saves a list of EOPatches to a file
 
         :param filename: A filename (or entire file path) where names of EOPatches will be saved. Supported formats
@@ -177,7 +176,7 @@ class EOPatchManager(EOGrowObject):
 
         return eopatch_list
 
-    def get_bboxes(self, eopatch_list: Optional[List[str]] = None) -> List[BBox]:  # TODO: add unit test
+    def get_bboxes(self, eopatch_list: Optional[List[str]] = None) -> List[BBox]:
         """Provides bounding boxes for each EOPatch
 
         :param eopatch_list:
@@ -244,7 +243,7 @@ class CustomGridEOPatchManager(EOPatchManager):
         name_column: str = Field(description="A name of a column in grid dataframes that contains EOPatch names")
         index_column: str = Field(description="A name of a column in grid dataframes that contains EOPatch indices")
 
-    def generate_names(self, bbox_dataframe: GeoDataFrame, *args, **kwargs) -> bidict.bidict:
+    def generate_names(self, bbox_dataframe: GeoDataFrame, *_: Any, **__: Any) -> bidict.bidict:
         """Creates a bidirectional dictionary between names and indices"""
         names = bbox_dataframe[self.config.name_column]
         indices = bbox_dataframe[self.config.index_column]
@@ -254,7 +253,6 @@ class CustomGridEOPatchManager(EOPatchManager):
 class BatchTileManager(EOPatchManager):
     """A custom patch manager that uses a naming convention based on Sentinel Hub Batch tiles"""
 
-    @staticmethod
-    def generate_names(bbox_dataframe: GeoDataFrame, *args, **kwargs):
+    def generate_names(self, bbox_dataframe: GeoDataFrame, *_: Any, **__: Any) -> bidict.bidict:
         """Creates a bidirectional dictionary between names and indices"""
         return bidict.bidict((name, index) for name, index in zip(bbox_dataframe.name, bbox_dataframe.index_n))

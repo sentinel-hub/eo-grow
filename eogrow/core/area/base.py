@@ -3,7 +3,7 @@ A base AreaManager implementation
 """
 import logging
 from collections import defaultdict
-from typing import List, Optional
+from typing import List, Optional, Any
 
 import fiona
 import fs
@@ -118,7 +118,7 @@ class AreaManager(EOGrowObject):
 
         return grid
 
-    def get_grid_size(self, **kwargs) -> int:
+    def get_grid_size(self, **kwargs: Any) -> int:
         """Calculates the number of elements of the grid
 
         :param kwargs: Parameters that are propagated to `get_grid` method
@@ -162,7 +162,7 @@ class AreaManager(EOGrowObject):
 
         return Geometry(area_gdf.geometry[0], CRS(area_gdf.crs.to_epsg()))
 
-    def _save_area_geometry(self, area_geometry: Geometry, filename: str):
+    def _save_area_geometry(self, area_geometry: Geometry, filename: str) -> None:
         """Saves processed geometry of an area"""
         LOGGER.info("Saving area geometry to %s", filename)
 
@@ -182,7 +182,7 @@ class AreaManager(EOGrowObject):
 
         return grid
 
-    def _save_grid(self, grid: List[gpd.GeoDataFrame], filename: str):
+    def _save_grid(self, grid: List[gpd.GeoDataFrame], filename: str) -> None:
         """A method that saves bounding box grid in a cache folder"""
         LOGGER.info("Saving grid to %s", filename)
 
@@ -267,7 +267,7 @@ class AreaManager(EOGrowObject):
         return filtered_grid
 
     @staticmethod
-    def _add_bbox_column(grid: List[gpd.GeoDataFrame]):
+    def _add_bbox_column(grid: List[gpd.GeoDataFrame]) -> None:
         """Adds a column with bounding boxes to all dataframes in a grid"""
         for bbox_df in grid:
             crs = CRS(bbox_df.crs.to_epsg())
