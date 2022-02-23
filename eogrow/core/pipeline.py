@@ -7,7 +7,7 @@ import logging
 import time
 import uuid
 import warnings
-from typing import List, Optional, Tuple, Union
+from typing import Any, List, Optional, Tuple
 
 import ray
 
@@ -62,9 +62,7 @@ class Pipeline(EOGrowObject):
         """Provides a new random uuid of a pipeline"""
         return uuid.uuid4().hex[:10]
 
-    def _load_manager(
-        self, manager_key: str, **manager_params
-    ) -> Union[StorageManager, AreaManager, EOPatchManager, LoggingManager]:
+    def _load_manager(self, manager_key: str, **manager_params: Any) -> Any:
         """Loads a manager class and back-propagates parsed config
 
         :param manager_key: A config key name of a sub-config with manager parameters
@@ -142,7 +140,7 @@ class Pipeline(EOGrowObject):
         workflow: EOWorkflow,
         exec_args: List[dict],
         eopatch_list: Optional[List[str]] = None,
-        **executor_run_params,
+        **executor_run_params: Any,
     ) -> Tuple[List[str], List[str], List[WorkflowResults]]:
         """A method which runs EOExecutor on given workflow with given execution parameters
 
@@ -200,7 +198,7 @@ class Pipeline(EOGrowObject):
 
         return successful_eopatches, failed_eopatches, execution_results
 
-    def run(self):
+    def run(self) -> None:
         """Call this method to run any pipeline"""
         timestamp = dt.datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%SZ")
         self.current_execution_name = self.get_pipeline_execution_name(timestamp)
@@ -257,8 +255,7 @@ class Pipeline(EOGrowObject):
             raise NotImplementedError(
                 "Default implementation of run_procedure method requires implementation of build_workflow method"
             )
-
-        workflow = self.build_workflow()
+        workflow = self.build_workflow()  # type: ignore
         exec_args = self.get_execution_arguments(workflow)
 
         finished, failed, _ = self.run_execution(workflow, exec_args)

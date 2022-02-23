@@ -114,6 +114,9 @@ class MergeSamplesPipeline(Pipeline):
             self._save_array(merged_array, feature_name)
             del merged_array
 
+        if patch_sample_nums is None:
+            raise ValueError("Need at least one feature to merge.")
+
         if self.config.id_filename:
             LOGGER.info("Started merging EOPatch ids")
             patch_ids = self.eopatch_manager.get_id_list_from_eopatch_list(patch_names)

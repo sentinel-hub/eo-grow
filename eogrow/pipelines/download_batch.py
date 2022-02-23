@@ -2,9 +2,9 @@
 Download pipeline that works with Sentinel Hub batch service
 """
 import logging
-from typing import DefaultDict, Dict, List, Optional, Tuple
+from typing import Any, DefaultDict, Dict, List, Optional, Tuple
 
-from pydantic import Field, conint
+from pydantic import Field
 
 from sentinelhub import (
     BatchRequest,
@@ -59,8 +59,9 @@ class BatchDownloadPipeline(Pipeline):
         mosaicking_order: Optional[str] = Field(description="The mosaicking order used by Sentinel Hub service")
         _validate_mosaicking_order = optional_field_validator("mosaicking_order", validate_mosaicking_order)
 
-        monitoring_sleep_time: conint(ge=60) = Field(
+        monitoring_sleep_time = Field(
             120,
+            ge=60,
             description=(
                 "How many seconds to sleep between two consecutive queries about status of tiles in a batch "
                 "job. It should be at least 60 seconds."
@@ -75,7 +76,7 @@ class BatchDownloadPipeline(Pipeline):
             ),
         )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
         self.batch_client = SentinelHubBatch(config=self.sh_config)
@@ -83,7 +84,7 @@ class BatchDownloadPipeline(Pipeline):
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         """Procedure that downloads data to an s3 bucket using batch service"""
         batch_request = self._prepare_and_run_batch_request()
-        self.area_manager.batch_id = batch_request.request_id
+        self.area_manager.batch_id = batch_request.request_id  # type: ignore
 
         LOGGER.info("Monitoring batch job with ID %s", batch_request.request_id)
         results = monitor_batch_job(batch_request, config=self.sh_config, sleep_time=self.config.monitoring_sleep_time)

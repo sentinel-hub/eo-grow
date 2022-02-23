@@ -2,7 +2,7 @@
 For working with pre-defined grids
 """
 import logging
-from typing import List
+from typing import Any, List
 
 import fs
 import geopandas as gpd
@@ -31,7 +31,7 @@ class CustomGridAreaManager(AreaManager):
             ),
         )
 
-    def get_area_dataframe(self, *, crs: CRS = CRS.WGS84, **_) -> gpd.GeoDataFrame:
+    def get_area_dataframe(self, *, crs: CRS = CRS.WGS84, **_: Any) -> gpd.GeoDataFrame:
         """Provides a single dataframe that defines an AOI
 
         :param crs: A CRS of the dataframe
@@ -39,7 +39,7 @@ class CustomGridAreaManager(AreaManager):
         grid = self.get_grid()
         return concat_gdf(grid, reproject_crs=crs)
 
-    def get_area_geometry(self, *, crs: CRS = CRS.WGS84, **_) -> Geometry:
+    def get_area_geometry(self, *, crs: CRS = CRS.WGS84, **_: Any) -> Geometry:
         """Provides AOI geometry by joining grid geometries
 
         :param crs: A CRS in which grid geometries will be joined
@@ -58,7 +58,7 @@ class CustomGridAreaManager(AreaManager):
         self._save_area_geometry(area_geometry, area_filename)
         return area_geometry
 
-    def get_grid(self, *, add_bbox_column: bool = False, **_) -> List[gpd.GeoDataFrame]:
+    def get_grid(self, *, add_bbox_column: bool = False, **_: Any) -> List[gpd.GeoDataFrame]:
         """Provides a grid of bounding boxes which divide the AOI
 
         :param add_bbox_column: If `True` a new column with BBox objects will be added.
@@ -74,11 +74,11 @@ class CustomGridAreaManager(AreaManager):
         return grid
 
     @staticmethod
-    def has_region_filter(*_, **__) -> bool:
+    def has_region_filter(*_: Any, **__: Any) -> bool:
         """Doesn't support filtering by a region"""
         return False
 
-    def _construct_file_path(self, *, prefix: str, suffix: str = "gpkg", **_) -> str:
+    def _construct_file_path(self, *, prefix: str, suffix: str = "gpkg", **_: Any) -> str:
         """Provides a file path of a cached file"""
         input_filename = self.config.grid_filename.rsplit(".", 1)[0]
         input_filename = fs.path.basename(input_filename)

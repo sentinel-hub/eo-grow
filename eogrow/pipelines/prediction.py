@@ -38,7 +38,7 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         )
 
         @validator("prediction_mask_feature_name")
-        def validate_filename(cls, v, values):  # pylint: disable=no-self-use, no-self-argument
+        def validate_filename(cls, v, values):  # type: ignore
             if values["prediction_mask_folder_key"] is None:
                 assert v is None, "Both `prediction_mask_folder_key` and `prediction_mask_feature_name` must be given."
             return v

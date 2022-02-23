@@ -6,7 +6,7 @@ import logging
 import sys
 import time
 from logging import FileHandler, Filter, Formatter, Handler, LogRecord, StreamHandler
-from typing import List, Optional, Sequence, Union
+from typing import Any, List, Optional, Sequence, Tuple, Union
 
 import fs
 from fs.errors import FilesystemClosed
@@ -164,7 +164,7 @@ class LoggingManager(EOGrowObject):
 
         return stdout_handler
 
-    def stop_logging(self, handlers: List[Handler]):
+    def stop_logging(self, handlers: List[Handler]) -> None:
         """Updates logs, removes pipeline handlers from the global logger and puts global logging level back to
         default
         """
@@ -185,7 +185,7 @@ class LoggingManager(EOGrowObject):
         pipeline_id: str,
         pipeline_timestamp: str,
         elapsed_time: Optional[float] = None,
-    ):
+    ) -> None:
         """A method in charge of preparing a report about pipeline run.
 
         Content of a report:
@@ -214,7 +214,7 @@ class LoggingManager(EOGrowObject):
         with self.storage.filesystem.open(report_filename, "w") as report_file:
             json.dump(report, report_file, indent=2, default=jsonify)
 
-    def save_eopatch_execution_status(self, pipeline_execution_name: str, finished: list, failed: list):
+    def save_eopatch_execution_status(self, pipeline_execution_name: str, finished: list, failed: list) -> None:
         """Saves lists of EOPatch names for which execution either finished successfully or failed"""
         if not self.config.save_logs:
             return
@@ -235,7 +235,9 @@ class FilesystemHandler(FileHandler):
     logs first to a local path and then copies them to the remote location.
     """
 
-    def __init__(self, path: str, filesystem: Optional[fs.base.FS] = None, config: Optional[SHConfig] = None, **kwargs):
+    def __init__(
+        self, path: str, filesystem: Optional[fs.base.FS] = None, config: Optional[SHConfig] = None, **kwargs: Any
+    ):
         """
         :param path: A path to a log file. It should be an absolute path if filesystem object is not given and relative
             otherwise.
@@ -262,7 +264,7 @@ class RegularBackupHandler(FilesystemHandler):
     IMPORTANT: Make sure to combine this handler with a correct log filter. More in docstring of emit method.
     """
 
-    def __init__(self, *args, backup_interval: Union[float, int], **kwargs):
+    def __init__(self, *args: Any, backup_interval: Union[float, int], **kwargs: Any):
         """
         :param backup_interval: A minimal number of seconds before handler will backup the log file to the remote
             location. The backup will only happen when the next log record will be emitted.
@@ -317,7 +319,7 @@ class StdoutFilter(Filter):
         "sentinelhub.sentinelhub_batch",
     )
 
-    def __init__(self, log_packages: Optional[Sequence[str]] = None, *args, **kwargs):
+    def __init__(self, log_packages: Optional[Sequence[str]] = None, *args: Any, **kwargs: Any):
         """
         :param log_packages: Names of packages which logs to include.
         """
@@ -348,7 +350,7 @@ class LogFileFilter(Filter):
         "boto3",
     )
 
-    def __init__(self, ignore_packages: Optional[Sequence[str]] = None, *args, **kwargs):
+    def __init__(self, ignore_packages: Optional[Tuple[str]] = None, *args: Any, **kwargs: Any):
         """
         :param ignore_packages: Names of packages which logs will be ignored.
         """
@@ -378,7 +380,7 @@ class EOExecutionFilter(Filter):
         "fiona.ogrext",
     )
 
-    def __init__(self, ignore_packages: Optional[Sequence[str]] = None, *args, **kwargs):
+    def __init__(self, ignore_packages: Optional[Tuple[str]] = None, *args: Any, **kwargs: Any):
         """
         :param ignore_packages: Names of packages which logs will be ignored.
         """

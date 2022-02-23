@@ -3,7 +3,7 @@ Module defining common validators for schemas and validator wrappers
 """
 import datetime as dt
 import inspect
-from typing import Callable, Tuple
+from typing import Any, Callable, Tuple
 
 from pydantic import validator
 
@@ -12,12 +12,14 @@ from sentinelhub import DataCollection
 from ..utils.types import S3Path, TimePeriod
 
 
-def field_validator(field: str, validator_fun: Callable, allow_reuse=True, **kwargs) -> Callable:
+def field_validator(field: str, validator_fun: Callable, allow_reuse: bool = True, **kwargs: Any) -> classmethod:
     """Sugared syntax for the `validator` decorator of `pydantic`"""
     return validator(field, allow_reuse=allow_reuse, **kwargs)(validator_fun)
 
 
-def optional_field_validator(field: str, validator_fun: Callable, allow_reuse=True, **kwargs) -> Callable:
+def optional_field_validator(
+    field: str, validator_fun: Callable, allow_reuse: bool = True, **kwargs: Any
+) -> classmethod:
     """Wraps the validator functions so that `None` is always a valid input and only calls the validator on values.
 
     This allows re-use of validators e.g. if we have a validator for `Path` we can now use it for `Optional[Path]`.
@@ -28,7 +30,7 @@ def optional_field_validator(field: str, validator_fun: Callable, allow_reuse=Tr
     # In order to propagate the pydantic python magic we need a bit of python magic ourselves
     additional_args = inspect.getfullargspec(validator_fun).args[1:]
 
-    def optional_validator(value, values, config, field):
+    def optional_validator(value, values, config, field):  # type: ignore
         if value is not None:
             all_kwargs = {"values": values, "config": config, "field": field}
             kwargs = {k: v for k, v in all_kwargs.items() if k in additional_args}

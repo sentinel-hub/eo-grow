@@ -129,7 +129,7 @@ class DeleteFilesTask(EOTask):
         self.filenames = filenames
         self.config = config
 
-    def execute(self, *_, folder: str) -> None:
+    def execute(self, *_: EOPatch, folder: str) -> None:
         """Execute method to delete files relative to the specified tile
 
         :param folder: A folder containing files
