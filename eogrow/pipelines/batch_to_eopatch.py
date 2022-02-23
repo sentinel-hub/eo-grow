@@ -1,7 +1,7 @@
 """
 Conversion of batch results to EOPatches
 """
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 import fs
 from pydantic import Field
@@ -55,7 +55,7 @@ class BatchToEOPatchPipeline(Pipeline):
             example="\"[info['date'] for info in json.loads(userdata['metadata'])]\"",
         )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         """Additionally sets some basic parameters calculated from config parameters"""
         super().__init__(*args, **kwargs)
 

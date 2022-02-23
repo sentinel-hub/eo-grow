@@ -140,7 +140,7 @@ class ContentTester:
                 finite_values = finite_values.astype(np.uint8)
 
             for operation in [np.min, np.max, np.mean, np.median]:
-                stats.append(round(float(operation(finite_values)), self.decimals))
+                stats.append(round(float(operation(finite_values)), self.decimals))  # type: ignore
 
             stats.extend(map(int, np.histogram(finite_values, bins=8)[0]))
 

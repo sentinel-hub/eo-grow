@@ -145,8 +145,8 @@ class ClassificationPredictionTask(BasePredictionTask):
         If specified also adds probability scores and uses a label encoder.
         """
         predictions = self.apply_predictor(
-            self.model.predict, processed_features, np.zeros((0,), dtype=np.uint8)
-        )  # type: ignore
+            self.model.predict, processed_features, np.zeros((0,), dtype=np.uint8)  # type: ignore
+        )
         predictions = predictions[..., np.newaxis]
         if self.label_encoder is not None:
             predictions = self.label_encoder.inverse_transform(predictions)  # type: ignore
