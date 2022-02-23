@@ -1,7 +1,7 @@
 """
 Area managers for Sentinel Hub batch grids
 """
-from typing import List, Any
+from typing import Any, List
 
 from geopandas.geodataframe import GeoDataFrame
 from pydantic import Field

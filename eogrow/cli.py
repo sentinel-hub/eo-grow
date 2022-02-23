@@ -4,7 +4,7 @@ Module implementing command line interface for `eo-grow`
 import json
 import os
 import subprocess
-from typing import Optional, Tuple, List
+from typing import List, Optional, Tuple
 
 import click
 

@@ -8,7 +8,7 @@ import json
 import os
 import pprint
 import re
-from typing import Callable, Dict, Optional, Sequence, Set, Tuple, Union, Any
+from typing import Any, Callable, Dict, Optional, Sequence, Set, Tuple, Union
 
 import fs.path
 import rapidjson

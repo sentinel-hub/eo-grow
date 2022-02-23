@@ -2,7 +2,7 @@
 For working with pre-defined grids
 """
 import logging
-from typing import List, Any
+from typing import Any, List
 
 import fs
 import geopandas as gpd

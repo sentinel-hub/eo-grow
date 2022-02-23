@@ -6,7 +6,7 @@ import logging
 import sys
 import time
 from logging import FileHandler, Filter, Formatter, Handler, LogRecord, StreamHandler
-from typing import List, Optional, Sequence, Union, Any, Tuple
+from typing import Any, List, Optional, Sequence, Tuple, Union
 
 import fs
 from fs.errors import FilesystemClosed

@@ -2,7 +2,7 @@
 Task definitions for prediction
 """
 import abc
-from typing import Callable, List, Optional, Tuple, Union, Any
+from typing import Any, Callable, List, Optional, Tuple, Union
 
 import joblib
 import numpy as np

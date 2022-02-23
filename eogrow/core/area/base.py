@@ -3,7 +3,7 @@ A base AreaManager implementation
 """
 import logging
 from collections import defaultdict
-from typing import List, Optional, Any
+from typing import Any, List, Optional
 
 import fiona
 import fs

@@ -4,7 +4,7 @@ A pipeline module for rasterizing vector datasets.
 import logging
 import os
 import uuid
-from typing import List, Optional, Tuple, Union, Any
+from typing import Any, List, Optional, Tuple, Union
 
 import fiona
 import fs

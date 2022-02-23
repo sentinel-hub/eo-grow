@@ -2,7 +2,7 @@
 Download pipeline that works with Sentinel Hub batch service
 """
 import logging
-from typing import DefaultDict, Dict, List, Optional, Tuple, Any
+from typing import Any, DefaultDict, Dict, List, Optional, Tuple
 
 from pydantic import Field
 

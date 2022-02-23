@@ -4,7 +4,7 @@ Module for handling EOPatch naming conventions
 import json
 import os
 import warnings
-from typing import Dict, List, Optional, Union, cast, Any
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import bidict
 import pandas
@@ -43,23 +43,21 @@ class EOPatchManager(EOGrowObject):
         first time it is needed.
         """
         if self._name_to_id_map is None:
-            self._prepare_names()
-        return self._name_to_id_map  # type: ignore
+            self._name_to_id_map, self._name_to_bbox_map = self._prepare_names()
+        return self._name_to_id_map
 
     @property
     def name_to_bbox_map(self) -> dict:
         """Provides a dictionary mapping EOPatch names to bounding boxes."""
         if self._name_to_bbox_map is None:
-            self._prepare_names()
-        return self._name_to_bbox_map  # type: ignore
+            self._name_to_id_map, self._name_to_bbox_map = self._prepare_names()
+        return self._name_to_bbox_map
 
-    def _prepare_names(self) -> None:
+    def _prepare_names(self) -> Tuple[bidict.bidict, Dict[str, BBox]]:
         """Collects bounding boxes from an instance of AreaManager class, generates EOPatch names and saves them into
         a private class variable _eopatch_name_list
         """
         bbox_grid = self._area_manager.get_grid(add_bbox_column=True)
-        if not bbox_grid:
-            return
 
         bbox_df = pandas.concat(bbox_grid, ignore_index=True)
         bbox_df = bbox_df.sort_values(by="index_n")
@@ -69,8 +67,9 @@ class EOPatchManager(EOGrowObject):
         else:
             total_patch_num = len(bbox_df.index)
 
-        self._name_to_id_map = self.generate_names(bbox_df, total_patch_num=total_patch_num)
-        self._name_to_bbox_map = dict(zip(self._name_to_id_map, bbox_df["BBOX"]))
+        prepared_name_to_id_map = self.generate_names(bbox_df, total_patch_num=total_patch_num)
+        prepared_name_to_bbox_map = dict(zip(prepared_name_to_id_map, bbox_df["BBOX"]))
+        return prepared_name_to_id_map, prepared_name_to_bbox_map
 
     def generate_names(self, bbox_dataframe: GeoDataFrame, total_patch_num: Optional[int] = None) -> bidict.bidict:
         """Method that generates EOPatch names from a dataframe holding bounding boxes. This method can be overridden

@@ -146,7 +146,7 @@ def build_minimal_template(
     pipeline_import_path: Optional[str] = None,
     add_descriptions: bool = False,
 ) -> dict:
-    rec_flags = dict(required_only=required_only, add_descriptions=add_descriptions)
+    rec_flags: dict = dict(required_only=required_only, add_descriptions=add_descriptions)  # type is needed
     json_schema = schema.schema()  # needed for descriptions
 
     template: dict = {}
@@ -160,14 +160,14 @@ def build_minimal_template(
         elif isclass(field.type_) and issubclass(field.type_, BaseModel):
             # Contains a subschema in the nesting
             if isclass(field.outer_type_) and issubclass(field.outer_type_, BaseModel):
-                template[name] = build_minimal_template(field.type_, **rec_flags)  # type: ignore
+                template[name] = build_minimal_template(field.type_, **rec_flags)
                 if "description" in json_schema["properties"][name]:
                     template[name]["<< description >>"] = json_schema["properties"][name]["description"]
             else:
                 template[name] = {
                     "<< type >>": repr(field._type_display()),
                     "<< nested schema >>": str(field.type_),
-                    "<< sub-template >>": build_minimal_template(field.type_, **rec_flags),  # type: ignore
+                    "<< sub-template >>": build_minimal_template(field.type_, **rec_flags),
                 }
         else:
             template[name] = _field_description(field, json_schema["properties"][name], add_descriptions)
