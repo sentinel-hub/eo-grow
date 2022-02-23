@@ -253,7 +253,7 @@ class BlockSamplingPipeline(BaseRandomSamplingPipeline):
         )
 
         @validator("fraction_of_samples", always=True)
-        def validate_sampling_params(cls, fraction, values):  # pylint: disable=no-self-use, no-self-argument
+        def validate_sampling_params(cls, fraction, values):  # type: ignore
             """Makes sure only one of the sampling parameters has been given"""
             assert (fraction is None) != (
                 values.get("number_of_samples") is None
