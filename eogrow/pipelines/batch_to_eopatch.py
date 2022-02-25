@@ -37,10 +37,8 @@ class FeatureMappingSchema(BaseSchema):
     feature_name: str
     multiply_factor: Optional[float] = Field(description="Factor used to multiply feature values with.")
     dtype: Optional[str] = Field(
-        "float32",
         description=(
-            "Dtype of the output feature. Only taken into account if `multiply_factor` is used."
-            "Default set to `float32`."
+            "Dtype of the output feature. Only taken into account if `multiply_factor` is used.Default is `None`."
         ),
     )
 
