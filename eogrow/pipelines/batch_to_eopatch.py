@@ -3,7 +3,6 @@ Conversion of batch results to EOPatches
 """
 from typing import Any, Dict, List, Optional
 
-import fs
 from pydantic import Field
 
 from eolearn.core import (
@@ -22,6 +21,8 @@ from eolearn.io import ImportFromTiffTask
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
+from ..utils.filter import get_patches_without_all_features
+from ..utils.types import Feature
 
 
 class FeatureMappingSchema(BaseSchema):
@@ -45,7 +46,8 @@ class FeatureMappingSchema(BaseSchema):
 
 class BatchToEOPatchPipeline(Pipeline):
     class Schema(Pipeline.Schema):
-        folder_key: str = Field(description="Storage manager key pointing to the path with Batch results")
+        input_folder_key: str = Field(description="Storage manager key pointing to the path with Batch results")
+        output_folder_key: str = Field(description="Storage manager key pointing to where the eopatches are saved")
         mapping: List[FeatureMappingSchema] = Field(
             description="A list of mapping from batch files into EOPatch features."
         )
@@ -59,35 +61,41 @@ class BatchToEOPatchPipeline(Pipeline):
             ),
             example="\"[info['date'] for info in json.loads(userdata['metadata'])]\"",
         )
+        remove_batch_data: bool = Field(
+            True, description="Whether to remove the raw batch data after the conversion is complete"
+        )
 
     def __init__(self, *args: Any, **kwargs: Any):
         """Additionally sets some basic parameters calculated from config parameters"""
         super().__init__(*args, **kwargs)
 
-        self._processing_folder = self.storage.get_folder(self.config.folder_key, full_path=True)
-        self._relative_processing_folder = self.storage.get_folder(self.config.folder_key)
+        self._input_folder = self.storage.get_folder(self.config.input_folder_key, full_path=True)
         self._all_batch_files = self._get_all_batch_files()
 
     def filter_patch_list(self, patch_list: List[str]) -> List[str]:
-        """Checks the content of EOPatches in the project folder. If some files, produced by Sentinel Hub Batch, still
-        exist this means that EOPatch hasn't been yet successfully processed by this pipeline. That is because this
-        pipeline deletes batch files at the end. Such patches will remain after this filtering.
-        """
-        processed_eopatches = set()
-        for eopatch_name in patch_list:
-            eopatch_folder = fs.path.combine(self._relative_processing_folder, eopatch_name)
-            eopatch_files = set(self.storage.filesystem.listdir(eopatch_folder))
+        """EOPatches are filtered according to existence of specified output features"""
 
-            if not any(batch_file in eopatch_files for batch_file in self._all_batch_files):
-                processed_eopatches.add(eopatch_name)
+        filtered_patch_list = get_patches_without_all_features(
+            self.storage.filesystem,
+            self.storage.get_folder(self.config.output_folder_key),
+            patch_list,
+            self._get_output_features(),
+        )
 
-        return [eopatch for eopatch in patch_list if eopatch not in processed_eopatches]
+        return filtered_patch_list
+
+    def _get_output_features(self) -> List[Feature]:
+        """Lists all features that the pipeline outputs."""
+        additional_features = [(x.feature_type, x.feature_name) for x in self.config.mapping]
+        if self.config.userdata_feature_name:
+            additional_features.append((FeatureType.META_INFO, self.config.userdata_feature_name))
+        return [FeatureType.BBOX, FeatureType.TIMESTAMP] + additional_features
 
     def build_workflow(self) -> EOWorkflow:
         """Builds the workflow"""
         userdata_node = EONode(
             LoadUserDataTask(
-                path=self._processing_folder,
+                path=self._input_folder,
                 userdata_feature_name=self.config.userdata_feature_name,
                 userdata_timestamp_reader=self.config.userdata_timestamp_reader,
                 config=self.sh_config,
@@ -105,19 +113,21 @@ class BatchToEOPatchPipeline(Pipeline):
         processing_node = self.get_processing_node(last_node)
 
         save_task = SaveTask(
-            path=self._processing_folder,
+            path=self.storage.get_folder(self.config.output_folder_key, full_path=True),
             compress_level=1,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
             config=self.sh_config,
         )
         save_node = EONode(save_task, inputs=[processing_node])
 
-        delete_task = DeleteFilesTask(
-            path=self._processing_folder, filenames=self._all_batch_files, config=self.sh_config
-        )
-        cleanup_node = EONode(delete_task, inputs=[save_node], name="Delete batch data")
+        cleanup_node = None
+        if self.config.remove_batch_data:
+            delete_task = DeleteFilesTask(
+                path=self._input_folder, filenames=self._all_batch_files, config=self.sh_config
+            )
+            cleanup_node = EONode(delete_task, inputs=[save_node], name="Delete batch data")
 
-        return EOWorkflow.from_endnodes(cleanup_node)
+        return EOWorkflow.from_endnodes(cleanup_node or save_node)
 
     def _get_tiff_mapping_node(self, mapping: FeatureMappingSchema, previous_node: EONode) -> EONode:
         """Prepares tasks and dependencies that convert tiff files into an EOPatch feature"""
@@ -138,9 +148,7 @@ class BatchToEOPatchPipeline(Pipeline):
                 FeatureType.MASK_TIMELESS if feature_type.is_discrete() else FeatureType.DATA_TIMELESS
             ), feature[1]
 
-            import_task = ImportFromTiffTask(
-                tmp_timeless_feature, folder=self._processing_folder, config=self.sh_config
-            )
+            import_task = ImportFromTiffTask(tmp_timeless_feature, folder=self._input_folder, config=self.sh_config)
             # Filename is written into the dependency name to be used later for execution arguments:
             import_node = EONode(import_task, inputs=[previous_node], name=f"{batch_file} import")
 
@@ -150,10 +158,7 @@ class BatchToEOPatchPipeline(Pipeline):
             else:
                 end_nodes.append(import_node)
 
-        if len(end_nodes) == 1:
-            previous_node = end_nodes[0]
-        if len(end_nodes) > 1:
-            previous_node = EONode(MergeEOPatchesTask(), inputs=end_nodes)
+        previous_node = EONode(MergeEOPatchesTask(), inputs=end_nodes) if len(end_nodes) > 1 else end_nodes[0]
 
         final_feature = feature_type, mapping.feature_name
         merge_feature_task = MergeFeatureTask(input_features=tmp_features, output_feature=final_feature)
