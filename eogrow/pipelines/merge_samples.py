@@ -29,7 +29,7 @@ class MergeSamplesPipeline(Pipeline):
             description="The storage manager key pointing to the output folder for the merge samples pipeline."
         )
         features_to_merge: List[Feature] = Field(
-            default_factory=dict, description="Dictionary of all features for which samples are to be merged."
+            description="Dictionary of all features for which samples are to be merged."
         )
         id_filename: Optional[str] = Field(description="Filename of array holding patch id of concatenated features")
         suffix: str = Field("", description="String to append to array filenames")
