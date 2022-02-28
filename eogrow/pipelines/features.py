@@ -12,7 +12,6 @@ from eolearn.core import (
     EOWorkflow,
     FeatureType,
     LoadTask,
-    MergeEOPatchesTask,
     MergeFeatureTask,
     OverwritePermission,
     SaveTask,
