@@ -70,6 +70,7 @@ class FeaturesPipeline(Pipeline):
             ),
         )
 
+        dtype: Optional[str] = Field(description="The dtype under which the concatenated features should be saved")
         output_feature_name: str = Field(description="Name of output data feature encompassing bands and NDIs")
         compress_level: int = Field(1, description="Level of compression used in saving eopatches")
 
@@ -172,7 +173,9 @@ class FeaturesPipeline(Pipeline):
         """Tasks performed after temporal regularization. Should also prepare features for the saving step"""
         ndi_features = [(FeatureType.DATA, name) for name in self.config.ndis]
         merge_task = MergeFeatureTask(
-            [self._get_bands_feature(), *ndi_features], (FeatureType.DATA, self.config.output_feature_name)
+            [self._get_bands_feature(), *ndi_features],
+            (FeatureType.DATA, self.config.output_feature_name),
+            dtype=self.config.dtype,
         )
         return EONode(merge_task, inputs=[previous_node])
 
