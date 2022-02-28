@@ -159,15 +159,12 @@ class FeaturesPipeline(Pipeline):
 
     def get_ndi_node(self, previous_node: EONode) -> EONode:
         """Builds a node for constructing Normalized Difference Indices"""
-        ndi_nodes = []
+
         for name, (id1, id2) in self.config.ndis.items():
             ndi_task = NormalizedDifferenceIndexTask(self._get_bands_feature(), (FeatureType.DATA, name), [id1, id2])
-            ndi_nodes.append(EONode(ndi_task, inputs=[previous_node]))
+            previous_node = EONode(ndi_task, inputs=[previous_node])
 
-        if len(ndi_nodes) <= 1:
-            return ndi_nodes[0] if len(ndi_nodes) == 1 else previous_node
-
-        return EONode(MergeEOPatchesTask(), inputs=ndi_nodes)
+        return previous_node
 
     def get_postprocessing_node(self, previous_node: EONode) -> EONode:
         """Tasks performed after temporal regularization. Should also prepare features for the saving step"""
