@@ -59,7 +59,7 @@ class BatchDownloadPipeline(Pipeline):
         mosaicking_order: Optional[str] = Field(description="The mosaicking order used by Sentinel Hub service")
         _validate_mosaicking_order = optional_field_validator("mosaicking_order", validate_mosaicking_order)
 
-        monitoring_sleep_time = Field(
+        monitoring_sleep_time: int = Field(
             120,
             ge=60,
             description=(
