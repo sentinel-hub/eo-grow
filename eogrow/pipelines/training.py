@@ -120,7 +120,10 @@ class BaseTrainingPipeline(Pipeline, metaclass=abc.ABCMeta):
     def train_test_split(
         self, features: np.ndarray, reference: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        """Computes a random train-test split"""
+        """Computes a random train-test split
+
+        Order is train-features test-features train-reference test-reference.
+        """
         config = self.config.train_test_split
         LOGGER.info("Making a random train-test split, using %s of data for training.", config.train_size)
         return train_test_split(features, reference, train_size=config.train_size, random_state=config.random_state)
