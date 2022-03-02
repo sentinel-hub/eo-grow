@@ -31,6 +31,9 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         output_folder_key: str = Field(
             description="The storage manager key pointing to the output folder for the prediction pipeline."
         )
+        dtype: Optional[str] = Field(
+            description="Casts the result to desired type. Uses predictor output type by default."
+        )
 
         prediction_mask_folder_key: Optional[str]
         prediction_mask_feature_name: Optional[str] = Field(
@@ -137,6 +140,7 @@ class RegressionPredictionPipeline(BasePredictionPipeline):
             input_features=self.config.input_features,
             mask_feature=_optional_typed_feature(FeatureType.MASK_TIMELESS, self.config.prediction_mask_feature_name),
             output_feature=(FeatureType.DATA_TIMELESS, self.config.output_feature_name),
+            output_dtype=self.config.dtype,
             mp_lock=self._is_mp_lock_needed,
             sh_config=self.sh_config,
             clip_predictions=self.config.clip_predictions,
@@ -158,7 +162,7 @@ class ClassificationPredictionPipeline(BasePredictionPipeline):
     def _get_output_features(self) -> List[Feature]:
         out = [FeatureType.TIMESTAMP, FeatureType.BBOX, (FeatureType.MASK_TIMELESS, self.config.output_feature_name)]
         if self.config.output_probability_feature_name:
-            out.append((FeatureType.DATA_TIMELESS, self.config.output_probability_feature))
+            out.append((FeatureType.DATA_TIMELESS, self.config.output_probability_feature_name))
         return out
 
     def _get_prediction_node(self, previous_node: EONode) -> EONode:
@@ -169,8 +173,9 @@ class ClassificationPredictionPipeline(BasePredictionPipeline):
             mask_feature=_optional_typed_feature(FeatureType.MASK_TIMELESS, self.config.prediction_mask_feature_name),
             output_feature=(FeatureType.MASK_TIMELESS, self.config.output_feature_name),
             output_probability_feature=_optional_typed_feature(
-                FeatureType.DATA_TIMELESS, self.config.output_probability_feature
+                FeatureType.DATA_TIMELESS, self.config.output_probability_feature_name
             ),
+            output_dtype=self.config.dtype,
             mp_lock=self._is_mp_lock_needed,
             sh_config=self.sh_config,
             label_encoder_filename=self.config.label_encoder_filename,
