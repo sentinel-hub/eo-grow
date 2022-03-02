@@ -17,6 +17,7 @@ from eogrow.utils.testing import run_and_test_pipeline
         ("features_config_mosaicking_custom.json", "features_stats_mosaicking_custom.json"),
         ("features_on_rescaled_dn.json", "features_on_rescaled_dn.json"),
         ("features_config_mosaicking.json", "features_stats_mosaicking.json"),
+        ("features_config_dtype.json", "features_stats_dtype.json"),
     ],
 )
 def test_features_pipeline(config_folder, config_name, stats_folder, stats_name):
