@@ -112,7 +112,7 @@ jobs:
           sentinelhub.config \
             --sh_client_id "${{ secrets.SH_CLIENT_ID }}" \
             --sh_client_secret "${{ secrets.SH_CLIENT_SECRET }}"
-          pytest -m "fast or chain"
+          pytest -m "fast"
 
   mirror-to-gitlab:
     if: github.event_name == 'push'

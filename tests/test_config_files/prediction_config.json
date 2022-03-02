@@ -4,7 +4,7 @@
   "model_folder_key": "models",
   "input_folder_key": "features",
   "output_folder_key": "predictions",
-  "output_feature": "PREDICTION_LABELS",
+  "output_feature_name": "PREDICTION_LABELS",
   "input_features": [
     ["data", "FEATURES"]
   ],

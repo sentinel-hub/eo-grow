@@ -24,6 +24,7 @@ class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
         input_features: List[Feature],
         mask_feature: Feature,
         output_feature: Feature,
+        output_dtype: Optional[str],
         mp_lock: bool,
         sh_config: SHConfig,
     ):
@@ -44,6 +45,7 @@ class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
         self.input_features = input_features
         self.mask_feature = mask_feature
         self.output_feature = output_feature
+        self.output_dtype = output_dtype
 
         self.mp_lock = mp_lock
         self.sh_config = sh_config
@@ -81,8 +83,11 @@ class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
             return return_on_empty
 
         if self.mp_lock:
-            return execute_with_mp_lock(predictor, processed_features)
-        return predictor(processed_features)
+            predictions = execute_with_mp_lock(predictor, processed_features)
+        else:
+            predictions = predictor(processed_features)
+
+        return predictions.astype(self.output_dtype) if self.output_dtype else predictions
 
     @abc.abstractmethod
     def add_predictions(self, eopatch: EOPatch, processed_features: np.ndarray, mask: np.ndarray) -> EOPatch:

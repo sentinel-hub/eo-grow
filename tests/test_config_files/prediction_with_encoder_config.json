@@ -4,8 +4,8 @@
   "model_folder_key": "models",
   "input_folder_key": "features",
   "output_folder_key": "temp",
-  "output_feature": "PREDICTION_LABELS",
-  "output_probability_feature": "PREDICTION_PROBABILITY",
+  "output_feature_name": "PREDICTION_LABELS",
+  "output_probability_feature_name": "PREDICTION_PROBABILITY",
   "input_features": [
     ["data", "FEATURES"]
   ],

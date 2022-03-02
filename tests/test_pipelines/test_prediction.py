@@ -14,6 +14,7 @@ from eogrow.utils.testing import run_and_test_pipeline
     "config_name, stats_name",
     [
         ("prediction_config.json", "prediction_stats.json"),
+        ("prediction_dtype_config.json", "prediction_dtype_stats.json"),
         ("prediction_with_encoder_config.json", "prediction_with_encoder_stats.json"),
     ],
 )
