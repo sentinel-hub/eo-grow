@@ -88,7 +88,7 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         features_load_node = EONode(
             LoadTask(
                 self.storage.get_folder(self.config.input_folder_key, full_path=True),
-                features=[FeatureType.BBOX, *self.config.input_features],
+                features=[FeatureType.BBOX, FeatureType.TIMESTAMP, *self.config.input_features],
                 config=self.sh_config,
             )
         )
