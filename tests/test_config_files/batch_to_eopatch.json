@@ -1,0 +1,18 @@
+{
+  "pipeline": "eogrow.pipelines.batch_to_eopatch.BatchToEOPatchPipeline",
+  "**global_config": "${config_path}/global_config.json",
+  "input_folder_key": "batch_data",
+  "output_folder_key": "temp",
+  "mapping": [
+    {
+      "batch_files": ["B01.tif", "B02.tif", "B03.tif"],
+      "feature_type": "data_timeless",
+      "feature_name": "bands",
+      "multiply_factor": "0.12345",
+      "dtype": "float32"
+    }
+  ],
+  "userdata_feature_name": "metainfo",
+  "userdata_timestamp_reader": "eogrow.utils.batch.read_timestamps",
+  "remove_batch_data": "false"
+}

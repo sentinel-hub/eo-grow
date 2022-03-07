@@ -23,6 +23,7 @@
     "project_folder": "${config_path}/../test_project",
     "structure": {
       "data": "data",
+      "batch_data": "batch-data",
       "data_2019": "data-2019",  // these two are custom for testing features pipelines
       "data_custom_range": "data-custom-range",  // these two are custom for testing features pipelines
       "data_sampled": "data-sampled",
