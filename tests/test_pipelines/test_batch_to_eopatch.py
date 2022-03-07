@@ -1,5 +1,5 @@
 """
-Testing rasterization pipeline
+Testing batch-to-eopatch pipeline
 """
 import json
 import os
@@ -14,8 +14,12 @@ from eogrow.core.config import Config
 from eogrow.pipelines.batch_to_eopatch import BatchToEOPatchPipeline
 from eogrow.utils.testing import ContentTester, check_pipeline_logs
 
+from sentinelhub import BBox
 
-def prepare_batch_files(folder, filesystem: FS, tiff_bbox, width, height, num_timestamps, dtype):
+
+def prepare_batch_files(
+    folder: str, filesystem: FS, tiff_bbox: BBox, width: int, height: int, num_timestamps: int, dtype: str
+):
     transform = rasterio.transform.from_bounds(*tiff_bbox, width=width, height=height)
     filesystem.makedirs(folder, recreate=True)
 
