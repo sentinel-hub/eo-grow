@@ -10,11 +10,11 @@ import pytest
 import rasterio
 from fs.base import FS
 
+from sentinelhub import BBox
+
 from eogrow.core.config import Config
 from eogrow.pipelines.batch_to_eopatch import BatchToEOPatchPipeline
 from eogrow.utils.testing import ContentTester, check_pipeline_logs
-
-from sentinelhub import BBox
 
 
 def prepare_batch_files(
