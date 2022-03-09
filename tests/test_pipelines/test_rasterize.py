@@ -10,7 +10,12 @@ from eolearn.core import EONode, EOPatch, FeatureType, MapFeatureTask
 
 from eogrow.core.config import Config
 from eogrow.pipelines.rasterize import RasterizePipeline
-from eogrow.utils.testing import ContentTester, check_pipeline_logs, run_and_test_pipeline
+from eogrow.utils.testing import ContentTester, check_pipeline_logs, create_folder_dict, run_and_test_pipeline
+
+
+@pytest.fixture(scope="session", name="folders")
+def config_folder_fixture(config_folder, stats_folder):
+    return create_folder_dict(config_folder, stats_folder, "rasterize")
 
 
 class CropPreprocessTask(MapFeatureTask):
@@ -67,29 +72,18 @@ def add_vector_data(pipeline):
         eopatch.save(eopatch_folder, features=[(FeatureType.VECTOR_TIMELESS, "LULC_VECTOR")], overwrite_permission=1)
 
 
-@pytest.mark.parametrize(
-    "config_name, stats_name",
-    [
-        ("rasterize_pipeline_float.json", "rasterize_pipeline_float.json"),
-    ],
-)
-def test_rasterize_pipeline(config_folder, stats_folder, config_name, stats_name):
-    config = Config.from_path(os.path.join(config_folder, config_name))
-    run_and_test_pipeline(config_folder, config_name, stats_folder, stats_name, config.output_folder_key)
+@pytest.mark.parametrize("experiment_name", ["rasterize_pipeline_float"])
+def test_rasterize_pipeline(experiment_name, folders):
+    run_and_test_pipeline(experiment_name, **folders)
 
 
 @pytest.mark.chain
 @pytest.mark.order(before="test_rasterize_pipeline_features")
-@pytest.mark.parametrize(
-    "config_name, stats_name",
-    [
-        ("rasterize_pipeline_config.json", "rasterize_pipeline.json"),
-    ],
-)
-def test_rasterize_pipeline_preprocess(config_folder, stats_folder, config_name, stats_name):
+@pytest.mark.parametrize("experiment_name", ["rasterize_pipeline"])
+def test_rasterize_pipeline_preprocess(folders, experiment_name):
     # Can't use utility testing due to custom pipeline
-    config_filename = os.path.join(config_folder, config_name)
-    stat_path = os.path.join(stats_folder, stats_name)
+    config_filename = os.path.join(folders["config_folder"], experiment_name + ".json")
+    stat_path = os.path.join(folders["stats_folder"], experiment_name + ".json")
 
     pipeline = CropRasterizePipeline(Config.from_path(config_filename))
 
@@ -106,9 +100,10 @@ def test_rasterize_pipeline_preprocess(config_folder, stats_folder, config_name,
 
 
 @pytest.mark.chain
-def test_rasterize_pipeline_features(config_folder, stats_folder):
-    config_filename = os.path.join(config_folder, "rasterize_pipeline_features.json")
-    stat_path = os.path.join(stats_folder, "rasterize_stats.json")
+@pytest.mark.parametrize("experiment_name", ["rasterize_pipeline_features"])
+def test_rasterize_pipeline_features(folders, experiment_name):
+    config_filename = os.path.join(folders["config_folder"], experiment_name + ".json")
+    stat_path = os.path.join(folders["stats_folder"], experiment_name + ".json")
 
     pipeline = RasterizePipeline(Config.from_path(config_filename))
     add_vector_data(pipeline)

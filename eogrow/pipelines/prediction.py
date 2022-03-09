@@ -131,7 +131,7 @@ class RegressionPredictionPipeline(BasePredictionPipeline):
         )
 
     def _get_output_features(self) -> List[Feature]:
-        return [FeatureType.TIMESTAMP, FeatureType.BBOX, (FeatureType.DATA_TIMELESS, self.config.output_feature_name)]
+        return [FeatureType.BBOX, (FeatureType.DATA_TIMELESS, self.config.output_feature_name)]
 
     def _get_prediction_node(self, previous_node: EONode) -> EONode:
         prediction_task = RegressionPredictionTask(
@@ -160,7 +160,7 @@ class ClassificationPredictionPipeline(BasePredictionPipeline):
         )
 
     def _get_output_features(self) -> List[Feature]:
-        out = [FeatureType.TIMESTAMP, FeatureType.BBOX, (FeatureType.MASK_TIMELESS, self.config.output_feature_name)]
+        out = [FeatureType.BBOX, (FeatureType.MASK_TIMELESS, self.config.output_feature_name)]
         if self.config.output_probability_feature_name:
             out.append((FeatureType.DATA_TIMELESS, self.config.output_probability_feature_name))
         return out

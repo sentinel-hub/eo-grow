@@ -1,0 +1,12 @@
+{
+  "pipeline": "eogrow.pipelines.export_maps.ExportMapsPipeline",
+  "**global_config": "${config_path}/../global_config.json",
+  "input_folder_key": "data",
+  "output_folder_key": "maps",
+  "feature": ["data", "BANDS-S2-L1C"],
+  "map_name": "result.tiff",
+  "map_dtype": "float32",
+  "band_indices": [0],
+  "cogify": false,
+  "workers": 1
+}

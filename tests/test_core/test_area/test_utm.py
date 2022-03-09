@@ -15,7 +15,7 @@ pytestmark = pytest.mark.fast
 
 @pytest.fixture(scope="session", name="large_area_config")
 def large_area_config_fixture(config_folder):
-    filename = os.path.join(config_folder, "large_area_global_config.json")
+    filename = os.path.join(config_folder, "other", "large_area_global_config.json")
     return Config.from_path(filename)
 
 

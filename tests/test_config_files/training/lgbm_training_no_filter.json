@@ -1,0 +1,18 @@
+{
+  "pipeline": "eogrow.pipelines.training.ClassificationTrainingPipeline",
+  "**global_config": "${config_path}/../global_config.json",
+  "input_folder_key": "training_data",
+  "model_folder_key": "models",
+  "model_filename": "no_filter_model.gz",
+  "train_features": ["FEATURES"],
+  "train_reference": "LULC_ID",
+  "train_test_split" : {
+    "random_state": 42,
+    "train_size": 0.8
+  },
+  "model_parameters": {
+    "min_child_samples": 500,
+    "n_estimators": 100,
+    "n_jobs": -1
+  }
+}
