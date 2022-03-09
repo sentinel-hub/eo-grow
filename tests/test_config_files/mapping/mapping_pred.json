@@ -1,0 +1,10 @@
+{
+  "pipeline": "eogrow.pipelines.mapping.MappingPipeline",
+  "**global_config": "${config_path}/../global_config.json",
+  "input_folder_key": "predictions",
+  "output_folder_key": "temp",
+  "input_feature": "PREDICTION_LABELS",
+  "output_feature": "PREDICTION_LABELS_MAPPED",
+  "mapping_dictionary": {"1": 2, "3": 5},
+  "workers": 1
+}

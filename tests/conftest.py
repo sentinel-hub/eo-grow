@@ -38,7 +38,9 @@ def temp_folder_fixture():
 
 @pytest.fixture(scope="session", name="test_storage_manager")
 def test_storage_manager_fixture(project_folder):
-    filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_config_files", "local_storage_test.json")
+    filename = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "test_config_files", "other", "local_storage_test.json"
+    )
     config = Config.from_path(filename)
     config.storage.project_folder = project_folder
     yield StorageManager(config.storage)

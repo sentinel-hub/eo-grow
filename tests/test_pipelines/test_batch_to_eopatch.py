@@ -14,7 +14,12 @@ from sentinelhub import BBox
 
 from eogrow.core.config import Config
 from eogrow.pipelines.batch_to_eopatch import BatchToEOPatchPipeline
-from eogrow.utils.testing import ContentTester, check_pipeline_logs
+from eogrow.utils.testing import ContentTester, check_pipeline_logs, create_folder_dict
+
+
+@pytest.fixture(scope="session", name="folders")
+def config_folder_fixture(config_folder, stats_folder):
+    return create_folder_dict(config_folder, stats_folder, "download_and_batch")
 
 
 def prepare_batch_files(
@@ -46,16 +51,11 @@ def prepare_batch_files(
 
 
 @pytest.mark.chain
-@pytest.mark.parametrize(
-    "config_name, stats_name",
-    [
-        ("batch_to_eopatch.json", "batch_to_eopatch.json"),
-    ],
-)
-def test_rasterize_pipeline_preprocess(config_folder, stats_folder, config_name, stats_name):
+@pytest.mark.parametrize("experiment_name", ["batch_to_eopatch"])
+def test_rasterize_pipeline_preprocess(folders, experiment_name):
     # Can't use utility testing due to custom pipeline
-    config_filename = os.path.join(config_folder, config_name)
-    stat_path = os.path.join(stats_folder, stats_name)
+    config_filename = os.path.join(folders["config_folder"], experiment_name + ".json")
+    stat_path = os.path.join(folders["stats_folder"], experiment_name + ".json")
 
     pipeline = BatchToEOPatchPipeline(Config.from_path(config_filename))
 

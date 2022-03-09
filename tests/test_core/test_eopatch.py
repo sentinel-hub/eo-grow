@@ -18,7 +18,7 @@ def eopatch_manager_fixture(storage, config):
 
 @pytest.fixture(name="special_eopatch_manager")
 def special_eopatch_manager_fixture(storage, config_folder):
-    path = os.path.join(config_folder, "eopatch_global_config.json")
+    path = os.path.join(config_folder, "other", "eopatch_global_config.json")
     config = Config.from_path(path)
     area_manager = UtmZoneAreaManager(config.area, storage)
     return EOPatchManager(config.eopatch, area_manager)
@@ -26,7 +26,7 @@ def special_eopatch_manager_fixture(storage, config_folder):
 
 @pytest.fixture(name="filtered_eopatch_manager")
 def filtered_eopatch_manager_fixture(storage, config_folder):
-    path = os.path.join(config_folder, "eopatch_global_config_filtered.json")
+    path = os.path.join(config_folder, "other", "eopatch_global_config_filtered.json")
     config = Config.from_path(path)
     area_manager = UtmZoneAreaManager(config.area, storage)
     return EOPatchManager(config.eopatch, area_manager)
