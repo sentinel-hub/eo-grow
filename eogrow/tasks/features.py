@@ -91,7 +91,7 @@ class MosaickingTask(EOTask, metaclass=abc.ABCMeta):
         edges.append(end)
         return np.array(edges)
 
-    def _find_time_indices(self, timestamps: Sequence[datetime], index: int) -> np.ndarray:
+    def _find_time_indices(self, timestamps: Sequence[datetime], index: int) -> Tuple[np.ndarray, ...]:
         """Compute indices of images to use for mosaicking"""
         if index == 1:
             array = np.where((np.array(timestamps) <= self.dates[index]))
@@ -170,7 +170,7 @@ class MaxNDVIMosaickingTask(MosaickingTask):
                 mosaic = feat_values[0]
             else:
                 indices = np.nanargmax(ndvi_values, axis=0).squeeze(axis=-1)
-                ixgrid = np.ix_(np.arange(timeframes), np.arange(height), np.arange(width))
+                ixgrid: Tuple[np.ndarray, ...] = np.ix_(np.arange(timeframes), np.arange(height), np.arange(width))
                 mosaic = feat_values[indices, ixgrid[1], ixgrid[2], :].squeeze(axis=0)
 
             mosaic[np.broadcast_to(mask_nan_slices[0], mosaic.shape)] = np.nan

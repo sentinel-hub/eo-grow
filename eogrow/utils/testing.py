@@ -222,13 +222,14 @@ def run_and_test_pipeline(
     expected_stats_file = os.path.join(stats_folder, experiment_name + ".json")
 
     config = Config.from_path(config_filename)
-    try:
-        folder_key = folder_key or config.output_folder_key
-    except AttributeError:
-        raise ValueError("Pipeline does not have a `output_folder_key` parameter, `folder_key` must be set by hand.")
-
     if isinstance(config, ConfigList):
         raise ValueError("Cannot test config list with `run_and_test_pipeline`")
+
+    if folder_key or "output_folder_key" in config:
+        folder_key = folder_key or config.output_folder_key
+    else:
+        raise ValueError("Pipeline does not have a `output_folder_key` parameter, `folder_key` must be set by hand.")
+
     pipeline = load_pipeline(config)
 
     folder = pipeline.storage.get_folder(folder_key)

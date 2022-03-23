@@ -7,8 +7,12 @@ ipdb
 isort
 jupyter
 moto
+mypy
 pylint
 pytest-cov
 pytest-order
 pytest>=4.0.0
+types-requests
+types-setuptools
+types-urllib3
 twine
