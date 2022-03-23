@@ -170,7 +170,7 @@ class MaxNDVIMosaickingTask(MosaickingTask):
                 mosaic = feat_values[0]
             else:
                 indices = np.nanargmax(ndvi_values, axis=0).squeeze(axis=-1)
-                ixgrid = np.ix_(np.arange(timeframes), np.arange(height), np.arange(width))
+                ixgrid: Tuple[np.ndarray, ...] = np.ix_(np.arange(timeframes), np.arange(height), np.arange(width))
                 mosaic = feat_values[indices, ixgrid[1], ixgrid[2], :].squeeze(axis=0)
 
             mosaic[np.broadcast_to(mask_nan_slices[0], mosaic.shape)] = np.nan

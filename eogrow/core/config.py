@@ -282,7 +282,7 @@ def _recursive_apply_to_strings(config: object, function: Callable) -> object:
     return config
 
 
-def _recursive_check_config(config: dict) -> None:
+def _recursive_check_config(config: object) -> None:
     """Recursively checks if a config object conforms to some basic rules
 
     :raises: ValueError
