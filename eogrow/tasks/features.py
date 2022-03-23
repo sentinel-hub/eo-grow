@@ -91,7 +91,7 @@ class MosaickingTask(EOTask, metaclass=abc.ABCMeta):
         edges.append(end)
         return np.array(edges)
 
-    def _find_time_indices(self, timestamps: Sequence[datetime], index: int) -> np.ndarray:
+    def _find_time_indices(self, timestamps: Sequence[datetime], index: int) -> Tuple[np.ndarray, ...]:
         """Compute indices of images to use for mosaicking"""
         if index == 1:
             array = np.where((np.array(timestamps) <= self.dates[index]))
