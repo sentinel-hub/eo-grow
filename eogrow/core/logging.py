@@ -316,7 +316,7 @@ class StdoutFilter(Filter):
         "eogrow",
         "__main__",
         "root",
-        "sentinelhub.sentinelhub_batch",
+        "sentinelhub.api.batch",
     )
 
     def __init__(self, log_packages: Optional[Sequence[str]] = None, *args: Any, **kwargs: Any):
