@@ -51,7 +51,13 @@ def prepare_batch_files(
 
 
 @pytest.mark.chain
-@pytest.mark.parametrize("experiment_name", ["batch_to_eopatch"])
+@pytest.mark.parametrize(
+    "experiment_name",
+    [
+        "batch_to_eopatch",
+        "batch_to_eopatch_no_userdata",
+    ],
+)
 def test_rasterize_pipeline_preprocess(folders, experiment_name):
     # Can't use utility testing due to custom pipeline
     config_filename = os.path.join(folders["config_folder"], experiment_name + ".json")
