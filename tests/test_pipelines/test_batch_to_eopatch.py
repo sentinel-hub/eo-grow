@@ -23,7 +23,14 @@ def config_folder_fixture(config_folder, stats_folder):
 
 
 def prepare_batch_files(
-    folder: str, filesystem: FS, tiff_bbox: BBox, width: int, height: int, num_timestamps: int, dtype: str
+    folder: str,
+    filesystem: FS,
+    tiff_bbox: BBox,
+    width: int,
+    height: int,
+    num_timestamps: int,
+    dtype: str,
+    add_userdata: bool,
 ):
     transform = rasterio.transform.from_bounds(*tiff_bbox, width=width, height=height)
     filesystem.makedirs(folder, recreate=True)
@@ -46,8 +53,9 @@ def prepare_batch_files(
 
                 dst.write(10000 * generator.random((num_timestamps, height, width)))
 
-    userdata = {"timestamps": [f"2020-11-{i}T01:23:45Z" for i in range(1, num_timestamps + 1)]}
-    filesystem.writetext(fs.path.combine(folder, "userdata.json"), json.dumps(userdata))
+    if add_userdata:
+        userdata = {"timestamps": [f"2020-11-{i}T01:23:45Z" for i in range(1, num_timestamps + 1)]}
+        filesystem.writetext(fs.path.combine(folder, "userdata.json"), json.dumps(userdata))
 
 
 @pytest.mark.chain
@@ -68,12 +76,15 @@ def test_rasterize_pipeline_preprocess(folders, experiment_name):
     filesystem = pipeline.storage.filesystem
     input_folder = pipeline.storage.get_folder(pipeline.config.input_folder_key)
     output_folder = pipeline.storage.get_folder(pipeline.config.output_folder_key)
+    filesystem.removetree(input_folder)
     filesystem.removetree(output_folder)
 
     bboxes = pipeline.eopatch_manager.get_bboxes()
     folders = pipeline.eopatch_manager.get_eopatch_filenames()
+    add_userdata = bool(pipeline.config.userdata_feature_name or pipeline.config.userdata_timestamp_reader)
     for bbox, patch_folder in zip(bboxes, folders):
-        prepare_batch_files(fs.path.combine(input_folder, patch_folder), filesystem, bbox, 400, 800, 12, "uint16")
+        patch_path = fs.path.combine(input_folder, patch_folder)
+        prepare_batch_files(patch_path, filesystem, bbox, 400, 800, 12, "uint16", add_userdata)
 
     pipeline.run()
     check_pipeline_logs(pipeline)
