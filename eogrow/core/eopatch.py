@@ -7,7 +7,7 @@ import warnings
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import pandas
-from bidict import bidict  # type: ignore
+from bidict import bidict
 from geopandas import GeoDataFrame
 from pydantic import Field
 
