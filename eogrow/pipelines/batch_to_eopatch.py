@@ -39,7 +39,7 @@ class FeatureMappingSchema(BaseSchema):
     multiply_factor: Optional[float] = Field(description="Factor used to multiply feature values with.")
     dtype: Optional[str] = Field(
         description=(
-            "Dtype of the output feature. Only taken into account if `multiply_factor` is used.Default is `None`."
+            "Dtype of the output feature. Only taken into account if `multiply_factor` is used. Default is `None`."
         ),
     )
 
@@ -199,7 +199,7 @@ class BatchToEOPatchPipeline(Pipeline):
         """Provides a list of batch files used in this pipeline"""
         files = [file for feature_mapping in self.config.mapping for file in feature_mapping.batch_files]
 
-        if self.config.userdata_feature_name or self.config.userdata_timestamps_path:
+        if self.config.userdata_feature_name or self.config.userdata_timestamp_reader:
             files.append("userdata.json")
 
         return list(set(files))
