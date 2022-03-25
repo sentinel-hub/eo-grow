@@ -70,6 +70,7 @@ class BatchToEOPatchPipeline(Pipeline):
         super().__init__(*args, **kwargs)
 
         self._input_folder = self.storage.get_folder(self.config.input_folder_key, full_path=True)
+        self._has_userdata = self.config.userdata_feature_name or self.config.userdata_timestamp_reader
         self._all_batch_files = self._get_all_batch_files()
 
     def filter_patch_list(self, patch_list: List[str]) -> List[str]:
@@ -93,14 +94,16 @@ class BatchToEOPatchPipeline(Pipeline):
 
     def build_workflow(self) -> EOWorkflow:
         """Builds the workflow"""
-        userdata_node = EONode(
-            LoadUserDataTask(
-                path=self._input_folder,
-                userdata_feature_name=self.config.userdata_feature_name,
-                userdata_timestamp_reader=self.config.userdata_timestamp_reader,
-                config=self.sh_config,
+        userdata_node = None
+        if self._has_userdata:
+            userdata_node = EONode(
+                LoadUserDataTask(
+                    path=self._input_folder,
+                    userdata_feature_name=self.config.userdata_feature_name,
+                    userdata_timestamp_reader=self.config.userdata_timestamp_reader,
+                    config=self.sh_config,
+                )
             )
-        )
 
         mapping_nodes = [
             self._get_tiff_mapping_node(feature_mapping, userdata_node) for feature_mapping in self.config.mapping
@@ -129,7 +132,7 @@ class BatchToEOPatchPipeline(Pipeline):
 
         return EOWorkflow.from_endnodes(cleanup_node or save_node)
 
-    def _get_tiff_mapping_node(self, mapping: FeatureMappingSchema, previous_node: EONode) -> EONode:
+    def _get_tiff_mapping_node(self, mapping: FeatureMappingSchema, previous_node: Optional[EONode]) -> EONode:
         """Prepares tasks and dependencies that convert tiff files into an EOPatch feature"""
         if not all(batch_file.endswith(".tif") for batch_file in mapping.batch_files):
             raise ValueError(f"All batch files should end with .tif but found {mapping.batch_files}")
@@ -150,7 +153,11 @@ class BatchToEOPatchPipeline(Pipeline):
 
             import_task = ImportFromTiffTask(tmp_timeless_feature, folder=self._input_folder, config=self.sh_config)
             # Filename is written into the dependency name to be used later for execution arguments:
-            import_node = EONode(import_task, inputs=[previous_node], name=f"{batch_file} import")
+            import_node = EONode(
+                import_task,
+                inputs=[previous_node] if previous_node else [],
+                name=f"{batch_file} import",
+            )
 
             if feature_type.is_temporal():
                 fix_task = FixImportedTimeDependentFeatureTask(tmp_timeless_feature, feature)
@@ -199,7 +206,7 @@ class BatchToEOPatchPipeline(Pipeline):
         """Provides a list of batch files used in this pipeline"""
         files = [file for feature_mapping in self.config.mapping for file in feature_mapping.batch_files]
 
-        if self.config.userdata_feature_name or self.config.userdata_timestamp_reader:
+        if self._has_userdata:
             files.append("userdata.json")
 
         return list(set(files))
