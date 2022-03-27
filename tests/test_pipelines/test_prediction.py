@@ -1,35 +1,24 @@
 """
 Tests for prediction pipeline
 """
-import os
-
 import pytest
 
-from eogrow.core.config import Config
-from eogrow.utils.testing import run_and_test_pipeline
+from eogrow.utils.testing import create_folder_dict, run_and_test_pipeline
+
+
+@pytest.fixture(scope="session", name="folders")
+def config_folder_fixture(config_folder, stats_folder):
+    return create_folder_dict(config_folder, stats_folder, "prediction")
 
 
 @pytest.mark.order(after="test_training.py::test_training_pipeline_random_split")
-@pytest.mark.parametrize(
-    "config_name, stats_name",
-    [
-        ("prediction_config.json", "prediction_stats.json"),
-        ("prediction_with_encoder_config.json", "prediction_with_encoder_stats.json"),
-    ],
-)
-def test_prediction_pipeline(config_folder, config_name, stats_folder, stats_name):
-    config = Config.from_path(os.path.join(config_folder, config_name))
-    run_and_test_pipeline(config_folder, config_name, stats_folder, stats_name, config.output_folder_key)
+@pytest.mark.parametrize("experiment_name", ["prediction", "prediction_dtype", "prediction_with_encoder"])
+def test_prediction_pipeline(experiment_name, folders):
+    run_and_test_pipeline(experiment_name, **folders)
 
 
 @pytest.mark.chain
 @pytest.mark.order(after="test_training.py::test_training_pipeline_random_split")
-@pytest.mark.parametrize(
-    "config_name, stats_name",
-    [
-        ("prediction_chain_config.json", "prediction_chain_stats.json"),
-    ],
-)
-def test_prediction_chain(config_folder, config_name, stats_folder, stats_name):
-    config = Config.from_path(os.path.join(config_folder, config_name))
-    run_and_test_pipeline(config_folder, config_name, stats_folder, stats_name, config.output_folder_key)
+@pytest.mark.parametrize("experiment_name", ["prediction_chain"])
+def test_prediction_chain(experiment_name, folders):
+    run_and_test_pipeline(experiment_name, **folders)

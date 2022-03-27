@@ -3,19 +3,19 @@ Testing merging pipeline
 """
 import pytest
 
-from eogrow.utils.testing import run_and_test_pipeline
+from eogrow.utils.testing import create_folder_dict, run_and_test_pipeline
+
+
+@pytest.fixture(scope="session", name="folders")
+def config_folder_fixture(config_folder, stats_folder):
+    return create_folder_dict(config_folder, stats_folder, "merge_samples")
 
 
 @pytest.mark.chain
 @pytest.mark.order(after="test_features.py::test_features_pipeline_in_chain")
 @pytest.mark.parametrize(
-    "config_name, stats_name, reset_folder",
-    [
-        ("merge_features_samples_config.json", "merge_features_samples_stats.json", True),
-        ("merge_reference_samples_config.json", "merge_reference_samples_stats.json", False),
-    ],
+    "experiment_name, reset_folder",
+    [("merge_features_samples", True), ("merge_reference_samples", False)],
 )
-def test_merge_samples_pipeline(config_folder, config_name, stats_folder, stats_name, reset_folder):
-    run_and_test_pipeline(
-        config_folder, config_name, stats_folder, stats_name, "training_data", reset_folder=reset_folder
-    )
+def test_merge_samples_pipeline(experiment_name, reset_folder, folders):
+    run_and_test_pipeline(experiment_name, **folders, reset_folder=reset_folder)

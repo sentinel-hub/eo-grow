@@ -1,0 +1,13 @@
+{
+  "pipeline": "eogrow.pipelines.merge_samples.MergeSamplesPipeline",
+  "**global_config": "${config_path}/../global_config.json",
+  "input_folder_key": "features_sampled",
+  "output_folder_key": "training_data",
+  "features_to_merge": [
+    ["data", "FEATURES"],
+    "timestamp"
+  ],
+  "id_filename": "PATCH_IDS",
+  "suffix": "",
+  "workers": 2
+}

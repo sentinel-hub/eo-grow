@@ -2,7 +2,7 @@
 Task definitions for prediction
 """
 import abc
-from typing import Callable, List, Optional, Tuple
+from typing import Any, Callable, List, Optional, Tuple, Union
 
 import joblib
 import numpy as np
@@ -24,6 +24,7 @@ class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
         input_features: List[Feature],
         mask_feature: Feature,
         output_feature: Feature,
+        output_dtype: Optional[str],
         mp_lock: bool,
         sh_config: SHConfig,
     ):
@@ -44,11 +45,12 @@ class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
         self.input_features = input_features
         self.mask_feature = mask_feature
         self.output_feature = output_feature
+        self.output_dtype = output_dtype
 
         self.mp_lock = mp_lock
         self.sh_config = sh_config
 
-    def process_data(self, eopatch: EOPatch, mask: np.ndarray) -> List[np.ndarray]:
+    def process_data(self, eopatch: EOPatch, mask: np.ndarray) -> np.ndarray:
         """Masks and reshapes data into a form suitable for the model"""
         all_features = []
         for ftype, fname in self.input_features:
@@ -65,7 +67,7 @@ class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
         return np.concatenate(all_features, axis=-1)
 
     @property
-    def model(self):
+    def model(self) -> object:
         """Implements lazy loading that gets around file-system issues"""
         if self._model is None:
             file_system = get_filesystem(self.model_folder, config=self.sh_config)
@@ -81,15 +83,20 @@ class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
             return return_on_empty
 
         if self.mp_lock:
-            return execute_with_mp_lock(predictor, processed_features)
-        return predictor(processed_features)
+            predictions = execute_with_mp_lock(predictor, processed_features)
+        else:
+            predictions = predictor(processed_features)
+
+        return predictions.astype(self.output_dtype) if self.output_dtype else predictions
 
     @abc.abstractmethod
     def add_predictions(self, eopatch: EOPatch, processed_features: np.ndarray, mask: np.ndarray) -> EOPatch:
         """Runs the model prediction on given features and adds them to the eopatch. Must reverse mask beforehand."""
 
     @staticmethod
-    def transform_to_feature_form(predictions: np.ndarray, mask: np.ndarray, no_value=0) -> np.ndarray:
+    def transform_to_feature_form(
+        predictions: np.ndarray, mask: np.ndarray, no_value: Union[float, int] = 0
+    ) -> np.ndarray:
         """Transforms an array of predictions into an EOPatch suitable array, making sure to reverse the masking"""
         full_predictions = np.full((*mask.shape, predictions.shape[-1]), dtype=predictions.dtype, fill_value=no_value)
         full_predictions[mask, :] = predictions
@@ -116,7 +123,7 @@ class ClassificationPredictionTask(BasePredictionTask):
         *,
         label_encoder_filename: str,
         output_probability_feature: Optional[Feature] = None,
-        **kwargs,
+        **kwargs: Any,
     ):
         """
         :param label_encoder_filename: Name of file containing the label encoder with which to decode predictions
@@ -129,7 +136,7 @@ class ClassificationPredictionTask(BasePredictionTask):
         super().__init__(**kwargs)
 
     @property
-    def label_encoder(self):
+    def label_encoder(self) -> object:
         """Implements lazy loading that gets around file-system issues"""
         if self._label_encoder is None and self.label_encoder_filename is not None:
             file_system = get_filesystem(self.model_folder, config=self.sh_config)
@@ -142,15 +149,16 @@ class ClassificationPredictionTask(BasePredictionTask):
 
         If specified also adds probability scores and uses a label encoder.
         """
-
-        predictions = self.apply_predictor(self.model.predict, processed_features, np.zeros((0,), dtype=np.uint8))
+        predictions = self.apply_predictor(
+            self.model.predict, processed_features, np.zeros((0,), dtype=np.uint8)  # type: ignore
+        )
         predictions = predictions[..., np.newaxis]
         if self.label_encoder is not None:
-            predictions = self.label_encoder.inverse_transform(predictions)
+            predictions = self.label_encoder.inverse_transform(predictions)  # type: ignore
         eopatch[self.output_feature] = self.transform_to_feature_form(predictions, mask)
 
         if self.output_probability_feature is not None:
-            probabilities = self.apply_predictor(self.model.predict_proba, processed_features)
+            probabilities = self.apply_predictor(self.model.predict_proba, processed_features)  # type: ignore
             eopatch[self.output_probability_feature] = self.transform_to_feature_form(probabilities, mask)
 
         return eopatch
@@ -163,7 +171,7 @@ class RegressionPredictionTask(BasePredictionTask):
         self,
         *,
         clip_predictions: Optional[Tuple[float, float]],
-        **kwargs,
+        **kwargs: Any,
     ):
         """
         :param clip_predictions: If given the task also clips predictions to the specified interval.
@@ -175,7 +183,9 @@ class RegressionPredictionTask(BasePredictionTask):
     def add_predictions(self, eopatch: EOPatch, processed_features: np.ndarray, mask: np.ndarray) -> EOPatch:
         """Runs the model prediction on given features and adds them to the eopatch. Must reverse mask beforehand."""
 
-        predictions = self.apply_predictor(self.model.predict, processed_features, np.zeros((0,), dtype=np.float32))
+        predictions = self.apply_predictor(
+            self.model.predict, processed_features, np.zeros((0,), dtype=np.float32)  # type: ignore
+        )
         predictions = predictions[..., np.newaxis]
         if self.clip_predictions is not None:
             predictions = predictions.clip(*self.clip_predictions)

@@ -13,14 +13,14 @@ pytestmark = pytest.mark.fast
 
 @pytest.fixture(scope="session", name="local_storage_manager")
 def local_storage_manager_fixture(config_folder):
-    filename = os.path.join(config_folder, "local_storage_test.json")
+    filename = os.path.join(config_folder, "other", "local_storage_test.json")
     config = Config.from_path(filename)
     return StorageManager(config.storage)
 
 
 @pytest.fixture(scope="session", name="aws_storage_manager")
 def aws_storage_manager(project_folder, config_folder):
-    filename = os.path.join(config_folder, "aws_storage_test.json")
+    filename = os.path.join(config_folder, "other", "aws_storage_test.json")
     config = Config.from_path(filename)
     config.storage.project_folder = project_folder
     return StorageManager(config.storage)
@@ -28,7 +28,7 @@ def aws_storage_manager(project_folder, config_folder):
 
 @pytest.fixture(scope="session", name="aws_storage_config_fixture")
 def aws_storage_config_fixture(config_folder):
-    filename = os.path.join(config_folder, "aws_storage_test.json")
+    filename = os.path.join(config_folder, "other", "aws_storage_test.json")
     return Config.from_path(filename)
 
 

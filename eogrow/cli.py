@@ -4,7 +4,7 @@ Module implementing command line interface for `eo-grow`
 import json
 import os
 import subprocess
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import click
 
@@ -59,14 +59,14 @@ class EOGrowCli:
     @click.argument("config_filename_or_string", type=click.Path())
     @variables_option
     @test_patches_option
-    def main(config_filename_or_string: str, cli_variables: Tuple[str], test_patches: Tuple[int]):
+    def main(config_filename_or_string: str, cli_variables: Tuple[str], test_patches: Tuple[int]) -> None:
         """Execute eo-grow pipeline using CLI.
 
         \b
         Example:
             eogrow config_files/config.json
         """
-        pipeline_configs = get_config_from_string(config_filename_or_string)
+        pipeline_configs: List[Config] = get_config_from_string(config_filename_or_string)
         if isinstance(pipeline_configs, Config):
             pipeline_configs = [pipeline_configs]
 
@@ -123,7 +123,7 @@ class EOGrowCli:
         use_tmux: bool,
         cli_variables: Tuple[str],
         test_patches: Tuple[int],
-    ):
+    ) -> None:
         """Command for running an eo-grow pipeline on a remote Ray cluster of AWS EC2 instances
 
         \b
@@ -188,7 +188,7 @@ class EOGrowCli:
         template_format: str,
         required_only: bool,
         add_descriptions: bool,
-    ):
+    ) -> None:
         """Command for creating a config template for an eo-grow pipeline
 
         \b
@@ -225,14 +225,14 @@ class EOGrowCli:
     @staticmethod
     @click.command()
     @click.argument("config_filename_or_string", type=click.Path())
-    def validate_config(config_filename_or_string: str):
+    def validate_config(config_filename_or_string: str) -> None:
         """Validate config without running a pipeline.
 
         \b
         Example:
             eogrow-validate config_files/config.json
         """
-        pipeline_configs = get_config_from_string(config_filename_or_string)
+        pipeline_configs: List[Config] = get_config_from_string(config_filename_or_string)
         if isinstance(pipeline_configs, Config):
             pipeline_configs = [pipeline_configs]
 
@@ -244,7 +244,7 @@ class EOGrowCli:
     @staticmethod
     @click.command()
     @click.argument("config_filename_or_string", type=click.Path())
-    def run_test_pipeline(config_filename_or_string: str):
+    def run_test_pipeline(config_filename_or_string: str) -> None:
         """Runs a test pipeline that only makes sure the managers work correctly. This can be used to select best
         area manager parameters.
 
@@ -252,7 +252,7 @@ class EOGrowCli:
         Example:
             eogrow-test any_pipeline_config.json
         """
-        pipeline_configs = get_config_from_string(config_filename_or_string)
+        pipeline_configs: List[Config] = get_config_from_string(config_filename_or_string)
         if isinstance(pipeline_configs, Config):
             pipeline_configs = [pipeline_configs]
 

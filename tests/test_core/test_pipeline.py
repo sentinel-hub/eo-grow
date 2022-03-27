@@ -16,7 +16,7 @@ pytestmark = pytest.mark.fast
 
 @pytest.fixture(scope="session", name="simple_config_filename")
 def simple_config_filename_fixture(config_folder):
-    return os.path.join(config_folder, "simple_config.json")
+    return os.path.join(config_folder, "other", "simple_config.json")
 
 
 class SimplePipeline(Pipeline):

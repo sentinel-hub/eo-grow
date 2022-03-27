@@ -1,7 +1,7 @@
 """
 Module containing utilities for working with filesystems
 """
-from typing import Optional
+from typing import Any, Optional
 
 import fs
 import fs.copy
@@ -26,7 +26,7 @@ class LocalFile:
         filesystem: Optional[fs.base.FS] = None,
         config: Optional[SHConfig] = None,
         always_copy: bool = False,
-        **temp_fs_kwargs,
+        **temp_fs_kwargs: Any,
     ):
         """
         :param path: Either a full path to a remote file or a path to remote file which is relative to given filesystem
@@ -73,18 +73,18 @@ class LocalFile:
         """Provides an absolute path to the copy in the local filesystem"""
         return self._absolute_local_path
 
-    def __enter__(self):
+    def __enter__(self) -> "LocalFile":
         """This allows the class to be used as a context manager"""
         return self
 
-    def __exit__(self, *_, **__):
+    def __exit__(self, *_: Any, **__: Any) -> None:
         """This allows the class to be used as a context manager. In case an error is raised this will by default
         still delete the object from local folder. In case you don't want that, initialize `LocalFile` with
         `auto_clean=False`.
         """
         self.close()
 
-    def close(self):
+    def close(self) -> None:
         """Close the local copy"""
         if "w" in self._mode:
             self.copy_to_remote()
@@ -92,12 +92,12 @@ class LocalFile:
         if self._filesystem is not self._remote_filesystem:
             self._filesystem.close()
 
-    def copy_to_local(self):
+    def copy_to_local(self) -> None:
         """Copy from remote to local location"""
         if self._filesystem is not self._remote_filesystem:
             fs.copy.copy_file(self._remote_filesystem, self._remote_path, self._filesystem, self._local_path)
 
-    def copy_to_remote(self):
+    def copy_to_remote(self) -> None:
         """Copy from local to remote location"""
         if self._filesystem is not self._remote_filesystem:
             fs.copy.copy_file(self._filesystem, self._local_path, self._remote_filesystem, self._remote_path)

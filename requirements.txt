@@ -25,4 +25,4 @@ eo-learn-io>=1.0.0
 eo-learn-mask>=1.0.0
 eo-learn-ml-tools>=1.0.0
 eo-learn-visualization>=1.0.0
-sentinelhub>=3.4.0
+sentinelhub>=3.5.0

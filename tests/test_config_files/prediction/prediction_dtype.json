@@ -1,0 +1,13 @@
+{
+  "pipeline": "eogrow.pipelines.prediction.ClassificationPredictionPipeline",
+  "**global_config": "${config_path}/../global_config.json",
+  "model_folder_key": "models",
+  "input_folder_key": "features",
+  "output_folder_key": "temp",
+  "output_feature_name": "PREDICTION_LABELS",
+  "dtype": "bool",
+  "input_features": [
+    ["data", "FEATURES"]
+  ],
+  "model_filename": "no_filter_model.gz"
+}

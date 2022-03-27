@@ -1,0 +1,22 @@
+{
+  "pipeline": "eogrow.pipelines.download.DownloadPipeline",
+  "**global_config": "${config_path}/../global_config.json",
+  "output_folder_key": "data_2019",
+  "data_collection": "SENTINEL2_L1C",
+  "time_period": ["Q1", 2019],
+  "bands_feature_name": "BANDS-S2-L1C",
+  "resolution": 10,
+  "maxcc": 0.3,
+  "time_difference": 120,
+  "additional_data": [["mask",  "CLM"], ["mask",  "dataMask"]],
+  "use_dn": true,
+  "postprocessing": {
+    "rescale_schemas":  [
+      {
+        "rescale_factor": 0.0001,
+        "features_to_rescale": [["data", "BANDS-S2-L1C"]]
+      }
+    ]
+  },
+  "workers": 2
+}

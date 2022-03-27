@@ -8,7 +8,7 @@ import json
 import os
 import pprint
 import re
-from typing import Callable, Dict, Optional, Sequence, Set, Tuple, Union
+from typing import Any, Callable, Dict, Optional, Sequence, Set, Tuple, Union
 
 import fs.path
 import rapidjson
@@ -66,7 +66,7 @@ class Config(Munch, _BaseConfig):
         """A nicer representation with pprint of the dictionary"""
         return f"{self.__class__.__name__}({{\n {pprint.pformat(dict(self))[1: -1]}\n}})"
 
-    def __getattr__(self, item: str):
+    def __getattr__(self, item: str) -> Any:
         """This additionally loads values of environmental variables
 
         This method performs the 3rd stage of language interpretation as described in
@@ -81,7 +81,7 @@ class Config(Munch, _BaseConfig):
             return [(_resolve_env_variables(param) if isinstance(param, str) else param) for param in value]
         return value
 
-    def add_cli_variables(self, cli_variables: Sequence[str]):
+    def add_cli_variables(self, cli_variables: Sequence[str]) -> None:
         """Adds variables passed in the CLI to the config. Has to be used before interpretation!"""
         cli_variable_mapping = dict(_parse_cli_variable(cli_var) for cli_var in cli_variables)
         current_variables = self.get("variables", {})
@@ -152,7 +152,7 @@ def interpret_config_from_path(path: str, used_config_paths: Optional[Set[str]] 
     return ConfigList.from_list(config)
 
 
-def _recursive_config_build(config, used_config_paths: Set[str]):
+def _recursive_config_build(config: object, used_config_paths: Set[str]) -> object:
     """Recursively builds a configuration object by replacing dictionary items in form of
 
         `'**key': 'file path to another config'`
@@ -178,6 +178,8 @@ def _recursive_config_build(config, used_config_paths: Set[str]):
                 joint_config[key] = _recursive_config_build(value, used_config_paths)
 
         for imported_config in imported_configs:
+            if isinstance(imported_config, list):
+                raise ValueError("Cannot import config lists inside other configs.")
             joint_config = recursive_config_join(joint_config, imported_config)
 
         return joint_config
@@ -195,7 +197,10 @@ def interpret_config_from_dict(config: dict) -> Config:
     `eo-grow/documentation/config-language.md`.
     """
     _recursive_check_config(config)
-    config = _recursive_apply_to_strings(config, _resolve_import_paths)
+    config_with_imports = _recursive_apply_to_strings(config, _resolve_import_paths)
+    if not isinstance(config_with_imports, dict):
+        raise ValueError(f"Interpretation resulted in object of type {type(config)} but a dictionary was expected.")
+    config = config_with_imports
 
     variable_mapping = config.pop("variables", {})
 
@@ -203,7 +208,12 @@ def interpret_config_from_dict(config: dict) -> Config:
         if not re.fullmatch(r"\w+", variable_name):
             raise ValueError(f"Variable name {variable_name} contains illegal characters")
 
-    config = _recursive_apply_to_strings(config, lambda config_str: _resolve_variables(config_str, variable_mapping))
+    config_with_variables = _recursive_apply_to_strings(
+        config, lambda config_str: _resolve_variables(config_str, variable_mapping)
+    )
+    if not isinstance(config_with_variables, dict):
+        raise ValueError(f"Interpretation resulted in object of type {type(config)} but a dictionary was expected.")
+    config = config_with_variables
 
     return Config.from_dict(config)
 
@@ -259,7 +269,7 @@ def _sub_env_variable(match: re.Match) -> str:
     return env_var_value
 
 
-def _recursive_apply_to_strings(config, function: Callable):
+def _recursive_apply_to_strings(config: object, function: Callable) -> object:
     """Recursively applies a function on all string values (and not keys) of a nested config object"""
     if isinstance(config, dict):
         return {key: _recursive_apply_to_strings(value, function) for key, value in config.items()}
@@ -272,7 +282,7 @@ def _recursive_apply_to_strings(config, function: Callable):
     return config
 
 
-def _recursive_check_config(config: dict):
+def _recursive_check_config(config: object) -> None:
     """Recursively checks if a config object conforms to some basic rules
 
     :raises: ValueError

@@ -29,7 +29,7 @@ class MergeSamplesPipeline(Pipeline):
             description="The storage manager key pointing to the output folder for the merge samples pipeline."
         )
         features_to_merge: List[Feature] = Field(
-            default_factory=dict, description="Dictionary of all features for which samples are to be merged."
+            description="Dictionary of all features for which samples are to be merged."
         )
         id_filename: Optional[str] = Field(description="Filename of array holding patch id of concatenated features")
         suffix: str = Field("", description="String to append to array filenames")
@@ -108,11 +108,14 @@ class MergeSamplesPipeline(Pipeline):
                 ]
                 feature_name = "TIMESTAMPS"
 
-            merged_array = np.concatenate(arrays, axis=0)
+            merged_array: np.ndarray = np.concatenate(arrays, axis=0)
             del arrays
 
             self._save_array(merged_array, feature_name)
             del merged_array
+
+        if patch_sample_nums is None:
+            raise ValueError("Need at least one feature to merge.")
 
         if self.config.id_filename:
             LOGGER.info("Started merging EOPatch ids")
@@ -122,7 +125,7 @@ class MergeSamplesPipeline(Pipeline):
                 for sample_num, patch_id in zip(patch_sample_nums, patch_ids)
             ]
 
-            merged_patch_ids = np.concatenate(patch_id_arrays, axis=0)
+            merged_patch_ids: np.ndarray = np.concatenate(patch_id_arrays, axis=0)
             self._save_array(merged_patch_ids, self.config.id_filename)
 
     @staticmethod

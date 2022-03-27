@@ -4,7 +4,7 @@ A pipeline module for rasterizing vector datasets.
 import logging
 import os
 import uuid
-from typing import List, Optional, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import fiona
 import fs
@@ -57,7 +57,7 @@ class VectorColumnSchema(BaseSchema):
     no_data_value: int = Field(0, description="The no_data_value argument to be passed to VectorToRasterTask")
 
     @validator("values_column")
-    def check_value_settings(cls, v, values):  # pylint ignore:invalid-name,no-self-use,no-self-argument
+    def check_value_settings(cls, v, values):  # type: ignore
         """Ensures that precisely one of `value` and `values_column` is set."""
         assert (v is None) != (values["value"] is None), "Only one of `values_column` and `value` should be given."
         return v
@@ -96,7 +96,7 @@ class RasterizePipeline(Pipeline):
             )
         )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
         if self._is_input_file(self.config.vector_input):

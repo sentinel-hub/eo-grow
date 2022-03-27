@@ -31,6 +31,9 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         output_folder_key: str = Field(
             description="The storage manager key pointing to the output folder for the prediction pipeline."
         )
+        dtype: Optional[str] = Field(
+            description="Casts the result to desired type. Uses predictor output type by default."
+        )
 
         prediction_mask_folder_key: Optional[str]
         prediction_mask_feature_name: Optional[str] = Field(
@@ -38,7 +41,7 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         )
 
         @validator("prediction_mask_feature_name")
-        def validate_filename(cls, v, values):  # pylint: disable=no-self-use, no-self-argument
+        def validate_filename(cls, v, values):  # type: ignore
             if values["prediction_mask_folder_key"] is None:
                 assert v is None, "Both `prediction_mask_folder_key` and `prediction_mask_feature_name` must be given."
             return v
@@ -85,7 +88,7 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         features_load_node = EONode(
             LoadTask(
                 self.storage.get_folder(self.config.input_folder_key, full_path=True),
-                features=[FeatureType.BBOX, *self.config.input_features],
+                features=[FeatureType.BBOX, FeatureType.TIMESTAMP, *self.config.input_features],
                 config=self.sh_config,
             )
         )
@@ -122,13 +125,13 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
 
 class RegressionPredictionPipeline(BasePredictionPipeline):
     class Schema(BasePredictionPipeline.Schema):
-        output_feature: str
+        output_feature_name: str
         clip_predictions: Optional[Tuple[float, float]] = Field(
             description="Whether to clip values of predictions to specified interval"
         )
 
     def _get_output_features(self) -> List[Feature]:
-        return [FeatureType.TIMESTAMP, FeatureType.BBOX, (FeatureType.DATA_TIMELESS, self.config.output_feature)]
+        return [FeatureType.BBOX, (FeatureType.DATA_TIMELESS, self.config.output_feature_name)]
 
     def _get_prediction_node(self, previous_node: EONode) -> EONode:
         prediction_task = RegressionPredictionTask(
@@ -136,7 +139,8 @@ class RegressionPredictionPipeline(BasePredictionPipeline):
             model_filename=self.config.model_filename,
             input_features=self.config.input_features,
             mask_feature=_optional_typed_feature(FeatureType.MASK_TIMELESS, self.config.prediction_mask_feature_name),
-            output_feature=(FeatureType.DATA_TIMELESS, self.config.output_feature),
+            output_feature=(FeatureType.DATA_TIMELESS, self.config.output_feature_name),
+            output_dtype=self.config.dtype,
             mp_lock=self._is_mp_lock_needed,
             sh_config=self.sh_config,
             clip_predictions=self.config.clip_predictions,
@@ -146,8 +150,8 @@ class RegressionPredictionPipeline(BasePredictionPipeline):
 
 class ClassificationPredictionPipeline(BasePredictionPipeline):
     class Schema(BasePredictionPipeline.Schema):
-        output_feature: str
-        output_probability_feature: Optional[str]
+        output_feature_name: str
+        output_probability_feature_name: Optional[str]
 
         label_encoder_filename: Optional[str] = Field(
             description=(
@@ -156,9 +160,9 @@ class ClassificationPredictionPipeline(BasePredictionPipeline):
         )
 
     def _get_output_features(self) -> List[Feature]:
-        out = [FeatureType.TIMESTAMP, FeatureType.BBOX, (FeatureType.MASK_TIMELESS, self.config.output_feature)]
-        if self.config.output_probability_feature:
-            out.append((FeatureType.DATA_TIMELESS, self.config.output_probability_feature))
+        out = [FeatureType.BBOX, (FeatureType.MASK_TIMELESS, self.config.output_feature_name)]
+        if self.config.output_probability_feature_name:
+            out.append((FeatureType.DATA_TIMELESS, self.config.output_probability_feature_name))
         return out
 
     def _get_prediction_node(self, previous_node: EONode) -> EONode:
@@ -167,10 +171,11 @@ class ClassificationPredictionPipeline(BasePredictionPipeline):
             model_filename=self.config.model_filename,
             input_features=self.config.input_features,
             mask_feature=_optional_typed_feature(FeatureType.MASK_TIMELESS, self.config.prediction_mask_feature_name),
-            output_feature=(FeatureType.MASK_TIMELESS, self.config.output_feature),
+            output_feature=(FeatureType.MASK_TIMELESS, self.config.output_feature_name),
             output_probability_feature=_optional_typed_feature(
-                FeatureType.DATA_TIMELESS, self.config.output_probability_feature
+                FeatureType.DATA_TIMELESS, self.config.output_probability_feature_name
             ),
+            output_dtype=self.config.dtype,
             mp_lock=self._is_mp_lock_needed,
             sh_config=self.sh_config,
             label_encoder_filename=self.config.label_encoder_filename,

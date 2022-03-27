@@ -12,7 +12,6 @@ from eolearn.core import (
     EOWorkflow,
     FeatureType,
     LoadTask,
-    MergeEOPatchesTask,
     MergeFeatureTask,
     OverwritePermission,
     SaveTask,
@@ -70,6 +69,7 @@ class FeaturesPipeline(Pipeline):
             ),
         )
 
+        dtype: Optional[str] = Field(description="The dtype under which the concatenated features should be saved")
         output_feature_name: str = Field(description="Name of output data feature encompassing bands and NDIs")
         compress_level: int = Field(1, description="Level of compression used in saving eopatches")
 
@@ -158,21 +158,20 @@ class FeaturesPipeline(Pipeline):
 
     def get_ndi_node(self, previous_node: EONode) -> EONode:
         """Builds a node for constructing Normalized Difference Indices"""
-        ndi_nodes = []
+
         for name, (id1, id2) in self.config.ndis.items():
             ndi_task = NormalizedDifferenceIndexTask(self._get_bands_feature(), (FeatureType.DATA, name), [id1, id2])
-            ndi_nodes.append(EONode(ndi_task, inputs=[previous_node]))
+            previous_node = EONode(ndi_task, inputs=[previous_node])
 
-        if len(ndi_nodes) <= 1:
-            return ndi_nodes[0] if len(ndi_nodes) == 1 else previous_node
-
-        return EONode(MergeEOPatchesTask(), inputs=ndi_nodes)
+        return previous_node
 
     def get_postprocessing_node(self, previous_node: EONode) -> EONode:
         """Tasks performed after temporal regularization. Should also prepare features for the saving step"""
         ndi_features = [(FeatureType.DATA, name) for name in self.config.ndis]
         merge_task = MergeFeatureTask(
-            [self._get_bands_feature(), *ndi_features], (FeatureType.DATA, self.config.output_feature_name)
+            [self._get_bands_feature(), *ndi_features],
+            (FeatureType.DATA, self.config.output_feature_name),
+            dtype=self.config.dtype,
         )
         return EONode(merge_task, inputs=[previous_node])
 

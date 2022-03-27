@@ -1,13 +1,12 @@
 """
 Area managers for Sentinel Hub batch grids
 """
-from typing import List
+from typing import Any, List
 
 from geopandas.geodataframe import GeoDataFrame
 from pydantic import Field
 
-from sentinelhub import BatchRequestStatus, BatchSplitter, BBox, SentinelHubBatch
-from sentinelhub.sentinelhub_batch import BatchRequest
+from sentinelhub import BatchRequest, BatchRequestStatus, BatchSplitter, BBox, SentinelHubBatch
 
 from .base import AreaManager
 
@@ -22,7 +21,7 @@ class BatchAreaManager(AreaManager):
         resolution: float
         tile_buffer: int = Field(0, description="Number of pixels for which each tile will be buffered")
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
         self.batch_id = ""
@@ -31,7 +30,7 @@ class BatchAreaManager(AreaManager):
         """Puts together batch parameters"""
         return [self.config.tiling_grid_id, self.config.resolution, self.config.tile_buffer]
 
-    def _create_new_split(self, *_, **__) -> List[GeoDataFrame]:
+    def _create_new_split(self, *_: Any, **__: Any) -> List[GeoDataFrame]:
         """Instead of creating a split it loads tiles from the service"""
         if not self.batch_id:
             raise ValueError(
@@ -60,7 +59,7 @@ class BatchAreaManager(AreaManager):
 
         return self._to_dataframe_grid(bbox_list, info_list, ["index_n", "id", "name"])
 
-    def _verify_batch_request(self, batch_request: BatchRequest):
+    def _verify_batch_request(self, batch_request: BatchRequest) -> None:
         """Verifies that given batch request has finished and that it has the same tiling grid parameters as
         they are written in the config.
         """

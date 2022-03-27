@@ -4,7 +4,7 @@ Download pipeline that works with Sentinel Hub batch service
 import logging
 import time
 from enum import Enum
-from typing import DefaultDict, Dict, List, Optional, Tuple
+from typing import Any, DefaultDict, Dict, List, Optional, Tuple
 
 from pydantic import Field
 
@@ -101,7 +101,7 @@ class BatchDownloadPipeline(Pipeline):
             ),
         )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
         self.batch_client = SentinelHubBatch(config=self.sh_config)
@@ -109,7 +109,7 @@ class BatchDownloadPipeline(Pipeline):
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         """Procedure that downloads data to an s3 bucket using batch service"""
         batch_request = self._create_or_collect_batch_request()
-        self.area_manager.batch_id = batch_request.request_id
+        self.area_manager.batch_id = batch_request.request_id # type: ignore
 
         trigger_type = self._trigger_batch_request(batch_request)
 

@@ -4,7 +4,7 @@ Module implementing utilities for unit testing pipeline results
 import functools
 import json
 import os
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 import fs
 import numpy as np
@@ -15,7 +15,7 @@ from deepdiff import DeepDiff
 
 from eolearn.core import EOPatch, FeatureType
 
-from ..core.config import Config
+from ..core.config import Config, ConfigList
 from ..core.pipeline import Pipeline
 from .meta import load_pipeline
 
@@ -60,7 +60,7 @@ class ContentTester:
 
         return DeepDiff(expected_stats, self.stats)
 
-    def save(self, filename: str):
+    def save(self, filename: str) -> None:
         """Saves statistics of given folder content into a JSON file
 
         :param filename: A JSON filename (with file path) where statistics should be saved
@@ -70,7 +70,7 @@ class ContentTester:
 
     def _calculate_stats(self, folder: Optional[str] = None) -> Dict[str, object]:
         """Calculates statistics of given folder and it's content"""
-        stats = {}
+        stats: Dict[str, object] = {}
         if folder is None:
             folder = self.main_folder
 
@@ -97,7 +97,7 @@ class ContentTester:
 
     def _calculate_eopatch_stats(self, eopatch: EOPatch) -> Dict[str, object]:
         """Calculates statistics of given EOPatch and it's content"""
-        stats = {}
+        stats: Dict[str, object] = {}
 
         for feature_type, feature_set in eopatch.get_features().items():
             feature_type_name = feature_type.value
@@ -109,17 +109,19 @@ class ContentTester:
                 stats[feature_type_name] = [time.isoformat() for time in eopatch.timestamp]
 
             else:
-                stats[feature_type_name] = {}
+                feature_stats_dict = {}
 
                 if feature_type.is_raster():
-                    calculation_method = self._calculate_raster_stats
+                    calculation_method: Callable = self._calculate_raster_stats
                 elif feature_type.is_vector():
                     calculation_method = self._calculate_vector_stats
                 else:  # Only FeatureType.META_INFO remains
                     calculation_method = str
 
                 for feature_name in feature_set:
-                    stats[feature_type_name][feature_name] = calculation_method(eopatch[feature_type][feature_name])
+                    feature_stats_dict[feature_name] = calculation_method(eopatch[feature_type][feature_name])
+
+                stats[feature_type_name] = feature_stats_dict
 
         return stats
 
@@ -138,7 +140,7 @@ class ContentTester:
                 finite_values = finite_values.astype(np.uint8)
 
             for operation in [np.min, np.max, np.mean, np.median]:
-                stats.append(round(float(operation(finite_values)), self.decimals))
+                stats.append(round(float(operation(finite_values)), self.decimals))  # type: ignore
 
             stats.extend(map(int, np.histogram(finite_values, bins=8)[0]))
 
@@ -176,7 +178,7 @@ class ContentTester:
         return stats
 
 
-def check_pipeline_logs(pipeline: Pipeline):
+def check_pipeline_logs(pipeline: Pipeline) -> None:
     """A utility function which checks pipeline logs and makes sure there are no failed executions"""
     if not pipeline.config.logging.save_logs:
         raise ValueError("Pipeline did not save logs, this test would be useless")
@@ -198,29 +200,36 @@ def check_pipeline_logs(pipeline: Pipeline):
 
 
 def run_and_test_pipeline(
+    experiment_name: str,
+    *,
     config_folder: str,
-    config_name: str,
     stats_folder: str,
-    stats_name: str,
-    folder_key: str,
+    folder_key: Optional[str] = None,
     reset_folder: bool = True,
     save_new_stats: bool = False,
-):
+) -> None:
     """A default way of testing a pipeline
 
+    :param experiment_name: Name of test experiment, which defines its config and stats filenames
     :param config_folder: A path to folder containing the config file
-    :param config_name: A config filename
     :param stats_folder: A path to folder containing the file with expected result stats
-    :param stats_name: A filename of expected results stats
-    :param folder_key: Type of the folder containing results of the pipeline
+    :param folder_key: Type of the folder containing results of the pipeline, if missing it's inferred from config
     :param reset_folder: If True it will delete content of the folder with results before running the pipeline
     :param save_new_stats: If True then new file with expected result stats will be saved (potentially overwriting the
         old one. Otherwise the old one will be used to compare stats.
     """
-    config_filename = os.path.join(config_folder, config_name)
-    expected_stats_file = os.path.join(stats_folder, stats_name)
+    config_filename = os.path.join(config_folder, experiment_name + ".json")
+    expected_stats_file = os.path.join(stats_folder, experiment_name + ".json")
 
     config = Config.from_path(config_filename)
+    if isinstance(config, ConfigList):
+        raise ValueError("Cannot test config list with `run_and_test_pipeline`")
+
+    if folder_key or "output_folder_key" in config:
+        folder_key = folder_key or config.output_folder_key
+    else:
+        raise ValueError("Pipeline does not have a `output_folder_key` parameter, `folder_key` must be set by hand.")
+
     pipeline = load_pipeline(config)
 
     folder = pipeline.storage.get_folder(folder_key)
@@ -245,3 +254,10 @@ def run_and_test_pipeline(
 def _round_point_coords(x: float, y: float, decimals: int) -> Tuple[float, float]:
     """Rounds coordinates of a point"""
     return round(x, decimals), round(y, decimals)
+
+
+def create_folder_dict(config_folder: str, stats_folder: str, subfolder: Optional[str] = None) -> Dict[str, str]:
+    return {
+        "config_folder": os.path.join(config_folder, subfolder) if subfolder else config_folder,
+        "stats_folder": os.path.join(stats_folder, subfolder) if subfolder else config_folder,
+    }

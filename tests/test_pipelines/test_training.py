@@ -8,19 +8,22 @@ import pytest
 
 from eogrow.core.config import Config
 from eogrow.pipelines.training import ClassificationTrainingPipeline
+from eogrow.utils.testing import create_folder_dict
+
+
+@pytest.fixture(scope="session", name="folders")
+def config_folder_fixture(config_folder, stats_folder):
+    return create_folder_dict(config_folder, stats_folder, "training")
 
 
 @pytest.mark.chain
 @pytest.mark.order(after="test_merge_samples.py::test_merge_samples_pipeline")
 @pytest.mark.parametrize(
-    "config_name, num_classes",
-    [
-        ("lgbm_training_config_no_filter.json", 6),
-        ("lgbm_training_config_label_filter.json", 3),
-    ],
+    "experiment_name, num_classes",
+    [("lgbm_training_no_filter", 6), ("lgbm_training_label_filter", 3)],
 )
-def test_training_pipeline_random_split(config_folder, config_name, num_classes):
-    config_path = os.path.join(config_folder, config_name)
+def test_training_pipeline_random_split(folders, experiment_name, num_classes):
+    config_path = os.path.join(folders["config_folder"], experiment_name + ".json")
     config = Config.from_path(config_path)
 
     pipeline = ClassificationTrainingPipeline(config)

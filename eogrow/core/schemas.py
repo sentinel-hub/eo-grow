@@ -146,7 +146,7 @@ def build_minimal_template(
     pipeline_import_path: Optional[str] = None,
     add_descriptions: bool = False,
 ) -> dict:
-    rec_flags = dict(required_only=required_only, add_descriptions=add_descriptions)
+    rec_flags: dict = dict(required_only=required_only, add_descriptions=add_descriptions)  # type is needed
     json_schema = schema.schema()  # needed for descriptions
 
     template: dict = {}
