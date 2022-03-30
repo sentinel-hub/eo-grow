@@ -20,7 +20,7 @@ def check_if_features_exist(
     """Checks whether an EOPatch in the given location has all specified features saved"""
     not_seen_features = set(features)
     try:
-        for (ftype, name, _) in walk_filesystem(filesystem, eopatch_path, features=features):
+        for ftype, name, _ in walk_filesystem(filesystem, eopatch_path, features=features):
             if (ftype, name) in not_seen_features:
                 not_seen_features.remove((ftype, name))
             elif ftype in not_seen_features:
