@@ -87,10 +87,15 @@ class BatchToEOPatchPipeline(Pipeline):
 
     def _get_output_features(self) -> List[Feature]:
         """Lists all features that the pipeline outputs."""
-        additional_features = [(x.feature_type, x.feature_name) for x in self.config.mapping]
+        features = [FeatureType.BBOX] + [(x.feature_type, x.feature_name) for x in self.config.mapping]
+
         if self.config.userdata_feature_name:
-            additional_features.append((FeatureType.META_INFO, self.config.userdata_feature_name))
-        return [FeatureType.BBOX, FeatureType.TIMESTAMP] + additional_features
+            features.append((FeatureType.META_INFO, self.config.userdata_feature_name))
+
+        if self.config.userdata_timestamp_reader:
+            features.append(FeatureType.TIMESTAMP)
+
+        return features
 
     def build_workflow(self) -> EOWorkflow:
         """Builds the workflow"""
