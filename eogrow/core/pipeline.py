@@ -103,8 +103,14 @@ class Pipeline(EOGrowObject):
             )
 
         if self.config.skip_existing:
+            LOGGER.info("Checking which EOPatches can be skipped")
             filtered_patch_list = self.filter_patch_list(patch_list)
-            LOGGER.info("Skipped some patches, %d / %d remaining", len(filtered_patch_list), len(patch_list))
+
+            skip_message = (
+                "Skipped some EOPatches" if len(filtered_patch_list) < len(patch_list) else "No EOPatches were skipped"
+            )
+            LOGGER.info("%s, %d / %d remaining", skip_message, len(filtered_patch_list), len(patch_list))
+
             patch_list = filtered_patch_list
 
         return patch_list
