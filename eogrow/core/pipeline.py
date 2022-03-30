@@ -29,7 +29,7 @@ class Pipeline(EOGrowObject):
     """A base class for execution of processing procedures which may or may not include running EOWorkflows, running
     EOExecutions, creating maps, etc.
 
-    This functionalities of this class are:
+    The functionalities of this class are:
         - collecting input arguments (either from command line or as an initialization parameter) and parsing them
         - preparing a list of patches
         - preparing execution arguments
@@ -204,50 +204,48 @@ class Pipeline(EOGrowObject):
         self.current_execution_name = self.get_pipeline_execution_name(timestamp)
 
         handlers = self.logging_manager.start_logging(self.current_execution_name)
-
-        self.logging_manager.update_pipeline_report(
-            pipeline_execution_name=self.current_execution_name,
-            pipeline_config=self.config,
-            pipeline_id=self.pipeline_id,
-            pipeline_timestamp=timestamp,
-        )
-
-        LOGGER.info("Running %s", self.__class__.__name__)
-
-        pipeline_start = time.time()
-
-        finished, failed = self.run_procedure()
-
-        elapsed_time = time.time() - pipeline_start
-
-        if failed:
-            LOGGER.info(
-                "Pipeline finished with some errors! Check %s",
-                self.logging_manager.get_pipeline_logs_folder(self.current_execution_name, full_path=True),
+        try:
+            self.logging_manager.update_pipeline_report(
+                pipeline_execution_name=self.current_execution_name,
+                pipeline_config=self.config,
+                pipeline_id=self.pipeline_id,
+                pipeline_timestamp=timestamp,
             )
-        else:
-            LOGGER.info("Pipeline finished successfully!")
 
-        self.logging_manager.update_pipeline_report(
-            pipeline_execution_name=self.current_execution_name,
-            pipeline_config=self.config,
-            pipeline_id=self.pipeline_id,
-            pipeline_timestamp=timestamp,
-            elapsed_time=elapsed_time,
-        )
+            LOGGER.info("Running %s", self.__class__.__name__)
 
-        finished = self.eopatch_manager.parse_eopatch_list(finished)
-        failed = self.eopatch_manager.parse_eopatch_list(failed)
-        self.logging_manager.save_eopatch_execution_status(
-            pipeline_execution_name=self.current_execution_name, finished=finished, failed=failed
-        )
+            pipeline_start = time.time()
+            finished, failed = self.run_procedure()
+            elapsed_time = time.time() - pipeline_start
 
-        self.logging_manager.stop_logging(handlers)
+            if failed:
+                LOGGER.info(
+                    "Pipeline finished with some errors! Check %s",
+                    self.logging_manager.get_pipeline_logs_folder(self.current_execution_name, full_path=True),
+                )
+            else:
+                LOGGER.info("Pipeline finished successfully!")
+
+            self.logging_manager.update_pipeline_report(
+                pipeline_execution_name=self.current_execution_name,
+                pipeline_config=self.config,
+                pipeline_id=self.pipeline_id,
+                pipeline_timestamp=timestamp,
+                elapsed_time=elapsed_time,
+            )
+
+            finished = self.eopatch_manager.parse_eopatch_list(finished)
+            failed = self.eopatch_manager.parse_eopatch_list(failed)
+            self.logging_manager.save_eopatch_execution_status(
+                pipeline_execution_name=self.current_execution_name, finished=finished, failed=failed
+            )
+        finally:
+            self.logging_manager.stop_logging(handlers)
 
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         """Execution procedure of pipeline. Can be overridden if needed.
 
-        By default builds the workflow by using a `build_workflow` method, which must be additionally implemented.
+        By default, builds the workflow by using a `build_workflow` method, which must be additionally implemented.
 
         :return: A list of successfully executed EOPatch names and a list of unsuccessfully executed EOPatch names
         """
