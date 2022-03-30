@@ -30,7 +30,7 @@ def check_if_features_exist(
     return len(not_seen_features) == 0
 
 
-def get_patches_without_all_features(
+def get_patches_with_missing_features(
     filesystem: FS,
     patches_folder: str,
     patch_list: List[str],

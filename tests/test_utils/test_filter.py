@@ -14,7 +14,7 @@ from moto import mock_s3
 from eolearn.core import EOPatch, FeatureType
 from sentinelhub import CRS, BBox
 
-from eogrow.utils.filter import check_if_features_exist, get_patches_without_all_features
+from eogrow.utils.filter import check_if_features_exist, get_patches_with_missing_features
 
 pytestmark = pytest.mark.fast
 
@@ -79,6 +79,6 @@ def test_check_if_features_exist(mock_s3fs, temp_fs, test_features, expected_res
         ([(FeatureType.DATA, "no_data"), (FeatureType.DATA, "data")], 5),
     ],
 )
-def test_get_patches_without_all_features(mock_s3fs, temp_fs, features, expected_num):
+def test_get_patches_with_missing_features(mock_s3fs, temp_fs, features, expected_num):
     for filesystem in [mock_s3fs, temp_fs]:
-        assert len(get_patches_without_all_features(filesystem, "/", PATCH_NAMES, features)) == expected_num
+        assert len(get_patches_with_missing_features(filesystem, "/", PATCH_NAMES, features)) == expected_num

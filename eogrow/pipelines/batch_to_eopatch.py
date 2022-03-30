@@ -21,7 +21,7 @@ from eolearn.io import ImportFromTiffTask
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
-from ..utils.filter import get_patches_without_all_features
+from ..utils.filter import get_patches_with_missing_features
 from ..utils.types import Feature
 
 
@@ -76,7 +76,7 @@ class BatchToEOPatchPipeline(Pipeline):
     def filter_patch_list(self, patch_list: List[str]) -> List[str]:
         """EOPatches are filtered according to existence of specified output features"""
 
-        filtered_patch_list = get_patches_without_all_features(
+        filtered_patch_list = get_patches_with_missing_features(
             self.storage.filesystem,
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
