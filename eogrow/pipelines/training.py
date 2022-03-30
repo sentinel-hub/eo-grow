@@ -115,7 +115,7 @@ class BaseTrainingPipeline(Pipeline, metaclass=abc.ABCMeta):
 
     def preprocess_data(self, features: np.ndarray, reference: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """Preforms filtering and other preprocessing before splitting data."""
-        return features, reference
+        return features, reference.ravel()
 
     def train_test_split(
         self, features: np.ndarray, reference: np.ndarray
@@ -193,6 +193,7 @@ class ClassificationTrainingPipeline(BaseTrainingPipeline, metaclass=abc.ABCMeta
     def preprocess_data(self, features: np.ndarray, reference: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """Preforms filtering and other preprocessing before splitting data."""
         config = self.config.preprocessing
+        reference = reference.ravel()
         if config is None:
             return features, reference
 
