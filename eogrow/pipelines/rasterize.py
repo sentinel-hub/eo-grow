@@ -30,7 +30,7 @@ from eolearn.io import VectorImportTask
 from ..core.config import Config
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
-from ..utils.filter import get_patches_without_all_features
+from ..utils.filter import get_patches_with_missing_features
 from ..utils.fs import LocalFile
 from ..utils.types import Feature
 from ..utils.vector import concat_gdf
@@ -105,7 +105,7 @@ class RasterizePipeline(Pipeline):
             self.vector_feature = parse_feature(self.config.vector_input)
 
     def filter_patch_list(self, patch_list: List[str]) -> List[str]:
-        filtered_patch_list = get_patches_without_all_features(
+        filtered_patch_list = get_patches_with_missing_features(
             self.storage.filesystem,
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,

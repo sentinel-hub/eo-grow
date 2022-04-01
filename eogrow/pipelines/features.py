@@ -27,7 +27,7 @@ from ..tasks.features import (
     ValidDataFractionPredicate,
     join_valid_and_cloud_masks,
 )
-from ..utils.filter import get_patches_without_all_features
+from ..utils.filter import get_patches_with_missing_features
 from ..utils.types import Feature, TimePeriod
 from ..utils.validators import field_validator, parse_time_period
 
@@ -76,7 +76,7 @@ class FeaturesPipeline(Pipeline):
     def filter_patch_list(self, patch_list: List[str]) -> List[str]:
         """EOPatches are filtered according to existence of specified output features"""
 
-        filtered_patch_list = get_patches_without_all_features(
+        filtered_patch_list = get_patches_with_missing_features(
             self.storage.filesystem,
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
