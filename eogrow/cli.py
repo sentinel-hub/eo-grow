@@ -90,12 +90,15 @@ class EOGrowCli:
             raw_configs = collect_configs_from_path(config_filename_or_string)
 
         cli_variable_mapping = dict(_parse_cli_variable(cli_var) for cli_var in cli_variables)
+        pipelines = []
         for raw_config in raw_configs:
             config = interpret_config_from_dict(raw_config, cli_variable_mapping)
             if test_patches:
                 config.patch_list = list(test_patches)
 
-            pipeline = load_pipeline(config)
+            pipelines.append(load_pipeline(config))
+
+        for pipeline in pipelines:
             pipeline.run()
 
     @staticmethod
