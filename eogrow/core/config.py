@@ -81,7 +81,7 @@ class Config(Munch):
 
 
 def prepare_config(config: Config, schema: BaseSchema) -> Config:
-    """Interprets and validates configuration dictionary"""
+    """Interprets and validates configuration dictionary. This will be removed when pipelines use Pydantic schemes."""
     parsed_config = schema.parse_obj(config)
 
     return Config._unsafe_from_dict(parsed_config.dict())
@@ -97,7 +97,7 @@ def encode_config_list(configs: List[RawConfig]) -> str:
 
 
 def decode_config_list(encoded_config_list: str) -> List[RawConfig]:
-    """Provides a config object by either decoding a base64-encoded string or load it from a file path."""
+    """Provides a list of config objects by decoding a base64-encoded string."""
     decoded_string = base64.b64decode(encoded_config_list.encode()).decode()
     decoded_list = json.loads(decoded_string)
     if not isinstance(decoded_list, list):
