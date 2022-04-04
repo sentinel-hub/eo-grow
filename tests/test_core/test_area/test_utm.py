@@ -7,7 +7,7 @@ from geopandas import GeoDataFrame
 from sentinelhub import BBox, Geometry
 
 from eogrow.core.area import UtmZoneAreaManager
-from eogrow.core.config import Config
+from eogrow.core.config import Config, prepare_config
 from eogrow.utils.vector import count_points
 
 pytestmark = pytest.mark.fast
@@ -20,7 +20,7 @@ def large_area_config_fixture(config_folder):
 
 
 def test_area_shape(storage, config):
-    area_manager = UtmZoneAreaManager(config.area, storage)
+    area_manager = UtmZoneAreaManager(prepare_config(config.area, UtmZoneAreaManager.Schema), storage)
 
     area_dataframe = area_manager.get_area_dataframe()
 
@@ -36,7 +36,7 @@ def test_area_shape(storage, config):
 )
 def test_area_shape_simplification(storage, config, simplification_factor, point_count):
     config.area.area_simplification_factor = simplification_factor
-    area_manager = UtmZoneAreaManager(config.area, storage)
+    area_manager = UtmZoneAreaManager(prepare_config(config.area, UtmZoneAreaManager.Schema), storage)
 
     geometry = area_manager.get_area_geometry()
     assert count_points(geometry.geometry) == point_count
@@ -46,7 +46,7 @@ def test_area_shape_simplification(storage, config, simplification_factor, point
 def test_bbox_split(storage, config, large_area_config):
 
     for area_config, expected_zone_num, expected_bbox_num in [(config.area, 1, 2), (large_area_config.area, 61, 311)]:
-        area_manager = UtmZoneAreaManager(area_config, storage)
+        area_manager = UtmZoneAreaManager(prepare_config(area_config, UtmZoneAreaManager.Schema), storage)
 
         start_time = time.time()
         grid = area_manager.get_grid(add_bbox_column=True)

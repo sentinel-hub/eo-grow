@@ -4,7 +4,7 @@ from tempfile import NamedTemporaryFile
 import pytest
 
 from eogrow.core.area import CustomGridAreaManager, UtmZoneAreaManager
-from eogrow.core.config import Config
+from eogrow.core.config import Config, prepare_config
 from eogrow.core.eopatch import CustomGridEOPatchManager, EOPatchManager
 
 pytestmark = pytest.mark.fast
@@ -12,24 +12,24 @@ pytestmark = pytest.mark.fast
 
 @pytest.fixture(name="eopatch_manager")
 def eopatch_manager_fixture(storage, config):
-    area_manager = UtmZoneAreaManager(config.area, storage)
-    return EOPatchManager(config.eopatch, area_manager)
+    area_manager = UtmZoneAreaManager(prepare_config(config.area, UtmZoneAreaManager.Schema), storage)
+    return EOPatchManager(prepare_config(config.eopatch, EOPatchManager.Schema), area_manager)
 
 
 @pytest.fixture(name="special_eopatch_manager")
 def special_eopatch_manager_fixture(storage, config_folder):
     path = os.path.join(config_folder, "other", "eopatch_global_config.json")
     config = Config.from_path(path)
-    area_manager = UtmZoneAreaManager(config.area, storage)
-    return EOPatchManager(config.eopatch, area_manager)
+    area_manager = UtmZoneAreaManager(prepare_config(config.area, UtmZoneAreaManager.Schema), storage)
+    return EOPatchManager(prepare_config(config.eopatch, EOPatchManager.Schema), area_manager)
 
 
 @pytest.fixture(name="filtered_eopatch_manager")
 def filtered_eopatch_manager_fixture(storage, config_folder):
     path = os.path.join(config_folder, "other", "eopatch_global_config_filtered.json")
     config = Config.from_path(path)
-    area_manager = UtmZoneAreaManager(config.area, storage)
-    return EOPatchManager(config.eopatch, area_manager)
+    area_manager = UtmZoneAreaManager(prepare_config(config.area, UtmZoneAreaManager.Schema), storage)
+    return EOPatchManager(prepare_config(config.eopatch, EOPatchManager.Schema), area_manager)
 
 
 @pytest.mark.filterwarnings("ignore::RuntimeWarning")
@@ -114,8 +114,14 @@ CUSTOM_GRID_EOPATCH_CONFIG = Config.from_dict({"name_column": "name", "index_col
 
 
 def test_custom_grid_eopatch_manager(storage):
-    area_manager = CustomGridAreaManager(CUSTOM_GRID_AREA_CONFIG, storage)
-    eopatch_manager = CustomGridEOPatchManager(CUSTOM_GRID_EOPATCH_CONFIG, area_manager)
+    area_manager = CustomGridAreaManager(
+        prepare_config(CUSTOM_GRID_AREA_CONFIG, CustomGridAreaManager.Schema),
+        storage,
+    )
+    eopatch_manager = CustomGridEOPatchManager(
+        prepare_config(CUSTOM_GRID_EOPATCH_CONFIG, CustomGridEOPatchManager.Schema),
+        area_manager,
+    )
 
     eopatch_names = eopatch_manager.get_eopatch_filenames()
     assert eopatch_names == ["patch0", "patch1"]

@@ -14,9 +14,10 @@ import ray
 from eolearn.core import CreateEOPatchTask, EOExecutor, EOWorkflow, LoadTask, SaveTask, WorkflowResults
 from eolearn.core.extra.ray import RayExecutor
 
-from ..utils.meta import import_object
+from ..utils.meta import collect_schema, import_object, load_pipeline_class
 from .area.base import AreaManager
 from .base import EOGrowObject
+from .config import Config, prepare_config
 from .eopatch import EOPatchManager
 from .logging import EOExecutionFilter, EOExecutionHandler, LoggingManager
 from .schemas import PipelineSchema
@@ -39,7 +40,7 @@ class Pipeline(EOGrowObject):
     class Schema(PipelineSchema):
         """Configuration schema, describing input parameters and their types."""
 
-    def __init__(self, config: dict):
+    def __init__(self, config: Config):
         """
         :param config: A dictionary with configuration parameters
         """
@@ -70,7 +71,7 @@ class Pipeline(EOGrowObject):
         """
         manager_config = self.config[manager_key]
         manager_class = import_object(manager_config.manager)
-        manager = manager_class(manager_config, **manager_params)
+        manager = manager_class(prepare_config(manager_config, manager_class.Schema), **manager_params)
         self.config[manager_key] = manager.config
         return manager
 
@@ -264,3 +265,11 @@ class Pipeline(EOGrowObject):
 
         finished, failed, _ = self.run_execution(workflow, exec_args)
         return finished, failed
+
+
+def load_pipeline(config: Config) -> Pipeline:
+    """Given a config object it loads the pipeline class referenced in the config"""
+    pipeline_class = load_pipeline_class(config)
+    schema = collect_schema(pipeline_class)
+    config = prepare_config(config, schema)
+    return pipeline_class(config)

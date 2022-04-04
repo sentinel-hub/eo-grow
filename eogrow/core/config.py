@@ -2,13 +2,13 @@
 Module implementing management of configurations
 """
 import base64
-import binascii
 import copy
 import json
 import os
 import pprint
 import re
-from typing import Any, Callable, Dict, Optional, Sequence, Set, Tuple, Union
+from functools import reduce
+from typing import Any, Callable, Dict, List, NewType, Optional, Set, cast
 
 import fs.path
 import rapidjson
@@ -18,31 +18,12 @@ from eolearn.core.utils.fs import get_base_filesystem_and_path, get_full_path, j
 
 from ..utils.general import jsonify
 from ..utils.meta import get_os_import_path
+from .schemas import BaseSchema
+
+RawConfig = NewType("RawConfig", dict)
 
 
-class _BaseConfig:
-    """A base class for configuration objects implementing methods that are common between `Config` and `ConfigList`"""
-
-    @staticmethod
-    def from_path(path: str) -> Union["Config", "ConfigList"]:
-        """Loads from path in applies operations defined in `interpret_config_from_path`"""
-        return interpret_config_from_path(path)
-
-    @staticmethod
-    def from_string(config_str: str) -> Union["Config", "ConfigList"]:
-        """Creates a config object either from a base64-encoded string or a file path"""
-        return get_config_from_string(config_str)
-
-    def encode(self) -> str:
-        """Dumps config into a json and the encodes it with base64
-
-        :return: A base64-encoded string
-        """
-        json_string = json.dumps(self, default=jsonify)
-        return base64.b64encode(json_string.encode()).decode()
-
-
-class Config(Munch, _BaseConfig):
+class Config(Munch):
     """Class for handling `eo-grow` configurations
 
     This is a wrapper around `munch.Munch` and it allows to use dictionary parameters as attributes. E.g.
@@ -56,11 +37,24 @@ class Config(Munch, _BaseConfig):
     def from_dict(cls, config_dict: dict) -> "Config":
         """Converts a normal dictionary into a `Config` object.
 
-        The conversion is applied recursively on all nested dictionaries.
+        Applies stage 2 of language interpretation as described in `eo-grow/documentation/config-language.md`.
         """
+        return interpret_config_from_dict(cast(RawConfig, config_dict))
+
+    @classmethod
+    def _unsafe_from_dict(cls, config_dict: dict) -> "Config":
+        """Converts a normal dictionary into a `Config` object. Does not perform any config language operations."""
         if not isinstance(config_dict, dict):
             raise ValueError(f"This method expected a dictionary, got {type(config_dict)}")
         return munchify(config_dict, factory=cls)
+
+    @staticmethod
+    def from_path(path: str) -> "Config":
+        """Loads from path in applies operations defined in `interpret_config_from_path`"""
+        configs = collect_configs_from_path(path)
+        if len(configs) != 1:
+            raise ValueError(f"The .json file {path} was expected to contain a single dictionary, got {len(configs)}")
+        return interpret_config_from_dict(configs[0])
 
     def __repr__(self) -> str:
         """A nicer representation with pprint of the dictionary"""
@@ -81,59 +75,45 @@ class Config(Munch, _BaseConfig):
             return [(_resolve_env_variables(param) if isinstance(param, str) else param) for param in value]
         return value
 
-    def add_cli_variables(self, cli_variables: Sequence[str]) -> None:
-        """Adds variables passed in the CLI to the config. Has to be used before interpretation!"""
-        cli_variable_mapping = dict(_parse_cli_variable(cli_var) for cli_var in cli_variables)
-        current_variables = self.get("variables", {})
-        current_variables.update(cli_variable_mapping)
-        self["variables"] = current_variables
-
-    def interpret(self) -> "Config":
-        """Applies operations defined in `interpret_config_from_dict`"""
-        return interpret_config_from_dict(self)
-
     def to_dict(self) -> dict:
         """Converts the object into a normal dictionary"""
         return unmunchify(self)
 
 
-class ConfigList(list, _BaseConfig):
-    """A class for handling a list of configurations"""
+def prepare_config(config: Config, schema: BaseSchema) -> Config:
+    """Interprets and validates configuration dictionary"""
+    parsed_config = schema.parse_obj(config)
 
-    @classmethod
-    def from_list(cls, config_list: Sequence[dict]) -> "ConfigList":
-        """Converts a normal list of dictionaries into a `ConfigList` object."""
-        return cls(Config.from_dict(config) for config in config_list)
-
-    def __repr__(self) -> str:
-        """A nicer representation with pprint of the list"""
-        return f"{self.__class__.__name__}([\n {pprint.pformat(list(self))[1: -1]}\n])"
+    return Config._unsafe_from_dict(parsed_config.dict())
 
 
-def get_config_from_string(config_str: str) -> Union[Config, ConfigList]:
+def encode_config_list(configs: List[RawConfig]) -> str:
+    """Dumps a list of configs into a json and the encodes it with base64
+
+    :return: A base64-encoded string
+    """
+    json_string = json.dumps(configs, default=jsonify)
+    return base64.b64encode(json_string.encode()).decode()
+
+
+def decode_config_list(encoded_config_list: str) -> List[RawConfig]:
     """Provides a config object by either decoding a base64-encoded string or load it from a file path."""
-    try:
-        decoded_string = base64.b64decode(config_str.encode()).decode()
-        raw_config = json.loads(decoded_string)
-
-        if isinstance(raw_config, dict):
-            return Config.from_dict(raw_config)
-        return ConfigList.from_list(raw_config)
-    except (binascii.Error, UnicodeDecodeError, json.JSONDecodeError):
-        pass
-
-    return interpret_config_from_path(config_str)
+    decoded_string = base64.b64decode(encoded_config_list.encode()).decode()
+    decoded_list = json.loads(decoded_string)
+    if not isinstance(decoded_list, list):
+        raise ValueError(f"Encoding does not represent a list of configs. Got {type(decoded_list)}.")
+    return decoded_list
 
 
-def interpret_config_from_path(path: str, used_config_paths: Optional[Set[str]] = None) -> Union[Config, ConfigList]:
-    """Loads and builds a config from parameters stored in files
+def collect_configs_from_path(path: str, used_config_paths: Optional[Set[str]] = None) -> List[RawConfig]:
+    """Loads and builds a list of config dictionaries defined by the parameters stored in files
 
     This function performs the 1st stage of language interpretation as described in
     eo-grow/documentation/config-language.md`.
 
-    :param path: A full path where config is located
-    :param used_config_paths: Just a helper parameter to prevent cyclic config imports.
-    :return: A fully built config object.
+    :param path: A full path where a config file is located
+    :param used_config_paths: A helper parameter to prevent cyclic config imports.
+    :return: A list of stage 1 dictionaries from which to build config object.
     """
     filesystem, path = get_base_filesystem_and_path(path)
     with filesystem.open(path, "r") as file_handle:
@@ -148,8 +128,10 @@ def interpret_config_from_path(path: str, used_config_paths: Optional[Set[str]] 
     config = _recursive_config_build(config, used_config_paths)
 
     if isinstance(config, dict):
-        return Config.from_dict(config)
-    return ConfigList.from_list(config)
+        config = [config]
+    if isinstance(config, list):
+        return config
+    raise ValueError(f"When interpreting config from {path} a dictionary or list was expected, got {type(config)}.")
 
 
 def _recursive_config_build(config: object, used_config_paths: Set[str]) -> object:
@@ -162,7 +144,7 @@ def _recursive_config_build(config: object, used_config_paths: Set[str]) -> obje
     """
     if isinstance(config, dict):
         joint_config = {}
-        imported_configs = []
+        imported_configs: List[RawConfig] = []
 
         for key, value in config.items():
             if not isinstance(key, str):
@@ -172,17 +154,17 @@ def _recursive_config_build(config: object, used_config_paths: Set[str]) -> obje
                 if value in used_config_paths:
                     raise ValueError("Detected a cyclic import of configs")
 
-                imported_config = interpret_config_from_path(value, used_config_paths=used_config_paths)
-                imported_configs.append(imported_config)
+                imported_config_list = collect_configs_from_path(value, used_config_paths=used_config_paths)
+                if len(imported_config_list) != 1:
+                    raise ValueError(
+                        "Config lists cannot be imported inside configs. Found a config list when resolving key"
+                        f" {key} for path {value}"
+                    )
+                imported_configs.append(imported_config_list[0])
             else:
                 joint_config[key] = _recursive_config_build(value, used_config_paths)
 
-        for imported_config in imported_configs:
-            if isinstance(imported_config, list):
-                raise ValueError("Cannot import config lists inside other configs.")
-            joint_config = recursive_config_join(joint_config, imported_config)
-
-        return joint_config
+        return reduce(recursive_config_join, imported_configs, joint_config)
 
     if isinstance(config, list):
         return [_recursive_config_build(value, used_config_paths) for value in config]
@@ -190,19 +172,20 @@ def _recursive_config_build(config: object, used_config_paths: Set[str]) -> obje
     return config
 
 
-def interpret_config_from_dict(config: dict) -> Config:
+def interpret_config_from_dict(config: RawConfig, external_variables: Optional[Dict[str, Any]] = None) -> Config:
     """Applies config language rules to a loaded config
 
     This function performs the 2nd stage of language interpretation as described in
     `eo-grow/documentation/config-language.md`.
     """
-    _recursive_check_config(config)
     config_with_imports = _recursive_apply_to_strings(config, _resolve_import_paths)
     if not isinstance(config_with_imports, dict):
         raise ValueError(f"Interpretation resulted in object of type {type(config)} but a dictionary was expected.")
-    config = config_with_imports
+    config = cast(RawConfig, config_with_imports)
 
     variable_mapping = config.pop("variables", {})
+    if external_variables:
+        variable_mapping.update(external_variables)
 
     for variable_name in variable_mapping:
         if not re.fullmatch(r"\w+", variable_name):
@@ -212,10 +195,11 @@ def interpret_config_from_dict(config: dict) -> Config:
         config, lambda config_str: _resolve_variables(config_str, variable_mapping)
     )
     if not isinstance(config_with_variables, dict):
-        raise ValueError(f"Interpretation resulted in object of type {type(config)} but a dictionary was expected.")
-    config = config_with_variables
+        raise ValueError(
+            f"Interpretation resulted in object of type {type(config_with_variables)} but a dictionary was expected."
+        )
 
-    return Config.from_dict(config)
+    return Config._unsafe_from_dict(config_with_variables)
 
 
 def _resolve_config_paths(config_str: str, config_path: str) -> str:
@@ -282,22 +266,6 @@ def _recursive_apply_to_strings(config: object, function: Callable) -> object:
     return config
 
 
-def _recursive_check_config(config: object) -> None:
-    """Recursively checks if a config object conforms to some basic rules
-
-    :raises: ValueError
-    """
-    if isinstance(config, dict):
-        for key, value in config.items():
-            if not isinstance(key, str):
-                raise ValueError(f"Config keys should be strings but {key} found")
-            _recursive_check_config(value)
-
-    elif isinstance(config, list):
-        for value in config:
-            _recursive_check_config(value)
-
-
 def recursive_config_join(config1: dict, config2: dict) -> dict:
     """Recursively join 2 config objects, where config1 values override config2 values"""
     for key, value in config2.items():
@@ -307,12 +275,3 @@ def recursive_config_join(config1: dict, config2: dict) -> dict:
             config1[key] = recursive_config_join(config1[key], value)
 
     return config1
-
-
-def _parse_cli_variable(mapping_str: str) -> Tuple[str, str]:
-    """Checks that the input is of shape `name:value` and then splits it into a tuple"""
-    match = re.match(r"(?P<name>.+?):(?P<value>.+)", mapping_str)
-    if match is None:
-        raise ValueError(f'CLI variable input {mapping_str} is not of form `"name:value"`')
-    parsed = match.groupdict()
-    return parsed["name"], parsed["value"]

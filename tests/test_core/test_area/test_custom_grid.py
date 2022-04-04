@@ -4,7 +4,7 @@ from geopandas import GeoDataFrame
 from sentinelhub import CRS, BBox, Geometry
 
 from eogrow.core.area import CustomGridAreaManager
-from eogrow.core.config import Config
+from eogrow.core.config import Config, prepare_config
 
 pytestmark = pytest.mark.fast
 
@@ -13,7 +13,7 @@ CONFIG = Config.from_dict({"grid_filename": "test_custom_grid.geojson"})
 
 
 def test_custom_grid_area_manager(storage):
-    manager = CustomGridAreaManager(CONFIG, storage)
+    manager = CustomGridAreaManager(prepare_config(CONFIG, CustomGridAreaManager.Schema), storage)
 
     grid = manager.get_grid(add_bbox_column=True)
     assert isinstance(grid, list)
