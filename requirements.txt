@@ -3,7 +3,7 @@ bidict>=0.18.0
 click
 deepdiff
 fiona
-fs
+fs>=2.2.0
 geopandas>=0.8.1
 joblib
 lightgbm>=3.0.0
@@ -18,11 +18,11 @@ scikit-image
 scikit-learn
 shapely>=1.8.0
 
-eo-learn-core>=1.0.0
-eo-learn-features>=1.0.0
-eo-learn-geometry>=1.0.0
-eo-learn-io>=1.0.0
-eo-learn-mask>=1.0.0
-eo-learn-ml-tools>=1.0.0
-eo-learn-visualization>=1.0.0
+eo-learn-core>=1.0.1
+eo-learn-features>=1.0.1
+eo-learn-geometry>=1.0.1
+eo-learn-io>=1.0.1
+eo-learn-mask>=1.0.1
+eo-learn-ml-tools>=1.0.1
+eo-learn-visualization>=1.0.1
 sentinelhub>=3.5.0
