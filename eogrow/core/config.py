@@ -178,6 +178,7 @@ def interpret_config_from_dict(config: RawConfig, external_variables: Optional[D
     This function performs the 2nd stage of language interpretation as described in
     `eo-grow/documentation/config-language.md`.
     """
+    _recursive_check_config(config)
     config_with_imports = _recursive_apply_to_strings(config, _resolve_import_paths)
     if not isinstance(config_with_imports, dict):
         raise ValueError(f"Interpretation resulted in object of type {type(config)} but a dictionary was expected.")
@@ -264,6 +265,22 @@ def _recursive_apply_to_strings(config: object, function: Callable) -> object:
     if isinstance(config, str):
         return function(config)
     return config
+
+
+def _recursive_check_config(config: object) -> None:
+    """Recursively checks the config satisfies some of the basic conditions for serialization when logging
+
+    :raises: ValueError
+    """
+    if isinstance(config, dict):
+        for key, value in config.items():
+            if not isinstance(key, str):
+                raise ValueError(f"Config keys should be strings but {key} found")
+            _recursive_check_config(value)
+
+    elif isinstance(config, list):
+        for value in config:
+            _recursive_check_config(value)
 
 
 def recursive_config_join(config1: dict, config2: dict) -> dict:

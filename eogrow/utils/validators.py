@@ -3,13 +3,17 @@ Module defining common validators for schemas and validator wrappers
 """
 import datetime as dt
 import inspect
-from typing import Any, Callable, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Tuple
 
 from pydantic import validator
 
 from sentinelhub import DataCollection
 
-from ..utils.types import S3Path, TimePeriod
+from .meta import collect_schema, import_object
+from .types import S3Path, TimePeriod
+
+if TYPE_CHECKING:
+    from ..core.schemas import ManagerSchema
 
 
 def field_validator(field: str, validator_fun: Callable, allow_reuse: bool = True, **kwargs: Any) -> classmethod:
@@ -100,6 +104,14 @@ def parse_data_collection(value: str) -> DataCollection:
         "Data collection should be a name of an existing DataCollection enum, 'BYOC_<collection_id>', "
         f"or 'BATCH_<collection id>' but name '{value}' was given."
     )
+
+
+def validate_manager(value: dict) -> "ManagerSchema":
+    """Parse and validate schema describing a manager."""
+    assert "manager" in value, "Manager definition has no `manager` field that specifies its class."
+    manager_class = import_object(value["manager"])
+    manager_schema = collect_schema(manager_class)
+    return manager_schema.parse_obj(value)  # type: ignore
 
 
 def validate_resampling(value: str) -> str:

@@ -49,12 +49,12 @@ class Pipeline(EOGrowObject):
         self.pipeline_id = self._new_pipeline_id()
         self.current_execution_name = "<Not executed yet>"
 
-        self.storage: StorageManager = self._load_manager("storage")
+        self.storage: StorageManager = self._load_manager(config.storage)
         self.sh_config = self.storage.sh_config
 
-        self.area_manager: AreaManager = self._load_manager("area", storage=self.storage)
-        self.eopatch_manager: EOPatchManager = self._load_manager("eopatch", area_manager=self.area_manager)
-        self.logging_manager: LoggingManager = self._load_manager("logging", storage=self.storage)
+        self.area_manager: AreaManager = self._load_manager(config.area, storage=self.storage)
+        self.eopatch_manager: EOPatchManager = self._load_manager(config.eopatch, area_manager=self.area_manager)
+        self.logging_manager: LoggingManager = self._load_manager(config.logging, storage=self.storage)
 
         self._patch_list: Optional[List[str]] = None
 
@@ -63,16 +63,14 @@ class Pipeline(EOGrowObject):
         """Provides a new random uuid of a pipeline"""
         return uuid.uuid4().hex[:10]
 
-    def _load_manager(self, manager_key: str, **manager_params: Any) -> Any:
+    def _load_manager(self, manager_config: Config, **manager_params: Any) -> Any:
         """Loads a manager class and back-propagates parsed config
 
         :param manager_key: A config key name of a sub-config with manager parameters
         :param manager_params: Other parameters to initialize a manager class
         """
-        manager_config = self.config[manager_key]
         manager_class = import_object(manager_config.manager)
         manager = manager_class(prepare_config(manager_config, manager_class.Schema), **manager_params)
-        self.config[manager_key] = manager.config
         return manager
 
     def get_pipeline_execution_name(self, pipeline_timestamp: str) -> str:

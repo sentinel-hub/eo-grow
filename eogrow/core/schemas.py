@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 from pydantic.fields import ModelField
 
 from ..utils.types import ImportPath, Path
+from ..utils.validators import field_validator, validate_manager
 
 
 class BaseSchema(BaseModel):
@@ -19,15 +20,6 @@ class BaseSchema(BaseModel):
     class Config:
         extra = "forbid"
         validate_all = True
-
-
-class RawManagerSchema(BaseModel):
-    """A schema for managers that delay manager config verification, should not be used outside of `PipelineSchema`"""
-
-    manager: ImportPath = Field(description="Import path to an implementation of a manager class.")
-
-    class Config:
-        extra = "allow"
 
 
 class ManagerSchema(BaseSchema):
@@ -40,10 +32,18 @@ class PipelineSchema(BaseSchema):
     """Pipeline schema"""
 
     pipeline: Optional[ImportPath] = Field(description="Import path to an implementation of Pipeline class.")
-    storage: RawManagerSchema = Field(description="A schema of an implementation of StorageManager class")
-    area: RawManagerSchema = Field(description="A schema of an implementation of AreaManager class")
-    eopatch: RawManagerSchema = Field(description="A schema of an implementation of EOPatchManager class")
-    logging: RawManagerSchema = Field(description="A schema of an implementation of LoggingManager class")
+
+    storage: ManagerSchema = Field(description="A schema of an implementation of StorageManager class")
+    validate_storage = field_validator("storage", validate_manager, pre=True)
+
+    area: ManagerSchema = Field(description="A schema of an implementation of AreaManager class")
+    validate_area = field_validator("area", validate_manager, pre=True)
+
+    eopatch: ManagerSchema = Field(description="A schema of an implementation of EOPatchManager class")
+    validate_eopatch = field_validator("eopatch", validate_manager, pre=True)
+
+    logging: ManagerSchema = Field(description="A schema of an implementation of LoggingManager class")
+    validate_logging = field_validator("logging", validate_manager, pre=True)
 
     workers: int = Field(
         1, description="Number of workers for parallel execution of workflows. Parameter does not affect ray clusters."
