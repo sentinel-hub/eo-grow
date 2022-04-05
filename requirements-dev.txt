@@ -1,5 +1,4 @@
 black>=22.1.0
-responses
 boto3
 codecov
 flake8
