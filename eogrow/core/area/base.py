@@ -102,21 +102,22 @@ class AreaManager(EOGrowObject):
         if self.storage.filesystem.exists(grid_filename):
             grid = self._load_grid(grid_filename)
         else:
-            if self.has_region_filter() and not ignore_region_filter:
-                full_grid = self.get_grid(ignore_region_filter=True)
-                filtered_area_geometry = self.get_area_geometry(ignore_region_filter=False)
-
-                grid = self._filter_grid(full_grid, filtered_area_geometry)
-            else:
-                area_geometry = self.get_area_geometry(ignore_region_filter=ignore_region_filter)
-                grid = self._create_new_split(area_geometry)
-
-            self._save_grid(grid, grid_filename)
+            grid = self._create_and_save_grid(grid_filename, ignore_region_filter)
 
         if add_bbox_column:
             self._add_bbox_column(grid)
 
         return grid
+
+    def cache_grid(self, ignore_region_filter: bool = False) -> None:
+        """Checks if grid is cached in the storage. If it is not, it will create and cache it.
+
+        :param ignore_region_filter: If `True` it will not filter by given region config parameters.
+        """
+        grid_filename = self._construct_file_path(prefix="grid", ignore_region_filter=ignore_region_filter)
+
+        if not self.storage.filesystem.exists(grid_filename):
+            self._create_and_save_grid(grid_filename, ignore_region_filter)
 
     def get_grid_size(self, **kwargs: Any) -> int:
         """Calculates the number of elements of the grid
@@ -170,6 +171,20 @@ class AreaManager(EOGrowObject):
 
         with LocalFile(filename, mode="w", filesystem=self.storage.filesystem) as local_file:
             area_gdf.to_file(local_file.path, driver="GPKG", encoding="utf-8")
+
+    def _create_and_save_grid(self, grid_filename: str, ignore_region_filter: bool) -> List[gpd.GeoDataFrame]:
+        """Defines a new grid and saves it."""
+        if self.has_region_filter() and not ignore_region_filter:
+            full_grid = self.get_grid(ignore_region_filter=True)
+            filtered_area_geometry = self.get_area_geometry(ignore_region_filter=False)
+
+            grid = self._filter_grid(full_grid, filtered_area_geometry)
+        else:
+            area_geometry = self.get_area_geometry(ignore_region_filter=ignore_region_filter)
+            grid = self._create_new_split(area_geometry)
+
+        self._save_grid(grid, grid_filename)
+        return grid
 
     def _load_grid(self, filename: str) -> List[gpd.GeoDataFrame]:
         """A method that loads bounding box grid saved in a cache folder"""

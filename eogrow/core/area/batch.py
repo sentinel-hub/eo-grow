@@ -20,11 +20,18 @@ class BatchAreaManager(AreaManager):
         tiling_grid_id: int
         resolution: float
         tile_buffer: int = Field(0, description="Number of pixels for which each tile will be buffered")
+        batch_id: str = Field(
+            "",
+            description=(
+                "An ID of a batch job for this pipeline. If it is given the pipeline will just monitor the "
+                "existing batch job. If it is not given it will create a new batch job."
+            ),
+        )
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
-        self.batch_id = ""
+        self.batch_id = self.config.batch_id
 
     def _get_grid_filename_params(self) -> List[object]:
         """Puts together batch parameters"""
@@ -35,7 +42,8 @@ class BatchAreaManager(AreaManager):
         if not self.batch_id:
             raise ValueError(
                 "Trying to create a new batch grid but cannot collect tile geometries because 'batch_id' has not been "
-                "given. Make sure that you are running a pipeline that creates a new batch job."
+                f"given. You can either define it in {self.__class__.__name__} config schema or run a pipeline that "
+                "creates a new batch request."
             )
 
         batch_request = SentinelHubBatch().get_request(self.batch_id)

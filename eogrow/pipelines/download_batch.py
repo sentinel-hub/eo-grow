@@ -2,8 +2,6 @@
 Download pipeline that works with Sentinel Hub batch service
 """
 import logging
-import time
-from enum import Enum
 from typing import Any, DefaultDict, Dict, List, Optional, Tuple
 
 from pydantic import Field
@@ -12,10 +10,12 @@ from sentinelhub import (
     BatchRequest,
     BatchRequestStatus,
     BatchTileStatus,
+    BatchUserAction,
     DataCollection,
     MimeType,
     SentinelHubBatch,
     SentinelHubRequest,
+    monitor_batch_analysis,
     monitor_batch_job,
     read_data,
 )
@@ -34,14 +34,6 @@ from ..utils.validators import (
 LOGGER = logging.getLogger(__name__)
 
 
-class _BatchTriggerType(Enum):
-    """How a batch request is triggered"""
-
-    ANALYSIS = "analysis"
-    RUN = "run"
-    NONE = "none"
-
-
 class BatchDownloadPipeline(Pipeline):
     """Pipeline to start and monitor a Sentinel Hub batch job"""
 
@@ -58,7 +50,7 @@ class BatchDownloadPipeline(Pipeline):
         evalscript_path: Path
         tiff_outputs: List[str] = Field(default_factory=list, description="Names of TIFF outputs of a batch job")
         save_userdata: bool = Field(
-            False, description="A flag indicating if userdata.json should also be oneof the results of the batch job."
+            False, description="A flag indicating if userdata.json should also be one of the results of the batch job."
         )
 
         resampling_type: str = Field(
@@ -77,12 +69,27 @@ class BatchDownloadPipeline(Pipeline):
             ),
         )
 
+        analysis_only: bool = Field(
+            False,
+            description=(
+                "If set to True it will only create a batch request and wait for analysis phase to finish. It "
+                "will not start the actual batch job."
+            ),
+        )
         monitoring_sleep_time: int = Field(
             120,
             ge=60,
             description=(
                 "How many seconds to sleep between two consecutive queries about status of tiles in a batch "
                 "job. It should be at least 60 seconds."
+            ),
+        )
+        monitoring_analysis_sleep_time: int = Field(
+            10,
+            ge=5,
+            description=(
+                "How many seconds to sleep between two consecutive queries about a status of a batch job analysis "
+                "phase. It should be at least 5 seconds."
             ),
         )
 
@@ -93,13 +100,6 @@ class BatchDownloadPipeline(Pipeline):
                 "existing batch job. If it is not given it will create a new batch job."
             ),
         )
-        analysis_only: bool = Field(
-            False,
-            description=(
-                "If set to True it will only create a batch request and wait for analysis phase to finish. It "
-                "will not start the actual batch job."
-            ),
-        )
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
@@ -107,19 +107,32 @@ class BatchDownloadPipeline(Pipeline):
         self.batch_client = SentinelHubBatch(config=self.sh_config)
 
     def run_procedure(self) -> Tuple[List[str], List[str]]:
-        """Procedure that downloads data to an s3 bucket using batch service"""
+        """Procedure that uses Sentinel Hub batch service to download data to an S3 bucket."""
         batch_request = self._create_or_collect_batch_request()
-        self.area_manager.batch_id = batch_request.request_id # type: ignore
+        user_action = self._trigger_user_action(batch_request)
 
-        trigger_type = self._trigger_batch_request(batch_request)
-
-        if trigger_type is _BatchTriggerType.ANALYSIS:
+        if user_action is BatchUserAction.ANALYSE or (
+            user_action is BatchUserAction.START and batch_request.status is not BatchRequestStatus.ANALYSIS_DONE
+        ):
             LOGGER.info("Waiting to finish analyzing job with ID %s", batch_request.request_id)
-            tile_names = self._monitor_batch_analysis(batch_request)
-            return tile_names, []
+            monitor_batch_analysis(
+                batch_request,
+                config=self.sh_config,
+                sleep_time=self.config.monitoring_analysis_sleep_time,
+            )
+
+        self.ensure_batch_grid(batch_request.request_id)
+
+        if self.config.analysis_only:
+            return [], []
 
         LOGGER.info("Monitoring batch job with ID %s", batch_request.request_id)
-        results = monitor_batch_job(batch_request, config=self.sh_config, sleep_time=self.config.monitoring_sleep_time)
+        results = monitor_batch_job(
+            batch_request,
+            config=self.sh_config,
+            sleep_time=self.config.monitoring_sleep_time,
+            analysis_sleep_time=self.config.monitoring_analysis_sleep_time,
+        )
 
         processed = self._get_tile_names_from_results(results, BatchTileStatus.PROCESSED)
         failed = self._get_tile_names_from_results(results, BatchTileStatus.FAILED)
@@ -138,7 +151,7 @@ class BatchDownloadPipeline(Pipeline):
         return batch_request
 
     def _create_new_batch_request(self) -> BatchRequest:
-        """Defines a new batch request"""
+        """Defines a new batch request."""
         geometry = self.area_manager.get_area_geometry()
 
         responses = [
@@ -179,20 +192,18 @@ class BatchDownloadPipeline(Pipeline):
             description=f"eo-grow - {self.__class__.__name__} pipeline with ID {self.pipeline_id}",
         )
 
-    def _trigger_batch_request(self, batch_request: BatchRequest) -> _BatchTriggerType:
-        """According to status and configuration parameters decide to trigger analysis or batch job run."""
+    def _trigger_user_action(self, batch_request: BatchRequest) -> BatchUserAction:
+        """According to status and configuration parameters decide what kind of user action to perform."""
         if self.config.analysis_only:
             if batch_request.status is BatchRequestStatus.CREATED:
                 self.batch_client.start_analysis(batch_request)
                 LOGGER.info("Triggered batch job analysis.")
-                return _BatchTriggerType.ANALYSIS
+                return BatchUserAction.ANALYSE
 
             LOGGER.info(
                 "Didn't trigger analysis because current batch request status is %s.", batch_request.status.value
             )
-            if batch_request.status is BatchRequestStatus.ANALYSIS_DONE:
-                return _BatchTriggerType.ANALYSIS
-            _BatchTriggerType.NONE
+            return BatchUserAction.NONE
 
         if batch_request.status in [
             BatchRequestStatus.CREATED,
@@ -201,33 +212,30 @@ class BatchDownloadPipeline(Pipeline):
         ]:
             self.batch_client.start_job(batch_request)
             LOGGER.info("Started running batch job.")
-            return _BatchTriggerType.RUN
+            return BatchUserAction.START
 
         if batch_request.status is BatchRequestStatus.PARTIAL:
             self.batch_client.restart_job(batch_request)
             LOGGER.info("Restarted partially failed batch job.")
-            return _BatchTriggerType.RUN
+            return BatchUserAction.START
 
         LOGGER.info("Didn't trigger batch job because current batch request status is %s", batch_request.status.value)
-        return _BatchTriggerType.NONE
+        return BatchUserAction.NONE
+
+    def ensure_batch_grid(self, request_id: str) -> None:
+        """This method ensures that area manager caches batch grid into the storage."""
+        if self.area_manager.batch_id and self.area_manager.batch_id != request_id:
+            raise ValueError(
+                f"{self.area_manager.__class__.__name__} is set to use batch request with ID "
+                f"{self.area_manager.batch_id} but {self.__class__.__name__} is using batch request with ID "
+                f"{request_id}. Make sure that you use the same IDs."
+            )
+        self.area_manager.batch_id = request_id  # type: ignore
+
+        self.area_manager.cache_grid()
 
     @staticmethod
     def _get_tile_names_from_results(results: DefaultDict[str, List[Dict]], tile_status: BatchTileStatus) -> List[str]:
         """Collects tile names from a dictionary of batch tile results ordered by status"""
         tile_list = results[tile_status.value]
         return [tile["name"] for tile in tile_list]
-
-    def _monitor_batch_analysis(self, batch_request, analysis_sleep_time=10) -> List[str]:
-        """Wait until the batch analysis finishes and provide a list of tiles"""
-        while batch_request.status in [BatchRequestStatus.CREATED, BatchRequestStatus.ANALYSING]:
-            LOGGER.info(
-                "Batch job has a status %s, sleeping for %d seconds", batch_request.status.value, analysis_sleep_time
-            )
-            time.sleep(analysis_sleep_time)
-
-            batch_request = self.batch_client.get_request(batch_request)
-
-        if batch_request.value_estimate:
-            LOGGER.info("Estimated cost of the batch job: %.1f", batch_request.value_estimate)
-
-        return [tile["name"] for tile in self.batch_client.iter_tiles(batch_request)]
