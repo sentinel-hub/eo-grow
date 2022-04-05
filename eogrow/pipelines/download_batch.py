@@ -2,7 +2,7 @@
 Download pipeline that works with Sentinel Hub batch service
 """
 import logging
-from typing import Any, DefaultDict, Dict, List, Optional, Tuple
+from typing import Any, DefaultDict, Dict, List, Optional, Tuple, cast
 
 from pydantic import Field
 
@@ -20,6 +20,7 @@ from sentinelhub import (
     read_data,
 )
 
+from ..core.area.batch import BatchAreaManager
 from ..core.pipeline import Pipeline
 from ..utils.types import Path, TimePeriod
 from ..utils.validators import (
@@ -224,13 +225,15 @@ class BatchDownloadPipeline(Pipeline):
 
     def ensure_batch_grid(self, request_id: str) -> None:
         """This method ensures that area manager caches batch grid into the storage."""
+        self.area_manager = cast(BatchAreaManager, self.area_manager)
+
         if self.area_manager.batch_id and self.area_manager.batch_id != request_id:
             raise ValueError(
                 f"{self.area_manager.__class__.__name__} is set to use batch request with ID "
                 f"{self.area_manager.batch_id} but {self.__class__.__name__} is using batch request with ID "
                 f"{request_id}. Make sure that you use the same IDs."
             )
-        self.area_manager.batch_id = request_id  # type: ignore
+        self.area_manager.batch_id = request_id
 
         self.area_manager.cache_grid()
 
