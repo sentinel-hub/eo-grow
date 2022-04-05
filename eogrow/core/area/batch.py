@@ -46,10 +46,11 @@ class BatchAreaManager(AreaManager):
                 "creates a new batch request."
             )
 
-        batch_request = SentinelHubBatch().get_request(self.batch_id)
+        batch_client = SentinelHubBatch(config=self.storage.sh_config)
+        batch_request = batch_client.get_request(self.batch_id)
         self._verify_batch_request(batch_request)
 
-        splitter = BatchSplitter(batch_request=batch_request)
+        splitter = BatchSplitter(batch_request=batch_request, config=self.storage.sh_config)
         bbox_list = splitter.get_bbox_list()
         info_list = splitter.get_info_list()
 
