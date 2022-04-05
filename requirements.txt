@@ -3,7 +3,7 @@ bidict>=0.18.0
 click
 deepdiff
 fiona
-fs
+fs>=2.2.0
 geopandas>=0.8.1
 joblib
 lightgbm>=3.0.0
