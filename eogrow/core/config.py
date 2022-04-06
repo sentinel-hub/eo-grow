@@ -8,7 +8,7 @@ import os
 import pprint
 import re
 from functools import reduce
-from typing import Any, Callable, Dict, List, NewType, Optional, Set, cast
+from typing import Any, Callable, Dict, List, NewType, Optional, Set, Type, cast
 
 import fs.path
 import rapidjson
@@ -80,7 +80,7 @@ class Config(Munch):
         return unmunchify(self)
 
 
-def prepare_config(config: Config, schema: BaseSchema) -> Config:
+def prepare_config(config: Config, schema: Type[BaseSchema]) -> Config:
     """Interprets and validates configuration dictionary. This will be removed when pipelines use Pydantic schemes."""
     parsed_config = schema.parse_obj(config)
 

@@ -40,11 +40,12 @@ class Pipeline(EOGrowObject):
     class Schema(PipelineSchema):
         """Configuration schema, describing input parameters and their types."""
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, unvalidated_config: Optional[Config] = None):
         """
         :param config: A dictionary with configuration parameters
+        :param unvalidated_config: The configuration parameters pre-validation, for logging purposes only
         """
-        super().__init__(config)
+        super().__init__(config, unvalidated_config)
 
         self.pipeline_id = self._new_pipeline_id()
         self.current_execution_name = "<Not executed yet>"
@@ -213,6 +214,7 @@ class Pipeline(EOGrowObject):
             self.logging_manager.update_pipeline_report(
                 pipeline_execution_name=self.current_execution_name,
                 pipeline_config=self.config,
+                pipeline_unvalidated_config=self._unvalidated_config,
                 pipeline_id=self.pipeline_id,
                 pipeline_timestamp=timestamp,
             )
@@ -233,6 +235,7 @@ class Pipeline(EOGrowObject):
 
             self.logging_manager.update_pipeline_report(
                 pipeline_execution_name=self.current_execution_name,
+                pipeline_unvalidated_config=self._unvalidated_config,
                 pipeline_config=self.config,
                 pipeline_id=self.pipeline_id,
                 pipeline_timestamp=timestamp,

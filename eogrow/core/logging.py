@@ -182,6 +182,7 @@ class LoggingManager(EOGrowObject):
         self,
         pipeline_execution_name: str,
         pipeline_config: Config,
+        pipeline_unvalidated_config: Optional[Config],
         pipeline_id: str,
         pipeline_timestamp: str,
         elapsed_time: Optional[float] = None,
@@ -198,7 +199,8 @@ class LoggingManager(EOGrowObject):
             return
 
         report = {
-            "config_parameters": pipeline_config,
+            "config_parameters": pipeline_unvalidated_config,
+            "execution_parameters": pipeline_config,
             "pipeline_execution_stats": {
                 "pipeline_id": pipeline_id,
                 "start_time": pipeline_timestamp,
