@@ -105,6 +105,12 @@ class BatchDownloadPipeline(Pipeline):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
+        if not isinstance(self.area_manager, BatchAreaManager):
+            raise ValueError(
+                f"Pipeline {self.__class__.__name__} can only work with area managers that are equal or a subclass "
+                f"of {BatchAreaManager.__name__} but {self.area_manager.__class__.__name__} was given."
+            )
+
         self.batch_client = SentinelHubBatch(config=self.sh_config)
 
     def run_procedure(self) -> Tuple[List[str], List[str]]:
