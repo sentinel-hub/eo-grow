@@ -20,11 +20,18 @@ class BatchAreaManager(AreaManager):
         tiling_grid_id: int
         resolution: float
         tile_buffer: int = Field(0, description="Number of pixels for which each tile will be buffered")
+        batch_id: str = Field(
+            "",
+            description=(
+                "An ID of a batch job for this pipeline. If it is given the pipeline will just monitor the "
+                "existing batch job. If it is not given it will create a new batch job."
+            ),
+        )
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
-        self.batch_id = ""
+        self.batch_id = self.config.batch_id
 
     def _get_grid_filename_params(self) -> List[object]:
         """Puts together batch parameters"""
@@ -35,13 +42,15 @@ class BatchAreaManager(AreaManager):
         if not self.batch_id:
             raise ValueError(
                 "Trying to create a new batch grid but cannot collect tile geometries because 'batch_id' has not been "
-                "given. Make sure that you are running a pipeline that creates a new batch job."
+                f"given. You can either define it in {self.__class__.__name__} config schema or run a pipeline that "
+                "creates a new batch request."
             )
 
-        batch_request = SentinelHubBatch().get_request(self.batch_id)
+        batch_client = SentinelHubBatch(config=self.storage.sh_config)
+        batch_request = batch_client.get_request(self.batch_id)
         self._verify_batch_request(batch_request)
 
-        splitter = BatchSplitter(batch_request=batch_request)
+        splitter = BatchSplitter(batch_request=batch_request, config=self.storage.sh_config)
         bbox_list = splitter.get_bbox_list()
         info_list = splitter.get_info_list()
 
@@ -57,7 +66,7 @@ class BatchAreaManager(AreaManager):
         for index, info in enumerate(info_list):
             info["index_n"] = index
 
-        return self._to_dataframe_grid(bbox_list, info_list, ["index_n", "id", "name", "cost"])
+        return self._to_dataframe_grid(bbox_list, info_list, ["index_n", "id", "name"])
 
     def _verify_batch_request(self, batch_request: BatchRequest) -> None:
         """Verifies that given batch request has finished and that it has the same tiling grid parameters as
