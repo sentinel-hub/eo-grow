@@ -20,7 +20,7 @@ from ..utils.general import jsonify
 from ..utils.logging import get_instance_info
 from ..utils.meta import get_package_versions
 from .base import EOGrowObject
-from .config import Config
+from .config import RawConfig
 from .schemas import ManagerSchema
 from .storage import StorageManager
 
@@ -79,7 +79,9 @@ class LoggingManager(EOGrowObject):
             ),
         )
 
-    def __init__(self, config: Config, storage: StorageManager):
+    config: Schema
+
+    def __init__(self, config: Schema, storage: StorageManager):
         """
         :param config: A configuration file
         :param storage: An instance of StorageManager class
@@ -181,8 +183,8 @@ class LoggingManager(EOGrowObject):
     def update_pipeline_report(
         self,
         pipeline_execution_name: str,
-        pipeline_config: Config,
-        pipeline_unvalidated_config: Optional[Config],
+        pipeline_config: EOGrowObject.Schema,
+        pipeline_unvalidated_config: Optional[RawConfig],
         pipeline_id: str,
         pipeline_timestamp: str,
         elapsed_time: Optional[float] = None,
@@ -200,7 +202,7 @@ class LoggingManager(EOGrowObject):
 
         report = {
             "config_parameters": pipeline_unvalidated_config,
-            "execution_parameters": pipeline_config,
+            "execution_parameters": repr(pipeline_config),
             "pipeline_execution_stats": {
                 "pipeline_id": pipeline_id,
                 "start_time": pipeline_timestamp,

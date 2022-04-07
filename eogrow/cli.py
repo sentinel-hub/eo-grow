@@ -9,18 +9,11 @@ from typing import Optional, Tuple
 
 import click
 
-from .core.config import (
-    Config,
-    collect_configs_from_path,
-    decode_config_list,
-    encode_config_list,
-    interpret_config_from_dict,
-)
-from .core.pipeline import load_pipeline
+from .core.config import collect_configs_from_path, decode_config_list, encode_config_list, interpret_config_from_dict
 from .core.schemas import build_minimal_template, build_schema_template
 from .pipelines.testing import TestPipeline
 from .utils.general import jsonify
-from .utils.meta import collect_schema, import_object
+from .utils.meta import collect_schema, import_object, load_pipeline_class
 
 variables_option = click.option(
     "-v",
@@ -94,9 +87,9 @@ class EOGrowCli:
         for raw_config in raw_configs:
             config = interpret_config_from_dict(raw_config, cli_variable_mapping)
             if test_patches:
-                config.patch_list = list(test_patches)
+                config["patch_list"] = list(test_patches)
 
-            pipelines.append(load_pipeline(config))
+            pipelines.append(load_pipeline_class(config).from_raw_config(config))
 
         for pipeline in pipelines:
             pipeline.run()
@@ -257,7 +250,8 @@ class EOGrowCli:
             eogrow-validate config_files/config.json
         """
         for config in collect_configs_from_path(config_filename):
-            load_pipeline(Config.from_dict(config))
+            raw_config = interpret_config_from_dict(config)
+            load_pipeline_class(config).Schema.parse_obj(raw_config)
 
         click.echo("Config validation succeeded!")
 
@@ -272,9 +266,9 @@ class EOGrowCli:
         Example:
             eogrow-test any_pipeline_config.json
         """
-        for config in collect_configs_from_path(config_filename):
-
-            pipeline = TestPipeline(Config.from_dict(config))
+        for crude_config in collect_configs_from_path(config_filename):
+            raw_config = interpret_config_from_dict(crude_config)
+            pipeline = TestPipeline.from_raw_config(raw_config)
             pipeline.run()
 
 

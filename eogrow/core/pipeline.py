@@ -7,21 +7,23 @@ import logging
 import time
 import uuid
 import warnings
-from typing import Any, List, Optional, Tuple
+from typing import Any, List, Optional, Tuple, Type, TypeVar
 
 import ray
 
 from eolearn.core import CreateEOPatchTask, EOExecutor, EOWorkflow, LoadTask, SaveTask, WorkflowResults
 from eolearn.core.extra.ray import RayExecutor
 
-from ..utils.meta import collect_schema, import_object, load_pipeline_class
+from ..utils.meta import import_object
 from .area.base import AreaManager
 from .base import EOGrowObject
-from .config import Config, prepare_config
+from .config import RawConfig
 from .eopatch import EOPatchManager
 from .logging import EOExecutionFilter, EOExecutionHandler, LoggingManager
-from .schemas import PipelineSchema
+from .schemas import ManagerSchema, PipelineSchema
 from .storage import StorageManager
+
+Self = TypeVar("Self", bound="Pipeline")
 
 LOGGER = logging.getLogger(__name__)
 
@@ -40,12 +42,13 @@ class Pipeline(EOGrowObject):
     class Schema(PipelineSchema):
         """Configuration schema, describing input parameters and their types."""
 
-    def __init__(self, config: Config, unvalidated_config: Optional[Config] = None):
+    def __init__(self, config: Schema, unvalidated_config: Optional[RawConfig] = None):
         """
         :param config: A dictionary with configuration parameters
         :param unvalidated_config: The configuration parameters pre-validation, for logging purposes only
         """
-        super().__init__(config, unvalidated_config)
+        super().__init__(config)
+        self._unvalidated_config = unvalidated_config
 
         self.pipeline_id = self._new_pipeline_id()
         self.current_execution_name = "<Not executed yet>"
@@ -59,19 +62,30 @@ class Pipeline(EOGrowObject):
 
         self._patch_list: Optional[List[str]] = None
 
+    @classmethod
+    def from_raw_config(cls: Type[Self], config: RawConfig, *args: Any, **kwargs: Any) -> Self:
+        """Creates an object from a dictionary by constructing a validated config and use it to create the object."""
+        validated_config = cls.Schema.parse_obj(config)
+        if "unvalidated_config" not in kwargs:
+            kwargs["unvalidated_config"] = config
+        return cls(validated_config, *args, **kwargs)
+
     @staticmethod
     def _new_pipeline_id() -> str:
         """Provides a new random uuid of a pipeline"""
         return uuid.uuid4().hex[:10]
 
-    def _load_manager(self, manager_config: Config, **manager_params: Any) -> Any:
+    @staticmethod
+    def _load_manager(manager_config: ManagerSchema, **manager_params: Any) -> Any:
         """Loads a manager class and back-propagates parsed config
 
         :param manager_key: A config key name of a sub-config with manager parameters
         :param manager_params: Other parameters to initialize a manager class
         """
+        if manager_config.manager is None:
+            raise ValueError("Unable to load manager, field `manager` specifying it's class is missing.")
         manager_class = import_object(manager_config.manager)
-        manager = manager_class(prepare_config(manager_config, manager_class.Schema), **manager_params)
+        manager = manager_class(manager_config, **manager_params)
         return manager
 
     def get_pipeline_execution_name(self, pipeline_timestamp: str) -> str:
@@ -266,11 +280,3 @@ class Pipeline(EOGrowObject):
 
         finished, failed, _ = self.run_execution(workflow, exec_args)
         return finished, failed
-
-
-def load_pipeline(config: Config) -> Pipeline:
-    """Given a config object it loads the pipeline class referenced in the config"""
-    pipeline_class = load_pipeline_class(config)
-    schema = collect_schema(pipeline_class)
-    config = prepare_config(config, schema)
-    return pipeline_class(config)

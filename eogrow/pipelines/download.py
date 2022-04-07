@@ -4,7 +4,7 @@ Module implementing pipelines for downloading data
 import abc
 import datetime as dt
 import logging
-from typing import List, Optional, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 from pydantic import Field
@@ -14,7 +14,6 @@ from eolearn.features import LinearFunctionTask
 from eolearn.io import SentinelHubDemTask, SentinelHubEvalscriptTask, SentinelHubInputTask
 from sentinelhub import Band, DataCollection, MimeType, Unit, read_data
 
-from ..core.config import Config
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..utils.filter import get_patches_with_missing_features
@@ -61,8 +60,8 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
 
         postprocessing: Optional[PostprocessingRescale] = Field(description="Parameters used in post-processing tasks")
 
-    def __init__(self, config: Config):
-        super().__init__(config)
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
         self.download_node_uid = None
 
     def filter_patch_list(self, patch_list: List[str]) -> List[str]:
@@ -86,7 +85,7 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
         """Provides node for downloading data."""
 
     @staticmethod
-    def get_postprocessing_node(postprocessing_config: Config, previous_node: EONode) -> EONode:
+    def get_postprocessing_node(postprocessing_config: PostprocessingRescale, previous_node: EONode) -> EONode:
         """Provides node that applies postprocessing to data after download is complete"""
         node = previous_node
         for rescale_config in postprocessing_config.rescale_schemas:
@@ -136,7 +135,7 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
 
         for index, bbox in enumerate(bbox_list):
             exec_args[index][download_node] = {"bbox": bbox}
-            if "time_period" in self.config:
+            if hasattr(self.config, "time_period"):
                 exec_args[index][download_node]["time_interval"] = self.config.time_period
 
         return exec_args

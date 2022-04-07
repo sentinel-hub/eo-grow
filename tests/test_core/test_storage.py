@@ -5,7 +5,7 @@ import os
 import pytest
 from fs.osfs import OSFS
 
-from eogrow.core.config import Config
+from eogrow.core.config import interpret_config_from_path
 from eogrow.core.storage import StorageManager
 
 pytestmark = pytest.mark.fast
@@ -14,22 +14,22 @@ pytestmark = pytest.mark.fast
 @pytest.fixture(scope="session", name="local_storage_manager")
 def local_storage_manager_fixture(config_folder):
     filename = os.path.join(config_folder, "other", "local_storage_test.json")
-    config = Config.from_path(filename)
-    return StorageManager(config.storage)
+    config = interpret_config_from_path(filename)
+    return StorageManager.from_raw_config(config["storage"])
 
 
 @pytest.fixture(scope="session", name="aws_storage_manager")
 def aws_storage_manager(project_folder, config_folder):
     filename = os.path.join(config_folder, "other", "aws_storage_test.json")
-    config = Config.from_path(filename)
-    config.storage.project_folder = project_folder
-    return StorageManager(config.storage)
+    config = interpret_config_from_path(filename)
+    config["storage"]["project_folder"] = project_folder
+    return StorageManager.from_raw_config(config["storage"])
 
 
 @pytest.fixture(scope="session", name="aws_storage_config_fixture")
 def aws_storage_config_fixture(config_folder):
     filename = os.path.join(config_folder, "other", "aws_storage_test.json")
-    return Config.from_path(filename)
+    return interpret_config_from_path(filename)
 
 
 def test_storage_basic_local(local_storage_manager, project_folder):

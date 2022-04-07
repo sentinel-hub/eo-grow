@@ -8,7 +8,7 @@ import pytest
 
 from eolearn.core import EOWorkflow
 
-from eogrow.core.config import Config, prepare_config
+from eogrow.core.config import interpret_config_from_path
 from eogrow.core.pipeline import Pipeline
 
 pytestmark = pytest.mark.fast
@@ -37,8 +37,8 @@ class SimplePipeline(Pipeline):
 
 def test_pipeline_execution(simple_config_filename):
 
-    config = prepare_config(Config.from_path(simple_config_filename), SimplePipeline.Schema)
-    pipeline = SimplePipeline(config)
+    config = interpret_config_from_path(simple_config_filename)
+    pipeline = SimplePipeline.from_raw_config(config)
     pipeline.run()
 
     logs_folder = pipeline.logging_manager.get_pipeline_logs_folder(pipeline.current_execution_name, full_path=True)

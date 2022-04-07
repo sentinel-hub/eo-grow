@@ -17,7 +17,6 @@ from ...utils.fs import LocalFile
 from ...utils.types import Path
 from ...utils.vector import count_points
 from ..base import EOGrowObject
-from ..config import Config
 from ..schemas import ManagerSchema
 from ..storage import StorageManager
 
@@ -46,7 +45,7 @@ class AreaManager(EOGrowObject):
             description="A list of regions which will be used. By default all regions are used."
         )
 
-    def __init__(self, config: Config, storage: StorageManager):
+    def __init__(self, config: Schema, storage: StorageManager):
         """
         :param config: A configuration file
         :param storage: An instance of StorageManager class

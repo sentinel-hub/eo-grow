@@ -27,7 +27,6 @@ from eolearn.core.utils.parsing import parse_feature
 from eolearn.geometry import VectorToRasterTask
 from eolearn.io import VectorImportTask
 
-from ..core.config import Config
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..utils.filter import get_patches_with_missing_features
@@ -134,7 +133,7 @@ class RasterizePipeline(Pipeline):
 
         dataset_gdf = self.preprocess_dataset(dataset_gdf)
 
-        dataset_path = self._get_dataset_path(self.config, full_path=False)
+        dataset_path = self._get_dataset_path(full_path=False)
         with LocalFile(dataset_path, mode="w", filesystem=self.storage.filesystem) as local_file:
             dataset_gdf.to_file(local_file.path, encoding="utf-8", driver="GPKG")
 
@@ -149,7 +148,7 @@ class RasterizePipeline(Pipeline):
         """
         if self._is_input_file(self.config.vector_input):
             create_node = EONode(CreateEOPatchTask())
-            path = self._get_dataset_path(self.config)
+            path = self._get_dataset_path()
             import_task = VectorImportTask(
                 self.vector_feature, path=path, layer=self.config.dataset_layer, config=self.sh_config
             )
@@ -220,15 +219,15 @@ class RasterizePipeline(Pipeline):
         """Checks if given name ends with one of the supported file extensions"""
         return isinstance(value, str) and value.lower().endswith((".geojson", ".shp", ".gpkg", ".gdb"))
 
-    def _get_dataset_path(self, config: Config, full_path: bool = True) -> str:
+    def _get_dataset_path(self, full_path: bool = True) -> str:
         """Provides a path from where dataset should be loaded into the workflow"""
-        if config.preprocess_dataset is not None:
+        if self.config.preprocess_dataset is not None:
             folder = self.storage.get_cache_folder(full_path=full_path)
-            filename = f"preprocessed_{config.vector_input}"
+            filename = f"preprocessed_{self.config.vector_input}"
             filename = (os.path.splitext(filename))[0] + ".gpkg"
         else:
             folder = self.storage.get_input_data_folder(full_path=full_path)
-            filename = config.vector_input
+            filename = self.config.vector_input
 
         if full_path:
             return join_path(folder, filename)

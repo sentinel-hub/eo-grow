@@ -8,8 +8,7 @@ import pytest
 
 from eolearn.core import EONode, EOPatch, FeatureType, MapFeatureTask
 
-from eogrow.core.config import Config, prepare_config
-from eogrow.core.pipeline import load_pipeline
+from eogrow.core.config import interpret_config_from_path
 from eogrow.pipelines.rasterize import RasterizePipeline
 from eogrow.utils.testing import ContentTester, check_pipeline_logs, create_folder_dict, run_and_test_pipeline
 
@@ -86,8 +85,8 @@ def test_rasterize_pipeline_preprocess(folders, experiment_name):
     config_filename = os.path.join(folders["config_folder"], experiment_name + ".json")
     stat_path = os.path.join(folders["stats_folder"], experiment_name + ".json")
 
-    config = prepare_config(Config.from_path(config_filename), CropRasterizePipeline.Schema)
-    pipeline = CropRasterizePipeline(config)
+    config = interpret_config_from_path(config_filename)
+    pipeline = CropRasterizePipeline.from_raw_config(config)
 
     filesystem = pipeline.storage.filesystem
     folder = pipeline.storage.get_folder(pipeline.config.output_folder_key)
@@ -107,7 +106,8 @@ def test_rasterize_pipeline_features(folders, experiment_name):
     config_filename = os.path.join(folders["config_folder"], experiment_name + ".json")
     stat_path = os.path.join(folders["stats_folder"], experiment_name + ".json")
 
-    pipeline = load_pipeline(Config.from_path(config_filename))
+    config = interpret_config_from_path(config_filename)
+    pipeline = RasterizePipeline.from_raw_config(config)
     add_vector_data(pipeline)
 
     pipeline.run()

@@ -6,8 +6,8 @@ import os
 import joblib
 import pytest
 
-from eogrow.core.config import Config
-from eogrow.core.pipeline import load_pipeline
+from eogrow.core.config import interpret_config_from_path
+from eogrow.pipelines.training import ClassificationTrainingPipeline
 from eogrow.utils.testing import create_folder_dict
 
 
@@ -24,7 +24,7 @@ def config_folder_fixture(config_folder, stats_folder):
 )
 def test_training_pipeline_random_split(folders, experiment_name, num_classes):
     config_path = os.path.join(folders["config_folder"], experiment_name + ".json")
-    pipeline = load_pipeline(Config.from_path(config_path))
+    pipeline = ClassificationTrainingPipeline.from_raw_config(interpret_config_from_path(config_path))
     config = pipeline.config
     pipeline.run()
 

@@ -15,7 +15,6 @@ from sentinelhub import CRS, BBox
 
 from .area.base import AreaManager
 from .base import EOGrowObject
-from .config import Config
 from .schemas import ManagerSchema
 
 
@@ -25,7 +24,7 @@ class EOPatchManager(EOGrowObject):
     class Schema(ManagerSchema):
         pass
 
-    def __init__(self, config: Config, area_manager: AreaManager):
+    def __init__(self, config: Schema, area_manager: AreaManager):
         """
         :param config: Configuration of the manager
         :param area_manager: Area managing class containing info about how the area is split into EOPatches

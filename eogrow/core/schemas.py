@@ -12,24 +12,19 @@ from pydantic.fields import ModelField
 
 from ..utils.types import ImportPath, Path
 from ..utils.validators import field_validator, validate_manager
+from .base import EOGrowObject
+
+BaseSchema = EOGrowObject.Schema
 
 
-class BaseSchema(BaseModel):
-    """A BaseModel that does not allow extra fields and checks default values."""
-
-    class Config:
-        extra = "forbid"
-        validate_all = True
-
-
-class ManagerSchema(BaseSchema):
+class ManagerSchema(EOGrowObject.Schema):
     """A basic schema for managers, to be used as a parent class for defining manager schemas"""
 
     manager: Optional[ImportPath] = Field(description="An import path to this specific manager.")
 
 
-class PipelineSchema(BaseSchema):
-    """Pipeline schema"""
+class PipelineSchema(EOGrowObject.Schema):
+    """Base schema of the Pipeline class."""
 
     pipeline: Optional[ImportPath] = Field(description="Import path to an implementation of Pipeline class.")
 

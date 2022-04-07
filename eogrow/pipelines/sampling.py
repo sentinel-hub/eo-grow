@@ -2,7 +2,7 @@
 Module implementing sampling pipelines
 """
 import abc
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 from pydantic import Field, validator
@@ -11,7 +11,6 @@ from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, MergeEOPatch
 from eolearn.geometry import MorphologicalOperations, MorphologicalStructFactory
 from eolearn.ml_tools import BlockSamplingTask, FractionSamplingTask, GridSamplingTask
 
-from ..core.config import Config
 from ..core.pipeline import Pipeline
 from ..tasks.common import ClassFilterTask
 from ..utils.filter import get_patches_with_missing_features
@@ -162,8 +161,8 @@ class BaseRandomSamplingPipeline(BaseSamplingPipeline, metaclass=abc.ABCMeta):
             42, description="A random generator seed to be used in order to obtain the same results every pipeline run."
         )
 
-    def __init__(self, config: Config):
-        super().__init__(config)
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
         self._sampling_node_uid = None
 
     def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[str, object]]:
