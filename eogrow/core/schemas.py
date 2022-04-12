@@ -23,6 +23,31 @@ class ManagerSchema(EOGrowObject.Schema):
     manager: Optional[ImportPath] = Field(description="An import path to this specific manager.")
 
 
+class LoggingManagerSchema(ManagerSchema):
+    """Base schema of a logging manager. Only assumes fields required by the Pipeline class."""
+
+    save_logs: bool = Field(
+        False,
+        description=(
+            "A flag to determine if pipeline logs and reports will be saved to "
+            "logs folder. This includes potential EOExecution reports and logs."
+        ),
+    )
+    include_logs_to_report: bool = Field(
+        False,
+        description=(
+            "If log files should be parsed into an EOExecution report file or just linked. When working "
+            "with larger number of EOPatches the recommended option is False."
+        ),
+    )
+    eoexecution_ignore_packages: Optional[List[str]] = Field(
+        description=(
+            "Names of packages which logs will not be written to EOExecution log files. The default null value "
+            "means that a default list of packages will be used."
+        )
+    )
+
+
 class PipelineSchema(EOGrowObject.Schema):
     """Base schema of the Pipeline class."""
 
@@ -37,7 +62,7 @@ class PipelineSchema(EOGrowObject.Schema):
     eopatch: ManagerSchema = Field(description="A schema of an implementation of EOPatchManager class")
     validate_eopatch = field_validator("eopatch", validate_manager, pre=True)
 
-    logging: ManagerSchema = Field(description="A schema of an implementation of LoggingManager class")
+    logging: LoggingManagerSchema = Field(description="A schema of an implementation of LoggingManager class")
     validate_logging = field_validator("logging", validate_manager, pre=True)
 
     workers: int = Field(

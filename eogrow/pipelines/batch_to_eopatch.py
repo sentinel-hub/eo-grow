@@ -22,7 +22,7 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature
+from ..utils.types import FeatureSpec
 
 
 class FeatureMappingSchema(BaseSchema):
@@ -65,6 +65,8 @@ class BatchToEOPatchPipeline(Pipeline):
             True, description="Whether to remove the raw batch data after the conversion is complete"
         )
 
+    config: Schema
+
     def __init__(self, *args: Any, **kwargs: Any):
         """Additionally sets some basic parameters calculated from config parameters"""
         super().__init__(*args, **kwargs)
@@ -85,9 +87,10 @@ class BatchToEOPatchPipeline(Pipeline):
 
         return filtered_patch_list
 
-    def _get_output_features(self) -> List[Feature]:
+    def _get_output_features(self) -> List[FeatureSpec]:
         """Lists all features that the pipeline outputs."""
-        features = [FeatureType.BBOX] + [(x.feature_type, x.feature_name) for x in self.config.mapping]
+        features: List[FeatureSpec] = [FeatureType.BBOX]
+        features.extend((x.feature_type, x.feature_name) for x in self.config.mapping)
 
         if self.config.userdata_feature_name:
             features.append((FeatureType.META_INFO, self.config.userdata_feature_name))
@@ -126,7 +129,7 @@ class BatchToEOPatchPipeline(Pipeline):
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
             config=self.sh_config,
         )
-        save_node = EONode(save_task, inputs=[processing_node])
+        save_node = EONode(save_task, inputs=([processing_node] if processing_node else []))
 
         cleanup_node = None
         if self.config.remove_batch_data:
@@ -185,7 +188,7 @@ class BatchToEOPatchPipeline(Pipeline):
         return end_node
 
     @staticmethod
-    def get_processing_node(previous_node: EONode) -> EONode:
+    def get_processing_node(previous_node: Optional[EONode]) -> Optional[EONode]:
         """This method can be overwritten to add more tasks that process loaded data before saving it."""
         return previous_node
 
@@ -198,6 +201,8 @@ class BatchToEOPatchPipeline(Pipeline):
         for name, single_exec_dict in zip(self.patch_list, exec_args):
             for node in nodes:
                 if isinstance(node.task, ImportFromTiffTask):
+                    if node.name is None:
+                        raise RuntimeError("One of the ImportFromTiffTask nodes has not been tagget with filename.")
                     filename = node.name.split()[0]
                     path = f"{name}/{filename}"
                     single_exec_dict[node] = dict(filename=path)

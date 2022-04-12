@@ -31,6 +31,8 @@ class CustomGridAreaManager(AreaManager):
             ),
         )
 
+    config: Schema
+
     def get_area_dataframe(self, *, crs: CRS = CRS.WGS84, **_: Any) -> gpd.GeoDataFrame:
         """Provides a single dataframe that defines an AOI
 

@@ -241,6 +241,8 @@ class CustomGridEOPatchManager(EOPatchManager):
         name_column: str = Field(description="A name of a column in grid dataframes that contains EOPatch names")
         index_column: str = Field(description="A name of a column in grid dataframes that contains EOPatch indices")
 
+    config: Schema
+
     def generate_names(self, bbox_dataframe: GeoDataFrame, *_: Any, **__: Any) -> bidict:
         """Creates a bidirectional dictionary between names and indices"""
         names = bbox_dataframe[self.config.name_column]

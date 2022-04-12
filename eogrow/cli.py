@@ -268,7 +268,7 @@ class EOGrowCli:
         """
         for crude_config in collect_configs_from_path(config_filename):
             raw_config = interpret_config_from_dict(crude_config)
-            pipeline = TestPipeline.from_raw_config(raw_config)
+            pipeline = TestPipeline.with_defaults(raw_config)
             pipeline.run()
 
 

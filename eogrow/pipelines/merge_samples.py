@@ -2,7 +2,7 @@
 Module implementing merge samples
 """
 import logging
-from typing import List, Literal, Optional, Sequence, Tuple
+from typing import List, Literal, Optional, Tuple, cast
 
 import fs
 import numpy as np
@@ -10,10 +10,9 @@ from pydantic import Field
 
 from eolearn.core import EOPatch, EOWorkflow, FeatureType, LoadTask, OutputTask, linearly_connect_tasks
 from eolearn.core.utils.fs import get_full_path
-from eolearn.core.utils.parsing import parse_features
 
 from ..core.pipeline import Pipeline
-from ..utils.types import Feature
+from ..utils.types import Feature, FeatureSpec
 
 LOGGER = logging.getLogger(__name__)
 
@@ -31,18 +30,19 @@ class MergeSamplesPipeline(Pipeline):
         features_to_merge: List[Feature] = Field(
             description="Dictionary of all features for which samples are to be merged."
         )
+        include_timestamp: bool = Field(False, description="Whether to also prepare an array of merged timestamps.")
         id_filename: Optional[str] = Field(description="Filename of array holding patch id of concatenated features")
         suffix: str = Field("", description="String to append to array filenames")
         workers: int = Field(1, description="Number of threads used to load data from EOPatches in parallel.")
         use_ray: Literal[False] = Field(False, description="Pipeline does not parallelize properly.")
 
+    config: Schema
+
     _OUTPUT_NAME = "features-to-merge"
 
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         """Procedure which merges data from EOPatches into ML-ready numpy arrays"""
-        features_to_merge = self._get_features_to_merge()
-
-        workflow = self.build_workflow(features_to_merge)
+        workflow = self.build_workflow()
         exec_args = self.get_execution_arguments(workflow)
 
         # It doesn't make sense to parallelize loading over a cluster, but it would # make sense to parallelize over
@@ -50,63 +50,35 @@ class MergeSamplesPipeline(Pipeline):
         # batches of features
         successful, failed, results = self.run_execution(workflow, exec_args, multiprocess=False)
 
-        result_patches = [result.outputs.get(self._OUTPUT_NAME) for result in results]
+        result_patches = [cast(EOPatch, result.outputs.get(self._OUTPUT_NAME)) for result in results]
 
-        self.merge_and_save_features(result_patches, features_to_merge, patch_names=successful)
+        self.merge_and_save_features(result_patches, patch_names=successful)
 
         return successful, failed
 
-    def _get_features_to_merge(self) -> List[Feature]:
-        """Creates a list of feature to be merged"""
-        merge_features = parse_features(
-            self.config.features_to_merge,
-            allowed_feature_types=[
-                FeatureType.DATA,
-                FeatureType.DATA_TIMELESS,
-                FeatureType.MASK,
-                FeatureType.MASK_TIMELESS,
-                FeatureType.TIMESTAMP,
-            ],
-        )
-
-        if not merge_features:
-            raise ValueError("At least one feature should be given to merge")
-
-        if any(FeatureType.TIMESTAMP in feature for feature in merge_features):
-            merge_features = [feature for feature in merge_features if FeatureType.TIMESTAMP not in feature]
-            # It is important that this comes after other features to tile it correctly
-            merge_features.append((FeatureType.TIMESTAMP, None))
-
-        return merge_features
-
-    def build_workflow(self, features: Sequence[Feature]) -> EOWorkflow:
+    def build_workflow(self) -> EOWorkflow:
         """Creates a workflow that outputs the requested features"""
+        features_to_load: List[FeatureSpec] = [FeatureType.TIMESTAMP] if self.config.include_timestamp else []
+        features_to_load.extend(self.config.features_to_merge)
         load_task = LoadTask(
             self.storage.get_folder(self.config.input_folder_key, full_path=True),
-            features=features,
+            features=features_to_load,
             config=self.sh_config,
         )
         output_task = OutputTask(name=self._OUTPUT_NAME)
         return EOWorkflow(linearly_connect_tasks(load_task, output_task))
 
-    def merge_and_save_features(
-        self, patches: List[EOPatch], features_to_merge: List[Feature], patch_names: List[str]
-    ) -> None:
+    def merge_and_save_features(self, patches: List[EOPatch], patch_names: List[str]) -> None:
         """Merges features from EOPatches and saves data"""
         patch_sample_nums = None
-        for feature in features_to_merge:
+
+        for feature in self.config.features_to_merge:
             LOGGER.info("Started merging feature %s", feature)
             arrays = [self._collect_and_remove_feature(patch, feature) for patch in patches]
             feature_type, feature_name = feature
 
             if patch_sample_nums is None:
                 patch_sample_nums = [array.shape[0] for array in arrays]
-
-            if feature_type is FeatureType.TIMESTAMP:
-                arrays = [
-                    np.tile(timestamp, (sample_num, 1)) for sample_num, timestamp in zip(patch_sample_nums, arrays)
-                ]
-                feature_name = "TIMESTAMPS"
 
             merged_array: np.ndarray = np.concatenate(arrays, axis=0)
             del arrays
@@ -116,6 +88,14 @@ class MergeSamplesPipeline(Pipeline):
 
         if patch_sample_nums is None:
             raise ValueError("Need at least one feature to merge.")
+
+        if self.config.include_timestamp:
+            arrays = []
+            for patch, sample_num in zip(patches, patch_sample_nums):
+                arrays.append(np.tile(patch.timestamp, (sample_num, 1)))
+                patch.timestamp = []
+
+            self._save_array(np.concatenate(arrays, axis=0), "TIMESTAMPS")
 
         if self.config.id_filename:
             LOGGER.info("Started merging EOPatch ids")

@@ -23,7 +23,6 @@ from eolearn.core import (
     SaveTask,
 )
 from eolearn.core.utils.fs import join_path
-from eolearn.core.utils.parsing import parse_feature
 from eolearn.geometry import VectorToRasterTask
 from eolearn.io import VectorImportTask
 
@@ -31,7 +30,7 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.fs import LocalFile
-from ..utils.types import Feature
+from ..utils.types import Feature, FeatureSpec
 from ..utils.vector import concat_gdf
 
 LOGGER = logging.getLogger(__name__)
@@ -95,13 +94,18 @@ class RasterizePipeline(Pipeline):
             )
         )
 
+    config: Schema
+
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
-        if self._is_input_file(self.config.vector_input):
+        self.filename: Optional[str]
+        if isinstance(self.config.vector_input, str):
+            self.filename = self._parse_input_file(self.config.vector_input)
             self.vector_feature = FeatureType.VECTOR_TIMELESS, f"TEMP_{uuid.uuid4().hex}"
         else:
-            self.vector_feature = parse_feature(self.config.vector_input)
+            self.filename = None
+            self.vector_feature = self.config.vector_input
 
     def filter_patch_list(self, patch_list: List[str]) -> List[str]:
         filtered_patch_list = get_patches_with_missing_features(
@@ -114,26 +118,26 @@ class RasterizePipeline(Pipeline):
         return filtered_patch_list
 
     def run_procedure(self) -> Tuple[List[str], List[str]]:
-        if self._is_input_file(self.config.vector_input) and self.config.preprocess_dataset is not None:
-            self.run_dataset_preprocessing()
+        if self.filename is not None and self.config.preprocess_dataset is not None:
+            self.run_dataset_preprocessing(self.filename, self.config.preprocess_dataset)
         return super().run_procedure()
 
-    def run_dataset_preprocessing(self) -> None:
+    def run_dataset_preprocessing(self, filename: str, preprocess_config: Preprocessing) -> None:
         """Loads datasets, applies preprocessing steps and saves them to a cache folder"""
-        LOGGER.info("Preprocessing dataset %s", self.config.vector_input)
+        LOGGER.info("Preprocessing dataset %s", filename)
 
-        file_path = fs.path.combine(self.storage.get_input_data_folder(), self.config.vector_input)
+        file_path = fs.path.combine(self.storage.get_input_data_folder(), filename)
         with LocalFile(file_path, mode="r", filesystem=self.storage.filesystem) as local_file:
             dataset_layers = [
                 gpd.read_file(local_file.path, layer=layer, encoding="utf-8")
                 for layer in fiona.listlayers(local_file.path)
             ]
 
-        dataset_gdf = concat_gdf(dataset_layers, reproject_crs=self.config.preprocess_dataset.reproject_crs)
+        dataset_gdf = concat_gdf(dataset_layers, reproject_crs=preprocess_config.reproject_crs)
 
         dataset_gdf = self.preprocess_dataset(dataset_gdf)
 
-        dataset_path = self._get_dataset_path(full_path=False)
+        dataset_path = self._get_dataset_path(filename, full_path=False)
         with LocalFile(dataset_path, mode="w", filesystem=self.storage.filesystem) as local_file:
             dataset_gdf.to_file(local_file.path, encoding="utf-8", driver="GPKG")
 
@@ -146,9 +150,9 @@ class RasterizePipeline(Pipeline):
         4. postprocessing steps,
         5. saving results
         """
-        if self._is_input_file(self.config.vector_input):
+        if self.filename is not None:
             create_node = EONode(CreateEOPatchTask())
-            path = self._get_dataset_path()
+            path = self._get_dataset_path(self.filename)
             import_task = VectorImportTask(
                 self.vector_feature, path=path, layer=self.config.dataset_layer, config=self.sh_config
             )
@@ -215,26 +219,27 @@ class RasterizePipeline(Pipeline):
         return previous_node
 
     @staticmethod
-    def _is_input_file(value: Union[Feature, str]) -> bool:
+    def _parse_input_file(value: str) -> str:
         """Checks if given name ends with one of the supported file extensions"""
-        return isinstance(value, str) and value.lower().endswith((".geojson", ".shp", ".gpkg", ".gdb"))
+        if not value.lower().endswith((".geojson", ".shp", ".gpkg", ".gdb")):
+            raise ValueError(f"Input file path {value} should be a GeoJSON, Shapefile, GeoPackage or GeoDataBase.")
+        return value
 
-    def _get_dataset_path(self, full_path: bool = True) -> str:
+    def _get_dataset_path(self, filename: str, full_path: bool = True) -> str:
         """Provides a path from where dataset should be loaded into the workflow"""
         if self.config.preprocess_dataset is not None:
             folder = self.storage.get_cache_folder(full_path=full_path)
-            filename = f"preprocessed_{self.config.vector_input}"
+            filename = f"preprocessed_{filename}"
             filename = (os.path.splitext(filename))[0] + ".gpkg"
         else:
             folder = self.storage.get_input_data_folder(full_path=full_path)
-            filename = self.config.vector_input
 
         if full_path:
             return join_path(folder, filename)
         return fs.path.combine(folder, filename)
 
-    def _get_output_features(self) -> List[Feature]:
+    def _get_output_features(self) -> List[FeatureSpec]:
         """Lists all features that are to be saved upon the pipeline completion"""
-        base_features = [FeatureType.BBOX]
-        rasterized_features = [column.output_feature for column in self.config.columns]
-        return base_features + rasterized_features
+        features: List[FeatureSpec] = [FeatureType.BBOX]
+        features.extend(column.output_feature for column in self.config.columns)
+        return features

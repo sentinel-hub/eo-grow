@@ -46,6 +46,8 @@ class ClassFilterTask(EOTask):
         :param morph_operation: Type of morphological operation ot perform
         :param struct_elem: Structured element to be used. Taken from `ml_tools.MorphologicalStructFactory`
         """
+        self.feature_name: Optional[str]
+        self.new_feature_name: Optional[str]
         self.feature_type, self.feature_name, self.new_feature_name = self.parse_renamed_feature(feature)
         self.labels = labels
 

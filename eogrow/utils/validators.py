@@ -112,15 +112,3 @@ def validate_manager(value: dict) -> "ManagerSchema":
     manager_class = import_object(value["manager"])
     manager_schema = collect_schema(manager_class)
     return manager_schema.parse_obj(value)  # type: ignore
-
-
-def validate_resampling(value: str) -> str:
-    """Ensure that the resampling parameter has a valid value"""
-    assert value in ["NEAREST", "BILINEAR", "BICUBIC"]
-    return value
-
-
-def validate_mosaicking_order(value: str) -> str:
-    """Ensure that the mosaicking_order parameter has a valid value"""
-    assert value in ["mostRecent", "leastRecent", "leastCC"]
-    return value

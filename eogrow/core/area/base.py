@@ -45,6 +45,8 @@ class AreaManager(EOGrowObject):
             description="A list of regions which will be used. By default all regions are used."
         )
 
+    config: Schema
+
     def __init__(self, config: Schema, storage: StorageManager):
         """
         :param config: A configuration file
@@ -211,7 +213,7 @@ class AreaManager(EOGrowObject):
         input_filename = self.config.area_filename.rsplit(".", 1)[0]
         input_filename = fs.path.basename(input_filename)
 
-        filename_params = [
+        filename_params: List[object] = [
             prefix,
             input_filename,
             self.__class__.__name__,
@@ -221,7 +223,7 @@ class AreaManager(EOGrowObject):
 
         if self.has_region_filter() and not ignore_region_filter:
             filename_params.append(self.config.region_column_name)
-            filename_params.extend(self.config.region_names)
+            filename_params.extend(self.config.region_names or [])
 
         if prefix == "grid":
             filename_params.extend(self._get_grid_filename_params())

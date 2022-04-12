@@ -61,6 +61,8 @@ class BaseTrainingPipeline(Pipeline, metaclass=abc.ABCMeta):
         model_parameters: dict = Field(default_factory=dict, description="Parameters to be provided to the model")
         model_filename: str
 
+    config: Schema
+
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         """The main pipeline procedure
 
@@ -189,6 +191,8 @@ class ClassificationTrainingPipeline(BaseTrainingPipeline, metaclass=abc.ABCMeta
 
     class Schema(BaseTrainingPipeline.Schema):
         preprocessing: Optional[ClassificationPreprocessSchema]
+
+    config: Schema
 
     def preprocess_data(self, features: np.ndarray, reference: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """Preforms filtering and other preprocessing before splitting data."""

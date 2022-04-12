@@ -7,11 +7,11 @@ import logging
 import time
 import uuid
 import warnings
-from typing import Any, List, Optional, Tuple, Type, TypeVar
+from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
 
 import ray
 
-from eolearn.core import CreateEOPatchTask, EOExecutor, EOWorkflow, LoadTask, SaveTask, WorkflowResults
+from eolearn.core import CreateEOPatchTask, EOExecutor, EONode, EOWorkflow, LoadTask, SaveTask, WorkflowResults
 from eolearn.core.extra.ray import RayExecutor
 
 from ..utils.meta import import_object
@@ -41,6 +41,8 @@ class Pipeline(EOGrowObject):
 
     class Schema(PipelineSchema):
         """Configuration schema, describing input parameters and their types."""
+
+    config: Schema
 
     def __init__(self, config: Schema, unvalidated_config: Optional[RawConfig] = None):
         """
@@ -143,7 +145,7 @@ class Pipeline(EOGrowObject):
         exec_args = []
         nodes = workflow.get_nodes()
         for name, bbox in zip(self.patch_list, bbox_list):
-            single_exec_dict = {}
+            single_exec_dict: Dict[EONode, Dict[str, Any]] = {}
 
             for node in nodes:
                 if isinstance(node.task, (SaveTask, LoadTask)):
@@ -172,6 +174,8 @@ class Pipeline(EOGrowObject):
         """
         if eopatch_list is None:
             eopatch_list = self.patch_list
+
+        executor_class: Type[EOExecutor]
 
         if self.config.use_ray == "auto":
             try:

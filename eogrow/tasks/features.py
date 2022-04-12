@@ -45,7 +45,7 @@ class MosaickingTask(EOTask, metaclass=abc.ABCMeta):
     def __init__(
         self,
         feature: Feature,
-        dates: Union[List[datetime], Tuple[datetime, datetime, int]],
+        dates: Union[List[date], Tuple[date, date, int]],
         valid_mask: Optional[Feature] = None,
         ndvi_feature: Optional[Feature] = None,
     ):
@@ -64,7 +64,7 @@ class MosaickingTask(EOTask, metaclass=abc.ABCMeta):
             )
         self.dates = self._get_dates(dates)
 
-    def _get_dates(self, dates: Union[List[datetime], Tuple[datetime, datetime, int]]) -> np.ndarray:
+    def _get_dates(self, dates: Union[List[date], Tuple[date, date, int]]) -> np.ndarray:
         """Set dates either from list of dates or a tuple (start_date, end_date, n_mosaics)"""
         if all(isinstance(d, (date, datetime)) for d in dates):
             return np.array(dates)
@@ -76,7 +76,7 @@ class MosaickingTask(EOTask, metaclass=abc.ABCMeta):
         )
 
     @staticmethod
-    def _get_date_edges(start_date: datetime, end_date: datetime, parts: int) -> np.ndarray:
+    def _get_date_edges(start_date: date, end_date: date, parts: int) -> np.ndarray:
         """Help function to get dates of year split into equal parts
 
         :param start_date: first date of time interval
@@ -91,7 +91,7 @@ class MosaickingTask(EOTask, metaclass=abc.ABCMeta):
         edges.append(end)
         return np.array(edges)
 
-    def _find_time_indices(self, timestamps: Sequence[datetime], index: int) -> Tuple[np.ndarray, ...]:
+    def _find_time_indices(self, timestamps: Sequence[date], index: int) -> Tuple[np.ndarray, ...]:
         """Compute indices of images to use for mosaicking"""
         if index == 1:
             array = np.where((np.array(timestamps) <= self.dates[index]))
@@ -136,7 +136,7 @@ class MaxNDVIMosaickingTask(MosaickingTask):
     def __init__(
         self,
         feature: Feature,
-        dates: Union[List[datetime], Tuple[datetime, datetime, int]],
+        dates: Union[List[date], Tuple[date, date, int]],
         ndvi_feature: Feature,
         valid_mask: Optional[Feature] = None,
     ):
@@ -185,7 +185,7 @@ class MedianMosaickingTask(MosaickingTask):
     def __init__(
         self,
         feature: Feature,
-        dates: Union[List[datetime], Tuple[datetime, datetime, int]],
+        dates: Union[List[date], Tuple[date, date, int]],
         valid_mask: Optional[Feature] = None,
     ):
         super().__init__(feature, dates, valid_mask=valid_mask)
