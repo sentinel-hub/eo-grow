@@ -138,7 +138,7 @@ def interpret_config_from_dict(config: CrudeConfig, external_variables: Optional
 
 
 def interpret_config_from_path(path: str) -> RawConfig:
-    """Loads from path in applies the first to steps of the config language."""
+    """Loads from path in applies both steps of the config language."""
     configs = collect_configs_from_path(path)
     if len(configs) != 1:
         raise ValueError(f"The .json file {path} was expected to contain a single dictionary, got {len(configs)}")
@@ -210,7 +210,7 @@ def _recursive_apply_to_strings(config: object, function: Callable) -> object:
 
 
 def _recursive_check_config(config: object) -> None:
-    """Recursively checks the config satisfies some of the basic conditions for serialization when logging
+    """Recursively checks if the config satisfies basic conditions for being JSON serializable.
 
     :raises: ValueError
     """

@@ -23,6 +23,7 @@ from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.types import FeatureSpec
+from ..utils.validators import field_validator, validate_nonempty_list
 
 
 class FeatureMappingSchema(BaseSchema):
@@ -51,6 +52,7 @@ class BatchToEOPatchPipeline(Pipeline):
         mapping: List[FeatureMappingSchema] = Field(
             description="A list of mapping from batch files into EOPatch features."
         )
+        validate_mapping = field_validator("mapping", validate_nonempty_list)
         userdata_feature_name: Optional[str] = Field(
             description="A name of META_INFO feature in which userdata.json would be stored."
         )
@@ -117,8 +119,11 @@ class BatchToEOPatchPipeline(Pipeline):
             self._get_tiff_mapping_node(feature_mapping, userdata_node) for feature_mapping in self.config.mapping
         ]
 
-        last_node = mapping_nodes[0] if len(mapping_nodes) == 1 else userdata_node
-        if len(mapping_nodes) > 1:
+        if not mapping_nodes:
+            raise ValueError("No tiff mappings were specified. This should have been caught by config validation.")
+        if len(mapping_nodes) == 1:
+            last_node = mapping_nodes[0]
+        else:
             last_node = EONode(MergeEOPatchesTask(), inputs=mapping_nodes)
 
         processing_node = self.get_processing_node(last_node)
@@ -188,7 +193,7 @@ class BatchToEOPatchPipeline(Pipeline):
         return end_node
 
     @staticmethod
-    def get_processing_node(previous_node: Optional[EONode]) -> Optional[EONode]:
+    def get_processing_node(previous_node: EONode) -> EONode:
         """This method can be overwritten to add more tasks that process loaded data before saving it."""
         return previous_node
 

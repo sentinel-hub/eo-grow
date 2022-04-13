@@ -9,7 +9,7 @@ Self = TypeVar("Self", bound="EOGrowObject")
 
 
 class EOGrowObject:
-    """A base object object in `eo-grow` framework"""
+    """A base object in `eo-grow` framework"""
 
     class Schema(BaseModel):
         """A pydantic parsing/validation schema describing the shape of input parameters."""

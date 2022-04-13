@@ -4,7 +4,7 @@ Module implementing pipelines for downloading data
 import abc
 import datetime as dt
 import logging
-from typing import Any, List, Literal, Optional
+from typing import Any, List, Optional
 
 import numpy as np
 from pydantic import Field
@@ -17,7 +17,7 @@ from sentinelhub import Band, DataCollection, MimeType, Unit, read_data
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec, Path, TimePeriod
+from ..utils.types import Feature, FeatureSpec, MosaickingOrderType, Path, ResamplingType, TimePeriod
 from ..utils.validators import field_validator, parse_data_collection, parse_time_period
 
 LOGGER = logging.getLogger(__name__)
@@ -144,7 +144,7 @@ class CommonDownloadFields(BaseSchema):
 
     maxcc: Optional[float] = Field(ge=0, le=1)
 
-    resampling_type: Optional[Literal["NEAREST", "BILINEAR", "BICUBIC"]] = Field(
+    resampling_type: Optional[ResamplingType] = Field(
         description="A type of downsampling and upsampling used by Sentinel Hub service. Default is NEAREST"
     )
 
@@ -155,7 +155,7 @@ class TimeDependantFields(BaseSchema):
 
     time_difference: Optional[float] = Field(description="Time difference in minutes between consecutive time frames")
 
-    mosaicking_order: Optional[Literal["mostRecent", "leastRecent", "leastCC"]] = Field(
+    mosaicking_order: Optional[MosaickingOrderType] = Field(
         description="The mosaicking order used by Sentinel Hub service. Default is mostRecent"
     )
 

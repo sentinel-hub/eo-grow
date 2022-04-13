@@ -99,12 +99,11 @@ class RasterizePipeline(Pipeline):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
-        self.filename: Optional[str]
+        self.filename: Optional[str] = None
         if isinstance(self.config.vector_input, str):
             self.filename = self._parse_input_file(self.config.vector_input)
             self.vector_feature = FeatureType.VECTOR_TIMELESS, f"TEMP_{uuid.uuid4().hex}"
         else:
-            self.filename = None
             self.vector_feature = self.config.vector_input
 
     def filter_patch_list(self, patch_list: List[str]) -> List[str]:

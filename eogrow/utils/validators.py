@@ -3,7 +3,7 @@ Module defining common validators for schemas and validator wrappers
 """
 import datetime as dt
 import inspect
-from typing import TYPE_CHECKING, Any, Callable, Tuple
+from typing import TYPE_CHECKING, Any, Callable, List, Tuple, TypeVar
 
 from pydantic import validator
 
@@ -14,6 +14,8 @@ from .types import S3Path, TimePeriod
 
 if TYPE_CHECKING:
     from ..core.schemas import ManagerSchema
+
+T = TypeVar("T")
 
 
 def field_validator(field: str, validator_fun: Callable, allow_reuse: bool = True, **kwargs: Any) -> classmethod:
@@ -112,3 +114,9 @@ def validate_manager(value: dict) -> "ManagerSchema":
     manager_class = import_object(value["manager"])
     manager_schema = collect_schema(manager_class)
     return manager_schema.parse_obj(value)  # type: ignore
+
+
+def validate_nonempty_list(value: List[T]) -> List[T]:
+    """Ensure that the list is not empty."""
+    assert len(value) > 0, "List must not be empty!"
+    return value
