@@ -6,7 +6,7 @@ import logging
 import sys
 import time
 from logging import FileHandler, Filter, Formatter, Handler, LogRecord, StreamHandler
-from typing import Any, List, Optional, Sequence, Tuple, Union
+from typing import Any, List, Optional, Sequence, Union
 
 import fs
 from fs.errors import FilesystemClosed
@@ -20,22 +20,15 @@ from ..utils.general import jsonify
 from ..utils.logging import get_instance_info
 from ..utils.meta import get_package_versions
 from .base import EOGrowObject
-from .config import Config
-from .schemas import ManagerSchema
+from .config import RawConfig
+from .schemas import LoggingManagerSchema
 from .storage import StorageManager
 
 
 class LoggingManager(EOGrowObject):
     """A class that manages logging specifics"""
 
-    class Schema(ManagerSchema):
-        save_logs: bool = Field(
-            False,
-            description=(
-                "A flag to determine if pipeline logs and reports will be saved to "
-                "logs folder. This includes potential EOExecution reports and logs."
-            ),
-        )
+    class Schema(LoggingManagerSchema):
         pipeline_ignore_packages: Optional[List[str]] = Field(
             description=(
                 "Names of packages which logs will not be written to the main pipeline log file. The default null "
@@ -48,12 +41,6 @@ class LoggingManager(EOGrowObject):
                 "When working with a remote storage this parameter defines a minimal number of seconds between "
                 "two consecutive times when pipeline log file will be copied into the remote storage."
             ),
-        )
-        eoexecution_ignore_packages: Optional[List[str]] = Field(
-            description=(
-                "Names of packages which logs will not be written to EOExecution log files. The default null value "
-                "means that a default list of packages will be used."
-            )
         )
         include_logs_to_report: bool = Field(
             False,
@@ -79,7 +66,9 @@ class LoggingManager(EOGrowObject):
             ),
         )
 
-    def __init__(self, config: Config, storage: StorageManager):
+    config: Schema
+
+    def __init__(self, config: Schema, storage: StorageManager):
         """
         :param config: A configuration file
         :param storage: An instance of StorageManager class
@@ -181,7 +170,8 @@ class LoggingManager(EOGrowObject):
     def update_pipeline_report(
         self,
         pipeline_execution_name: str,
-        pipeline_config: Config,
+        pipeline_config: EOGrowObject.Schema,
+        pipeline_raw_config: Optional[RawConfig],
         pipeline_id: str,
         pipeline_timestamp: str,
         elapsed_time: Optional[float] = None,
@@ -198,7 +188,8 @@ class LoggingManager(EOGrowObject):
             return
 
         report = {
-            "config_parameters": pipeline_config,
+            "config_parameters": pipeline_raw_config,
+            "execution_parameters": repr(pipeline_config),
             "pipeline_execution_stats": {
                 "pipeline_id": pipeline_id,
                 "start_time": pipeline_timestamp,
@@ -319,7 +310,7 @@ class StdoutFilter(Filter):
         "sentinelhub.api.batch",
     )
 
-    def __init__(self, log_packages: Optional[Sequence[str]] = None, *args: Any, **kwargs: Any):
+    def __init__(self, *args: Any, log_packages: Optional[Sequence[str]] = None, **kwargs: Any):
         """
         :param log_packages: Names of packages which logs to include.
         """
@@ -350,13 +341,13 @@ class LogFileFilter(Filter):
         "boto3",
     )
 
-    def __init__(self, ignore_packages: Optional[Tuple[str]] = None, *args: Any, **kwargs: Any):
+    def __init__(self, *args: Any, ignore_packages: Optional[Sequence[str]] = None, **kwargs: Any):
         """
         :param ignore_packages: Names of packages which logs will be ignored.
         """
         super().__init__(*args, **kwargs)
 
-        self.ignore_packages = self.DEFAULT_IGNORE_PACKAGES if ignore_packages is None else ignore_packages
+        self.ignore_packages = self.DEFAULT_IGNORE_PACKAGES if ignore_packages is None else tuple(ignore_packages)
 
     def filter(self, record: LogRecord) -> bool:
         """Shows everything from the main thread and process except logs from packages that are on the ignore list.
@@ -380,13 +371,13 @@ class EOExecutionFilter(Filter):
         "fiona.ogrext",
     )
 
-    def __init__(self, ignore_packages: Optional[Tuple[str]] = None, *args: Any, **kwargs: Any):
+    def __init__(self, ignore_packages: Optional[Sequence[str]] = None, *args: Any, **kwargs: Any):
         """
         :param ignore_packages: Names of packages which logs will be ignored.
         """
         super().__init__(*args, **kwargs)
 
-        self.ignore_packages = self.DEFAULT_IGNORE_PACKAGES if ignore_packages is None else ignore_packages
+        self.ignore_packages = self.DEFAULT_IGNORE_PACKAGES if ignore_packages is None else tuple(ignore_packages)
 
     def filter(self, record: LogRecord) -> bool:
         """Ignores logs from certain low-level packages"""

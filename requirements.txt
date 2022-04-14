@@ -7,7 +7,6 @@ fs>=2.2.0
 geopandas>=0.8.1
 joblib
 lightgbm>=3.0.0
-munch
 numpy
 pandas
 pydantic>=1.8.0

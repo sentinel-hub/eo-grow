@@ -22,15 +22,8 @@ from sentinelhub import (
 
 from ..core.area.batch import BatchAreaManager
 from ..core.pipeline import Pipeline
-from ..utils.types import Path, TimePeriod
-from ..utils.validators import (
-    field_validator,
-    optional_field_validator,
-    parse_data_collection,
-    parse_time_period,
-    validate_mosaicking_order,
-    validate_resampling,
-)
+from ..utils.types import MosaickingOrderType, Path, ResamplingType, TimePeriod
+from ..utils.validators import field_validator, optional_field_validator, parse_data_collection, parse_time_period
 
 LOGGER = logging.getLogger(__name__)
 
@@ -39,6 +32,8 @@ class BatchDownloadPipeline(Pipeline):
     """Pipeline to start and monitor a Sentinel Hub batch job"""
 
     class Schema(Pipeline.Schema):
+        area: BatchAreaManager.Schema
+
         output_folder_key: str = Field(
             description="Storage manager key pointing to the path where batch results will be saved."
         )
@@ -54,13 +49,13 @@ class BatchDownloadPipeline(Pipeline):
             False, description="A flag indicating if userdata.json should also be one of the results of the batch job."
         )
 
-        resampling_type: str = Field(
+        resampling_type: ResamplingType = Field(
             "NEAREST", description="A type of downsampling and upsampling used by Sentinel Hub service"
         )
-        _validate_resampling_type = field_validator("resampling_type", validate_resampling)
 
-        mosaicking_order: Optional[str] = Field(description="The mosaicking order used by Sentinel Hub service")
-        _validate_mosaicking_order = optional_field_validator("mosaicking_order", validate_mosaicking_order)
+        mosaicking_order: Optional[MosaickingOrderType] = Field(
+            description="The mosaicking order used by Sentinel Hub service"
+        )
 
         batch_output_kwargs: dict = Field(
             default_factory=dict,
@@ -102,14 +97,10 @@ class BatchDownloadPipeline(Pipeline):
             ),
         )
 
+    config: Schema
+
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-
-        if not isinstance(self.area_manager, BatchAreaManager):
-            raise ValueError(
-                f"Pipeline {self.__class__.__name__} can only work with area managers that are equal or a subclass "
-                f"of {BatchAreaManager.__name__} but {self.area_manager.__class__.__name__} was given."
-            )
 
         self.batch_client = SentinelHubBatch(config=self.sh_config)
 
@@ -207,9 +198,8 @@ class BatchDownloadPipeline(Pipeline):
                 LOGGER.info("Triggered batch job analysis.")
                 return BatchUserAction.ANALYSE
 
-            LOGGER.info(
-                "Didn't trigger analysis because current batch request status is %s.", batch_request.status.value
-            )
+            status = None if batch_request.status is None else batch_request.status.value
+            LOGGER.info("Didn't trigger analysis because current batch request status is %s.", status)
             return BatchUserAction.NONE
 
         if batch_request.status in [
@@ -226,7 +216,8 @@ class BatchDownloadPipeline(Pipeline):
             LOGGER.info("Restarted partially failed batch job.")
             return BatchUserAction.START
 
-        LOGGER.info("Didn't trigger batch job because current batch request status is %s", batch_request.status.value)
+        status = None if batch_request.status is None else batch_request.status.value
+        LOGGER.info("Didn't trigger batch job because current batch request status is %s", status)
         return BatchUserAction.NONE
 
     def ensure_batch_grid(self, request_id: str) -> None:

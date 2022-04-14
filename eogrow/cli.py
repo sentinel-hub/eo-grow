@@ -3,16 +3,17 @@ Module implementing command line interface for `eo-grow`
 """
 import json
 import os
+import re
 import subprocess
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 import click
 
-from .core.config import Config, get_config_from_string, interpret_config_from_path
+from .core.config import collect_configs_from_path, decode_config_list, encode_config_list, interpret_config_from_dict
 from .core.schemas import build_minimal_template, build_schema_template
 from .pipelines.testing import TestPipeline
 from .utils.general import jsonify
-from .utils.meta import collect_schema, import_object, load_pipeline
+from .utils.meta import collect_schema, import_object, load_pipeline_class
 
 variables_option = click.option(
     "-v",
@@ -59,23 +60,38 @@ class EOGrowCli:
     @click.argument("config_filename_or_string", type=click.Path())
     @variables_option
     @test_patches_option
-    def main(config_filename_or_string: str, cli_variables: Tuple[str], test_patches: Tuple[int]) -> None:
+    @click.option(
+        "-e",
+        "--encoding",
+        "encoding",
+        is_flag=True,
+        type=bool,
+        help="The string passed to method is treated as an encoded config instead of filename.",
+    )
+    def main(
+        config_filename_or_string: str, cli_variables: Tuple[str], test_patches: Tuple[int], encoding: bool
+    ) -> None:
         """Execute eo-grow pipeline using CLI.
 
         \b
         Example:
             eogrow config_files/config.json
         """
-        pipeline_configs: List[Config] = get_config_from_string(config_filename_or_string)
-        if isinstance(pipeline_configs, Config):
-            pipeline_configs = [pipeline_configs]
+        if encoding:
+            raw_configs = decode_config_list(config_filename_or_string)
+        else:
+            raw_configs = collect_configs_from_path(config_filename_or_string)
 
-        for config in pipeline_configs:
-            config.add_cli_variables(cli_variables)
+        cli_variable_mapping = dict(_parse_cli_variable(cli_var) for cli_var in cli_variables)
+        pipelines = []
+        for raw_config in raw_configs:
+            config = interpret_config_from_dict(raw_config, cli_variable_mapping)
             if test_patches:
-                config.patch_list = list(test_patches)
+                config["patch_list"] = list(test_patches)
 
-            pipeline = load_pipeline(config)
+            pipelines.append(load_pipeline_class(config).from_raw_config(config))
+
+        for pipeline in pipelines:
             pipeline.run()
 
     @staticmethod
@@ -133,9 +149,10 @@ class EOGrowCli:
         if stop_cluster and (use_screen or use_tmux):
             raise NotImplementedError("It is not clear how to combine stop flag with either screen or tmux flag")
 
-        encoded_config = interpret_config_from_path(config_filename).encode()
+        configs = collect_configs_from_path(config_filename)
+        encoded_configs = encode_config_list(configs)
         cmd = (
-            f"{EOGrowCli._command_namespace} {encoded_config}"
+            f"{EOGrowCli._command_namespace} -e {encoded_configs}"
             + "".join(f' -v "{cli_var_spec}"' for cli_var_spec in cli_variables)
             + "".join(f" -t {patch_index}" for patch_index in test_patches)
             + ("; " if stop_cluster else "")  # Otherwise ray will incorrectly prepare a command for stopping a cluster
@@ -224,27 +241,24 @@ class EOGrowCli:
 
     @staticmethod
     @click.command()
-    @click.argument("config_filename_or_string", type=click.Path())
-    def validate_config(config_filename_or_string: str) -> None:
+    @click.argument("config_filename", type=click.Path())
+    def validate_config(config_filename: str) -> None:
         """Validate config without running a pipeline.
 
         \b
         Example:
             eogrow-validate config_files/config.json
         """
-        pipeline_configs: List[Config] = get_config_from_string(config_filename_or_string)
-        if isinstance(pipeline_configs, Config):
-            pipeline_configs = [pipeline_configs]
-
-        for config in pipeline_configs:
-            load_pipeline(config)
+        for config in collect_configs_from_path(config_filename):
+            raw_config = interpret_config_from_dict(config)
+            load_pipeline_class(config).Schema.parse_obj(raw_config)
 
         click.echo("Config validation succeeded!")
 
     @staticmethod
     @click.command()
-    @click.argument("config_filename_or_string", type=click.Path())
-    def run_test_pipeline(config_filename_or_string: str) -> None:
+    @click.argument("config_filename", type=click.Path())
+    def run_test_pipeline(config_filename: str) -> None:
         """Runs a test pipeline that only makes sure the managers work correctly. This can be used to select best
         area manager parameters.
 
@@ -252,10 +266,16 @@ class EOGrowCli:
         Example:
             eogrow-test any_pipeline_config.json
         """
-        pipeline_configs: List[Config] = get_config_from_string(config_filename_or_string)
-        if isinstance(pipeline_configs, Config):
-            pipeline_configs = [pipeline_configs]
-
-        for config in pipeline_configs:
-            pipeline = TestPipeline(config)
+        for crude_config in collect_configs_from_path(config_filename):
+            raw_config = interpret_config_from_dict(crude_config)
+            pipeline = TestPipeline.with_defaults(raw_config)
             pipeline.run()
+
+
+def _parse_cli_variable(mapping_str: str) -> Tuple[str, str]:
+    """Checks that the input is of shape `name:value` and then splits it into a tuple"""
+    match = re.match(r"(?P<name>.+?):(?P<value>.+)", mapping_str)
+    if match is None:
+        raise ValueError(f'CLI variable input {mapping_str} is not of form `"name:value"`')
+    parsed = match.groupdict()
+    return parsed["name"], parsed["value"]

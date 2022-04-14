@@ -1,7 +1,7 @@
 """
 Pipelines that transform data
 """
-from typing import Dict
+from typing import Dict, List
 
 from pydantic import Field
 
@@ -9,6 +9,7 @@ from eolearn.core import EOWorkflow, FeatureType, LoadTask, OverwritePermission,
 
 from ..core.pipeline import Pipeline
 from ..tasks.common import MappingTask
+from ..utils.types import FeatureSpec
 
 
 class MappingPipeline(Pipeline):
@@ -23,15 +24,22 @@ class MappingPipeline(Pipeline):
         mapping_dictionary: Dict[int, int] = Field(description="Mapping dictionary of the input-to-output classes")
         compress_level: int = Field(1, description="Level of compression used in saving eopatches")
 
+    config: Schema
+
     def build_workflow(self) -> EOWorkflow:
         """Method for constructing the workflow"""
         input_feature = FeatureType.MASK_TIMELESS, self.config.input_feature
         output_feature = FeatureType.MASK_TIMELESS, self.config.output_feature
-        extra_features = [FeatureType.BBOX] if self.config.input_folder_key != self.config.output_folder_key else []
+
+        input_features: List[FeatureSpec] = [input_feature]
+        output_features: List[FeatureSpec] = [output_feature]
+        if self.config.input_folder_key != self.config.output_folder_key:
+            input_features.append(FeatureType.BBOX)
+            output_features.append(FeatureType.BBOX)
 
         load_task = LoadTask(
             self.storage.get_folder(self.config.input_folder_key, full_path=True),
-            features=[input_feature] + extra_features,
+            features=input_features,
             config=self.sh_config,
         )
 
@@ -39,7 +47,7 @@ class MappingPipeline(Pipeline):
 
         save_task = SaveTask(
             self.storage.get_folder(self.config.output_folder_key, full_path=True),
-            features=[output_feature] + extra_features,
+            features=output_features,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
             config=self.sh_config,
             compress_level=self.config.compress_level,

@@ -1,32 +1,38 @@
-from typing import Type
+"""Base object from which all configurable eo-grow objects inherit."""
+from typing import Any, Type, TypeVar
 
 from pydantic import BaseModel
 
-from ..utils.meta import collect_schema
-from .config import Config
+from .config import RawConfig, interpret_config_from_path
+
+Self = TypeVar("Self", bound="EOGrowObject")
 
 
 class EOGrowObject:
-    """A base object object in `eo-grow` framework"""
+    """A base object in `eo-grow` framework"""
 
-    def __init__(self, config: dict):
-        config = config if isinstance(config, Config) else Config.from_dict(config)
+    class Schema(BaseModel):
+        """A pydantic parsing/validation schema describing the shape of input parameters."""
 
-        self.schema = self._initialize_schema()
-        self._config = self._prepare_config(config)
+        class Config:
+            """Forbids unspecified fields and validates default values as well."""
 
-    def _initialize_schema(self) -> Type[BaseModel]:
-        schema_object = collect_schema(self)
-        return schema_object
+            extra = "forbid"
+            validate_all = True
 
-    def _prepare_config(self, config: Config) -> Config:
-        """Interprets and validates configuration dictionary"""
-        config = config.interpret()
-        parsed_config = self.schema.parse_obj(config)
+    config: Schema
 
-        return Config.from_dict(parsed_config.dict())
+    def __init__(self, config: Schema):
+        self.config = config
 
-    @property
-    def config(self) -> Config:
-        """A public property that provides object's configuration"""
-        return self._config
+    @classmethod
+    def from_raw_config(cls: Type[Self], config: RawConfig, *args: Any, **kwargs: Any) -> Self:
+        """Creates an object from a dictionary by constructing a validated config and use it to create the object."""
+        validated_config = cls.Schema.parse_obj(config)
+        return cls(validated_config, *args, **kwargs)
+
+    @classmethod
+    def from_path(cls: Type[Self], path: str, *args: Any, **kwargs: Any) -> Self:
+        """Creates an object by loading and validating a config from a JSON file."""
+        config = interpret_config_from_path(path)
+        return cls.from_raw_config(config, *args, **kwargs)

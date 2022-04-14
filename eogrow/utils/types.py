@@ -1,7 +1,7 @@
 """ Includes custom types used in schemas
 """
 import datetime
-from typing import Tuple, Union
+from typing import Literal, Tuple, Union
 
 from eolearn.core import FeatureType
 
@@ -9,6 +9,8 @@ Path = str
 S3Path = str
 ImportPath = str
 TimePeriod = Tuple[datetime.date, datetime.date]
+MosaickingOrderType = Literal["mostRecent", "leastRecent", "leastCC"]
+ResamplingType = Literal["NEAREST", "BILINEAR", "BICUBIC"]
 
-Feature = Union[Tuple[FeatureType, str], FeatureType]
-# Feature type is added for BBOX and TIMESTAMP, using Literal with Enum is weird
+Feature = Tuple[FeatureType, str]
+FeatureSpec = Union[Tuple[FeatureType, str], FeatureType]

@@ -3,7 +3,7 @@ Conversion of batch results to EOPatches
 """
 from typing import Any, Dict, List, Optional
 
-from pydantic import Field
+from pydantic import Field, root_validator
 
 from eolearn.core import (
     EONode,
@@ -22,7 +22,7 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature
+from ..utils.types import FeatureSpec
 
 
 class FeatureMappingSchema(BaseSchema):
@@ -65,6 +65,17 @@ class BatchToEOPatchPipeline(Pipeline):
             True, description="Whether to remove the raw batch data after the conversion is complete"
         )
 
+        @root_validator
+        def check_something_is_converted(cls, values):  # type: ignore
+            """Check that the pipeline has something to do."""
+            params = "userdata_feature_name", "userdata_timestamp_reader", "mapping"
+            assert any(
+                values.get(param) is not None for param in params
+            ), "At least one of `userdata_feature_name`, `userdata_timestamp_reader`, or `mapping` has to be set."
+            return values
+
+    config: Schema
+
     def __init__(self, *args: Any, **kwargs: Any):
         """Additionally sets some basic parameters calculated from config parameters"""
         super().__init__(*args, **kwargs)
@@ -85,9 +96,10 @@ class BatchToEOPatchPipeline(Pipeline):
 
         return filtered_patch_list
 
-    def _get_output_features(self) -> List[Feature]:
+    def _get_output_features(self) -> List[FeatureSpec]:
         """Lists all features that the pipeline outputs."""
-        features = [FeatureType.BBOX] + [(x.feature_type, x.feature_name) for x in self.config.mapping]
+        features: List[FeatureSpec] = [FeatureType.BBOX]
+        features.extend((x.feature_type, x.feature_name) for x in self.config.mapping)
 
         if self.config.userdata_feature_name:
             features.append((FeatureType.META_INFO, self.config.userdata_feature_name))
@@ -114,9 +126,18 @@ class BatchToEOPatchPipeline(Pipeline):
             self._get_tiff_mapping_node(feature_mapping, userdata_node) for feature_mapping in self.config.mapping
         ]
 
-        last_node = mapping_nodes[0] if len(mapping_nodes) == 1 else userdata_node
-        if len(mapping_nodes) > 1:
+        last_node = userdata_node
+
+        if len(mapping_nodes) == 1:
+            last_node = mapping_nodes[0]
+        elif len(mapping_nodes) > 1:
             last_node = EONode(MergeEOPatchesTask(), inputs=mapping_nodes)
+
+        if last_node is None:
+            raise ValueError(
+                "At least one of `userdata_feature_name`, `userdata_timestamp_reader`, or `mapping` has to be set in"
+                " the config. This should have been caught in the validation phase, please report issue."
+            )
 
         processing_node = self.get_processing_node(last_node)
 
@@ -126,7 +147,7 @@ class BatchToEOPatchPipeline(Pipeline):
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
             config=self.sh_config,
         )
-        save_node = EONode(save_task, inputs=[processing_node])
+        save_node = EONode(save_task, inputs=([processing_node] if processing_node else []))
 
         cleanup_node = None
         if self.config.remove_batch_data:
@@ -198,6 +219,8 @@ class BatchToEOPatchPipeline(Pipeline):
         for name, single_exec_dict in zip(self.patch_list, exec_args):
             for node in nodes:
                 if isinstance(node.task, ImportFromTiffTask):
+                    if node.name is None:
+                        raise RuntimeError("One of the ImportFromTiffTask nodes has not been tagget with filename.")
                     filename = node.name.split()[0]
                     path = f"{name}/{filename}"
                     single_exec_dict[node] = dict(filename=path)

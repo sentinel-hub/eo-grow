@@ -11,7 +11,7 @@ from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, MergeEOPatch
 from ..core.pipeline import Pipeline
 from ..tasks.prediction import ClassificationPredictionTask, RegressionPredictionTask
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature
+from ..utils.types import Feature, FeatureSpec
 
 
 class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
@@ -52,8 +52,10 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         model_filename: str = Field(description="A list of model filenames to be used for prediction")
         compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
 
+    config: Schema
+
     @abc.abstractmethod
-    def _get_output_features(self) -> List[Feature]:
+    def _get_output_features(self) -> List[FeatureSpec]:
         """Lists all features that are to be saved upon the pipeline completion"""
 
     @property
@@ -130,7 +132,9 @@ class RegressionPredictionPipeline(BasePredictionPipeline):
             description="Whether to clip values of predictions to specified interval"
         )
 
-    def _get_output_features(self) -> List[Feature]:
+    config: Schema
+
+    def _get_output_features(self) -> List[FeatureSpec]:
         return [FeatureType.BBOX, (FeatureType.DATA_TIMELESS, self.config.output_feature_name)]
 
     def _get_prediction_node(self, previous_node: EONode) -> EONode:
@@ -159,11 +163,13 @@ class ClassificationPredictionPipeline(BasePredictionPipeline):
             )
         )
 
-    def _get_output_features(self) -> List[Feature]:
-        out = [FeatureType.BBOX, (FeatureType.MASK_TIMELESS, self.config.output_feature_name)]
+    config: Schema
+
+    def _get_output_features(self) -> List[FeatureSpec]:
+        features: List[FeatureSpec] = [FeatureType.BBOX, (FeatureType.MASK_TIMELESS, self.config.output_feature_name)]
         if self.config.output_probability_feature_name:
-            out.append((FeatureType.DATA_TIMELESS, self.config.output_probability_feature_name))
-        return out
+            features.append((FeatureType.DATA_TIMELESS, self.config.output_probability_feature_name))
+        return features
 
     def _get_prediction_node(self, previous_node: EONode) -> EONode:
         prediction_task = ClassificationPredictionTask(

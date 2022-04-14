@@ -4,7 +4,7 @@ Module implementing pipelines for downloading data
 import abc
 import datetime as dt
 import logging
-from typing import List, Optional, Tuple, Union
+from typing import Any, List, Optional
 
 import numpy as np
 from pydantic import Field
@@ -14,19 +14,11 @@ from eolearn.features import LinearFunctionTask
 from eolearn.io import SentinelHubDemTask, SentinelHubEvalscriptTask, SentinelHubInputTask
 from sentinelhub import Band, DataCollection, MimeType, Unit, read_data
 
-from ..core.config import Config
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, Path, TimePeriod
-from ..utils.validators import (
-    field_validator,
-    optional_field_validator,
-    parse_data_collection,
-    parse_time_period,
-    validate_mosaicking_order,
-    validate_resampling,
-)
+from ..utils.types import Feature, FeatureSpec, MosaickingOrderType, Path, ResamplingType, TimePeriod
+from ..utils.validators import field_validator, parse_data_collection, parse_time_period
 
 LOGGER = logging.getLogger(__name__)
 
@@ -61,9 +53,11 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
 
         postprocessing: Optional[PostprocessingRescale] = Field(description="Parameters used in post-processing tasks")
 
-    def __init__(self, config: Config):
-        super().__init__(config)
-        self.download_node_uid = None
+    config: Schema
+
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self.download_node_uid: Optional[str] = None
 
     def filter_patch_list(self, patch_list: List[str]) -> List[str]:
         """EOPatches are filtered according to existence of specified output features"""
@@ -78,7 +72,7 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
         return filtered_patch_list
 
     @abc.abstractmethod
-    def _get_output_features(self) -> List[Feature]:
+    def _get_output_features(self) -> List[FeatureSpec]:
         """Lists all features that are to be saved upon the pipeline completion"""
 
     @abc.abstractmethod
@@ -86,7 +80,7 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
         """Provides node for downloading data."""
 
     @staticmethod
-    def get_postprocessing_node(postprocessing_config: Config, previous_node: EONode) -> EONode:
+    def get_postprocessing_node(postprocessing_config: PostprocessingRescale, previous_node: EONode) -> EONode:
         """Provides node that applies postprocessing to data after download is complete"""
         node = previous_node
         for rescale_config in postprocessing_config.rescale_schemas:
@@ -136,8 +130,8 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
 
         for index, bbox in enumerate(bbox_list):
             exec_args[index][download_node] = {"bbox": bbox}
-            if "time_period" in self.config:
-                exec_args[index][download_node]["time_interval"] = self.config.time_period
+            if hasattr(self.config, "time_period"):
+                exec_args[index][download_node]["time_interval"] = self.config.time_period  # type: ignore
 
         return exec_args
 
@@ -150,10 +144,9 @@ class CommonDownloadFields(BaseSchema):
 
     maxcc: Optional[float] = Field(ge=0, le=1)
 
-    resampling_type: Optional[str] = Field(
+    resampling_type: Optional[ResamplingType] = Field(
         description="A type of downsampling and upsampling used by Sentinel Hub service. Default is NEAREST"
     )
-    _validate_resampling_type = optional_field_validator("resampling_type", validate_resampling)
 
 
 class TimeDependantFields(BaseSchema):
@@ -162,10 +155,9 @@ class TimeDependantFields(BaseSchema):
 
     time_difference: Optional[float] = Field(description="Time difference in minutes between consecutive time frames")
 
-    mosaicking_order: Optional[str] = Field(
+    mosaicking_order: Optional[MosaickingOrderType] = Field(
         description="The mosaicking order used by Sentinel Hub service. Default is mostRecent"
     )
-    _validate_mosaicking_order = optional_field_validator("mosaicking_order", validate_mosaicking_order)
 
 
 class DownloadPipeline(BaseDownloadPipeline):
@@ -179,9 +171,16 @@ class DownloadPipeline(BaseDownloadPipeline):
             False, description="Whether to save bands as float32 reflectance (default), or int16 digital numbers."
         )
 
-    def _get_output_features(self) -> List[Feature]:
-        base_features = [(FeatureType.DATA, self.config.bands_feature_name), FeatureType.BBOX, FeatureType.TIMESTAMP]
-        return base_features + self.config.additional_data
+    config: Schema
+
+    def _get_output_features(self) -> List[FeatureSpec]:
+        features: List[FeatureSpec] = [
+            (FeatureType.DATA, self.config.bands_feature_name),
+            FeatureType.BBOX,
+            FeatureType.TIMESTAMP,
+        ]
+        features.extend(self.config.additional_data)
+        return features
 
     def _get_download_node(self) -> EONode:
         time_diff = None if self.config.time_difference is None else dt.timedelta(minutes=self.config.time_difference)
@@ -189,6 +188,9 @@ class DownloadPipeline(BaseDownloadPipeline):
         data_collection = self.config.data_collection
 
         if data_collection.is_byoc:
+            if not self.config.bands:
+                raise ValueError("Band names must be explicitly suplied when working with BYOC.")
+
             data_collection = self.config.data_collection.define_from(
                 f"{self.config.data_collection.name}_WITH_BANDS",
                 bands=[Band(name=band, units=(Unit.DN,), output_types=(bands_dtype,)) for band in self.config.bands],
@@ -216,13 +218,15 @@ class DownloadEvalscriptPipeline(BaseDownloadPipeline):
     """Pipeline to download through an evalscript"""
 
     class Schema(BaseDownloadPipeline.Schema, CommonDownloadFields, TimeDependantFields):
-        features: List[Union[Feature, Tuple[FeatureType, str, str]]] = Field(
-            description="Features to construct from the evalscript, with the options to provide new names"
-        )
+        features: List[Feature] = Field(description="Features to construct from the evalscript")
         evalscript_path: Path
 
-    def _get_output_features(self) -> List[Feature]:
-        return self.config.features + [FeatureType.BBOX, FeatureType.TIMESTAMP]
+    config: Schema
+
+    def _get_output_features(self) -> List[FeatureSpec]:
+        features: List[FeatureSpec] = [FeatureType.BBOX, FeatureType.TIMESTAMP]
+        features.extend(self.config.features)
+        return features
 
     def _get_download_node(self) -> EONode:
         evalscript = read_data(self.config.evalscript_path, data_format=MimeType.TXT)
@@ -249,7 +253,9 @@ class DownloadTimelessPipeline(BaseDownloadPipeline):
     class Schema(BaseDownloadPipeline.Schema, CommonDownloadFields):
         feature_name: str = Field(description="Name of the resulting feature")
 
-    def _get_output_features(self) -> List[Feature]:
+    config: Schema
+
+    def _get_output_features(self) -> List[FeatureSpec]:
         return [(FeatureType.DATA_TIMELESS, self.config.feature_name), FeatureType.BBOX]
 
     def _get_download_node(self) -> EONode:

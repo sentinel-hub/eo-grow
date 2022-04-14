@@ -32,7 +32,9 @@ class StorageManager(EOGrowObject):
             default_factory=dict, description="A flat key: value store mapping each key to a path in the project."
         )
 
-    def __init__(self, config: dict):
+    config: Schema
+
+    def __init__(self, config: Schema):
         super().__init__(config)
 
         for folder_key, folder_path in self.PRESET_FOLDERS.items():

@@ -28,6 +28,8 @@ class BatchAreaManager(AreaManager):
             ),
         )
 
+    config: Schema
+
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
@@ -88,11 +90,15 @@ class BatchAreaManager(AreaManager):
 
     def _fix_batch_bbox(self, bbox: BBox) -> BBox:
         """Fixes a batch tile bounding box so that it will be the same as in produced tiles on the bucket"""
-        min_x, min_y, max_x, max_y = list(map(round, bbox))
+        min_x, min_y, max_x, max_y = map(round, bbox)
 
         buffer_meters = self.config.tile_buffer * self.config.resolution
 
-        min_x, min_y = min_x - buffer_meters, min_y - buffer_meters
-        max_x, max_y = max_x + buffer_meters, max_y + buffer_meters
+        corrected = (
+            min_x - buffer_meters,
+            min_y - buffer_meters,
+            max_x + buffer_meters,
+            max_y + buffer_meters,
+        )
 
-        return BBox((min_x, min_y, max_x, max_y), crs=bbox.crs)
+        return BBox(corrected, crs=bbox.crs)

@@ -24,6 +24,8 @@ class UtmZoneAreaManager(AreaManager):
         offset_x: float = Field(0, description="An offset of tiling grid in horizontal dimension")
         offset_y: float = Field(0, description="An offset of tiling grid in vertical dimension")
 
+    config: Schema
+
     def _get_grid_filename_params(self) -> List[object]:
         """A list of parameters specific to UTM zone splitting"""
         return [

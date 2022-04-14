@@ -15,9 +15,9 @@ from deepdiff import DeepDiff
 
 from eolearn.core import EOPatch, FeatureType
 
-from ..core.config import Config, ConfigList
+from ..core.config import interpret_config_from_path
 from ..core.pipeline import Pipeline
-from .meta import load_pipeline
+from ..utils.meta import load_pipeline_class
 
 
 class ContentTester:
@@ -221,16 +221,14 @@ def run_and_test_pipeline(
     config_filename = os.path.join(config_folder, experiment_name + ".json")
     expected_stats_file = os.path.join(stats_folder, experiment_name + ".json")
 
-    config = Config.from_path(config_filename)
-    if isinstance(config, ConfigList):
-        raise ValueError("Cannot test config list with `run_and_test_pipeline`")
+    config = interpret_config_from_path(config_filename)
 
     if folder_key or "output_folder_key" in config:
-        folder_key = folder_key or config.output_folder_key
+        folder_key = folder_key or config["output_folder_key"]
     else:
         raise ValueError("Pipeline does not have a `output_folder_key` parameter, `folder_key` must be set by hand.")
 
-    pipeline = load_pipeline(config)
+    pipeline = load_pipeline_class(config).from_raw_config(config)
 
     folder = pipeline.storage.get_folder(folder_key)
     filesystem = pipeline.storage.filesystem

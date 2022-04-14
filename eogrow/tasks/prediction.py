@@ -2,7 +2,7 @@
 Task definitions for prediction
 """
 import abc
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import Any, Callable, List, Optional, Tuple, Union, cast
 
 import joblib
 import numpy as np
@@ -86,6 +86,7 @@ class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
             predictions = execute_with_mp_lock(predictor, processed_features)
         else:
             predictions = predictor(processed_features)
+        predictions = cast(np.ndarray, predictions)
 
         return predictions.astype(self.output_dtype) if self.output_dtype else predictions
 
@@ -121,7 +122,7 @@ class ClassificationPredictionTask(BasePredictionTask):
     def __init__(
         self,
         *,
-        label_encoder_filename: str,
+        label_encoder_filename: Optional[str],
         output_probability_feature: Optional[Feature] = None,
         **kwargs: Any,
     ):

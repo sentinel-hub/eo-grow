@@ -2,11 +2,12 @@
 Pipelines for testing
 """
 import logging
-from typing import List, Tuple
+from typing import List, Tuple, Type, TypeVar
 
-from ..core.config import recursive_config_join
+from ..core.config import RawConfig, recursive_config_join
 from ..core.pipeline import Pipeline
 
+Self = TypeVar("Self", bound=Pipeline)
 LOGGER = logging.getLogger(__name__)
 
 
@@ -25,9 +26,10 @@ class TestPipeline(Pipeline):
         "logging": {"manager": "eogrow.logging.LoggingManager", "show_logs": True},
     }
 
-    def __init__(self, config: dict):
-        config = recursive_config_join(config, self._DEFAULT_CONFIG_PARAMS)
-        super().__init__(config)
+    @classmethod
+    def with_defaults(cls: Type[Self], config: RawConfig) -> Self:
+        config = recursive_config_join(config, cls._DEFAULT_CONFIG_PARAMS)  # type: ignore
+        return cls.from_raw_config(config)
 
     def run_procedure(self) -> Tuple[List, List]:
         """Performs basic tests of managers"""
