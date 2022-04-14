@@ -141,7 +141,7 @@ def interpret_config_from_path(path: str) -> RawConfig:
     """Loads from path in applies both steps of the config language."""
     configs = collect_configs_from_path(path)
     if len(configs) != 1:
-        raise ValueError(f"The .json file {path} was expected to contain a single dictionary, got {len(configs)}")
+        raise ValueError(f"The JSON file {path} was expected to contain a single dictionary, got {len(configs)}")
     return interpret_config_from_dict(configs[0])
 
 
