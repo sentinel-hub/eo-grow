@@ -128,7 +128,6 @@ jobs:
         if: matrix.python-version != '3.9'
         run: |
           pytest -m "fast"
-          pytest -m "chain"
 
       - name: Run fast and chain integration tests
         if: matrix.python-version == '3.9'
@@ -137,6 +136,7 @@ jobs:
             --sh_client_id "${{ secrets.SH_CLIENT_ID }}" \
             --sh_client_secret "${{ secrets.SH_CLIENT_SECRET }}"
           pytest -m "fast"
+          pytest -m "chain"
 
   mirror-to-gitlab:
     if: github.event_name == 'push'
