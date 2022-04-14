@@ -3,7 +3,7 @@ Conversion of batch results to EOPatches
 """
 from typing import Any, Dict, List, Optional
 
-from pydantic import Field
+from pydantic import Field, root_validator
 
 from eolearn.core import (
     EONode,
@@ -23,7 +23,6 @@ from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.types import FeatureSpec
-from ..utils.validators import field_validator, validate_nonempty_list
 
 
 class FeatureMappingSchema(BaseSchema):
@@ -52,7 +51,6 @@ class BatchToEOPatchPipeline(Pipeline):
         mapping: List[FeatureMappingSchema] = Field(
             description="A list of mapping from batch files into EOPatch features."
         )
-        validate_mapping = field_validator("mapping", validate_nonempty_list)
         userdata_feature_name: Optional[str] = Field(
             description="A name of META_INFO feature in which userdata.json would be stored."
         )
@@ -66,6 +64,15 @@ class BatchToEOPatchPipeline(Pipeline):
         remove_batch_data: bool = Field(
             True, description="Whether to remove the raw batch data after the conversion is complete"
         )
+
+        @root_validator
+        def check_something_is_converted(cls, values):  # type: ignore
+            """Check that the pipeline has something to do."""
+            params = "userdata_feature_name", "userdata_timestamp_reader", "mapping"
+            assert any(
+                values.get(param) is not None for param in params
+            ), "At least one of `userdata_feature_name`, `userdata_timestamp_reader`, or `mapping` has to be set."
+            return values
 
     config: Schema
 
@@ -119,12 +126,18 @@ class BatchToEOPatchPipeline(Pipeline):
             self._get_tiff_mapping_node(feature_mapping, userdata_node) for feature_mapping in self.config.mapping
         ]
 
-        if not mapping_nodes:
-            raise ValueError("No tiff mappings were specified. This should have been caught by config validation.")
+        last_node = userdata_node
+
         if len(mapping_nodes) == 1:
             last_node = mapping_nodes[0]
-        else:
+        elif len(mapping_nodes) > 1:
             last_node = EONode(MergeEOPatchesTask(), inputs=mapping_nodes)
+
+        if last_node is None:
+            raise ValueError(
+                "At least one of `userdata_feature_name`, `userdata_timestamp_reader`, or `mapping` has to be set in"
+                " the config. This should have been caught in the validation phase, please report issue."
+            )
 
         processing_node = self.get_processing_node(last_node)
 
