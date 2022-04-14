@@ -182,20 +182,6 @@ def _sub_variable(match: re.Match, variable_mapping: Dict[str, str]) -> str:
     raise ValueError(f"Variable name '{variable_name}' doesn't exist in a config dictionary of variables.")
 
 
-def _resolve_env_variables(config_str: str) -> str:
-    """Replaces `${env:variable_name}` with an environmental variable"""
-    return re.sub(r"\${env:(\w+)}", _sub_env_variable, config_str)
-
-
-def _sub_env_variable(match: re.Match) -> str:
-    """Substitutes a regex match with a value set under environmental variable"""
-    env_variable_name = match.group(1)
-    env_var_value = os.getenv(env_variable_name)
-    if env_var_value is None:
-        raise KeyError(f"Environmental variable {env_variable_name} is not present in environment")
-    return env_var_value
-
-
 def _recursive_apply_to_strings(config: object, function: Callable) -> object:
     """Recursively applies a function on all string values (and not keys) of a nested config object"""
     if isinstance(config, dict):
