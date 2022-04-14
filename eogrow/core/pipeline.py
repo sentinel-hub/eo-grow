@@ -44,13 +44,13 @@ class Pipeline(EOGrowObject):
 
     config: Schema
 
-    def __init__(self, config: Schema, unvalidated_config: Optional[RawConfig] = None):
+    def __init__(self, config: Schema, raw_config: Optional[RawConfig] = None):
         """
         :param config: A dictionary with configuration parameters
-        :param unvalidated_config: The configuration parameters pre-validation, for logging purposes only
+        :param raw_config: The configuration parameters pre-validation, for logging purposes only
         """
         super().__init__(config)
-        self._unvalidated_config = unvalidated_config
+        self._raw_config = raw_config
 
         self.pipeline_id = self._new_pipeline_id()
         self.current_execution_name = "<Not executed yet>"
@@ -68,8 +68,8 @@ class Pipeline(EOGrowObject):
     def from_raw_config(cls: Type[Self], config: RawConfig, *args: Any, **kwargs: Any) -> Self:
         """Creates an object from a dictionary by constructing a validated config and use it to create the object."""
         validated_config = cls.Schema.parse_obj(config)
-        if "unvalidated_config" not in kwargs:
-            kwargs["unvalidated_config"] = config
+        if "raw_config" not in kwargs:
+            kwargs["raw_config"] = config
         return cls(validated_config, *args, **kwargs)
 
     @staticmethod
@@ -232,7 +232,7 @@ class Pipeline(EOGrowObject):
             self.logging_manager.update_pipeline_report(
                 pipeline_execution_name=self.current_execution_name,
                 pipeline_config=self.config,
-                pipeline_unvalidated_config=self._unvalidated_config,
+                pipeline_raw_config=self._raw_config,
                 pipeline_id=self.pipeline_id,
                 pipeline_timestamp=timestamp,
             )
@@ -253,7 +253,7 @@ class Pipeline(EOGrowObject):
 
             self.logging_manager.update_pipeline_report(
                 pipeline_execution_name=self.current_execution_name,
-                pipeline_unvalidated_config=self._unvalidated_config,
+                pipeline_raw_config=self._raw_config,
                 pipeline_config=self.config,
                 pipeline_id=self.pipeline_id,
                 pipeline_timestamp=timestamp,
