@@ -257,7 +257,7 @@ class RegularBackupHandler(FilesystemHandler):
 
     def __init__(self, *args: Any, backup_interval: Union[float, int], **kwargs: Any):
         """
-        :param backup_interval: A minimal number of seconds before handler will backup the log file to the remote
+        :param backup_interval: A minimal number of seconds before handler will back up the log file to the remote
             location. The backup will only happen when the next log record will be emitted.
         """
         super().__init__(*args, **kwargs)
@@ -268,7 +268,7 @@ class RegularBackupHandler(FilesystemHandler):
     def emit(self, record: LogRecord) -> None:
         """Save a new record and backup to remote if the backup hasn't been done in the given amount of time.
 
-        IMPORTANT: Any new log produced in this method must not reach this handler again. Otherwise the process will
+        IMPORTANT: Any new log produced in this method must not reach this handler again. Otherwise, the process will
         get stuck waiting for a thread lock release. Make sure that you combine this handler with a Filter class that
         filters out logs from botocore and s3transfer!
         """
@@ -289,7 +289,7 @@ class EOExecutionHandler(FilesystemHandler):
     def emit(self, record: LogRecord) -> None:
         """Save a new record. In case a new node in EOWorkflow is started it will copy the log file to remote.
 
-        IMPORTANT: Any new log produced in this method must not reach this handler again. Otherwise the process will
+        IMPORTANT: Any new log produced in this method must not reach this handler again. Otherwise, the process will
         get stuck waiting for a thread lock release. Therefore, make sure that you combine this handler with a Filter
         class that filters out logs from botocore, s3transfer and anything else that could be possibly logged during
         `LocalFile.copy_to_remote` call!

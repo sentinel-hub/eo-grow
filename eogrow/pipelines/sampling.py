@@ -22,7 +22,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
 
     class Schema(Pipeline.Schema):
         output_folder_key: str = Field(
-            description="The storage manager key pointing to the output folder for the Sampline pipeline."
+            description="The storage manager key pointing to the pipeline output folder."
         )
         apply_to: Dict[str, Dict[str, List[str]]] = Field(
             description=(

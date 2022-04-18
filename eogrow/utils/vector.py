@@ -14,7 +14,7 @@ from sentinelhub import CRS
 def concat_gdf(dataframe_list: List[GeoDataFrame], reproject_crs: Union[CRS, int, None] = None) -> GeoDataFrame:
     """Concatenates together multiple GeoDataFrames, all in the same CRS
 
-    There exists pandas.concat but no geopandas.concat. Therefore this function implements it.
+    There exists pandas.concat but no geopandas.concat. Therefore, this function implements it.
 
     :param dataframe_list: A list of GeoDataFrames to be concatenated together
     :param reproject_crs: A CRS in which dataframes should be reprojected before being joined

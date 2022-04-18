@@ -101,10 +101,10 @@ class EOPatchManager(EOGrowObject):
         """Provides a list of EOPatch names
 
         :param folder: If it is specified it will join the folder with eopatch names and return a list of complete paths
-        :param id_list: A list of patch ids which should be provided. By default is set to None and all EOPatch names
+        :param id_list: A list of patch ids which should be provided. By default, is set to None and all EOPatch names
             will be provided
         :param filter_existing: If given a folder parameter this will check if EOPatches at the given location actually
-            exist. By default this is set to True which means it will make additional IO calls, which could be slow
+            exist. By default, this is set to True which means it will make additional IO calls, which could be slow
             if using s3.
         :return: A list of EOPatch folder names
         """
@@ -152,7 +152,7 @@ class EOPatchManager(EOGrowObject):
         :param filename: A filename (or entire file path) from where names of EOPatches will be loaded. Supported
             formats are JSON and TXT
         :param id_list: A list of EOPatch IDs which are the only ones required. The IDs are calculated according to
-            the complete list of EOPatches. By default no filtering is done.
+            the complete list of EOPatches. By default, no filtering is done.
         :return: A list of EOPatch names loaded from file (and maybe filtered)
         """
         if filename.endswith(".json"):
@@ -187,7 +187,7 @@ class EOPatchManager(EOGrowObject):
         return [self.name_to_bbox_map[eopatch_name] for eopatch_name in eopatch_list]
 
     def parse_eopatch_list(self, eopatch_list: Union[List[str], List[int]]) -> List[str]:
-        """Parses given list of EOPatches into a a standard format
+        """Parses given list of EOPatches into a standard format
 
         :param eopatch_list: Can either be a list of EOPatch names (or file paths) or a list of indices
         """
@@ -195,7 +195,7 @@ class EOPatchManager(EOGrowObject):
             raise ValueError(f"Expected a list of EOPatch names, got {eopatch_list}")
 
         if all(isinstance(name, str) for name in eopatch_list):
-            eopatch_list = cast(List[str], eopatch_list)  # informs mypy of the type, doesnt change anything
+            eopatch_list = cast(List[str], eopatch_list)  # informs mypy of the type, doesn't change anything
             eopatch_list = [os.path.basename(name) for name in eopatch_list]
 
             if set(eopatch_list) <= self.name_to_id_map.keys():

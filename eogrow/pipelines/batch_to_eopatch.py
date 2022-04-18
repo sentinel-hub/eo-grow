@@ -220,7 +220,7 @@ class BatchToEOPatchPipeline(Pipeline):
             for node in nodes:
                 if isinstance(node.task, ImportFromTiffTask):
                     if node.name is None:
-                        raise RuntimeError("One of the ImportFromTiffTask nodes has not been tagget with filename.")
+                        raise RuntimeError("One of the ImportFromTiffTask nodes has not been tagged with filename.")
                     filename = node.name.split()[0]
                     path = f"{name}/{filename}"
                     single_exec_dict[node] = dict(filename=path)

@@ -189,7 +189,7 @@ class DownloadPipeline(BaseDownloadPipeline):
 
         if data_collection.is_byoc:
             if not self.config.bands:
-                raise ValueError("Band names must be explicitly suplied when working with BYOC.")
+                raise ValueError("Band names must be explicitly supplied when working with BYOC.")
 
             data_collection = self.config.data_collection.define_from(
                 f"{self.config.data_collection.name}_WITH_BANDS",
