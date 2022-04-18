@@ -52,9 +52,15 @@ class BatchDownloadPipeline(Pipeline):
         resampling_type: ResamplingType = Field(
             "NEAREST", description="A type of downsampling and upsampling used by Sentinel Hub service"
         )
-
+        maxcc: Optional[float] = Field(ge=0, le=1, description="Maximal cloud coverage filter.")
         mosaicking_order: Optional[MosaickingOrderType] = Field(
             description="The mosaicking order used by Sentinel Hub service"
+        )
+        input_data_kwargs: dict = Field(
+            default_factory=dict,
+            description=(
+                "Additional parameters to be passed to SentinelHubRequest.input_data method as other_args parameter."
+            ),
         )
 
         batch_output_kwargs: dict = Field(
@@ -166,7 +172,9 @@ class BatchDownloadPipeline(Pipeline):
                     time_interval=self.config.time_period,
                     upsampling=self.config.resampling_type,
                     downsampling=self.config.resampling_type,
+                    maxcc=self.config.maxcc,
                     mosaicking_order=self.config.mosaicking_order,
+                    other_args=self.config.input_data_kwargs,
                 )
             ],
             responses=responses,

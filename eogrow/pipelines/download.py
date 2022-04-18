@@ -142,7 +142,7 @@ class CommonDownloadFields(BaseSchema):
 
     resolution: float = Field(description="Resolution of downloaded data in meters")
 
-    maxcc: Optional[float] = Field(ge=0, le=1)
+    maxcc: Optional[float] = Field(ge=0, le=1, description="Maximal cloud coverage filter.")
 
     resampling_type: Optional[ResamplingType] = Field(
         description="A type of downsampling and upsampling used by Sentinel Hub service. Default is NEAREST"

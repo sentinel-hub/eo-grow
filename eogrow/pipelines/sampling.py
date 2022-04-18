@@ -21,9 +21,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
     """Pipeline to run sampling on EOPatches"""
 
     class Schema(Pipeline.Schema):
-        output_folder_key: str = Field(
-            description="The storage manager key pointing to the pipeline output folder."
-        )
+        output_folder_key: str = Field(description="The storage manager key pointing to the pipeline output folder.")
         apply_to: Dict[str, Dict[str, List[str]]] = Field(
             description=(
                 "A dictionary defining which features to sample, its structure is "
