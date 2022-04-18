@@ -190,7 +190,7 @@ class BatchDownloadPipeline(Pipeline):
             tiling_grid=SentinelHubBatch.tiling_grid(
                 grid_id=self.config.area.tiling_grid_id,
                 resolution=self.config.area.resolution,
-                buffer=(self.config.area.tile_buffer, self.config.area.tile_buffer),
+                buffer=(self.config.area.tile_buffer_x, self.config.area.tile_buffer_y),
             ),
             output=SentinelHubBatch.output(
                 default_tile_path=f"{data_folder}/<tileName>/<outputId>.<format>", **self.config.batch_output_kwargs

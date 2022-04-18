@@ -19,7 +19,8 @@ class BatchAreaManager(AreaManager):
 
         tiling_grid_id: int
         resolution: float
-        tile_buffer: int = Field(0, description="Number of pixels for which each tile will be buffered")
+        tile_buffer_x: int = Field(0, description="Number of pixels for which to buffer each tile left and right.")
+        tile_buffer_y: int = Field(0, description="Number of pixels for which to buffer each tile up and down.")
         batch_id: str = Field(
             "",
             description=(
@@ -37,7 +38,12 @@ class BatchAreaManager(AreaManager):
 
     def _get_grid_filename_params(self) -> List[object]:
         """Puts together batch parameters"""
-        return [self.config.tiling_grid_id, self.config.resolution, self.config.tile_buffer]
+        return [
+            self.config.tiling_grid_id,
+            self.config.resolution,
+            self.config.tile_buffer_x,
+            self.config.tile_buffer_y,
+        ]
 
     def _create_new_split(self, *_: Any, **__: Any) -> List[GeoDataFrame]:
         """Instead of creating a split it loads tiles from the service"""
@@ -78,8 +84,8 @@ class BatchAreaManager(AreaManager):
 
         expected_tiling_grid_params = {
             "id": self.config.tiling_grid_id,
-            "bufferY": self.config.tile_buffer,
-            "bufferX": self.config.tile_buffer,
+            "bufferY": self.config.tile_buffer_y,
+            "bufferX": self.config.tile_buffer_x,
             "resolution": self.config.resolution,
         }
         if batch_request.tiling_grid != expected_tiling_grid_params:
@@ -92,13 +98,14 @@ class BatchAreaManager(AreaManager):
         """Fixes a batch tile bounding box so that it will be the same as in produced tiles on the bucket"""
         min_x, min_y, max_x, max_y = map(round, bbox)
 
-        buffer_meters = self.config.tile_buffer * self.config.resolution
+        buffer_meters_x = self.config.tile_buffer_x * self.config.resolution
+        buffer_meters_y = self.config.tile_buffer_y * self.config.resolution
 
         corrected = (
-            min_x - buffer_meters,
-            min_y - buffer_meters,
-            max_x + buffer_meters,
-            max_y + buffer_meters,
+            min_x - buffer_meters_x,
+            min_y - buffer_meters_y,
+            max_x + buffer_meters_x,
+            max_y + buffer_meters_y,
         )
 
         return BBox(corrected, crs=bbox.crs)
