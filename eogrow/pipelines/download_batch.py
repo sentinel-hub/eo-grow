@@ -22,10 +22,35 @@ from sentinelhub import (
 
 from ..core.area.batch import BatchAreaManager
 from ..core.pipeline import Pipeline
+from ..core.schemas import BaseSchema
 from ..utils.types import MosaickingOrderType, Path, ResamplingType, TimePeriod
 from ..utils.validators import field_validator, optional_field_validator, parse_data_collection, parse_time_period
 
 LOGGER = logging.getLogger(__name__)
+
+
+class InputDataSchema(BaseSchema):
+    """Parameter structure for a single data collection used in a batch request."""
+
+    data_collection: DataCollection = Field(description="Data collection from which data will be downloaded.")
+    _validate_data_collection = field_validator("data_collection", parse_data_collection, pre=True)
+
+    time_period: Optional[TimePeriod]
+    _validate_time_period = optional_field_validator("time_period", parse_time_period, pre=True)
+
+    resampling_type: ResamplingType = Field(
+        "NEAREST", description="A type of downsampling and upsampling used by Sentinel Hub service"
+    )
+    maxcc: Optional[float] = Field(ge=0, le=1, description="Maximal cloud coverage filter.")
+    mosaicking_order: Optional[MosaickingOrderType] = Field(
+        description="The mosaicking order used by Sentinel Hub service"
+    )
+    other_params: dict = Field(
+        default_factory=dict,
+        description=(
+            "Additional parameters to be passed to SentinelHubRequest.input_data method as other_args parameter."
+        ),
+    )
 
 
 class BatchDownloadPipeline(Pipeline):
@@ -37,32 +62,14 @@ class BatchDownloadPipeline(Pipeline):
         output_folder_key: str = Field(
             description="Storage manager key pointing to the path where batch results will be saved."
         )
-        data_collection: DataCollection = Field(description="Data collection from which data will be downloaded.")
-        _validate_data_collection = field_validator("data_collection", parse_data_collection, pre=True)
 
-        time_period: Optional[TimePeriod]
-        _validate_time_period = optional_field_validator("time_period", parse_time_period, pre=True)
-
+        inputs: List[InputDataSchema]
         evalscript_path: Path
+
         tiff_outputs: List[str] = Field(default_factory=list, description="Names of TIFF outputs of a batch job")
         save_userdata: bool = Field(
             False, description="A flag indicating if userdata.json should also be one of the results of the batch job."
         )
-
-        resampling_type: ResamplingType = Field(
-            "NEAREST", description="A type of downsampling and upsampling used by Sentinel Hub service"
-        )
-        maxcc: Optional[float] = Field(ge=0, le=1, description="Maximal cloud coverage filter.")
-        mosaicking_order: Optional[MosaickingOrderType] = Field(
-            description="The mosaicking order used by Sentinel Hub service"
-        )
-        input_data_kwargs: dict = Field(
-            default_factory=dict,
-            description=(
-                "Additional parameters to be passed to SentinelHubRequest.input_data method as other_args parameter."
-            ),
-        )
-
         batch_output_kwargs: dict = Field(
             default_factory=dict,
             description=(
@@ -168,14 +175,15 @@ class BatchDownloadPipeline(Pipeline):
             evalscript=read_data(self.config.evalscript_path, data_format=MimeType.TXT),
             input_data=[
                 SentinelHubRequest.input_data(
-                    data_collection=self.config.data_collection,
-                    time_interval=self.config.time_period,
-                    upsampling=self.config.resampling_type,
-                    downsampling=self.config.resampling_type,
-                    maxcc=self.config.maxcc,
-                    mosaicking_order=self.config.mosaicking_order,
-                    other_args=self.config.input_data_kwargs,
+                    data_collection=input_config.data_collection,
+                    time_interval=input_config.time_period,
+                    upsampling=input_config.resampling_type,
+                    downsampling=input_config.resampling_type,
+                    maxcc=input_config.maxcc,
+                    mosaicking_order=input_config.mosaicking_order,
+                    other_args=input_config.other_params,
                 )
+                for input_config in self.config.inputs
             ],
             responses=responses,
             geometry=geometry,
