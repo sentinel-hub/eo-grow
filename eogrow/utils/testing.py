@@ -27,10 +27,10 @@ class ContentTester:
     utility aggregates all folder content into some basic statistics.
 
     * Every time you initialize this class statistics will be calculated
-    * Statistics can be saved into a JSON file (it's human readable)
-    * Statistics can be compared compared with the one saved in a file from the previous run.
+    * Statistics can be saved into a JSON file (it's human-readable)
+    * Statistics can be compared with the one saved in a file from the previous run.
 
-    If statistics match there is a good chance that the pipeline produced exactly the same results as before. Otherwise
+    If statistics match there is a good chance that the pipeline produced exactly the same results as before. Otherwise,
     this utility will let you know which statistics does not match
     """
 
@@ -166,7 +166,7 @@ class ContentTester:
         return self._calculate_raster_stats(raster)
 
     def _calculate_vector_stats(self, dataframe: pd.DataFrame) -> List[object]:
-        """Calculates statistics over a vector GeoDataFrame"""  # TODO: add more statistical properites
+        """Calculates statistics over a vector GeoDataFrame"""  # TODO: add more statistical properties
         rounder = functools.partial(_round_point_coords, decimals=self.decimals)
         dataframe["geometry"] = dataframe["geometry"].apply(lambda geometry: shapely.ops.transform(rounder, geometry))
 
@@ -215,8 +215,8 @@ def run_and_test_pipeline(
     :param stats_folder: A path to folder containing the file with expected result stats
     :param folder_key: Type of the folder containing results of the pipeline, if missing it's inferred from config
     :param reset_folder: If True it will delete content of the folder with results before running the pipeline
-    :param save_new_stats: If True then new file with expected result stats will be saved (potentially overwriting the
-        old one. Otherwise the old one will be used to compare stats.
+    :param save_new_stats: If True then new file with expected result stats will be saved, potentially overwriting the
+        old one. Otherwise, the old one will be used to compare stats.
     """
     config_filename = os.path.join(config_folder, experiment_name + ".json")
     expected_stats_file = os.path.join(stats_folder, experiment_name + ".json")

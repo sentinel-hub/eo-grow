@@ -81,7 +81,7 @@ class StorageManager(EOGrowObject):
         EOExecution report folders
 
         :param show_files: If  `True` it will show also files inside the folders. Note that the number of files may be
-            huge. By default this is set to `False`.
+            huge. By default, this is set to `False`.
         :param return_str: If `True` it will return folder structure as a string. If `False` it will just print the
             visualization to stdout.
         :param exclude: A list of grep folder paths  to exclude from the structure return.

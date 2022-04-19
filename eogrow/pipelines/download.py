@@ -142,7 +142,7 @@ class CommonDownloadFields(BaseSchema):
 
     resolution: float = Field(description="Resolution of downloaded data in meters")
 
-    maxcc: Optional[float] = Field(ge=0, le=1)
+    maxcc: Optional[float] = Field(ge=0, le=1, description="Maximal cloud coverage filter.")
 
     resampling_type: Optional[ResamplingType] = Field(
         description="A type of downsampling and upsampling used by Sentinel Hub service. Default is NEAREST"
@@ -189,7 +189,7 @@ class DownloadPipeline(BaseDownloadPipeline):
 
         if data_collection.is_byoc:
             if not self.config.bands:
-                raise ValueError("Band names must be explicitly suplied when working with BYOC.")
+                raise ValueError("Band names must be explicitly supplied when working with BYOC.")
 
             data_collection = self.config.data_collection.define_from(
                 f"{self.config.data_collection.name}_WITH_BANDS",
