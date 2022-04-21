@@ -75,7 +75,7 @@ class MergeSamplesPipeline(Pipeline):
         for feature in self.config.features_to_merge:
             LOGGER.info("Started merging feature %s", feature)
             arrays = [self._collect_and_remove_feature(patch, feature) for patch in patches]
-            feature_type, feature_name = feature
+            _, feature_name = feature
 
             if patch_sample_nums is None:
                 patch_sample_nums = [array.shape[0] for array in arrays]

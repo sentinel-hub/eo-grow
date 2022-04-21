@@ -3,7 +3,7 @@ Module implementing pipelines for training an ML classifier
 """
 import abc
 import logging
-from typing import Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import fs
 import joblib
@@ -58,7 +58,9 @@ class BaseTrainingPipeline(Pipeline, metaclass=abc.ABCMeta):
 
         train_test_split: RandomTrainTestSplitSchema
 
-        model_parameters: dict = Field(default_factory=dict, description="Parameters to be provided to the model")
+        model_parameters: Dict[str, Any] = Field(
+            default_factory=dict, description="Parameters to be provided to the model"
+        )
         model_filename: str
 
     config: Schema
