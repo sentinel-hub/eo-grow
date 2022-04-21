@@ -6,13 +6,11 @@
   "mapping": [
     {
       "batch_files": ["B01.tif", "B03.tif"],
-      "feature_type": "data_timeless",
-      "feature_name": "bands"
+      "feature": ["data_timeless", "bands"]
     },
     {
       "batch_files": ["B02.tif"],
-      "feature_type": "data_timeless",
-      "feature_name": "band2"
+      "feature": ["data_timeless", "band2"]
     }
   ],
   "remove_batch_data": "true"

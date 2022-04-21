@@ -22,7 +22,7 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import FeatureSpec
+from ..utils.types import Feature, FeatureSpec
 
 
 class FeatureMappingSchema(BaseSchema):
@@ -34,8 +34,7 @@ class FeatureMappingSchema(BaseSchema):
             "files they will be concatenated together over the bands dimension in the specified order."
         ),
     )
-    feature_type: FeatureType
-    feature_name: str
+    feature: Feature
     multiply_factor: Optional[float] = Field(description="Factor used to multiply feature values with.")
     dtype: Optional[str] = Field(
         description=(
@@ -99,7 +98,7 @@ class BatchToEOPatchPipeline(Pipeline):
     def _get_output_features(self) -> List[FeatureSpec]:
         """Lists all features that the pipeline outputs."""
         features: List[FeatureSpec] = [FeatureType.BBOX]
-        features.extend((x.feature_type, x.feature_name) for x in self.config.mapping)
+        features.extend(x.feature for x in self.config.mapping)
 
         if self.config.userdata_feature_name:
             features.append((FeatureType.META_INFO, self.config.userdata_feature_name))
@@ -163,7 +162,7 @@ class BatchToEOPatchPipeline(Pipeline):
         if not all(batch_file.endswith(".tif") for batch_file in mapping.batch_files):
             raise ValueError(f"All batch files should end with .tif but found {mapping.batch_files}")
 
-        feature_type = mapping.feature_type
+        feature_type, feature_name = mapping.feature
         if not (feature_type.is_spatial() and feature_type.is_raster()):
             raise ValueError(f"Tiffs can only be read into spatial raster feature types, but {feature_type} was given.")
 
@@ -193,7 +192,7 @@ class BatchToEOPatchPipeline(Pipeline):
 
         previous_node = EONode(MergeEOPatchesTask(), inputs=end_nodes) if len(end_nodes) > 1 else end_nodes[0]
 
-        final_feature = feature_type, mapping.feature_name
+        final_feature = feature_type, feature_name
         merge_feature_task = MergeFeatureTask(input_features=tmp_features, output_feature=final_feature)
         merge_node = EONode(merge_feature_task, inputs=[previous_node])
 
