@@ -22,7 +22,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
 
     class Schema(Pipeline.Schema):
         output_folder_key: str = Field(description="The storage manager key pointing to the pipeline output folder.")
-        apply_to: Dict[str, Dict[str, List[str]]] = Field(
+        apply_to: Dict[str, Dict[FeatureType, List[str]]] = Field(
             description=(
                 "A dictionary defining which features to sample, its structure is "
                 "{folder_key: {feature_type: [feature_name]}}"
@@ -118,9 +118,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
         """Get a list of features that will be sampled, together with their new names"""
         features_to_sample = []
         for _, features in self.config.apply_to.items():
-            for feature_type_str, feature_names in features.items():
-                feature_type = FeatureType(feature_type_str)
-
+            for feature_type, feature_names in features.items():
                 for feature_name in feature_names:
                     if self.config.sampled_suffix is None:
                         features_to_sample.append((feature_type, feature_name, feature_name))
