@@ -13,6 +13,8 @@ from sentinelhub import (
     BatchUserAction,
     DataCollection,
     MimeType,
+    MosaickingOrder,
+    ResamplingType,
     SentinelHubBatch,
     SentinelHubRequest,
     monitor_batch_analysis,
@@ -23,7 +25,7 @@ from sentinelhub import (
 from ..core.area.batch import BatchAreaManager
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
-from ..utils.types import MosaickingOrderType, Path, ResamplingType, TimePeriod
+from ..utils.types import Path, TimePeriod
 from ..utils.validators import field_validator, optional_field_validator, parse_data_collection, parse_time_period
 
 LOGGER = logging.getLogger(__name__)
@@ -39,12 +41,10 @@ class InputDataSchema(BaseSchema):
     _validate_time_period = optional_field_validator("time_period", parse_time_period, pre=True)
 
     resampling_type: ResamplingType = Field(
-        "NEAREST", description="A type of downsampling and upsampling used by Sentinel Hub service"
+        ResamplingType.NEAREST, description="A type of downsampling and upsampling used by Sentinel Hub service"
     )
     maxcc: Optional[float] = Field(ge=0, le=1, description="Maximal cloud coverage filter.")
-    mosaicking_order: Optional[MosaickingOrderType] = Field(
-        description="The mosaicking order used by Sentinel Hub service"
-    )
+    mosaicking_order: Optional[MosaickingOrder] = Field(description="The mosaicking order used by Sentinel Hub service")
     other_params: dict = Field(
         default_factory=dict,
         description=(
