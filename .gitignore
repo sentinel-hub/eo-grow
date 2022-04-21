@@ -102,6 +102,7 @@ ENV/
 
 # mypy
 .mypy_cache/
+.dmypy.json
 
 # Test output folder
 /TestOutputs
