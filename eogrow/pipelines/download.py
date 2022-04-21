@@ -12,12 +12,12 @@ from pydantic import Field
 from eolearn.core import EONode, EOWorkflow, FeatureType, OverwritePermission, SaveTask
 from eolearn.features import LinearFunctionTask
 from eolearn.io import SentinelHubDemTask, SentinelHubEvalscriptTask, SentinelHubInputTask
-from sentinelhub import Band, DataCollection, MimeType, Unit, read_data
+from sentinelhub import Band, DataCollection, MimeType, MosaickingOrder, ResamplingType, Unit, read_data
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec, MosaickingOrderType, Path, ResamplingType, TimePeriod
+from ..utils.types import Feature, FeatureSpec, Path, TimePeriod
 from ..utils.validators import field_validator, parse_data_collection, parse_time_period
 
 LOGGER = logging.getLogger(__name__)
@@ -155,7 +155,7 @@ class TimeDependantFields(BaseSchema):
 
     time_difference: Optional[float] = Field(description="Time difference in minutes between consecutive time frames")
 
-    mosaicking_order: Optional[MosaickingOrderType] = Field(
+    mosaicking_order: Optional[MosaickingOrder] = Field(
         description="The mosaicking order used by Sentinel Hub service. Default is mostRecent"
     )
 
@@ -272,7 +272,7 @@ class DownloadTimelessPipeline(BaseDownloadPipeline):
         return EONode(download_task)
 
 
-def _get_aux_request_args(resampling: Optional[str]) -> Optional[dict]:
+def _get_aux_request_args(resampling: Optional[ResamplingType]) -> Optional[dict]:
     if resampling is not None:
         return {"processing": {"downsampling": resampling, "upsampling": resampling}}
     return None
