@@ -5,3 +5,4 @@
     :caption: Documentation content:
 
     config-language
+    eogrow
