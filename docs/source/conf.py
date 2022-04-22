@@ -221,13 +221,12 @@ MARKDOWNS_FOLDER = "./markdowns"
 shutil.rmtree(MARKDOWNS_FOLDER, ignore_errors=True)
 os.mkdir(MARKDOWNS_FOLDER)
 
-
 def process_readme():
     """Function which will process README.md file and create INTRO.md"""
     with open("../../README.md", "r") as file:
         readme = file.read()
 
-    readme = readme.replace("[`", "[").replace("`]", "]")
+    readme = readme.replace("[`", "[").replace("`]", "]").replace("docs/source/", "")
 
     chapters = [[]]
     for line in readme.split("\n"):
