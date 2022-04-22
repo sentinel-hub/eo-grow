@@ -1,0 +1,5 @@
+jupyter
+m2r2
+nbsphinx
+sphinx-rtd-theme
+Sphinx~=4.0
