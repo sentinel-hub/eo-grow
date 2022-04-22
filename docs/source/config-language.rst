@@ -1,0 +1,1 @@
+.. mdinclude:: config-language.md

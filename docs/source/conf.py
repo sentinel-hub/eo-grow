@@ -221,6 +221,7 @@ MARKDOWNS_FOLDER = "./markdowns"
 shutil.rmtree(MARKDOWNS_FOLDER, ignore_errors=True)
 os.mkdir(MARKDOWNS_FOLDER)
 
+
 def process_readme():
     """Function which will process README.md file and create INTRO.md"""
     with open("../../README.md", "r") as file:

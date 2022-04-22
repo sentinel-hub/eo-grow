@@ -1,8 +1,7 @@
-Documentation of the EO-Grow package
-************************************
-
 .. mdinclude:: markdowns/INTRO.md
 
 .. toctree::
-    :maxdepth: 3
+    :maxdepth: 1
     :caption: Documentation content:
+
+    config-language
