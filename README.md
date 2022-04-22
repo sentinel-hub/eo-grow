@@ -35,7 +35,7 @@ Each pipeline is linked to so called *managers*:
 - `EOPatchManager` takes care of listing eopatches and handling their storage details,
 - `LoggingManager` provides control over logging.
 
-![eo-grow-structure](documentation/eo-grow.png)
+![eo-grow-structure](docs/source/figures/eo-grow.png)
 
 Managers and pipelines usually require a large amount of parameters (setting storage paths, configuring log parameters, etc.), which are provided in `.json` configuration files. Each `eo-grow` object contains a special `Schema` class, which is a `pydantic` model describing the parameters of the object. Config files are then validated before execution to catch issues early. Templates for config files can be generated with the `eogrow-template` CLI command.
 

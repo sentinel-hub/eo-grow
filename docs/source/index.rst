@@ -1,5 +1,5 @@
-Documentation of `eogrow`
-*************************
+Documentation of the EO-Grow package
+************************************
 
 .. mdinclude:: markdowns/INTRO.md
 
