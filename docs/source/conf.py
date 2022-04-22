@@ -227,6 +227,7 @@ def process_readme():
         readme = file.read()
 
     readme = readme.replace("[`", "[").replace("`]", "]").replace("docs/source/", "")
+    readme = readme.replace("**`", "**").replace("`**", "**")
 
     chapters = [[]]
     for line in readme.split("\n"):
