@@ -41,7 +41,7 @@ Managers and pipelines usually require a large amount of parameters (setting sto
 To make config files easier to write **`eo-grow`** uses a simple [config language](https://github.com/sentinel-hub/eo-grow/tree/main/documentation/config-language.md) that supports importing other configs, variables, and more.
 
 
-## Installation
+## Install
 
 ### PyPi distribution
 
