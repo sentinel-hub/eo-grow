@@ -1,7 +1,7 @@
-eogrow.utils.vectors
+eogrow.utils.vector
 ====================
 
-.. automodule:: eogrow.utils.vectors
+.. automodule:: eogrow.utils.vector
     :members:
     :undoc-members:
     :show-inheritance:
