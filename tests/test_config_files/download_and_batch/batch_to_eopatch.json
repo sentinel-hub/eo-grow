@@ -6,8 +6,7 @@
   "mapping": [
     {
       "batch_files": ["B01.tif", "B02.tif", "B03.tif"],
-      "feature_type": "data_timeless",
-      "feature_name": "bands",
+      "feature": ["data_timeless", "bands"],
       "multiply_factor": "0.12345",
       "dtype": "float32"
     }
