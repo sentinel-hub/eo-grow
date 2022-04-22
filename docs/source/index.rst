@@ -1,5 +1,5 @@
-Documentation of `eogrow` Python package
-****************************************
+Documentation of `eogrow`
+*************************
 
 .. mdinclude:: markdowns/INTRO.md
 
