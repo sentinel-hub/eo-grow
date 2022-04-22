@@ -8,3 +8,4 @@ Subpackages:
 
     eogrow.core
     eogrow.pipelines
+    eogrow.tasks
