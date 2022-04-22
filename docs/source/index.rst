@@ -1,7 +1,7 @@
 .. mdinclude:: markdowns/INTRO.md
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 3
     :caption: Documentation content:
 
     config-language
