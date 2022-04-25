@@ -5,8 +5,8 @@
     "area_buffer": 0.001,
     "patch_size_x": 2400,
     "patch_size_y": 1100,
-    "patch_buffer_x": 0.1,
-    "patch_buffer_y": 0.1,
+    "patch_buffer_x": 120,
+    "patch_buffer_y": 55,
     "offset_x": 0,
     "offset_y": 0
   },
