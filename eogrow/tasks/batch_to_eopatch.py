@@ -80,10 +80,12 @@ class FixImportedTimeDependentFeatureTask(EOTask):
     """Fixes a time-dependent feature that has been imported as a timeless feature from batch results.
 
     It performs the following:
-    - rotates bands axis to time axis,
-    - reverses order of timestamps and feature
-    - potentially removes redundant timeframes according to timestamps. This is necessary because in case there were
-      no available acquisitions batch job still had to save a single time frame with dummy values.
+
+    -  rotates bands axis to time axis,
+    -  reverses order of timestamps and feature
+    -  potentially removes redundant timeframes according to timestamps. This is necessary because in case there were
+       no available acquisitions batch job still had to save a single time frame with dummy values.
+
     """
 
     def __init__(self, input_feature: Feature, output_feature: Feature):

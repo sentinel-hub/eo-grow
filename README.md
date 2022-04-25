@@ -1,6 +1,7 @@
 [![Package version](https://badge.fury.io/py/eo-grow.svg)](https://pypi.org/project/eo-grow)
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/eo-grow.svg?style=flat-square)](https://pypi.org/project/eo-grow)
 [![Build Status](https://github.com/sentinel-hub/eo-grow/actions/workflows/ci_action.yml/badge.svg?branch=main)](https://github.com/sentinel-hub/eo-grow/actions)
+[![Docs status](https://readthedocs.org/projects/eo-grow/badge/?version=latest)](https://eo-grow.readthedocs.io/en/latest/)
 [![License](https://img.shields.io/pypi/l/eo-grow.svg)](https://github.com/sentinel-hub/eo-grow/blob/master/LICENSE)
 [![Overall downloads](http://pepy.tech/badge/eo-grow)](https://pepy.tech/project/eo-grow)
 [![Last month downloads](https://pepy.tech/badge/eo-grow/month)](https://pepy.tech/project/eo-grow)
@@ -34,18 +35,18 @@ Each pipeline is linked to so called *managers*:
 - `EOPatchManager` takes care of listing eopatches and handling their storage details,
 - `LoggingManager` provides control over logging.
 
-![eo-grow-structure](documentation/eo-grow.png)
+![eo-grow-structure](docs/source/figures/eo-grow-structure.png)
 
 Managers and pipelines usually require a large amount of parameters (setting storage paths, configuring log parameters, etc.), which are provided in `.json` configuration files. Each **`eo-grow`** object contains a special `Schema` class, which is a `pydantic` model describing the parameters of the object. Config files are then validated before execution to catch issues early. Templates for config files can be generated with the `eogrow-template` CLI command.
 
-To make config files easier to write **`eo-grow`** uses a simple [config language](https://github.com/sentinel-hub/eo-grow/tree/main/documentation/config-language.md) that supports importing other configs, variables, and more.
+To make config files easier to write **`eo-grow`** uses a simple [config language](https://github.com/sentinel-hub/eo-grow/tree/main/docs/source/config-language.md) that supports importing other configs, variables, and more.
 
 
-## Installation
+## Install
 
 ### PyPi distribution
 
-The `eo-grow` package requires Python version `>= 3.8` and can be installed with
+The **`eo-grow`** package requires Python version `>= 3.8` and can be installed with
 
 ```
 pip install eo-grow
@@ -64,9 +65,9 @@ Running pipelines is easiest by using the CLI provided by **`eo-grow`**. For all
 
 ## Documentation
 
-Explanatory examples can be found [here](https://github.com/sentinel-hub/eo-grow/tree/main/documentation).
+Explanatory examples can be found [here](https://github.com/sentinel-hub/eo-grow/tree/main/examples).
 
-More details on the config language used by **`eo-grow`** can be found [here](https://github.com/sentinel-hub/eo-grow/tree/main/documentation/config-language.md).
+More details on the config language used by **`eo-grow`** can be found [here](https://github.com/sentinel-hub/eo-grow/tree/main/docs/source/config-language.md).
 
 
 ## Questions and Issues
