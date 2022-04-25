@@ -28,18 +28,19 @@ class BatchAreaManager(AreaManager):
         )
         tile_buffer_x: int = Field(0, description="Number of pixels for which to buffer each tile left and right.")
         tile_buffer_y: int = Field(0, description="Number of pixels for which to buffer each tile up and down.")
+        subsplit_x: int = Field(
+            1, ge=1, description="Number of sub-tiles into which each batch tile is split along horizontal dimension."
+        )
+        subsplit_y: int = Field(
+            1, ge=1, description="Number of sub-tiles into which each batch tile is split along vertical dimension."
+        )
+
         batch_id: str = Field(
             "",
             description=(
                 "An ID of a batch job for this pipeline. If it is given the pipeline will just monitor the "
                 "existing batch job. If it is not given it will create a new batch job."
             ),
-        )
-        subsplit_x: int = Field(
-            1, ge=1, description="Number of sub-tiles into which each batch tile is split along horizontal dimension"
-        )
-        subsplit_y: int = Field(
-            1, ge=1, description="Number of sub-tiles into which each batch tile is split along vertical dimension"
         )
 
     config: Schema
@@ -57,7 +58,7 @@ class BatchAreaManager(AreaManager):
         )
 
     def _get_grid_filename_params(self) -> List[object]:
-        """Puts together batch parameters"""
+        """Puts together batch parameters used for grid filename."""
         params: List[Any] = [
             self.config.tiling_grid_id,
             self.config.resolution,
@@ -69,7 +70,7 @@ class BatchAreaManager(AreaManager):
         return params
 
     def _create_new_split(self, *_: Any, **__: Any) -> List[GeoDataFrame]:
-        """Instead of creating a split it loads tiles from the service"""
+        """Instead of creating a split it loads tiles from the service."""
         if not self.batch_id:
             raise MissingBatchIdError(
                 "Trying to create a new batch grid but cannot collect tile geometries because 'batch_id' has not been "
@@ -141,4 +142,3 @@ class BatchAreaManager(AreaManager):
 
 class MissingBatchIdError(ValueError):
     """Exception that is triggered if ID of a Sentinel Hub batch job is missing."""
-

@@ -1,0 +1,12 @@
+{
+  "manager": "eogrow.core.area.BatchAreaManager",
+  "area_filename": "test_large_area.geojson",
+  "area_buffer": 2,
+  "area_simplification_factor": 0.1,
+  "tiling_grid_id": 2,
+  "resolution": 120,
+  "tile_buffer_x": 10,
+  "tile_buffer_y": 1,
+  "subsplit_x": 1,
+  "subsplit_y": 1
+}
