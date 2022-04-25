@@ -18,10 +18,10 @@ import shutil
 # -- Project information -----------------------------------------------------
 
 # General information about the project.
-project = "EO Grow"
+project = "eo-grow"
 project_copyright = "2022, Sentinel Hub"
 author = "Sinergise EO research team"
-doc_title = "eogrow Documentation"
+doc_title = "eo-grow Documentation"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -241,13 +241,7 @@ def process_readme():
 
     chapters = ["\n".join(chapter) for chapter in chapters]
 
-    intro = "\n".join(
-        [
-            chapter
-            for chapter in chapters
-            if not (chapter.startswith("## Install") or chapter.startswith("## Documentation"))
-        ]
-    )
+    intro = "\n".join([chapter for chapter in chapters if not chapter.startswith("## Documentation")])
 
     with open(os.path.join(MARKDOWNS_FOLDER, "INTRO.md"), "w") as file:
         file.write(intro)
