@@ -10,6 +10,7 @@ Submodules:
 
 .. toctree::
 
+   eogrow.core.area
    eogrow.core.base
    eogrow.core.config
    eogrow.core.eopatch
