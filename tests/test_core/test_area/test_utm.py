@@ -75,6 +75,8 @@ def test_bbox_split(storage, config, large_area_config):
             expected_columns=["index_n", "index_x", "index_y", "total_num", "geometry"],
         )
 
+        area_manager.cache_grid()
+
 
 def _check_area_grid(grid, expected_zone_num, expected_bbox_num, check_bboxes, expected_columns):
     assert isinstance(grid, list)
