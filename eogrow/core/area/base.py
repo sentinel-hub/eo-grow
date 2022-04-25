@@ -14,6 +14,7 @@ from pydantic import Field
 from sentinelhub import CRS, BBox, Geometry
 
 from ...utils.fs import LocalFile
+from ...utils.grid import GridTransformation
 from ...utils.types import Path
 from ...utils.vector import count_points
 from ..base import EOGrowObject
@@ -110,15 +111,19 @@ class AreaManager(EOGrowObject):
 
         return grid
 
-    def cache_grid(self, ignore_region_filter: bool = False) -> None:
+    def cache_grid(self, grid: Optional[List[gpd.GeoDataFrame]] = None, ignore_region_filter: bool = False) -> None:
         """Checks if grid is cached in the storage. If it is not, it will create and cache it.
 
+        :param grid: If provided, this grid will be cached. Otherwise, it will generate a new grid.
         :param ignore_region_filter: If `True` it will not filter by given region config parameters.
         """
         grid_filename = self._construct_file_path(prefix="grid", ignore_region_filter=ignore_region_filter)
 
         if not self.storage.filesystem.exists(grid_filename):
-            self._create_and_save_grid(grid_filename, ignore_region_filter)
+            if grid is None:
+                self._create_and_save_grid(grid_filename, ignore_region_filter)
+            else:
+                self._save_grid(grid, grid_filename)
 
     def get_grid_size(self, **kwargs: Any) -> int:
         """Calculates the number of elements of the grid
@@ -128,6 +133,15 @@ class AreaManager(EOGrowObject):
         """
         grid = self.get_grid(**kwargs)
         return sum([len(df.index) for df in grid])
+
+    def transform_grid(self, target_area_manager: "AreaManager") -> List[GridTransformation]:
+        """This method is used to define how a grid, defined by this area manager, will be transformed into a grid,
+        defined by given target area manager. It calculates transformation objects between groups of bounding boxes
+        from source grid and groups of bounding boxes from target grid.
+
+        Every area manager should implement its own process of transformation and define which target area managers it
+        supports."""
+        raise NotImplementedError
 
     def has_region_filter(self) -> bool:
         """Checks region filter is set in the configuration"""
@@ -153,7 +167,7 @@ class AreaManager(EOGrowObject):
             LOGGER.info("Simplified area shape has %d points", point_count)
 
         LOGGER.info("Finished processing area geometry")
-        return Geometry(area_shape, CRS(area_df.crs.to_epsg()))
+        return Geometry(area_shape, CRS(area_df.crs))
 
     def _load_area_geometry(self, filename: str) -> Geometry:
         """Loads existing processed geometry of an area"""
@@ -162,7 +176,7 @@ class AreaManager(EOGrowObject):
         with LocalFile(filename, mode="r", filesystem=self.storage.filesystem) as local_file:
             area_gdf = gpd.read_file(local_file.path)
 
-        return Geometry(area_gdf.geometry[0], CRS(area_gdf.crs.to_epsg()))
+        return Geometry(area_gdf.geometry[0], CRS(area_gdf.crs))
 
     def _save_area_geometry(self, area_geometry: Geometry, filename: str) -> None:
         """Saves processed geometry of an area"""
@@ -286,5 +300,5 @@ class AreaManager(EOGrowObject):
     def _add_bbox_column(grid: List[gpd.GeoDataFrame]) -> None:
         """Adds a column with bounding boxes to all dataframes in a grid"""
         for bbox_df in grid:
-            crs = CRS(bbox_df.crs.to_epsg())
+            crs = CRS(bbox_df.crs)
             bbox_df["BBOX"] = bbox_df.geometry.apply(lambda geo: BBox(geo.bounds, crs))

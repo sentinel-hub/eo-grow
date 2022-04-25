@@ -117,6 +117,13 @@ class BatchDownloadPipeline(Pipeline):
 
         self.batch_client = SentinelHubBatch(config=self.sh_config)
 
+        self.area_manager = cast(BatchAreaManager, self.area_manager)
+        if self.area_manager.subsplit != (1, 1):
+            raise ValueError(
+                f"Cannot run {self.__class__.__name__} if {self.area_manager.__class__.__name__} is using a subsplit."
+                " Set subsplit parameters to 1."
+            )
+
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         """Procedure that uses Sentinel Hub batch service to download data to an S3 bucket."""
         batch_request = self._create_or_collect_batch_request()
