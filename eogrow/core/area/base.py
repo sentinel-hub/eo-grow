@@ -14,7 +14,6 @@ from pydantic import Field
 from sentinelhub import CRS, BBox, Geometry
 
 from ...utils.fs import LocalFile
-from ...utils.grid import GridTransformation
 from ...utils.types import Path
 from ...utils.vector import count_points
 from ..base import EOGrowObject
@@ -133,15 +132,6 @@ class AreaManager(EOGrowObject):
         """
         grid = self.get_grid(**kwargs)
         return sum([len(df.index) for df in grid])
-
-    def transform_grid(self, target_area_manager: "AreaManager") -> List[GridTransformation]:
-        """This method is used to define how a grid, defined by this area manager, will be transformed into a grid,
-        defined by given target area manager. It calculates transformation objects between groups of bounding boxes
-        from source grid and groups of bounding boxes from target grid.
-
-        Every area manager should implement its own process of transformation and define which target area managers it
-        supports."""
-        raise NotImplementedError
 
     def has_region_filter(self) -> bool:
         """Checks region filter is set in the configuration"""

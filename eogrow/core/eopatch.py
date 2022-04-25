@@ -251,7 +251,7 @@ class BatchTileManager(EOPatchManager):
 
     _area_manager: BatchAreaManager
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
         if not isinstance(self._area_manager, BatchAreaManager):

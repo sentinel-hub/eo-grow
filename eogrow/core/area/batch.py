@@ -122,9 +122,8 @@ class BatchAreaManager(AreaManager):
         corrected_bbox = convert_bbox_coords_to_int(bbox)
         return corrected_bbox.buffer(self.absolute_buffer, relative=False)
 
-    def _to_dataframe_grid(
-        self, bbox_list: List[BBox], info_list: List[dict], info_columns: List[str]
-    ) -> List[GeoDataFrame]:
+    @staticmethod
+    def _to_dataframe_grid(bbox_list: List[BBox], info_list: List[dict], info_columns: List[str]) -> List[GeoDataFrame]:
         """Sentinel Hub service provides tile info in an arbitrary order. This sorts by tile name and indices for
         consistency. Then it converts them into dataframe grid.
         """
@@ -137,7 +136,7 @@ class BatchAreaManager(AreaManager):
         for index, info_dict in enumerate(info_list):
             info_dict["index_n"] = index
 
-        return super()._to_dataframe_grid(bbox_list, info_list, info_columns)
+        return AreaManager._to_dataframe_grid(bbox_list, info_list, info_columns)
 
 
 class MissingBatchIdError(ValueError):
