@@ -2,7 +2,7 @@
 Download pipeline that works with Sentinel Hub batch service
 """
 import logging
-from typing import Any, DefaultDict, Dict, List, Optional, Tuple, cast
+from typing import Any, DefaultDict, Dict, List, Optional, Tuple
 
 from pydantic import Field
 
@@ -111,11 +111,18 @@ class BatchDownloadPipeline(Pipeline):
         )
 
     config: Schema
+    area_manager: BatchAreaManager
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
         self.batch_client = SentinelHubBatch(config=self.sh_config)
+
+        if self.area_manager.subsplit != (1, 1):
+            raise ValueError(
+                f"Cannot run {self.__class__.__name__} if {self.area_manager.__class__.__name__} is using a subsplit."
+                " Set subsplit parameters to 1."
+            )
 
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         """Procedure that uses Sentinel Hub batch service to download data to an S3 bucket."""
@@ -238,8 +245,6 @@ class BatchDownloadPipeline(Pipeline):
 
     def ensure_batch_grid(self, request_id: str) -> None:
         """This method ensures that area manager caches batch grid into the storage."""
-        self.area_manager = cast(BatchAreaManager, self.area_manager)
-
         if self.area_manager.batch_id and self.area_manager.batch_id != request_id:
             raise ValueError(
                 f"{self.area_manager.__class__.__name__} is set to use batch request with ID "

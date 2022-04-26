@@ -1,13 +1,14 @@
 """
 Area managers for Sentinel Hub batch grids
 """
-from typing import Any, List
+from typing import Any, List, Tuple
 
-from geopandas.geodataframe import GeoDataFrame
+from geopandas import GeoDataFrame
 from pydantic import Field
 
 from sentinelhub import BatchRequest, BatchRequestStatus, BatchSplitter, BBox, SentinelHubBatch
 
+from ...utils.general import convert_bbox_coords_to_int
 from .base import AreaManager
 
 
@@ -17,10 +18,23 @@ class BatchAreaManager(AreaManager):
     class Schema(AreaManager.Schema):
         """A schema used for pipelines based on batch tiling"""
 
-        tiling_grid_id: int
-        resolution: float
+        tiling_grid_id: int = Field(
+            description="An id of one of the tiling grids predefined at Sentinel Hub Batch service."
+        )
+        resolution: float = Field(
+            description=(
+                "One of the resolutions that are predefined at Sentinel Hub Batch service for chosen tiling_grid_id."
+            )
+        )
         tile_buffer_x: int = Field(0, description="Number of pixels for which to buffer each tile left and right.")
         tile_buffer_y: int = Field(0, description="Number of pixels for which to buffer each tile up and down.")
+        subsplit_x: int = Field(
+            1, ge=1, description="Number of sub-tiles into which each batch tile is split along horizontal dimension."
+        )
+        subsplit_y: int = Field(
+            1, ge=1, description="Number of sub-tiles into which each batch tile is split along vertical dimension."
+        )
+
         batch_id: str = Field(
             "",
             description=(
@@ -30,25 +44,35 @@ class BatchAreaManager(AreaManager):
         )
 
     config: Schema
+    _BATCH_GRID_COLUMNS = ["index_n", "id", "name", "split_x", "split_y"]
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
         self.batch_id = self.config.batch_id
 
+        self.subsplit = self.config.subsplit_x, self.config.subsplit_y
+        self.absolute_buffer = (
+            self.config.tile_buffer_x * self.config.resolution,
+            self.config.tile_buffer_y * self.config.resolution,
+        )
+
     def _get_grid_filename_params(self) -> List[object]:
-        """Puts together batch parameters"""
-        return [
+        """Puts together batch parameters used for grid filename."""
+        params: List[object] = [
             self.config.tiling_grid_id,
             self.config.resolution,
             self.config.tile_buffer_x,
             self.config.tile_buffer_y,
         ]
+        if self.subsplit != (1, 1):
+            params.extend([self.config.subsplit_x, self.config.subsplit_y])
+        return params
 
     def _create_new_split(self, *_: Any, **__: Any) -> List[GeoDataFrame]:
-        """Instead of creating a split it loads tiles from the service"""
+        """Instead of creating a split it loads tiles from the service."""
         if not self.batch_id:
-            raise ValueError(
+            raise MissingBatchIdError(
                 "Trying to create a new batch grid but cannot collect tile geometries because 'batch_id' has not been "
                 f"given. You can either define it in {self.__class__.__name__} config schema or run a pipeline that "
                 "creates a new batch request."
@@ -69,12 +93,11 @@ class BatchAreaManager(AreaManager):
         # transforms them into UTM, but here we still have to fix numerical errors by rounding and then apply buffer.
         bbox_list = [self._fix_batch_bbox(bbox) for bbox in bbox_list]
 
-        # Sentinel Hub service provides tile info in an arbitrary order. We sort by tile names for consistency.
-        bbox_list, info_list = zip(*sorted(zip(bbox_list, info_list), key=lambda pair: pair[1]["name"]))
-        for index, info in enumerate(info_list):
-            info["index_n"] = index
+        for info in info_list:
+            info["split_x"] = 0
+            info["split_y"] = 0
 
-        return self._to_dataframe_grid(bbox_list, info_list, ["index_n", "id", "name"])
+        return self._to_dataframe_grid(bbox_list, info_list, self._BATCH_GRID_COLUMNS)
 
     def _verify_batch_request(self, batch_request: BatchRequest) -> None:
         """Verifies that given batch request has finished and that it has the same tiling grid parameters as
@@ -95,17 +118,26 @@ class BatchAreaManager(AreaManager):
             )
 
     def _fix_batch_bbox(self, bbox: BBox) -> BBox:
-        """Fixes a batch tile bounding box so that it will be the same as in produced tiles on the bucket"""
-        min_x, min_y, max_x, max_y = map(round, bbox)
+        """Fixes a batch tile bounding box so that it will be the same as in produced tiles on the bucket."""
+        corrected_bbox = convert_bbox_coords_to_int(bbox)
+        return corrected_bbox.buffer(self.absolute_buffer, relative=False)
 
-        buffer_meters_x = self.config.tile_buffer_x * self.config.resolution
-        buffer_meters_y = self.config.tile_buffer_y * self.config.resolution
+    @staticmethod
+    def _to_dataframe_grid(bbox_list: List[BBox], info_list: List[dict], info_columns: List[str]) -> List[GeoDataFrame]:
+        """Sentinel Hub service provides tile info in an arbitrary order. This sorts by tile name and indices for
+        consistency. Then it converts them into dataframe grid.
+        """
 
-        corrected = (
-            min_x - buffer_meters_x,
-            min_y - buffer_meters_y,
-            max_x + buffer_meters_x,
-            max_y + buffer_meters_y,
-        )
+        def sort_key_function(values: Tuple[Any, dict]) -> Tuple[str, int, int]:
+            _, info = values
+            return info["name"], info["split_x"], info["split_y"]
 
-        return BBox(corrected, crs=bbox.crs)
+        bbox_list, info_list = zip(*sorted(zip(bbox_list, info_list), key=sort_key_function))
+        for index, info_dict in enumerate(info_list):
+            info_dict["index_n"] = index
+
+        return AreaManager._to_dataframe_grid(bbox_list, info_list, info_columns)
+
+
+class MissingBatchIdError(ValueError):
+    """Exception that is triggered if ID of a Sentinel Hub batch job is missing."""
