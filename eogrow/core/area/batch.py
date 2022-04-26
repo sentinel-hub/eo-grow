@@ -59,7 +59,7 @@ class BatchAreaManager(AreaManager):
 
     def _get_grid_filename_params(self) -> List[object]:
         """Puts together batch parameters used for grid filename."""
-        params: List[Any] = [
+        params: List[object] = [
             self.config.tiling_grid_id,
             self.config.resolution,
             self.config.tile_buffer_x,
