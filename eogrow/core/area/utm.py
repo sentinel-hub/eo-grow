@@ -81,9 +81,8 @@ class UtmZoneAreaManager(AreaManager):
         source_size = self.config.patch_size_x, self.config.patch_size_y
         target_size = target_area_manager.config.patch_size_x, target_area_manager.config.patch_size_y
 
-        target_shape, source_shape = zip(*map(reduce_to_coprime, source_size, target_size))
-        source_shape = cast(Tuple[int, int], source_shape)
-        target_shape = cast(Tuple[int, int], target_shape)
+        sizes_x, sizes_y = zip(source_size, target_size)
+        target_shape, source_shape = zip(reduce_to_coprime(*sizes_x), reduce_to_coprime(*sizes_y))
 
         source_grid = self._add_patch_positions(source_grid, self.config, source_shape)
         target_grid = self._add_patch_positions(target_grid, target_area_manager.config, target_shape)
@@ -92,7 +91,15 @@ class UtmZoneAreaManager(AreaManager):
 
     @staticmethod
     def _add_patch_positions(grid: List[GeoDataFrame], config: Schema, shape: Tuple[int, int]) -> List[GeoDataFrame]:
-        """Adds columns position_x and position_y that define an absolute position of each patch in a coarser grid."""
+        """Adds columns of values that define how sub-tiles should be spatially divided into groups. Members of each
+        group will have the same values in the newly added columns and will spatially form a regular subgrid of given
+        shape.
+
+        The process works with the lower left vertex of the bounding box. First it reverts buffer and offset shift.
+        This way each vertex will have coordinates that are an integer multiple of patch size because this is the way
+        `UtmZoneSplitter` created the grid. In the next step the vertex values are divided by patch size and the given
+        shape of the subgroup. This produces exactly the desired indices that define groups.
+        """
         translate_x = config.patch_buffer_x - config.offset_x
         translate_y = config.patch_buffer_y - config.offset_y
         scale_x = config.patch_size_x * shape[0]

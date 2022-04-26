@@ -147,12 +147,11 @@ class BatchAreaManager(AreaManager):
         target_area_manager = cast(BatchAreaManager, target_area_manager)
 
         source_grid = self.get_grid(add_bbox_column=True)
-        source_grid = _ensure_split_columns(source_grid)
+        source_grid = _fix_split_columns(source_grid)
         target_grid = self._get_target_grid(target_area_manager, source_grid)
 
-        source_shape, target_shape = zip(*map(reduce_to_coprime, self.subsplit, target_area_manager.subsplit))
-        source_shape = cast(Tuple[int, int], source_shape)
-        target_shape = cast(Tuple[int, int], target_shape)
+        subsplits_x, subsplits_y = zip(self.subsplit, target_area_manager.subsplit)
+        source_shape, target_shape = zip(reduce_to_coprime(*subsplits_x), reduce_to_coprime(*subsplits_y))
 
         source_grid = self._add_patch_positions(source_grid, source_shape)
         target_grid = self._add_patch_positions(target_grid, target_shape)
@@ -161,7 +160,9 @@ class BatchAreaManager(AreaManager):
 
     @staticmethod
     def _add_patch_positions(grid: List[GeoDataFrame], shape: Tuple[int, int]) -> List[GeoDataFrame]:
-        """Adds values that define how groups of bounding boxes in the same transformation."""
+        """Adds columns of values that define how sub-tiles should be spatially divided into groups. Members of each
+        group will have the same values in the newly added columns and will spatially form a regular subgrid of given
+        shape."""
         for gdf in grid:
             gdf["position_x"] = gdf.split_x // shape[0]
             gdf["position_y"] = gdf.split_y // shape[1]
@@ -273,7 +274,7 @@ class MissingBatchIdError(ValueError):
     """Exception that is triggered if ID of a Sentinel Hub batch job is missing."""
 
 
-def _ensure_split_columns(grid: List[GeoDataFrame]) -> List[GeoDataFrame]:
+def _fix_split_columns(grid: List[GeoDataFrame]) -> List[GeoDataFrame]:
     """This is temporary fix for handling batch grids that were cached with older eo-grow version."""
     columns_missing = False
     for gdf in grid:
