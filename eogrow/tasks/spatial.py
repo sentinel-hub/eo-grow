@@ -41,7 +41,6 @@ class SpatialJoinTask(EOTask):
         resolution = self._get_resolution(rasters, bboxes)
         joined_raster = self._get_joined_raster(joined_bbox, resolution, rasters[0], no_data_value)
         height, width = joined_raster.shape[-3:-1]
-        count_mask = np.zeros((height, width), dtype=int)
 
         for raster, bbox in zip(rasters, bboxes):
             slice_x, slice_y = get_array_slices(
@@ -53,7 +52,6 @@ class SpatialJoinTask(EOTask):
                 limit_y=(0, height),
             )
             joined_raster[..., slice_y, slice_x, :] = raster
-            count_mask[slice_y, slice_x] += 1
 
         return joined_raster
 
@@ -152,13 +150,17 @@ class SpatialSliceTask(EOTask):
 
     @staticmethod
     def _filter_vector(gdf: GeoDataFrame, bbox: BBox) -> GeoDataFrame:
-        """Spatial filters a GeoDataFrame."""
+        """Spatially filters a GeoDataFrame."""
         bbox = bbox.transform(CRS(gdf.crs))
         intersects_bbox = gdf.geometry.intersects(bbox.geometry)
         return gdf[intersects_bbox].copy(deep=True)
 
     def execute(self, eopatch: EOPatch, *, bbox: Optional[BBox]) -> EOPatch:
-        """Spatially slices given EOPatch with given bounding box."""
+        """Spatially slices given EOPatch with given bounding box.
+
+        The task allows that no bounding box for slicing is provided. In such case the task will return an EOPatch with
+        only non-spatial features.
+        """
         main_bbox = eopatch.bbox
         if not main_bbox:
             raise ValueError("EOPatch is missing a bounding box")

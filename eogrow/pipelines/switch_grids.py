@@ -32,7 +32,7 @@ class FeatureSchema(BaseSchema):
     )
     unique_columns: Optional[List[str]] = Field(
         description=(
-            "This is only meant to be used for vector features. If provided, it will use the list this columns to drop"
+            "This is only meant to be used for vector features. If provided, it will use this list of columns to drop"
             " duplicated rows in spatially joined dataframes."
         )
     )
@@ -120,12 +120,10 @@ class SwitchGridsPipeline(Pipeline):
         max_input_patch_num = max(len(transformation.source_bboxes) for transformation in transformations)
         load_nodes = [EONode(LoadTask(input_path, config=self.sh_config)) for _ in range(max_input_patch_num)]
 
-        no_data_map = self._get_no_data_map()
-        unique_columns_map = self._get_unique_columns_map()
         join_task = SpatialJoinTask(
             features,
-            no_data_map=no_data_map,
-            unique_columns_map=unique_columns_map,
+            no_data_map=self._get_no_data_map(),
+            unique_columns_map=self._get_unique_columns_map(),
             raise_misaligned=self.config.raise_misaligned,
         )
         join_node = EONode(join_task, inputs=load_nodes)
@@ -158,29 +156,38 @@ class SwitchGridsPipeline(Pipeline):
         join_node = [node for node in nodes if isinstance(node.task, SpatialJoinTask)][0]
         slice_nodes = [save_node.inputs[0] for save_node in save_nodes]
 
-        exec_args = []
-        for transformation in transformations:
-            single_exec_dict = {}
+        return [
+            {
+                join_node: dict(bbox=transformation.enclosing_bbox),
+                **self._get_io_exec_dict(transformation, load_nodes=load_nodes, save_nodes=save_nodes),
+                **self._get_slice_exec_dict(transformation, slice_nodes),
+            }
+            for transformation in transformations
+        ]
 
-            input_names = list(self.eopatch_manager.generate_names(transformation.source_df))
-            input_names += [None] * (len(load_nodes) - len(input_names))
+    def _get_io_exec_dict(
+        self, transformation: GridTransformation, *, load_nodes: List[EONode], save_nodes: List[EONode]
+    ) -> Dict[EONode, Dict[str, Any]]:
+        """Prepares execution arguments for load and save nodes."""
+        input_names = list(self.eopatch_manager.generate_names(transformation.source_df))
+        input_names += [None] * (len(load_nodes) - len(input_names))
 
-            output_names = list(self.target_eopatch_manager.generate_names(transformation.target_df))
-            output_names += [None] * (len(save_nodes) - len(output_names))
+        output_names = list(self.target_eopatch_manager.generate_names(transformation.target_df))
+        output_names += [None] * (len(save_nodes) - len(output_names))
 
-            for name, node in zip(input_names + output_names, load_nodes + save_nodes):
-                single_exec_dict[node] = dict(eopatch_folder=name)
+        return {
+            node: dict(eopatch_folder=name) for name, node in zip(input_names + output_names, load_nodes + save_nodes)
+        }
 
-            single_exec_dict[join_node] = dict(bbox=transformation.enclosing_bbox)
+    @staticmethod
+    def _get_slice_exec_dict(
+        transformation: GridTransformation, slice_nodes: List[EONode]
+    ) -> Dict[EONode, Dict[str, Any]]:
+        """Prepares execution arguments for slice task nodes."""
+        slice_bboxes: List[Optional[BBox]] = list(transformation.target_bboxes)
+        slice_bboxes += [None] * (len(slice_nodes) - len(transformation.target_bboxes))
 
-            slice_bboxes: List[Optional[BBox]] = list(transformation.target_bboxes)
-            slice_bboxes += [None] * (len(slice_nodes) - len(transformation.target_bboxes))
-            for bbox, slice_node in zip(slice_bboxes, slice_nodes):
-                single_exec_dict[slice_node] = dict(bbox=bbox)
-
-            exec_args.append(single_exec_dict)
-
-        return exec_args
+        return {node: dict(bbox=bbox) for bbox, node in zip(slice_bboxes, slice_nodes)}
 
     def _get_execution_names_and_mapping(
         self, transformations: List[GridTransformation]
