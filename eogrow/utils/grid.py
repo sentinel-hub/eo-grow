@@ -15,9 +15,11 @@ from sentinelhub import BBox
 
 @dataclass
 class GridTransformation:
-    """A dataclass holding information about a transformation from source bounding boxes into target bounding boxes
-    via an enclosing bounding box. The dataclass also holds a source and a target dataframe which hold additional
-    information about bounding boxes.
+    """A dataclass holding information about a transformation from a group of source bounding boxes into a group of
+    target bounding boxes via an enclosing bounding box.
+
+    The dataclass also holds a source and a target dataframe which contain any additional information about bounding
+    boxes that would be required to use at any later stage.
     """
 
     enclosing_bbox: BBox
