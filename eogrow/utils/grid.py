@@ -2,7 +2,7 @@
 Utilities for working with area grids
 """
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import DefaultDict, List, Sequence, Tuple
 
 import numpy as np
@@ -15,13 +15,17 @@ from sentinelhub import BBox
 
 @dataclass
 class GridTransformation:
-    """A dataclass holding information about a transformation between source and target bounding boxes."""
+    """A dataclass holding information about a transformation from a group of source bounding boxes into a group of
+    target bounding boxes via an enclosing bounding box.
 
+    The dataclass also holds a source and a target dataframe which contain any additional information about bounding
+    boxes that would be required to use at any later stage.
+    """
     enclosing_bbox: BBox
     source_bboxes: Tuple[BBox, ...]
     target_bboxes: Tuple[BBox, ...]
-    source_df: DataFrame
-    target_df: DataFrame
+    source_df: DataFrame = field(default_factory=DataFrame)
+    target_df: DataFrame = field(default_factory=DataFrame)
 
     def __post_init__(self) -> None:
         if not self.target_bboxes:
@@ -38,12 +42,11 @@ def create_transformations(
     for target_gdf in target_grid:
         source_gdf = crs_map.get(target_gdf.crs)
 
-        target_map = {group_values: group for group_values, group in target_gdf.groupby(by=match_columns)}
+        target_map = dict(iter(target_gdf.groupby(by=match_columns)))
 
         source_map: DefaultDict[tuple, DataFrame] = defaultdict(DataFrame)
         if source_gdf is not None:
-            for group_values, group in source_gdf.groupby(by=match_columns):
-                source_map[group_values] = group
+            source_map = defaultdict(DataFrame, iter(source_gdf.groupby(by=match_columns)))
 
         for group_values, target_group in target_map.items():
             source_group = source_map[group_values]

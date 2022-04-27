@@ -5,11 +5,12 @@ import random
 
 import pytest
 from geopandas import GeoDataFrame
-from pandas import DataFrame
 
 from sentinelhub import CRS, BBox
 
 from eogrow.utils.grid import GridTransformation, create_transformations, get_enclosing_bbox, get_grid_bbox
+
+pytestmark = pytest.mark.fast
 
 DEFAULT_BBOX = BBox((0, 0, 1, 1), CRS.WGS84)
 
@@ -21,8 +22,6 @@ def test_grid_transformation():
         enclosing_bbox=bbox,
         source_bboxes=(bbox,),
         target_bboxes=(bbox, bbox),
-        source_df=DataFrame(),
-        target_df=DataFrame(),
     )
     assert isinstance(transformation, GridTransformation)
 
@@ -31,8 +30,6 @@ def test_grid_transformation():
             enclosing_bbox=bbox,
             source_bboxes=(bbox,),
             target_bboxes=(),
-            source_df=DataFrame(),
-            target_df=DataFrame(),
         )
 
 
