@@ -83,7 +83,8 @@ class SpatialJoinTask(EOTask):
                 "Pixels from joined raster would be misaligned with pixels from original rasters"
             ) from exception
 
-        shape = (*sample_raster.shape[:-3], height, width, sample_raster.shape[-1])
+        time_dim = sample_raster.shape[:-3]  # Either empty or with a single element
+        shape = (*time_dim, height, width, sample_raster.shape[-1])
         return np.full(shape, no_data_value, dtype=sample_raster.dtype)
 
     @staticmethod

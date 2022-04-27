@@ -22,8 +22,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 class FeatureSchema(BaseSchema):
-    feature_type: FeatureType
-    feature_name: Optional[str] = Field(description="A feature name if it exists")
+    feature: FeatureSpec = Field(description="A feature to be processed.")
     no_data_value: float = Field(
         0,
         description=(
@@ -38,11 +37,25 @@ class FeatureSchema(BaseSchema):
     )
 
     @root_validator
-    def check_unique_columns_against_feature_type(cls, values):  # type: ignore
-        """Checks that unique_columns parameter is not set for anything else other than vector feature types."""
+    def check_values(cls, values):  # type: ignore
+        """Multiple different checks that given values make sense."""
+        feature = values["feature"]
+        feature_type = feature if isinstance(feature, FeatureType) else feature[0]
+
+        assert feature_type is not FeatureType.BBOX, "A bounding box doesn't have to be specified in config"
+
         assert (
-            values.get("unique_columns") is None or values.get("feature_type").is_vector()
+            feature is FeatureType.TIMESTAMP or feature != feature_type
+        ), "All features, except timestamp, should have feature name"
+
+        assert (
+            values.get("no_data_value") == 0 or feature_type.is_raster()
+        ), "Parameter 'no_data_value' can only be set for raster feature types"
+
+        assert (
+            values.get("unique_columns") is None or feature_type.is_vector()
         ), "Parameter 'unique_column' can only be set for vector feature types"
+
         return values
 
 
@@ -212,24 +225,19 @@ class SwitchGridsPipeline(Pipeline):
 
     def _get_features(self) -> List[FeatureSpec]:
         """Provides features that will be transformed by the pipeline."""
-        features: List[FeatureSpec] = [FeatureType.BBOX]
-        for feature_config in self.config.features:
-            if feature_config.feature_name:
-                features.append((feature_config.feature_type, feature_config.feature_name))
-            else:
-                features.append(feature_config.feature_type)
-        return features
+        features = [feature_config.feature for feature_config in self.config.features]
+        return features + [FeatureType.BBOX]
 
     def _get_no_data_map(self) -> Dict[Feature, float]:
         """Provides a map between spatial raster features and their 'no data' values."""
         no_data_map: Dict[Feature, float] = {}
         for feature_config in self.config.features:
-            feature_type = feature_config.feature_type
+            feature = feature_config.feature
+            feature_type = feature if isinstance(feature, FeatureType) else feature[0]
+
             if feature_type.is_spatial() and feature_type.is_raster():
-                if feature_config.feature_name is None:
-                    raise ValueError(f"Missing parameter feature_name for {feature_type}.")
-                feature = feature_type, feature_config.feature_name
                 no_data_map[feature] = feature_config.no_data_value
+
         return no_data_map
 
     def _get_unique_columns_map(self) -> Dict[Feature, List[str]]:
@@ -237,8 +245,5 @@ class SwitchGridsPipeline(Pipeline):
         unique_columns_map: Dict[Feature, List[str]] = {}
         for feature_config in self.config.features:
             if feature_config.unique_columns:
-                if feature_config.feature_name is None:
-                    raise ValueError(f"Missing parameter feature_name for {feature_config.feature_type}.")
-                feature = feature_config.feature_type, feature_config.feature_name
-                unique_columns_map[feature] = feature_config.unique_columns
+                unique_columns_map[feature_config.feature] = feature_config.unique_columns
         return unique_columns_map

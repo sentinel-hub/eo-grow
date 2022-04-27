@@ -21,6 +21,7 @@ class GridTransformation:
     The dataclass also holds a source and a target dataframe which contain any additional information about bounding
     boxes that would be required to use at any later stage.
     """
+
     enclosing_bbox: BBox
     source_bboxes: Tuple[BBox, ...]
     target_bboxes: Tuple[BBox, ...]
