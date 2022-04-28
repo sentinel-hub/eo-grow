@@ -2,10 +2,18 @@
 Pipelines for testing
 """
 import logging
-from typing import List, Tuple, Type, TypeVar
+from typing import List, Tuple, Type, TypeVar, Optional, Dict, Any
+
+import numpy as np
+from pydantic import Field
+
+from eolearn.core import EOWorkflow, CreateEOPatchTask, SaveTask, EONode, MergeEOPatchesTask, OverwritePermission
 
 from ..core.config import RawConfig, recursive_config_join
 from ..core.pipeline import Pipeline
+from ..core.schemas import BaseSchema
+from ..tasks.testing import DummyFeatureTask
+from ..utils.types import FeatureSpec
 
 Self = TypeVar("Self", bound=Pipeline)
 LOGGER = logging.getLogger(__name__)
@@ -48,3 +56,59 @@ class TestPipeline(Pipeline):
         LOGGER.info("The first EOPatch has a name %s", eopatches[0])
 
         return [], []
+
+
+class FeatureSchema(BaseSchema):
+    feature: FeatureSpec = Field(description="A feature to be processed.")
+    shape: Tuple[int, ...] = Field(description="A shape of a feature")
+    dtype: Optional[str] = Field(description="The output dtype of the feature")
+    min_value: float = Field(0, description="All values in the feature will be greater or equal to this value.")
+    max_value: float = Field(1, description="All values in the feature will be smaller to this value.")
+
+
+class DummyDataPipeline(Pipeline):
+    """Pipeline for generating dummy data."""
+
+    class Schema(Pipeline.Schema):
+        output_folder_key: str = Field(description="The storage manager key pointing to the pipeline output folder.")
+        features: List[FeatureSchema]
+        seed: Optional[int] = Field(description="A randomness seed.")
+
+    def build_workflow(self) -> EOWorkflow:
+        start_node = EONode(CreateEOPatchTask())
+
+        add_feature_nodes = []
+        for feature_config in self.config.features:
+            task = DummyFeatureTask(
+                feature_config.feature,
+                shape=feature_config.shape,
+                dtype=np.dtype(feature_config.dtype) if feature_config.dtype else None,
+                min_value=feature_config.min_value,
+                max_value=feature_config.max_value,
+            )
+            node = EONode(task, inputs=[start_node])
+            add_feature_nodes.append(node)
+
+        join_node = EONode(MergeEOPatchesTask(), inputs=add_feature_nodes)
+
+        save_task = SaveTask(
+            self.storage.get_folder(self.config.output_folder_key, full_path=True),
+            overwrite_permission=OverwritePermission.OVERWRITE_PATCH,
+            config=self.sh_config,
+        )
+        save_node = EONode(save_task, inputs=[join_node])
+
+        return EOWorkflow.from_endnodes(save_node)
+
+    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, Any]]]:
+        """Extends the basic method for adding execution arguments by adding seed arguments a sampling task"""
+        exec_args = super().get_execution_arguments(workflow)
+
+        add_feature_nodes = [node for node in workflow.get_nodes() if isinstance(node.task, DummyFeatureTask)]
+        generator = np.random.default_rng(seed=self.config.seed)
+
+        for workflow_args in exec_args:
+            for node in add_feature_nodes:
+                workflow_args[node] = dict(seed=generator.integers(low=0, high=2**32))
+
+        return exec_args
