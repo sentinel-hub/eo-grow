@@ -48,6 +48,7 @@ class BatchAreaManager(AreaManager):
 
     config: Schema
     _BATCH_GRID_COLUMNS = ["index_n", "id", "name", "split_x", "split_y"]
+    _SH_REPROJECTION_ERROR = 1e-3  # Rounding happens in Sentinel Hub Batch database where coordinates are in WGS84
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
@@ -122,7 +123,7 @@ class BatchAreaManager(AreaManager):
 
     def _fix_batch_bbox(self, bbox: BBox) -> BBox:
         """Fixes a batch tile bounding box so that it will be the same as in produced tiles on the bucket."""
-        corrected_bbox = convert_bbox_coords_to_int(bbox)
+        corrected_bbox = convert_bbox_coords_to_int(bbox, error=self._SH_REPROJECTION_ERROR)
         return corrected_bbox.buffer(self.absolute_buffer, relative=False)
 
     @staticmethod
