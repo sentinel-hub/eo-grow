@@ -1,29 +1,33 @@
 """
 Module containing utilities for working with filesystems
 """
+import os
 from typing import Any, Optional
 
 import fs
 import fs.copy
+from fs.base import FS
 from fs.osfs import OSFS
 from fs.tempfs import TempFS
+from fs.walk import Walker
 
 from eolearn.core.utils.fs import get_base_filesystem_and_path
 from sentinelhub import SHConfig
 
 
-class LocalFile:
-    """An abstraction for working with a local version of a file.
+class BaseLocalObject:
+    """An abstraction for working with a local version of remote objects.
 
-    If file's original location is remote (e.g. on S3) then this will ensure working with a local copy. If file's
+    If object's original location is remote (e.g. on S3) then this will ensure working with a local copy. If object's
     original location is already on local filesystem then it will work with that, unless `always_copy=True` is used.
     """
 
     def __init__(
         self,
         path: str,
+        *,
         mode: str = "r",
-        filesystem: Optional[fs.base.FS] = None,
+        filesystem: Optional[FS] = None,
         config: Optional[SHConfig] = None,
         always_copy: bool = False,
         **temp_fs_kwargs: Any,
@@ -62,18 +66,17 @@ class LocalFile:
 
         self._absolute_local_path = self._filesystem.getsyspath(self._local_path)
 
-        if "r" in self._mode:
+        if "r" in self._mode and self._filesystem is not self._remote_filesystem:
             self.copy_to_local()
-        elif "w" in self._mode:
-            remote_dirs = fs.path.dirname(self._remote_path)
-            self._remote_filesystem.makedirs(remote_dirs, recreate=True)
+        if "w" in self._mode and self._filesystem is self._remote_filesystem:
+            self._create_base_folders()
 
     @property
     def path(self) -> str:
         """Provides an absolute path to the copy in the local filesystem"""
         return self._absolute_local_path
 
-    def __enter__(self) -> "LocalFile":
+    def __enter__(self) -> "BaseLocalObject":
         """This allows the class to be used as a context manager"""
         return self
 
@@ -86,7 +89,8 @@ class LocalFile:
 
     def close(self) -> None:
         """Close the local copy"""
-        if "w" in self._mode:
+        if "w" in self._mode and self._filesystem is not self._remote_filesystem:
+            self._create_base_folders()
             self.copy_to_remote()
 
         if self._filesystem is not self._remote_filesystem:
@@ -94,10 +98,73 @@ class LocalFile:
 
     def copy_to_local(self) -> None:
         """Copy from remote to local location"""
-        if self._filesystem is not self._remote_filesystem:
-            fs.copy.copy_file(self._remote_filesystem, self._remote_path, self._filesystem, self._local_path)
+        raise NotImplementedError
 
     def copy_to_remote(self) -> None:
         """Copy from local to remote location"""
-        if self._filesystem is not self._remote_filesystem:
-            fs.copy.copy_file(self._filesystem, self._local_path, self._remote_filesystem, self._remote_path)
+        raise NotImplementedError
+
+    def _create_base_folders(self) -> None:
+        """Creates a folder structure to the object at the remote filesystem in case the folder structure doesn't exist
+        yet."""
+        remote_dirs = fs.path.dirname(self._remote_path)
+        self._remote_filesystem.makedirs(remote_dirs, recreate=True)
+
+
+class LocalFile(BaseLocalObject):
+    """An abstraction for working with a local version of a remote file.
+
+    Check `BaseLocalObject` for more info.
+    """
+
+    def copy_to_local(self) -> None:
+        """Copy the file from remote to local location."""
+        fs.copy.copy_file(self._remote_filesystem, self._remote_path, self._filesystem, self._local_path)
+
+    def copy_to_remote(self) -> None:
+        """Copy the file from local to remote location."""
+        fs.copy.copy_file(self._filesystem, self._local_path, self._remote_filesystem, self._remote_path)
+
+
+class LocalFolder(BaseLocalObject):
+    """An abstraction for working with a local version of a remote folder and its content.
+
+    Check `BaseLocalObject` for more info.
+    """
+
+    def __init__(self, *args: Any, walker: Optional[Walker] = None, workers: Optional[int] = None, **kwargs: Any):
+        """
+        :param args: Positional arguments propagated to the base class.
+        :param walker: An instance of `fs.walk.Walker` object used to configure advanced copying parameters. It is
+            possible to set max folder depth of copy (default is entire tree), how to handle errors (by default are
+            ignored), and what to include or exclude.
+        :param workers: A maximal number of threads used for parallel copies between local and remote locations. The
+            default is `5` times the number of CPUs.
+        :param kwargs: Keyword arguments propagated to the base class.
+        """
+        self.walker = walker or Walker(ignore_errors=True)
+        self.workers = 5 * (os.cpu_count() or 1) if workers is None else workers
+
+        super().__init__(*args, **kwargs)
+
+    def copy_to_local(self) -> None:
+        """Copy the folder content from remote to local location."""
+        fs.copy.copy_dir(
+            self._remote_filesystem,
+            self._remote_path,
+            self._filesystem,
+            self._local_path,
+            walker=self.walker,
+            workers=self.workers,
+        )
+
+    def copy_to_remote(self) -> None:
+        """Copy the folder content from local to remote location."""
+        fs.copy.copy_dir(
+            self._filesystem,
+            self._local_path,
+            self._remote_filesystem,
+            self._remote_path,
+            walker=self.walker,
+            workers=self.workers,
+        )
