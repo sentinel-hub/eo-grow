@@ -65,11 +65,12 @@ class BaseLocalObject:
             self._local_path = fs.path.basename(self._remote_path)
 
         self._absolute_local_path = self._filesystem.getsyspath(self._local_path)
+        self._remote_location_ensured = False
 
-        if "r" in self._mode and self._filesystem is not self._remote_filesystem:
+        if "r" in self._mode:
             self.copy_to_local()
         if "w" in self._mode and self._filesystem is self._remote_filesystem:
-            self._create_base_folders()
+            self._ensure_remote_location()
 
     @property
     def path(self) -> str:
@@ -89,26 +90,38 @@ class BaseLocalObject:
 
     def close(self) -> None:
         """Close the local copy"""
-        if "w" in self._mode and self._filesystem is not self._remote_filesystem:
-            self._create_base_folders()
+        if "w" in self._mode:
             self.copy_to_remote()
 
         if self._filesystem is not self._remote_filesystem:
             self._filesystem.close()
 
     def copy_to_local(self) -> None:
-        """Copy from remote to local location"""
-        raise NotImplementedError
+        """A public method for copying from remote to local location. It can be called anytime."""
+        if self._filesystem is not self._remote_filesystem:
+            self._copy_to_local()
 
     def copy_to_remote(self) -> None:
         """Copy from local to remote location"""
+        if self._filesystem is not self._remote_filesystem:
+            self._ensure_remote_location()
+            self._copy_to_remote()
+
+    def _ensure_remote_location(self) -> None:
+        """Makes sure that the remote location exists. If it doesn't then it will try to create the missing folders.
+        This method is also regulated with a flag so that the IO checks happen at most once."""
+        if not self._remote_location_ensured:
+            remote_dirs = fs.path.dirname(self._remote_path)
+            self._remote_filesystem.makedirs(remote_dirs, recreate=True)
+            self._remote_location_ensured = True
+
+    def _copy_to_local(self) -> None:
+        """Copy from remote to local location"""
         raise NotImplementedError
 
-    def _create_base_folders(self) -> None:
-        """Creates a folder structure to the object at the remote filesystem in case the folder structure doesn't exist
-        yet."""
-        remote_dirs = fs.path.dirname(self._remote_path)
-        self._remote_filesystem.makedirs(remote_dirs, recreate=True)
+    def _copy_to_remote(self) -> None:
+        """Copy from local to remote location"""
+        raise NotImplementedError
 
 
 class LocalFile(BaseLocalObject):
@@ -117,11 +130,11 @@ class LocalFile(BaseLocalObject):
     Check `BaseLocalObject` for more info.
     """
 
-    def copy_to_local(self) -> None:
+    def _copy_to_local(self) -> None:
         """Copy the file from remote to local location."""
         fs.copy.copy_file(self._remote_filesystem, self._remote_path, self._filesystem, self._local_path)
 
-    def copy_to_remote(self) -> None:
+    def _copy_to_remote(self) -> None:
         """Copy the file from local to remote location."""
         fs.copy.copy_file(self._filesystem, self._local_path, self._remote_filesystem, self._remote_path)
 
@@ -147,7 +160,7 @@ class LocalFolder(BaseLocalObject):
 
         super().__init__(*args, **kwargs)
 
-    def copy_to_local(self) -> None:
+    def _copy_to_local(self) -> None:
         """Copy the folder content from remote to local location."""
         fs.copy.copy_dir(
             self._remote_filesystem,
@@ -158,7 +171,7 @@ class LocalFolder(BaseLocalObject):
             workers=self.workers,
         )
 
-    def copy_to_remote(self) -> None:
+    def _copy_to_remote(self) -> None:
         """Copy the folder content from local to remote location."""
         fs.copy.copy_dir(
             self._filesystem,
