@@ -53,19 +53,8 @@ coverage.xml
 *.mo
 *.pot
 
-# Django stuff:
-*.log
-local_settings.py
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
 # Sphinx documentation
-docs/_build/
+docs/build/
 
 # PyBuilder
 target/
@@ -75,12 +64,6 @@ target/
 
 # pyenv
 .python-version
-
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
 
 # dotenv
 .env
@@ -104,13 +87,14 @@ ENV/
 .mypy_cache/
 .dmypy.json
 
-# Test output folder
-/TestOutputs
-
 # IDE config
 .idea/
+
+# MacOS
+.DS_Store
 
 # pytest
 .pytest_cache/
 
+# Pipenv
 Pipfile*
