@@ -12,8 +12,9 @@ from eolearn.core import EOWorkflow, CreateEOPatchTask, SaveTask, EONode, MergeE
 from ..core.config import RawConfig, recursive_config_join
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
-from ..tasks.testing import DummyFeatureTask
-from ..utils.types import FeatureSpec
+from ..tasks.testing import DummyRasterFeatureTask, DummyTimestampFeatureTask
+from ..utils.types import Feature, TimePeriod
+from ..utils.validators import field_validator, parse_time_period
 
 Self = TypeVar("Self", bound=Pipeline)
 LOGGER = logging.getLogger(__name__)
@@ -58,12 +59,19 @@ class TestPipeline(Pipeline):
         return [], []
 
 
-class FeatureSchema(BaseSchema):
-    feature: FeatureSpec = Field(description="A feature to be processed.")
+class RasterFeatureSchema(BaseSchema):
+    feature: Feature = Field(description="A feature to be processed.")
     shape: Tuple[int, ...] = Field(description="A shape of a feature")
     dtype: Optional[str] = Field(description="The output dtype of the feature")
-    min_value: float = Field(0, description="All values in the feature will be greater or equal to this value.")
-    max_value: float = Field(1, description="All values in the feature will be smaller to this value.")
+    min_value: int = Field(0, description="All values in the feature will be greater or equal to this value.")
+    max_value: int = Field(1, description="All values in the feature will be smaller to this value.")
+
+
+class TimestampFeatureSchema(BaseSchema):
+    time_period: TimePeriod = Field(description="Time period from where timestamps will be generated.")
+    _validate_time_period = field_validator("time_period", parse_time_period, pre=True)
+
+    timestamp_num: int = Field(description="Number of timestamps from the interval")
 
 
 class DummyDataPipeline(Pipeline):
@@ -71,15 +79,26 @@ class DummyDataPipeline(Pipeline):
 
     class Schema(Pipeline.Schema):
         output_folder_key: str = Field(description="The storage manager key pointing to the pipeline output folder.")
-        features: List[FeatureSchema]
         seed: Optional[int] = Field(description="A randomness seed.")
+
+        raster_features: List[RasterFeatureSchema]
+        timestamp_feature: Optional[TimestampFeatureSchema]
+
+    config: Schema
 
     def build_workflow(self) -> EOWorkflow:
         start_node = EONode(CreateEOPatchTask())
 
+        if self.config.timestamp_feature:
+            task = DummyTimestampFeatureTask(
+                time_interval=self.config.timestamp_feature.time_period,
+                timestamp_num=self.config.timestamp_feature.timestamp_num,
+            )
+            start_node = EONode(task, inputs=[start_node])
+
         add_feature_nodes = []
-        for feature_config in self.config.features:
-            task = DummyFeatureTask(
+        for feature_config in self.config.raster_features:
+            task = DummyRasterFeatureTask(
                 feature_config.feature,
                 shape=feature_config.shape,
                 dtype=np.dtype(feature_config.dtype) if feature_config.dtype else None,
@@ -104,7 +123,11 @@ class DummyDataPipeline(Pipeline):
         """Extends the basic method for adding execution arguments by adding seed arguments a sampling task"""
         exec_args = super().get_execution_arguments(workflow)
 
-        add_feature_nodes = [node for node in workflow.get_nodes() if isinstance(node.task, DummyFeatureTask)]
+        add_feature_nodes = [
+            node
+            for node in workflow.get_nodes()
+            if isinstance(node.task, (DummyRasterFeatureTask, DummyTimestampFeatureTask))
+        ]
         generator = np.random.default_rng(seed=self.config.seed)
 
         for workflow_args in exec_args:
