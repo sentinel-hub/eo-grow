@@ -8,12 +8,11 @@ import numpy as np
 
 from eolearn.core import EOTask, EOPatch, FeatureType
 
-from ..utils.types import FeatureSpec
+from ..utils.types import Feature, TimePeriod
 
 
-class DummyFeatureTask(EOTask):
-
-    def __init__(self, feature: FeatureSpec, shape: Optional[Tuple[int, ...]] = None, dtype=None, min_value=0, max_value=1):
+class DummyRasterFeatureTask(EOTask):
+    def __init__(self, feature: Feature, shape: Optional[Tuple[int, ...]] = None, dtype=None, min_value=0, max_value=1):
         self.feature = self.parse_feature(feature)
         self.shape = shape
         self.dtype = dtype
@@ -44,13 +43,24 @@ class DummyFeatureTask(EOTask):
         eopatch = eopatch or EOPatch()
         rng = np.random.default_rng(seed)
 
-        feature_type = self.feature[0]
-        if feature_type.is_raster():
-            data = self._get_random_raster(rng)
-        elif feature_type is FeatureType.TIMESTAMP:
-            data = self._get_random_timestamps(rng)
-        else:
-            raise NotImplementedError(f"Feature type {feature_type} is not yet supported")
+        eopatch[self.feature] = self._get_random_raster(rng)
+        return eopatch
 
-        eopatch[self.feature] = data
+
+class DummyTimestampFeatureTask(EOTask):
+    def __init__(self, time_interval: TimePeriod, timestamp_num: int):
+        self.time_interval = time_interval
+        self.timestamp_num = timestamp_num
+
+    def execute(self, eopatch: Optional[EOPatch] = None, seed: Optional[int] = None) -> EOPatch:
+        eopatch = eopatch or EOPatch()
+        rng = np.random.default_rng(seed)
+
+        start_time, end_time = self.time_interval
+        total_seconds = (end_time - start_time).total_seconds()
+        random_integers = rng.integers(total_seconds, size=self.timestamp_num)
+        random_integers.sort()
+        timestamps = [start_time + dt.timedelta(seconds=int(seconds)) for seconds in random_integers]
+
+        eopatch.timestamp = timestamps
         return eopatch
