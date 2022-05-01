@@ -19,4 +19,4 @@ def config_folder_fixture(config_folder, stats_folder):
     ["testing"],
 )
 def test_features_pipeline(experiment_name, folders):
-    run_and_test_pipeline(experiment_name, **folders, save_new_stats=True)
+    run_and_test_pipeline(experiment_name, **folders)

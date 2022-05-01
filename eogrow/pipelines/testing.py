@@ -2,12 +2,12 @@
 Pipelines for testing
 """
 import logging
-from typing import List, Tuple, Type, TypeVar, Optional, Dict, Any
+from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
 
 import numpy as np
 from pydantic import Field
 
-from eolearn.core import EOWorkflow, CreateEOPatchTask, SaveTask, EONode, MergeEOPatchesTask, OverwritePermission
+from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, MergeEOPatchesTask, OverwritePermission, SaveTask
 
 from ..core.config import RawConfig, recursive_config_join
 from ..core.pipeline import Pipeline
@@ -97,7 +97,7 @@ class DummyDataPipeline(Pipeline):
             start_node = EONode(task, inputs=[start_node])
 
         add_feature_nodes = []
-        for feature_config in self.config.raster_features:
+        for index, feature_config in enumerate(self.config.raster_features):
             task = DummyRasterFeatureTask(
                 feature_config.feature,
                 shape=feature_config.shape,
@@ -105,7 +105,7 @@ class DummyDataPipeline(Pipeline):
                 min_value=feature_config.min_value,
                 max_value=feature_config.max_value,
             )
-            node = EONode(task, inputs=[start_node])
+            node = EONode(task, inputs=[start_node], name=f"{DummyRasterFeatureTask.__name__}_{index}")
             add_feature_nodes.append(node)
 
         join_node = EONode(MergeEOPatchesTask(), inputs=add_feature_nodes)
@@ -128,8 +128,9 @@ class DummyDataPipeline(Pipeline):
             for node in workflow.get_nodes()
             if isinstance(node.task, (DummyRasterFeatureTask, DummyTimestampFeatureTask))
         ]
-        generator = np.random.default_rng(seed=self.config.seed)
+        add_feature_nodes.sort(key=lambda node: node.get_name())  # To ensure seeds are always given in the same order
 
+        generator = np.random.default_rng(seed=self.config.seed)
         for workflow_args in exec_args:
             for node in add_feature_nodes:
                 workflow_args[node] = dict(seed=generator.integers(low=0, high=2**32))
