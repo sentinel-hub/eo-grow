@@ -9,6 +9,7 @@ from logging import FileHandler, Filter, Formatter, Handler, LogRecord, StreamHa
 from typing import Any, List, Optional, Sequence, Union
 
 import fs
+from fs.base import FS
 from fs.errors import FilesystemClosed
 from pydantic import Field
 
@@ -224,9 +225,7 @@ class FilesystemHandler(FileHandler):
     process stuck waiting for a thread lock release.
     """
 
-    def __init__(
-        self, path: str, filesystem: Optional[fs.base.FS] = None, config: Optional[SHConfig] = None, **kwargs: Any
-    ):
+    def __init__(self, path: str, filesystem: Optional[FS] = None, config: Optional[SHConfig] = None, **kwargs: Any):
         """
         :param path: A path to a log file. It should be an absolute path if filesystem object is not given and relative
             otherwise.
