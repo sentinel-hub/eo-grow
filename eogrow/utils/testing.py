@@ -15,7 +15,7 @@ from deepdiff import DeepDiff
 
 from eolearn.core import EOPatch, FeatureType
 
-from ..core.config import interpret_config_from_path
+from ..core.config import collect_configs_from_path, interpret_config_from_dict
 from ..core.pipeline import Pipeline
 from ..utils.meta import load_pipeline_class
 
@@ -221,32 +221,38 @@ def run_and_test_pipeline(
     config_filename = os.path.join(config_folder, experiment_name + ".json")
     expected_stats_file = os.path.join(stats_folder, experiment_name + ".json")
 
-    config = interpret_config_from_path(config_filename)
+    crude_configs = collect_configs_from_path(config_filename)
+    raw_configs = [interpret_config_from_dict(config) for config in crude_configs]
 
-    if folder_key or "output_folder_key" in config:
-        folder_key = folder_key or config["output_folder_key"]
-    else:
-        raise ValueError("Pipeline does not have a `output_folder_key` parameter, `folder_key` must be set by hand.")
+    for index, config in enumerate(raw_configs):
+        output_folder_key = folder_key or config.get("output_folder_key")
+        if output_folder_key is None:
+            raise ValueError(
+                "Pipeline does not have a `output_folder_key` parameter, `folder_key` must be set by hand."
+            )
 
-    pipeline = load_pipeline_class(config).from_raw_config(config)
+        pipeline = load_pipeline_class(config).from_raw_config(config)
 
-    folder = pipeline.storage.get_folder(folder_key)
-    filesystem = pipeline.storage.filesystem
+        folder = pipeline.storage.get_folder(output_folder_key)
+        filesystem = pipeline.storage.filesystem
 
-    if reset_folder:
-        filesystem.removetree(folder)
-    pipeline.run()
+        if reset_folder:
+            filesystem.removetree(folder)
+        pipeline.run()
 
-    check_pipeline_logs(pipeline)
+        check_pipeline_logs(pipeline)
 
-    tester = ContentTester(filesystem, folder)
+        if index < len(raw_configs) - 1:
+            continue
 
-    if save_new_stats:
-        tester.save(expected_stats_file)
+        tester = ContentTester(filesystem, folder)
 
-    stats_difference = tester.compare(expected_stats_file)
-    if stats_difference:
-        raise AssertionError(f"Expected and obtained stats differ: {stats_difference}")
+        if save_new_stats:
+            tester.save(expected_stats_file)
+
+        stats_difference = tester.compare(expected_stats_file)
+        if stats_difference:
+            raise AssertionError(f"Expected and obtained stats differ: {stats_difference}")
 
 
 def _round_point_coords(x: float, y: float, decimals: int) -> Tuple[float, float]:
