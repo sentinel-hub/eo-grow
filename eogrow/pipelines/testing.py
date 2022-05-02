@@ -62,7 +62,7 @@ class TestPipeline(Pipeline):
 class RasterFeatureSchema(BaseSchema):
     feature: Feature = Field(description="A feature to be processed.")
     shape: Tuple[int, ...] = Field(description="A shape of a feature")
-    dtype: Optional[str] = Field(description="The output dtype of the feature")
+    dtype: str = Field(description="The output dtype of the feature")
     min_value: int = Field(0, description="All values in the feature will be greater or equal to this value.")
     max_value: int = Field(1, description="All values in the feature will be smaller to this value.")
 
@@ -101,7 +101,7 @@ class DummyDataPipeline(Pipeline):
             task = DummyRasterFeatureTask(
                 feature_config.feature,
                 shape=feature_config.shape,
-                dtype=np.dtype(feature_config.dtype) if feature_config.dtype else None,
+                dtype=np.dtype(feature_config.dtype),
                 min_value=feature_config.min_value,
                 max_value=feature_config.max_value,
             )

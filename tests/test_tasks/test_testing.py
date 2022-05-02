@@ -1,12 +1,41 @@
 import datetime as dt
 
+import numpy as np
 import pytest
 
 from eolearn.core import EOPatch, FeatureType
 
-from eogrow.tasks.testing import DummyTimestampFeatureTask
+from eogrow.tasks.testing import DummyRasterFeatureTask, DummyTimestampFeatureTask
 
 pytestmark = pytest.mark.fast
+
+
+@pytest.mark.parametrize(
+    "feature_type, shape, dtype, min_value, max_value",
+    [
+        (FeatureType.DATA, (10, 20, 21, 5), np.float32, -3, -1),
+        (FeatureType.DATA_TIMELESS, (20, 21, 1), int, -10, 5),
+        (FeatureType.MASK, (4, 4, 6, 7), np.uint8, 3, 3),
+        (FeatureType.LABEL, (10, 17), bool, 0, 1),
+        (FeatureType.SCALAR_TIMELESS, (100,), float, 5, np.inf),
+    ],
+)
+def test_dummy_raster_feature_task(feature_type, shape, dtype, min_value, max_value):
+    feature = feature_type, "FEATURE"
+    task = DummyRasterFeatureTask(feature, shape=shape, dtype=dtype, min_value=min_value, max_value=max_value)
+    eopatch = task.execute()
+
+    assert isinstance(eopatch, EOPatch)
+    assert eopatch.get_feature_list() == [feature]
+    data = eopatch[feature]
+    assert data.shape == shape
+    assert data.dtype == dtype
+    assert np.amin(data) >= min_value
+    assert np.amax(data) <= max_value
+
+    eopatch1 = task.execute(seed=42)
+    eopatch2 = task.execute(seed=42)
+    assert eopatch1 == eopatch2
 
 
 def test_dummy_timestamp_feature_task():
