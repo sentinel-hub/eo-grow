@@ -4,7 +4,7 @@ Module implementing pipelines for downloading data
 import abc
 import datetime as dt
 import logging
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 from pydantic import Field
@@ -115,7 +115,7 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
 
         return EOWorkflow.from_endnodes(end_node)
 
-    def get_execution_arguments(self, workflow: EOWorkflow) -> List[dict]:
+    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, object]]]:
         """Adds required bbox and time_interval parameters for input task to the base execution arguments
 
         :param workflow: EOWorkflow used to download images

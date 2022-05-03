@@ -135,7 +135,7 @@ class Pipeline(EOGrowObject):
         """Overwrite this method to specify which EOPatches should be filtered with `skip_existing`"""
         raise NotImplementedError("Method `filter_patch_list` must be implemented in order to use `skip_existing`")
 
-    def get_execution_arguments(self, workflow: EOWorkflow) -> List[dict]:
+    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, object]]]:
         """Prepares execution arguments for each eopatch from a list of patches
 
         :param workflow: A workflow for which arguments will be prepared

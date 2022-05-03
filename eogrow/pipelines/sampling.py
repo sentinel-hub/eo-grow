@@ -166,7 +166,7 @@ class BaseRandomSamplingPipeline(BaseSamplingPipeline, metaclass=abc.ABCMeta):
         super().__init__(*args, **kwargs)
         self._sampling_node_uid: Optional[str] = None
 
-    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[str, object]]:
+    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, object]]]:
         """Extends the basic method for adding execution arguments by adding seed arguments a sampling task"""
         exec_args = super().get_execution_arguments(workflow)
 
