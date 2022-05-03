@@ -125,7 +125,7 @@ class DummyDataPipeline(Pipeline):
 
         return EOWorkflow.from_endnodes(save_node)
 
-    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, Any]]]:
+    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, object]]]:
         """Extends the basic method for adding execution arguments by adding seed arguments a sampling task"""
         exec_args = super().get_execution_arguments(workflow)
 
