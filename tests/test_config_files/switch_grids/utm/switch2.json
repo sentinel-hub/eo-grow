@@ -1,0 +1,37 @@
+[
+  {
+    "**create_dummy_data": "${config_path}/dummy_data.json"
+  },
+  {
+    "**common_config": "${config_path}/global_config.json",
+    "input_folder_key": "grid_folder1",
+    "output_folder_key": "grid_folder2",
+    "target_area": {
+      "**area": "${config_path}/area.json",
+      "patch_size_x": 3000,
+      "patch_size_y": 2500,
+      "patch_buffer_x": 10,
+      "patch_buffer_y": 0
+    },
+    "features": [
+      {
+        "feature": ["data", "BANDS"],
+        "no_data_value": 3
+      },
+      {
+        "feature": ["mask", "dataMask"],
+        "no_data_value": 1
+      },
+      {
+        "feature": ["mask_timeless", "REF"]
+      },
+      {
+        "feature": ["label", "LABELS"],
+        "no_data_value": 10
+      },
+      {
+        "feature": "timestamp"
+      }
+    ]
+  }
+]

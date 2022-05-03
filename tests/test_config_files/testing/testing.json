@@ -16,7 +16,8 @@
       "shape": [25, 40, 1],
       "dtype": "uint8",
       "min_value": 4,
-      "max_value": 6
+      "max_value": 6,
+      "same_for_all": true
     },
     {
       "feature": ["label", "LABELS"],

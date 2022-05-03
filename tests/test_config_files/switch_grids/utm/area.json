@@ -1,0 +1,11 @@
+{
+  "manager": "eogrow.core.area.UtmZoneAreaManager",
+  "area_filename": "test_area.geojson",
+  "area_buffer": 0.01,
+  "patch_size_x": 1200,
+  "patch_size_y": 1000,
+  "patch_buffer_x": 50,
+  "patch_buffer_y": 60,
+  "offset_x": 100,
+  "offset_y": 20
+}

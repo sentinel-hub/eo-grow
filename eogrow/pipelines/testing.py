@@ -59,7 +59,17 @@ class TestPipeline(Pipeline):
         return [], []
 
 
-class RasterFeatureSchema(BaseSchema):
+class FeatureSchema(BaseSchema):
+    same_for_all: bool = Field(
+        False,
+        description=(
+            "A flag to specify if the same feature values should be generated for all EOPatches. By default each"
+            " EOPatch will have different values."
+        ),
+    )
+
+
+class RasterFeatureSchema(FeatureSchema):
     feature: Feature = Field(description="A feature to be processed.")
     shape: Tuple[int, ...] = Field(description="A shape of a feature")
     dtype: str = Field(description="The output dtype of the feature")
@@ -67,7 +77,7 @@ class RasterFeatureSchema(BaseSchema):
     max_value: int = Field(1, description="All values in the feature will be smaller to this value.")
 
 
-class TimestampFeatureSchema(BaseSchema):
+class TimestampFeatureSchema(FeatureSchema):
     time_period: TimePeriod = Field(description="Time period from where timestamps will be generated.")
     _validate_time_period = field_validator("time_period", parse_time_period, pre=True)
 
@@ -88,7 +98,15 @@ class DummyDataPipeline(Pipeline):
 
     config: Schema
 
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+
+        self._nodes_to_configs_map: Dict[EONode, FeatureSchema] = {}
+
     def build_workflow(self) -> EOWorkflow:
+        """Creates a workflow with tasks that generate different types of features and tasks that join and save the
+        final EOPatch."""
+        self._nodes_to_configs_map = {}
         start_node = EONode(CreateEOPatchTask())
 
         if self.config.timestamp_feature:
@@ -97,6 +115,7 @@ class DummyDataPipeline(Pipeline):
                 timestamp_num=self.config.timestamp_feature.timestamp_num,
             )
             start_node = EONode(task, inputs=[start_node])
+            self._nodes_to_configs_map[start_node] = self.config.timestamp_feature
 
         add_feature_nodes = []
         for index, feature_config in enumerate(self.config.raster_features):
@@ -109,6 +128,7 @@ class DummyDataPipeline(Pipeline):
             )
             node = EONode(task, inputs=[start_node], name=f"{DummyRasterFeatureTask.__name__}_{index}")
             add_feature_nodes.append(node)
+            self._nodes_to_configs_map[node] = feature_config
 
         if add_feature_nodes:
             join_node = EONode(MergeEOPatchesTask(), inputs=add_feature_nodes)
@@ -129,16 +149,17 @@ class DummyDataPipeline(Pipeline):
         """Extends the basic method for adding execution arguments by adding seed arguments a sampling task"""
         exec_args = super().get_execution_arguments(workflow)
 
-        add_feature_nodes = [
-            node
-            for node in workflow.get_nodes()
-            if isinstance(node.task, (DummyRasterFeatureTask, DummyTimestampFeatureTask))
-        ]
-        add_feature_nodes.sort(key=lambda node: node.get_name())  # To ensure seeds are always given in the same order
+        # Sorting is done to ensure seeds are always given to nodes in the same order
+        add_feature_nodes = sorted(self._nodes_to_configs_map, key=lambda _node: _node.get_name())
 
         generator = np.random.default_rng(seed=self.config.seed)
-        for workflow_args in exec_args:
+        for index, workflow_args in enumerate(exec_args):
             for node in add_feature_nodes:
-                workflow_args[node] = dict(seed=generator.integers(low=0, high=2**32))
+                seed = generator.integers(low=0, high=2**32)
+
+                if self._nodes_to_configs_map[node].same_for_all and index > 0:
+                    seed = exec_args[0][node]["seed"]
+
+                workflow_args[node] = dict(seed=seed)
 
         return exec_args
