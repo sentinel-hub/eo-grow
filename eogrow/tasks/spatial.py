@@ -103,6 +103,10 @@ class SpatialJoinTask(EOTask):
         if any(eopatch.bbox.crs is not bbox.crs for eopatch in eopatches):
             raise ValueError("EOPatches must have the same CRS as the given bounding box")
 
+        # Sorting EOPatches in unique order so that the values in the overlapping areas will always be computed in
+        # the same way.
+        eopatches = tuple(sorted(eopatches, key=lambda eop: repr(eop.bbox)))
+
         joined_eopatch = EOPatch(bbox=bbox)
 
         for feature in self.features:
