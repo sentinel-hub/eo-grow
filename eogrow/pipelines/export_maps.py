@@ -3,7 +3,7 @@ Module implementing export_maps pipelines
 """
 import itertools as it
 import logging
-from typing import List, Literal, Optional, Tuple
+from typing import Dict, List, Literal, Optional, Tuple
 
 import fs
 import fs.copy
@@ -11,7 +11,7 @@ import numpy as np
 from fs.tempfs import TempFS
 from pydantic import Field
 
-from eolearn.core import EOTask, EOWorkflow, FeatureType, LoadTask, linearly_connect_tasks
+from eolearn.core import EONode, EOTask, EOWorkflow, FeatureType, LoadTask, linearly_connect_tasks
 from eolearn.core.utils.fs import get_full_path, join_path
 from eolearn.features import LinearFunctionTask
 from eolearn.io import ExportToTiffTask
@@ -149,7 +149,7 @@ class ExportMapsPipeline(Pipeline):
         """Creates a unique name of a geotiff image"""
         return f"{name}_{self.__class__.__name__}_{self.pipeline_id}.tiff"
 
-    def get_execution_arguments(self, workflow: EOWorkflow) -> List[dict]:
+    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, object]]]:
         exec_args = super().get_execution_arguments(workflow)
         nodes = workflow.get_nodes()
         for name, single_exec_dict in zip(self.patch_list, exec_args):

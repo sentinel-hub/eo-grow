@@ -161,7 +161,7 @@ class SwitchGridsPipeline(Pipeline):
 
     def get_execution_arguments_from_transformations(
         self, workflow: EOWorkflow, transformations: List[GridTransformation]
-    ) -> List[dict]:
+    ) -> List[Dict[EONode, Dict[str, object]]]:
         """Creates execution arguments."""
         nodes = workflow.get_nodes()
         load_nodes = [node for node in nodes if isinstance(node.task, LoadTask)]
