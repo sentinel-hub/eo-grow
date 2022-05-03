@@ -49,7 +49,6 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         model_folder_key: str = Field(
             description="The storage manager key pointing to the folder of the model used in the prediction pipeline."
         )
-        model_filename: str = Field(description="A list of model filenames to be used for prediction")
         compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
 
     config: Schema
@@ -128,6 +127,7 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
 class RegressionPredictionPipeline(BasePredictionPipeline):
     class Schema(BasePredictionPipeline.Schema):
         output_feature_name: str
+        model_filename: str = Field(description="A filename of a regression model to be used for prediction.")
         clip_predictions: Optional[Tuple[float, float]] = Field(
             description="Whether to clip values of predictions to specified interval"
         )
@@ -157,6 +157,7 @@ class ClassificationPredictionPipeline(BasePredictionPipeline):
         output_feature_name: str
         output_probability_feature_name: Optional[str]
 
+        model_filename: str = Field(description="A filename of a classification model to be used for prediction.")
         label_encoder_filename: Optional[str] = Field(
             description=(
                 "Whether the predictions need to be decoded. The label encoder should be in the same model folder."

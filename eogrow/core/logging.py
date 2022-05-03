@@ -9,6 +9,7 @@ from logging import FileHandler, Filter, Formatter, Handler, LogRecord, StreamHa
 from typing import Any, List, Optional, Sequence, Union
 
 import fs
+from fs.base import FS
 from fs.errors import FilesystemClosed
 from pydantic import Field
 
@@ -40,13 +41,6 @@ class LoggingManager(EOGrowObject):
             description=(
                 "When working with a remote storage this parameter defines a minimal number of seconds between "
                 "two consecutive times when pipeline log file will be copied into the remote storage."
-            ),
-        )
-        include_logs_to_report: bool = Field(
-            False,
-            description=(
-                "If log files should be parsed into an EOExecution report file or just linked. When working "
-                "with larger number of EOPatches the recommended option is False."
             ),
         )
 
@@ -137,7 +131,7 @@ class LoggingManager(EOGrowObject):
         )
         file_handler.setFormatter(formatter)
 
-        file_handler.addFilter(LogFileFilter())
+        file_handler.addFilter(LogFileFilter(ignore_packages=self.config.pipeline_ignore_packages))
 
         return file_handler
 
@@ -224,11 +218,14 @@ class FilesystemHandler(FileHandler):
 
     In case the handler gets a local path it behaves the same as FileHandler. In case it gets a remote path it writes
     logs first to a local path and then copies them to the remote location.
+
+    IMPORTANT: This handler will by default have an extra `FilesystemFilter` which will ignore logs from packages that
+    produce logs during `LocalFile.copy_to_remote` call. Otherwise, a log that would be created within an `emit`
+    call would be recursively sent back to the handler. That would either trigger an infinite recursion or make the
+    process stuck waiting for a thread lock release.
     """
 
-    def __init__(
-        self, path: str, filesystem: Optional[fs.base.FS] = None, config: Optional[SHConfig] = None, **kwargs: Any
-    ):
+    def __init__(self, path: str, filesystem: Optional[FS] = None, config: Optional[SHConfig] = None, **kwargs: Any):
         """
         :param path: A path to a log file. It should be an absolute path if filesystem object is not given and relative
             otherwise.
@@ -240,6 +237,8 @@ class FilesystemHandler(FileHandler):
 
         super().__init__(self.local_file.path, **kwargs)
 
+        self.addFilter(FilesystemFilter())
+
     def close(self) -> None:
         """Closes logging and closes the local file"""
         super().close()
@@ -250,10 +249,7 @@ class FilesystemHandler(FileHandler):
 
 
 class RegularBackupHandler(FilesystemHandler):
-    """A customized FilesystemHandler that makes a copy to a remote location regularly after given amount of time.
-
-    IMPORTANT: Make sure to combine this handler with a correct log filter. More in docstring of emit method.
-    """
+    """A customized FilesystemHandler that makes a copy to a remote location regularly after given amount of time."""
 
     def __init__(self, *args: Any, backup_interval: Union[float, int], **kwargs: Any):
         """
@@ -266,12 +262,7 @@ class RegularBackupHandler(FilesystemHandler):
         self._last_backup_time = time.monotonic()
 
     def emit(self, record: LogRecord) -> None:
-        """Save a new record and backup to remote if the backup hasn't been done in the given amount of time.
-
-        IMPORTANT: Any new log produced in this method must not reach this handler again. Otherwise, the process will
-        get stuck waiting for a thread lock release. Make sure that you combine this handler with a Filter class that
-        filters out logs from botocore and s3transfer!
-        """
+        """Save a new record and backup to remote if the backup hasn't been done in the given amount of time."""
         super().emit(record)
 
         if time.monotonic() > self._last_backup_time + self.backup_interval:
@@ -282,22 +273,30 @@ class RegularBackupHandler(FilesystemHandler):
 class EOExecutionHandler(FilesystemHandler):
     """A customized FilesystemHandler that makes a copy to a remote location every time a new node in a workflow
     is started.
-
-    IMPORTANT: Make sure to combine this handler with a correct log filter. More in docstring of emit method.
     """
 
     def emit(self, record: LogRecord) -> None:
-        """Save a new record. In case a new node in EOWorkflow is started it will copy the log file to remote.
-
-        IMPORTANT: Any new log produced in this method must not reach this handler again. Otherwise, the process will
-        get stuck waiting for a thread lock release. Therefore, make sure that you combine this handler with a Filter
-        class that filters out logs from botocore, s3transfer and anything else that could be possibly logged during
-        `LocalFile.copy_to_remote` call!
-        """
+        """Save a new record. In case a new node in EOWorkflow is started it will copy the log file to remote."""
         super().emit(record)
 
         if record.name == "eolearn.core.eoworkflow" and record.message.startswith("Computing"):
             self.local_file.copy_to_remote()
+
+
+class FilesystemFilter(Filter):
+    """The sole purpose of this filter is to capture any log that happens during `LocalFile.copy_to_remote` call. Any
+    log that would not be captured would break the entire runtime.
+    """
+
+    IGNORE_HARMFUL_LOGS = (
+        "botocore",
+        "boto3.resources",
+        "s3transfer",
+    )
+
+    def filter(self, record: LogRecord) -> bool:
+        """Ignores logs from certain low-level packages"""
+        return not record.name.startswith(self.IGNORE_HARMFUL_LOGS)
 
 
 class StdoutFilter(Filter):

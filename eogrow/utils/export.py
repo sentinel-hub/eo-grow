@@ -4,9 +4,9 @@ Utilities for exporting data
 import logging
 from typing import Any, Dict, List, Optional
 
-import fs.base
 import geopandas as gpd
 import numpy as np
+from fs.base import FS
 
 from sentinelhub import CRS, BBox
 
@@ -19,7 +19,7 @@ def export_grid_stats(
     stats_list: List[Dict[str, object]],
     bbox_list: List[BBox],
     path: str,
-    filesystem: Optional[fs.base.FS] = None,
+    filesystem: Optional[FS] = None,
     names: Optional[List[str]] = None,
 ) -> None:
     """Exports stats per each bounding box (i.e. EOPatch) into a Geopackage file
