@@ -18,10 +18,10 @@ scikit-image
 scikit-learn
 shapely>=1.8.0
 
-eo-learn-core>=1.0.1
+eo-learn-core>=1.0.2
 eo-learn-features>=1.0.1
 eo-learn-geometry>=1.0.1
-eo-learn-io>=1.0.1
+eo-learn-io>=1.0.2
 eo-learn-mask>=1.0.1
 eo-learn-ml-tools>=1.0.1
 eo-learn-visualization>=1.0.1
