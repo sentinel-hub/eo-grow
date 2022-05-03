@@ -26,7 +26,11 @@ def batch_grid_fixture(project_folder):
     """Cached grid file can't be created on the fly therefore it is committed in the input-data folder. This fixture
     just copies it into the cache folder."""
     grid_path = os.path.join(project_folder, "input-data", "batch_grid.gpkg")
-    cache_grid_path = os.path.join(project_folder, "cache", "grid_batch_area_BatchAreaManager___1_10.0_3_7.gpkg")
+
+    cache_folder = os.path.join(project_folder, "cache")
+    os.makedirs(cache_folder, exist_ok=True)
+    cache_grid_path = os.path.join(cache_folder, "grid_batch_area_BatchAreaManager___1_10.0_3_7.gpkg")
+
     shutil.copyfile(grid_path, cache_grid_path)
     return cache_grid_path
 
