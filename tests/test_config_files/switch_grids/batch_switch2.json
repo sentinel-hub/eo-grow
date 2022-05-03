@@ -1,0 +1,66 @@
+[
+  {
+    "**create_dummy_data": "${config_path}/batch_dummy_data.json",
+    "workers": 3
+  },
+  {
+    "**common_config": "${config_path}/batch_global_config.json",
+    "input_folder_key": "grid_folder1",
+    "output_folder_key": "grid_folder2",
+    "target_area": {
+      "**batch": "${config_path}/batch_area.json",
+      "subsplit_x": 50,
+      "subsplit_y": 20
+    },
+    "features": [
+      {
+        "feature": ["data", "BANDS"]
+      },
+      {
+        "feature": ["mask", "dataMask"]
+      },
+      {
+        "feature": ["mask_timeless", "REF"]
+      },
+      {
+        "feature": ["label", "LABELS"]
+      },
+      {
+        "feature": "timestamp"
+      }
+    ],
+    "workers": 3
+  },
+  {
+    "**common_config": "${config_path}/batch_global_config.json",
+    "input_folder_key": "grid_folder2",
+    "output_folder_key": "grid_folder3",
+    "area": {
+      "subsplit_x": 50,
+      "subsplit_y": 20
+    },
+    "target_area": {
+      "**batch": "${config_path}/batch_area.json",
+      "subsplit_x": 2,
+      "subsplit_y": 5
+    },
+    "features": [
+      {
+        "feature": ["data", "BANDS"]
+      },
+      {
+        "feature": ["mask", "dataMask"]
+      },
+      {
+        "feature": ["mask_timeless", "REF"]
+      },
+      {
+        "feature": ["label", "LABELS"]
+      },
+      {
+        "feature": "timestamp"
+      }
+    ],
+    "workers": 3
+  }
+]
