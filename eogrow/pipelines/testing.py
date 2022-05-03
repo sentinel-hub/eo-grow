@@ -149,8 +149,8 @@ class DummyDataPipeline(Pipeline):
         """Extends the basic method for adding execution arguments by adding seed arguments a sampling task"""
         exec_args = super().get_execution_arguments(workflow)
 
-        add_feature_nodes = list(self._nodes_to_configs_map)
-        add_feature_nodes.sort(key=lambda node: node.get_name())  # To ensure seeds are always given in the same order
+        # Sorting is done to ensure seeds are always given to nodes in the same order
+        add_feature_nodes = sorted(self._nodes_to_configs_map, key=lambda _node: _node.get_name())
 
         generator = np.random.default_rng(seed=self.config.seed)
         for index, workflow_args in enumerate(exec_args):
