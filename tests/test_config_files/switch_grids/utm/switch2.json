@@ -15,16 +15,19 @@
     },
     "features": [
       {
-        "feature": ["data", "BANDS"]
+        "feature": ["data", "BANDS"],
+        "no_data_value": 3
       },
       {
-        "feature": ["mask", "dataMask"]
+        "feature": ["mask", "dataMask"],
+        "no_data_value": 1
       },
       {
         "feature": ["mask_timeless", "REF"]
       },
       {
-        "feature": ["label", "LABELS"]
+        "feature": ["label", "LABELS"],
+        "no_data_value": 10
       },
       {
         "feature": "timestamp"
