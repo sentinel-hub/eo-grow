@@ -12,6 +12,7 @@ import pandas as pd
 import rasterio
 import shapely.ops
 from deepdiff import DeepDiff
+from fs.base import FS
 
 from eolearn.core import EOPatch, FeatureType
 
@@ -34,7 +35,7 @@ class ContentTester:
     this utility will let you know which statistics does not match
     """
 
-    def __init__(self, filesystem: fs.base.FS, main_folder: str, decimals: int = 5):
+    def __init__(self, filesystem: FS, main_folder: str, decimals: int = 5):
         """
         :param filesystem: A filesystem containing project data
         :param main_folder: A folder path on the filesystem where results are saved

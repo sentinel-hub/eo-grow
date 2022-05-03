@@ -81,7 +81,9 @@ class DummyDataPipeline(Pipeline):
         output_folder_key: str = Field(description="The storage manager key pointing to the pipeline output folder.")
         seed: Optional[int] = Field(description="A randomness seed.")
 
-        raster_features: List[RasterFeatureSchema]
+        raster_features: List[RasterFeatureSchema] = Field(
+            default_factory=list, description="A list of raster features to be generated."
+        )
         timestamp_feature: Optional[TimestampFeatureSchema]
 
     config: Schema
@@ -108,14 +110,18 @@ class DummyDataPipeline(Pipeline):
             node = EONode(task, inputs=[start_node], name=f"{DummyRasterFeatureTask.__name__}_{index}")
             add_feature_nodes.append(node)
 
-        join_node = EONode(MergeEOPatchesTask(), inputs=add_feature_nodes)
+        if add_feature_nodes:
+            join_node = EONode(MergeEOPatchesTask(), inputs=add_feature_nodes)
+            previous_node = join_node
+        else:
+            previous_node = start_node
 
         save_task = SaveTask(
             self.storage.get_folder(self.config.output_folder_key, full_path=True),
             overwrite_permission=OverwritePermission.OVERWRITE_PATCH,
             config=self.sh_config,
         )
-        save_node = EONode(save_task, inputs=[join_node])
+        save_node = EONode(save_task, inputs=[previous_node])
 
         return EOWorkflow.from_endnodes(save_node)
 

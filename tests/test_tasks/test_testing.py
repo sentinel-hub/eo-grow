@@ -53,11 +53,10 @@ def test_dummy_timestamp_feature_task():
     assert eopatch.timestamp[0] >= start_time
     assert eopatch.timestamp[-1] < dt.datetime.fromordinal(end_time.toordinal())
 
-    old_timestamps = eopatch.timestamp
-    eopatch = task.execute(eopatch)
-    assert eopatch.timestamp != old_timestamps
-
     eopatch1 = task.execute(seed=10)
     eopatch2 = task.execute(seed=10)
     assert eopatch1 == eopatch2
     assert eopatch1.timestamp[0].isoformat() == "2020-01-01T06:02:38"
+
+    eopatch3 = task.execute(seed=11)
+    assert eopatch1 != eopatch3

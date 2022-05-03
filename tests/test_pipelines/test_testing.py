@@ -16,7 +16,10 @@ def config_folder_fixture(config_folder, stats_folder):
 
 @pytest.mark.parametrize(
     "experiment_name",
-    ["testing"],
+    [
+        "testing",
+        "timestamps_only",
+    ],
 )
 def test_features_pipeline(experiment_name, folders):
     run_and_test_pipeline(experiment_name, **folders)
