@@ -1,10 +1,10 @@
 {
   "pipeline": "eogrow.pipelines.switch_grids.SwitchGridsPipeline",
   "area": {
-    "**area": "${config_path}/area.json"
+    "**area`": "${config_path}/area.json"
   },
   "eopatch": {
-    "manager": "eogrow.core.eopatch.BatchTileManager"
+    "manager": "eogrow.core.eopatch.EOPatchManager"
   },
   "logging": {
     "manager": "eogrow.core.logging.LoggingManager",

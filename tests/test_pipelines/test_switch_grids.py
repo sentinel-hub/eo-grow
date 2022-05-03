@@ -8,10 +8,17 @@ import pytest
 
 from eogrow.utils.testing import create_folder_dict, run_and_test_pipeline
 
+pytestmark = pytest.mark.fast
 
-@pytest.fixture(scope="session", name="folders")
-def config_folder_fixture(config_folder, stats_folder):
-    return create_folder_dict(config_folder, stats_folder, "switch_grids")
+
+@pytest.fixture(scope="session", name="batch_folders")
+def batch_folders_fixture(config_folder, stats_folder):
+    return create_folder_dict(config_folder, stats_folder, os.path.join("switch_grids", "batch"))
+
+
+@pytest.fixture(scope="session", name="utm_folders")
+def utm_folders_fixture(config_folder, stats_folder):
+    return create_folder_dict(config_folder, stats_folder, os.path.join("switch_grids", "utm"))
 
 
 @pytest.fixture(scope="session", name="batch_grid")
@@ -27,9 +34,20 @@ def batch_grid_fixture(project_folder):
 @pytest.mark.parametrize(
     "experiment_name",
     [
-        "batch_switch1",
-        "batch_switch2",
+        "switch1",
+        "switch2",
     ],
 )
-def test_batch_grid_switching(experiment_name, folders, batch_grid):
-    run_and_test_pipeline(experiment_name, **folders)
+def test_batch_grid_switching(experiment_name, batch_folders, batch_grid):
+    run_and_test_pipeline(experiment_name, **batch_folders)
+
+
+@pytest.mark.parametrize(
+    "experiment_name",
+    [
+        "switch1",
+        "switch2",
+    ],
+)
+def test_utm_grid_switching(experiment_name, utm_folders):
+    run_and_test_pipeline(experiment_name, **utm_folders)

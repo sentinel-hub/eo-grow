@@ -8,8 +8,8 @@
     "output_folder_key": "grid_folder2",
     "target_area": {
       "**area": "${config_path}/area.json",
-      "subsplit_x": 2,
-      "subsplit_y": 5
+      "patch_size_x": 2400,
+      "patch_size_y": 1500
     },
     "features": [
       {
