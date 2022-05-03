@@ -158,7 +158,7 @@ class DummyDataPipeline(Pipeline):
                 seed = generator.integers(low=0, high=2**32)
 
                 if self._nodes_to_configs_map[node].same_for_all and index > 0:
-                    seed = exec_args[0][node]["seed"]
+                    seed = exec_args[0][node]["seed"]  # type: ignore
 
                 workflow_args[node] = dict(seed=seed)
 
