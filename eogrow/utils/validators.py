@@ -111,7 +111,4 @@ def validate_manager(value: dict) -> "ManagerSchema":
     assert "manager" in value, "Manager definition has no `manager` field that specifies its class."
     manager_class = import_object(value["manager"])
     manager_schema = collect_schema(manager_class)
-    assert issubclass(
-        manager_schema, ManagerSchema
-    ), f"The specified class is not a manager (its schema does not inherit from {ManagerSchema.__name__})"
-    return manager_schema.parse_obj(value)
+    return manager_schema.parse_obj(value)  # type: ignore[return-value]
