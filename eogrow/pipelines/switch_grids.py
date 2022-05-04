@@ -37,7 +37,7 @@ class FeatureSchema(BaseSchema):
     )
 
     @root_validator
-    def check_values(cls, values):  # type: ignore
+    def check_values(cls, values):  # type: ignore[no-untyped-def]
         """Multiple different checks that given values make sense."""
         feature = values["feature"]
         feature_type = feature if isinstance(feature, FeatureType) else feature[0]

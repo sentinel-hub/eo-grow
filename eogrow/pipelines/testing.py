@@ -16,7 +16,7 @@ from ..tasks.testing import DummyRasterFeatureTask, DummyTimestampFeatureTask
 from ..utils.types import Feature, TimePeriod
 from ..utils.validators import field_validator, parse_time_period
 
-Self = TypeVar("Self", bound=Pipeline)
+Self = TypeVar("Self", bound="TestPipeline")
 LOGGER = logging.getLogger(__name__)
 
 
@@ -37,7 +37,7 @@ class TestPipeline(Pipeline):
 
     @classmethod
     def with_defaults(cls: Type[Self], config: RawConfig) -> Self:
-        config = recursive_config_join(config, cls._DEFAULT_CONFIG_PARAMS)  # type: ignore
+        config = recursive_config_join(config, cls._DEFAULT_CONFIG_PARAMS)  # type: ignore[assignment]
         return cls.from_raw_config(config)
 
     def run_procedure(self) -> Tuple[List, List]:
@@ -155,10 +155,10 @@ class DummyDataPipeline(Pipeline):
         generator = np.random.default_rng(seed=self.config.seed)
         for index, workflow_args in enumerate(exec_args):
             for node in add_feature_nodes:
-                seed = generator.integers(low=0, high=2**32)
+                seed: object = generator.integers(low=0, high=2**32)
 
                 if self._nodes_to_configs_map[node].same_for_all and index > 0:
-                    seed = exec_args[0][node]["seed"]  # type: ignore
+                    seed = exec_args[0][node]["seed"]
 
                 workflow_args[node] = dict(seed=seed)
 

@@ -65,7 +65,7 @@ class BatchToEOPatchPipeline(Pipeline):
         )
 
         @root_validator
-        def check_something_is_converted(cls, values):  # type: ignore
+        def check_something_is_converted(cls, values):  # type: ignore[no-untyped-def]
             """Check that the pipeline has something to do."""
             params = "userdata_feature_name", "userdata_timestamp_reader", "mapping"
             assert any(

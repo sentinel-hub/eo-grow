@@ -34,7 +34,7 @@ def optional_field_validator(
     # In order to propagate the pydantic python magic we need a bit of python magic ourselves
     additional_args = inspect.getfullargspec(validator_fun).args[1:]
 
-    def optional_validator(value, values, config, field):  # type: ignore
+    def optional_validator(value, values, config, field):  # type: ignore[no-untyped-def]
         if value is not None:
             all_kwargs = {"values": values, "config": config, "field": field}
             kwargs = {k: v for k, v in all_kwargs.items() if k in additional_args}
@@ -111,4 +111,7 @@ def validate_manager(value: dict) -> "ManagerSchema":
     assert "manager" in value, "Manager definition has no `manager` field that specifies its class."
     manager_class = import_object(value["manager"])
     manager_schema = collect_schema(manager_class)
-    return manager_schema.parse_obj(value)  # type: ignore
+    assert issubclass(
+        manager_schema, ManagerSchema
+    ), f"The specified class is not a manager (it's schema does not inherit from {ManagerSchema.__name__}"
+    return manager_schema.parse_obj(value)
