@@ -81,7 +81,7 @@ class BaseEOGrowEnum(MultiValueEnum):
 
         script = []
         eval_pixel_script = Template("   if(samples[0].$band_name == $class_id) { return [$colors] }")
-        for class_enum in cls:  # type:ignore[attr-defined]
+        for class_enum in cls:  # type: ignore[attr-defined]
             colors = ", ".join([f"{c}/255" for c in class_enum.rgb_int])
             script.append(eval_pixel_script.substitute(band_name=band_name, class_id=class_enum.id, colors=colors))
 
@@ -90,7 +90,7 @@ class BaseEOGrowEnum(MultiValueEnum):
     @classmethod
     def get_sentinel_hub_legend(cls) -> str:
         items = [
-            {"color": class_enum.color, "label": class_enum.name} for class_enum in cls  # type:ignore[attr-defined]
+            {"color": class_enum.color, "label": class_enum.name} for class_enum in cls  # type: ignore[attr-defined]
         ]
 
         return json.dumps({"type": "discrete", "items": items}, indent=2)
