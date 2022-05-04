@@ -10,13 +10,13 @@ from tqdm.auto import tqdm
 
 from eolearn.core.eodata_io import walk_filesystem
 
-from ..utils.types import Feature
+from ..utils.types import FeatureSpec
 
 
 def check_if_features_exist(
     filesystem: FS,
     eopatch_path: str,
-    features: Iterable[Feature],
+    features: Iterable[FeatureSpec],
 ) -> bool:
     """Checks whether an EOPatch in the given location has all specified features saved"""
     not_seen_features = set(features)
@@ -35,7 +35,7 @@ def get_patches_with_missing_features(
     filesystem: FS,
     patches_folder: str,
     patch_list: List[str],
-    features: Iterable[Feature],
+    features: Iterable[FeatureSpec],
 ) -> List[str]:
     """Filters out names of those EOPatches that are missing some given features.
 

@@ -12,12 +12,13 @@ import pandas as pd
 import rasterio
 import shapely.ops
 from deepdiff import DeepDiff
+from fs.base import FS
 
 from eolearn.core import EOPatch, FeatureType
 
-from ..core.config import Config, ConfigList
+from ..core.config import collect_configs_from_path, interpret_config_from_dict
 from ..core.pipeline import Pipeline
-from .meta import load_pipeline
+from ..utils.meta import load_pipeline_class
 
 
 class ContentTester:
@@ -27,14 +28,14 @@ class ContentTester:
     utility aggregates all folder content into some basic statistics.
 
     * Every time you initialize this class statistics will be calculated
-    * Statistics can be saved into a JSON file (it's human readable)
-    * Statistics can be compared compared with the one saved in a file from the previous run.
+    * Statistics can be saved into a JSON file (it's human-readable)
+    * Statistics can be compared with the one saved in a file from the previous run.
 
-    If statistics match there is a good chance that the pipeline produced exactly the same results as before. Otherwise
+    If statistics match there is a good chance that the pipeline produced exactly the same results as before. Otherwise,
     this utility will let you know which statistics does not match
     """
 
-    def __init__(self, filesystem: fs.base.FS, main_folder: str, decimals: int = 5):
+    def __init__(self, filesystem: FS, main_folder: str, decimals: int = 5):
         """
         :param filesystem: A filesystem containing project data
         :param main_folder: A folder path on the filesystem where results are saved
@@ -166,7 +167,7 @@ class ContentTester:
         return self._calculate_raster_stats(raster)
 
     def _calculate_vector_stats(self, dataframe: pd.DataFrame) -> List[object]:
-        """Calculates statistics over a vector GeoDataFrame"""  # TODO: add more statistical properites
+        """Calculates statistics over a vector GeoDataFrame"""  # TODO: add more statistical properties
         rounder = functools.partial(_round_point_coords, decimals=self.decimals)
         dataframe["geometry"] = dataframe["geometry"].apply(lambda geometry: shapely.ops.transform(rounder, geometry))
 
@@ -215,40 +216,44 @@ def run_and_test_pipeline(
     :param stats_folder: A path to folder containing the file with expected result stats
     :param folder_key: Type of the folder containing results of the pipeline, if missing it's inferred from config
     :param reset_folder: If True it will delete content of the folder with results before running the pipeline
-    :param save_new_stats: If True then new file with expected result stats will be saved (potentially overwriting the
-        old one. Otherwise the old one will be used to compare stats.
+    :param save_new_stats: If True then new file with expected result stats will be saved, potentially overwriting the
+        old one. Otherwise, the old one will be used to compare stats.
     """
     config_filename = os.path.join(config_folder, experiment_name + ".json")
     expected_stats_file = os.path.join(stats_folder, experiment_name + ".json")
 
-    config = Config.from_path(config_filename)
-    if isinstance(config, ConfigList):
-        raise ValueError("Cannot test config list with `run_and_test_pipeline`")
+    crude_configs = collect_configs_from_path(config_filename)
+    raw_configs = [interpret_config_from_dict(config) for config in crude_configs]
 
-    if folder_key or "output_folder_key" in config:
-        folder_key = folder_key or config.output_folder_key
-    else:
-        raise ValueError("Pipeline does not have a `output_folder_key` parameter, `folder_key` must be set by hand.")
+    for index, config in enumerate(raw_configs):
+        output_folder_key = folder_key or config.get("output_folder_key")
+        if output_folder_key is None:
+            raise ValueError(
+                "Pipeline does not have a `output_folder_key` parameter, `folder_key` must be set by hand."
+            )
 
-    pipeline = load_pipeline(config)
+        pipeline = load_pipeline_class(config).from_raw_config(config)
 
-    folder = pipeline.storage.get_folder(folder_key)
-    filesystem = pipeline.storage.filesystem
+        folder = pipeline.storage.get_folder(output_folder_key)
+        filesystem = pipeline.storage.filesystem
 
-    if reset_folder:
-        filesystem.removetree(folder)
-    pipeline.run()
+        if reset_folder:
+            filesystem.removetree(folder)
+        pipeline.run()
 
-    check_pipeline_logs(pipeline)
+        check_pipeline_logs(pipeline)
 
-    tester = ContentTester(filesystem, folder)
+        if index < len(raw_configs) - 1:
+            continue
 
-    if save_new_stats:
-        tester.save(expected_stats_file)
+        tester = ContentTester(filesystem, folder)
 
-    stats_difference = tester.compare(expected_stats_file)
-    if stats_difference:
-        raise AssertionError(f"Expected and obtained stats differ: {stats_difference}")
+        if save_new_stats:
+            tester.save(expected_stats_file)
+
+        stats_difference = tester.compare(expected_stats_file)
+        if stats_difference:
+            raise AssertionError(f"Expected and obtained stats differ: {stats_difference}")
 
 
 def _round_point_coords(x: float, y: float, decimals: int) -> Tuple[float, float]:

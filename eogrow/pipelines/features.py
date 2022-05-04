@@ -24,11 +24,12 @@ from ..core.schemas import BaseSchema
 from ..tasks.features import (
     MaxNDVIMosaickingTask,
     MedianMosaickingTask,
+    MosaickingTask,
     ValidDataFractionPredicate,
     join_valid_and_cloud_masks,
 )
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, TimePeriod
+from ..utils.types import Feature, FeatureSpec, TimePeriod
 from ..utils.validators import field_validator, parse_time_period
 
 LOGGER = logging.getLogger(__name__)
@@ -73,6 +74,8 @@ class FeaturesPipeline(Pipeline):
         output_feature_name: str = Field(description="Name of output data feature encompassing bands and NDIs")
         compress_level: int = Field(1, description="Level of compression used in saving eopatches")
 
+    config: Schema
+
     def filter_patch_list(self, patch_list: List[str]) -> List[str]:
         """EOPatches are filtered according to existence of specified output features"""
 
@@ -85,7 +88,7 @@ class FeaturesPipeline(Pipeline):
 
         return filtered_patch_list
 
-    def _get_output_features(self) -> List[Feature]:
+    def _get_output_features(self) -> List[FeatureSpec]:
         """Lists all features that are to be saved upon the pipeline completion"""
         return [(FeatureType.DATA, self.config.output_feature_name), FeatureType.BBOX, FeatureType.TIMESTAMP]
 
@@ -190,6 +193,8 @@ class InterpolationFeaturesPipeline(FeaturesPipeline):
             "Fine-tuning of interpolation parameters. If not set, the interpolation will work on current timestamps"
         )
 
+    config: Schema
+
     def get_temporal_regularization_node(self, previous_node: EONode) -> EONode:
         resample_range = None
         if self.config.interpolation:
@@ -230,6 +235,8 @@ class MosaickingFeaturesPipeline(FeaturesPipeline):
             "Fine-tuning of mosaicking parameters. If not set, the interpolation will work on current timestamps"
         )
 
+    config: Schema
+
     def get_data_preparation_node(self) -> EONode:
         preparation_node = super().get_data_preparation_node()
 
@@ -244,6 +251,7 @@ class MosaickingFeaturesPipeline(FeaturesPipeline):
     def get_temporal_regularization_node(self, previous_node: EONode) -> EONode:
         start_date, end_date = self.config.mosaicking.time_period
 
+        mosaicking_task: MosaickingTask
         if self.config.mosaicking.max_ndi_indices:
             mosaicking_task = MaxNDVIMosaickingTask(
                 self._get_bands_feature(),

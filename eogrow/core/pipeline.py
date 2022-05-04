@@ -7,20 +7,23 @@ import logging
 import time
 import uuid
 import warnings
-from typing import Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
 
 import ray
 
-from eolearn.core import CreateEOPatchTask, EOExecutor, EOWorkflow, LoadTask, SaveTask, WorkflowResults
+from eolearn.core import CreateEOPatchTask, EOExecutor, EONode, EOWorkflow, LoadTask, SaveTask, WorkflowResults
 from eolearn.core.extra.ray import RayExecutor
 
 from ..utils.meta import import_object
 from .area.base import AreaManager
 from .base import EOGrowObject
+from .config import RawConfig
 from .eopatch import EOPatchManager
 from .logging import EOExecutionFilter, EOExecutionHandler, LoggingManager
-from .schemas import PipelineSchema
+from .schemas import ManagerSchema, PipelineSchema
 from .storage import StorageManager
+
+Self = TypeVar("Self", bound="Pipeline")
 
 LOGGER = logging.getLogger(__name__)
 
@@ -39,39 +42,52 @@ class Pipeline(EOGrowObject):
     class Schema(PipelineSchema):
         """Configuration schema, describing input parameters and their types."""
 
-    def __init__(self, config: dict):
+    config: Schema
+
+    def __init__(self, config: Schema, raw_config: Optional[RawConfig] = None):
         """
         :param config: A dictionary with configuration parameters
+        :param raw_config: The configuration parameters pre-validation, for logging purposes only
         """
         super().__init__(config)
+        self._raw_config = raw_config
 
         self.pipeline_id = self._new_pipeline_id()
         self.current_execution_name = "<Not executed yet>"
 
-        self.storage: StorageManager = self._load_manager("storage")
+        self.storage: StorageManager = self._load_manager(config.storage)
         self.sh_config = self.storage.sh_config
 
-        self.area_manager: AreaManager = self._load_manager("area", storage=self.storage)
-        self.eopatch_manager: EOPatchManager = self._load_manager("eopatch", area_manager=self.area_manager)
-        self.logging_manager: LoggingManager = self._load_manager("logging", storage=self.storage)
+        self.area_manager: AreaManager = self._load_manager(config.area, storage=self.storage)
+        self.eopatch_manager: EOPatchManager = self._load_manager(config.eopatch, area_manager=self.area_manager)
+        self.logging_manager: LoggingManager = self._load_manager(config.logging, storage=self.storage)
 
         self._patch_list: Optional[List[str]] = None
+
+    @classmethod
+    def from_raw_config(cls: Type[Self], config: RawConfig, *args: Any, **kwargs: Any) -> Self:
+        """Creates an object from a dictionary by constructing a validated config and use it to create the object."""
+        validated_config = cls.Schema.parse_obj(config)
+        if "raw_config" not in kwargs:
+            kwargs["raw_config"] = config
+        return cls(validated_config, *args, **kwargs)
 
     @staticmethod
     def _new_pipeline_id() -> str:
         """Provides a new random uuid of a pipeline"""
         return uuid.uuid4().hex[:10]
 
-    def _load_manager(self, manager_key: str, **manager_params: Any) -> Any:
+    @staticmethod
+    def _load_manager(manager_config: ManagerSchema, **manager_params: Any) -> Any:
         """Loads a manager class and back-propagates parsed config
 
         :param manager_key: A config key name of a sub-config with manager parameters
         :param manager_params: Other parameters to initialize a manager class
         """
-        manager_config = self.config[manager_key]
+        if manager_config.manager is None:
+            raise ValueError("Unable to load manager, field `manager` specifying it's class is missing.")
         manager_class = import_object(manager_config.manager)
         manager = manager_class(manager_config, **manager_params)
-        self.config[manager_key] = manager.config
         return manager
 
     def get_pipeline_execution_name(self, pipeline_timestamp: str) -> str:
@@ -119,7 +135,7 @@ class Pipeline(EOGrowObject):
         """Overwrite this method to specify which EOPatches should be filtered with `skip_existing`"""
         raise NotImplementedError("Method `filter_patch_list` must be implemented in order to use `skip_existing`")
 
-    def get_execution_arguments(self, workflow: EOWorkflow) -> List[dict]:
+    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, object]]]:
         """Prepares execution arguments for each eopatch from a list of patches
 
         :param workflow: A workflow for which arguments will be prepared
@@ -129,7 +145,7 @@ class Pipeline(EOGrowObject):
         exec_args = []
         nodes = workflow.get_nodes()
         for name, bbox in zip(self.patch_list, bbox_list):
-            single_exec_dict = {}
+            single_exec_dict: Dict[EONode, Dict[str, Any]] = {}
 
             for node in nodes:
                 if isinstance(node.task, (SaveTask, LoadTask)):
@@ -158,6 +174,8 @@ class Pipeline(EOGrowObject):
         """
         if eopatch_list is None:
             eopatch_list = self.patch_list
+
+        executor_class: Type[EOExecutor]
 
         if self.config.use_ray == "auto":
             try:
@@ -214,6 +232,7 @@ class Pipeline(EOGrowObject):
             self.logging_manager.update_pipeline_report(
                 pipeline_execution_name=self.current_execution_name,
                 pipeline_config=self.config,
+                pipeline_raw_config=self._raw_config,
                 pipeline_id=self.pipeline_id,
                 pipeline_timestamp=timestamp,
             )
@@ -234,6 +253,7 @@ class Pipeline(EOGrowObject):
 
             self.logging_manager.update_pipeline_report(
                 pipeline_execution_name=self.current_execution_name,
+                pipeline_raw_config=self._raw_config,
                 pipeline_config=self.config,
                 pipeline_id=self.pipeline_id,
                 pipeline_timestamp=timestamp,

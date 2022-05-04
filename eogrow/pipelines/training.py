@@ -1,9 +1,9 @@
 """
-Module implementing pipelines for training a ML classifier
+Module implementing pipelines for training an ML classifier
 """
 import abc
 import logging
-from typing import Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import fs
 import joblib
@@ -38,7 +38,7 @@ class RandomTrainTestSplitSchema(BaseSchema):
 
 
 class BaseTrainingPipeline(Pipeline, metaclass=abc.ABCMeta):
-    """A base pipeline for training a ML model
+    """A base pipeline for training an ML model
 
     This class has a few abstract methods which have to be implemented. But in general all public methods are designed
     in a way that you can override them in a child class
@@ -58,8 +58,12 @@ class BaseTrainingPipeline(Pipeline, metaclass=abc.ABCMeta):
 
         train_test_split: RandomTrainTestSplitSchema
 
-        model_parameters: dict = Field(default_factory=dict, description="Parameters to be provided to the model")
+        model_parameters: Dict[str, Any] = Field(
+            default_factory=dict, description="Parameters to be provided to the model"
+        )
         model_filename: str
+
+    config: Schema
 
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         """The main pipeline procedure
@@ -166,7 +170,7 @@ class BaseTrainingPipeline(Pipeline, metaclass=abc.ABCMeta):
         """Scores the resulting model and reports the metrics into the log files."""
 
     def predict(self, model: Any, features: np.ndarray) -> np.ndarray:  # pylint: disable=no-self-use
-        """Evaluates model on features. Should be overriden for models with a different interface."""
+        """Evaluates model on features. Should be overridden for models with a different interface."""
         return model.predict(features)
 
 
@@ -185,10 +189,12 @@ class ClassificationPreprocessSchema(BaseSchema):
 
 
 class ClassificationTrainingPipeline(BaseTrainingPipeline, metaclass=abc.ABCMeta):
-    """A base pipeline for training a ML classifier. Uses LGBMClassifier by default."""
+    """A base pipeline for training an ML classifier. Uses LGBMClassifier by default."""
 
     class Schema(BaseTrainingPipeline.Schema):
         preprocessing: Optional[ClassificationPreprocessSchema]
+
+    config: Schema
 
     def preprocess_data(self, features: np.ndarray, reference: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """Preforms filtering and other preprocessing before splitting data."""
@@ -236,7 +242,7 @@ class ClassificationTrainingPipeline(BaseTrainingPipeline, metaclass=abc.ABCMeta
 
 
 class RegressionTrainingPipeline(BaseTrainingPipeline):
-    """A base pipeline for training a ML regressor. Uses LGBMRegressor by default."""
+    """A base pipeline for training an ML regressor. Uses LGBMRegressor by default."""
 
     def train_model(self, prepared_data: dict) -> object:
         train_features = prepared_data["features_train"]

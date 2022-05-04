@@ -2,7 +2,7 @@
 Module implementing sampling pipelines
 """
 import abc
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 from pydantic import Field, validator
@@ -11,21 +11,18 @@ from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, MergeEOPatch
 from eolearn.geometry import MorphologicalOperations, MorphologicalStructFactory
 from eolearn.ml_tools import BlockSamplingTask, FractionSamplingTask, GridSamplingTask
 
-from ..core.config import Config
 from ..core.pipeline import Pipeline
 from ..tasks.common import ClassFilterTask
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature
+from ..utils.types import Feature, FeatureSpec
 
 
 class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
     """Pipeline to run sampling on EOPatches"""
 
     class Schema(Pipeline.Schema):
-        output_folder_key: str = Field(
-            description="The storage manager key pointing to the output folder for the Sampline pipeline."
-        )
-        apply_to: Dict[str, Dict[str, List[str]]] = Field(
+        output_folder_key: str = Field(description="The storage manager key pointing to the pipeline output folder.")
+        apply_to: Dict[str, Dict[FeatureType, List[str]]] = Field(
             description=(
                 "A dictionary defining which features to sample, its structure is "
                 "{folder_key: {feature_type: [feature_name]}}"
@@ -43,6 +40,8 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
             )
         )
         compress_level: int = Field(1, description="Level of compression used in saving eopatches")
+
+    config: Schema
 
     def filter_patch_list(self, patch_list: List[str]) -> List[str]:
         """Filter output EOPatches that have already been processed"""
@@ -82,10 +81,10 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
         load_nodes = []
 
         for folder_name, features in self.config.apply_to.items():
-            load_features = []
+            load_features: List[FeatureSpec] = []
 
-            for feature_type, feature_names in features.items():
-                feature_type = FeatureType(feature_type)
+            for feature_type_str, feature_names in features.items():
+                feature_type = FeatureType(feature_type_str)
 
                 if not feature_type.is_spatial():
                     raise ValueError(f"Only spatial features can be sampled, but found {feature_type}: {feature_names}")
@@ -120,8 +119,6 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
         features_to_sample = []
         for _, features in self.config.apply_to.items():
             for feature_type, feature_names in features.items():
-                feature_type = FeatureType(feature_type)
-
                 for feature_name in feature_names:
                     if self.config.sampled_suffix is None:
                         features_to_sample.append((feature_type, feature_name, feature_name))
@@ -138,16 +135,17 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
             return FeatureType.MASK_TIMELESS, self.config.mask_of_samples_name
         return None
 
-    def _get_output_features(self) -> List[Feature]:
+    def _get_output_features(self) -> List[FeatureSpec]:
         """Get a list of features that will be saved as an output of the pipeline"""
-        output_features = [FeatureType.BBOX]
+        output_features: List[FeatureSpec] = [FeatureType.BBOX]
         features_to_sample = self._get_features_to_sample()
 
         for feature_type, _, sampled_feature_name in features_to_sample:
             output_features.append((feature_type, sampled_feature_name))
 
-        if self.config.mask_of_samples_name:
-            output_features.append(self._get_mask_of_samples_feature())
+        mask_of_samples_feature = self._get_mask_of_samples_feature()
+        if mask_of_samples_feature:
+            output_features.append(mask_of_samples_feature)
 
         if any(feature_type.is_temporal() for feature_type, _, _ in features_to_sample):
             output_features.append(FeatureType.TIMESTAMP)
@@ -162,11 +160,13 @@ class BaseRandomSamplingPipeline(BaseSamplingPipeline, metaclass=abc.ABCMeta):
             42, description="A random generator seed to be used in order to obtain the same results every pipeline run."
         )
 
-    def __init__(self, config: Config):
-        super().__init__(config)
-        self._sampling_node_uid = None
+    config: Schema
 
-    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[str, object]]:
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self._sampling_node_uid: Optional[str] = None
+
+    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, object]]]:
         """Extends the basic method for adding execution arguments by adding seed arguments a sampling task"""
         exec_args = super().get_execution_arguments(workflow)
 
@@ -200,6 +200,8 @@ class FractionSamplingPipeline(BaseRandomSamplingPipeline):
             )
         )
         exclude_values: List[int] = Field(default_factory=list, description="Values to be excluded from sampling")
+
+    config: Schema
 
     def _get_preprocessing_node(self, previous_node: EONode) -> EONode:
         """Preprocessing that applies erosion on sampling feature values"""
@@ -260,6 +262,8 @@ class BlockSamplingPipeline(BaseRandomSamplingPipeline):
             ), "Exactly one of the parameters fraction_of_samples and number_of_samples should be defined"
             return fraction
 
+    config: Schema
+
     def _get_sampling_node(self, previous_node: EONode) -> EONode:
         """Prepare the sampling task"""
         task = BlockSamplingTask(
@@ -287,6 +291,8 @@ class GridSamplingPipeline(BaseSamplingPipeline):
                 "smaller than sample_size in any dimensions then sampled blocks will overlap."
             )
         )
+
+    config: Schema
 
     def _get_sampling_node(self, previous_node: EONode) -> EONode:
         """Prepare the sampling task"""

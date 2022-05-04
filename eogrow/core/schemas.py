@@ -11,39 +11,59 @@ from pydantic import BaseModel, Field
 from pydantic.fields import ModelField
 
 from ..utils.types import ImportPath, Path
+from ..utils.validators import field_validator, validate_manager
+from .base import EOGrowObject
+
+BaseSchema = EOGrowObject.Schema
 
 
-class BaseSchema(BaseModel):
-    """A BaseModel that does not allow extra fields and checks default values."""
-
-    class Config:
-        extra = "forbid"
-        validate_all = True
-
-
-class RawManagerSchema(BaseModel):
-    """A schema for managers that delay manager config verification, should not be used outside of `PipelineSchema`"""
-
-    manager: ImportPath = Field(description="Import path to an implementation of a manager class.")
-
-    class Config:
-        extra = "allow"
-
-
-class ManagerSchema(BaseSchema):
+class ManagerSchema(EOGrowObject.Schema):
     """A basic schema for managers, to be used as a parent class for defining manager schemas"""
 
     manager: Optional[ImportPath] = Field(description="An import path to this specific manager.")
 
 
-class PipelineSchema(BaseSchema):
-    """Pipeline schema"""
+class LoggingManagerSchema(ManagerSchema):
+    """Base schema of a logging manager. Only assumes fields required by the Pipeline class."""
+
+    save_logs: bool = Field(
+        False,
+        description=(
+            "A flag to determine if pipeline logs and reports will be saved to "
+            "logs folder. This includes potential EOExecution reports and logs."
+        ),
+    )
+    include_logs_to_report: bool = Field(
+        False,
+        description=(
+            "If log files should be parsed into an EOExecution report file or just linked. When working "
+            "with larger number of EOPatches the recommended option is False."
+        ),
+    )
+    eoexecution_ignore_packages: Optional[List[str]] = Field(
+        description=(
+            "Names of packages which logs will not be written to EOExecution log files. The default null value "
+            "means that a default list of packages will be used."
+        )
+    )
+
+
+class PipelineSchema(EOGrowObject.Schema):
+    """Base schema of the Pipeline class."""
 
     pipeline: Optional[ImportPath] = Field(description="Import path to an implementation of Pipeline class.")
-    storage: RawManagerSchema = Field(description="A schema of an implementation of StorageManager class")
-    area: RawManagerSchema = Field(description="A schema of an implementation of AreaManager class")
-    eopatch: RawManagerSchema = Field(description="A schema of an implementation of EOPatchManager class")
-    logging: RawManagerSchema = Field(description="A schema of an implementation of LoggingManager class")
+
+    storage: ManagerSchema = Field(description="A schema of an implementation of StorageManager class")
+    validate_storage = field_validator("storage", validate_manager, pre=True)
+
+    area: ManagerSchema = Field(description="A schema of an implementation of AreaManager class")
+    validate_area = field_validator("area", validate_manager, pre=True)
+
+    eopatch: ManagerSchema = Field(description="A schema of an implementation of EOPatchManager class")
+    validate_eopatch = field_validator("eopatch", validate_manager, pre=True)
+
+    logging: LoggingManagerSchema = Field(description="A schema of an implementation of LoggingManager class")
+    validate_logging = field_validator("logging", validate_manager, pre=True)
 
     workers: int = Field(
         1, description="Number of workers for parallel execution of workflows. Parameter does not affect ray clusters."

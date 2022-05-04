@@ -8,14 +8,14 @@ from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import pandas
 from bidict import bidict
-from geopandas import GeoDataFrame
+from pandas import DataFrame
 from pydantic import Field
 
 from sentinelhub import CRS, BBox
 
 from .area.base import AreaManager
+from .area.batch import BatchAreaManager
 from .base import EOGrowObject
-from .config import Config
 from .schemas import ManagerSchema
 
 
@@ -25,7 +25,7 @@ class EOPatchManager(EOGrowObject):
     class Schema(ManagerSchema):
         pass
 
-    def __init__(self, config: Config, area_manager: AreaManager):
+    def __init__(self, config: Schema, area_manager: AreaManager):
         """
         :param config: Configuration of the manager
         :param area_manager: Area managing class containing info about how the area is split into EOPatches
@@ -59,28 +59,23 @@ class EOPatchManager(EOGrowObject):
         """
         bbox_grid = self._area_manager.get_grid(add_bbox_column=True)
 
-        bbox_df = pandas.concat(bbox_grid, ignore_index=True)
-        bbox_df = bbox_df.sort_values(by="index_n")
+        bbox_df: DataFrame = pandas.concat(bbox_grid, ignore_index=True)
 
-        if self._area_manager.has_region_filter():
-            total_patch_num = self._area_manager.get_grid_size(ignore_region_filter=True)
-        else:
-            total_patch_num = len(bbox_df.index)
-
-        prepared_name_to_id_map = self.generate_names(bbox_df, total_patch_num=total_patch_num)
+        prepared_name_to_id_map = self.generate_names(bbox_df)
         prepared_name_to_bbox_map = dict(zip(prepared_name_to_id_map, bbox_df["BBOX"]))
         return prepared_name_to_id_map, prepared_name_to_bbox_map
 
-    def generate_names(self, bbox_dataframe: GeoDataFrame, total_patch_num: Optional[int] = None) -> bidict:
+    def generate_names(self, bbox_dataframe: DataFrame) -> bidict:
         """Method that generates EOPatch names from a dataframe holding bounding boxes. This method can be overridden
         by a method that generates names in a different way.
 
         :param bbox_dataframe: A dataframe with bounding box geometries and information
-        :param total_patch_num: Total number of EOPatches
         :return: A bidirectional dictionary between names and original IDs
         """
-        if total_patch_num is None:
-            total_patch_num = len(bbox_dataframe.index)
+        if len(bbox_dataframe) == 0:
+            return bidict()
+
+        total_patch_num = bbox_dataframe.total_num.values[0]
         zfill_length = len(str(total_patch_num - 1))
 
         return bidict(
@@ -102,10 +97,10 @@ class EOPatchManager(EOGrowObject):
         """Provides a list of EOPatch names
 
         :param folder: If it is specified it will join the folder with eopatch names and return a list of complete paths
-        :param id_list: A list of patch ids which should be provided. By default is set to None and all EOPatch names
+        :param id_list: A list of patch ids which should be provided. By default, is set to None and all EOPatch names
             will be provided
         :param filter_existing: If given a folder parameter this will check if EOPatches at the given location actually
-            exist. By default this is set to True which means it will make additional IO calls, which could be slow
+            exist. By default, this is set to True which means it will make additional IO calls, which could be slow
             if using s3.
         :return: A list of EOPatch folder names
         """
@@ -153,7 +148,7 @@ class EOPatchManager(EOGrowObject):
         :param filename: A filename (or entire file path) from where names of EOPatches will be loaded. Supported
             formats are JSON and TXT
         :param id_list: A list of EOPatch IDs which are the only ones required. The IDs are calculated according to
-            the complete list of EOPatches. By default no filtering is done.
+            the complete list of EOPatches. By default, no filtering is done.
         :return: A list of EOPatch names loaded from file (and maybe filtered)
         """
         if filename.endswith(".json"):
@@ -188,7 +183,7 @@ class EOPatchManager(EOGrowObject):
         return [self.name_to_bbox_map[eopatch_name] for eopatch_name in eopatch_list]
 
     def parse_eopatch_list(self, eopatch_list: Union[List[str], List[int]]) -> List[str]:
-        """Parses given list of EOPatches into a a standard format
+        """Parses given list of EOPatches into a standard format
 
         :param eopatch_list: Can either be a list of EOPatch names (or file paths) or a list of indices
         """
@@ -196,7 +191,7 @@ class EOPatchManager(EOGrowObject):
             raise ValueError(f"Expected a list of EOPatch names, got {eopatch_list}")
 
         if all(isinstance(name, str) for name in eopatch_list):
-            eopatch_list = cast(List[str], eopatch_list)  # informs mypy of the type, doesnt change anything
+            eopatch_list = cast(List[str], eopatch_list)  # informs mypy of the type, doesn't change anything
             eopatch_list = [os.path.basename(name) for name in eopatch_list]
 
             if set(eopatch_list) <= self.name_to_id_map.keys():
@@ -242,7 +237,9 @@ class CustomGridEOPatchManager(EOPatchManager):
         name_column: str = Field(description="A name of a column in grid dataframes that contains EOPatch names")
         index_column: str = Field(description="A name of a column in grid dataframes that contains EOPatch indices")
 
-    def generate_names(self, bbox_dataframe: GeoDataFrame, *_: Any, **__: Any) -> bidict:
+    config: Schema
+
+    def generate_names(self, bbox_dataframe: DataFrame, *_: Any, **__: Any) -> bidict:
         """Creates a bidirectional dictionary between names and indices"""
         names = bbox_dataframe[self.config.name_column]
         indices = bbox_dataframe[self.config.index_column]
@@ -252,6 +249,19 @@ class CustomGridEOPatchManager(EOPatchManager):
 class BatchTileManager(EOPatchManager):
     """A custom patch manager that uses a naming convention based on Sentinel Hub Batch tiles"""
 
-    def generate_names(self, bbox_dataframe: GeoDataFrame, *_: Any, **__: Any) -> bidict:
+    _area_manager: BatchAreaManager
+
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+
+        if not isinstance(self._area_manager, BatchAreaManager):
+            raise ValueError(f"{self.__class__.__name__} is only compatible with {BatchAreaManager.__name__}")
+
+    def generate_names(self, bbox_dataframe: DataFrame, *_: Any, **__: Any) -> bidict:
         """Creates a bidirectional dictionary between names and indices"""
+        if self._area_manager.subsplit != (1, 1):
+            return bidict(
+                (f"{row['name']}_{row.split_x}_{row.split_y}", row.index_n) for _, row in bbox_dataframe.iterrows()
+            )
+
         return bidict((name, index) for name, index in zip(bbox_dataframe.name, bbox_dataframe.index_n))

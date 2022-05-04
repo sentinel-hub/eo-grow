@@ -10,5 +10,5 @@ S3Path = str
 ImportPath = str
 TimePeriod = Tuple[datetime.date, datetime.date]
 
-Feature = Union[Tuple[FeatureType, str], FeatureType]
-# Feature type is added for BBOX and TIMESTAMP, using Literal with Enum is weird
+Feature = Tuple[FeatureType, str]
+FeatureSpec = Union[Tuple[FeatureType, str], FeatureType]

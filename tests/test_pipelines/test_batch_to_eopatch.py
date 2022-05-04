@@ -12,7 +12,7 @@ from fs.base import FS
 
 from sentinelhub import BBox
 
-from eogrow.core.config import Config
+from eogrow.core.config import interpret_config_from_path
 from eogrow.pipelines.batch_to_eopatch import BatchToEOPatchPipeline
 from eogrow.utils.testing import ContentTester, check_pipeline_logs, create_folder_dict
 
@@ -71,7 +71,7 @@ def test_rasterize_pipeline_preprocess(folders, experiment_name):
     config_filename = os.path.join(folders["config_folder"], experiment_name + ".json")
     stat_path = os.path.join(folders["stats_folder"], experiment_name + ".json")
 
-    pipeline = BatchToEOPatchPipeline(Config.from_path(config_filename))
+    pipeline = BatchToEOPatchPipeline.from_raw_config(interpret_config_from_path(config_filename))
 
     filesystem = pipeline.storage.filesystem
     input_folder = pipeline.storage.get_folder(pipeline.config.input_folder_key)

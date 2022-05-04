@@ -32,7 +32,9 @@ class StorageManager(EOGrowObject):
             default_factory=dict, description="A flat key: value store mapping each key to a path in the project."
         )
 
-    def __init__(self, config: dict):
+    config: Schema
+
+    def __init__(self, config: Schema):
         super().__init__(config)
 
         for folder_key, folder_path in self.PRESET_FOLDERS.items():
@@ -79,7 +81,7 @@ class StorageManager(EOGrowObject):
         EOExecution report folders
 
         :param show_files: If  `True` it will show also files inside the folders. Note that the number of files may be
-            huge. By default this is set to `False`.
+            huge. By default, this is set to `False`.
         :param return_str: If `True` it will return folder structure as a string. If `False` it will just print the
             visualization to stdout.
         :param exclude: A list of grep folder paths  to exclude from the structure return.

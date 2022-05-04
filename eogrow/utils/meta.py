@@ -7,31 +7,30 @@ import importlib
 import inspect
 from typing import TYPE_CHECKING, Any, Dict, Type
 
-from pydantic import BaseModel
-
 if TYPE_CHECKING:
     from ..core.pipeline import Pipeline
+    from ..core.schemas import BaseSchema
 
 _PIPELINE_PARAM_NAME = "pipeline"
 
 
-def load_pipeline(config: dict) -> Pipeline:
-    """Given a config object it loads and initializes a pipeline object referenced in the config"""
+def load_pipeline_class(config: dict) -> Type[Pipeline]:
+    """Given a config object it loads the pipeline class referenced in the config"""
     pipeline_class_name = config.get(_PIPELINE_PARAM_NAME)
     if pipeline_class_name is None:
         raise ValueError(f"Config file is missing '{_PIPELINE_PARAM_NAME}' parameter, don't know which pipeline to use")
 
     pipeline_class = import_object(pipeline_class_name)
-    return pipeline_class(config)
+    return pipeline_class
 
 
-def collect_schema(object_with_schema: Any) -> Type[BaseModel]:
+def collect_schema(object_with_schema: Any) -> Type[BaseSchema]:
     """A utility that collects a schema from the given object.
 
-    The object is expected to hold a unique internal class which inherits from `pydantic.BaseModel`. Example:
+    The object is expected to hold a unique internal class which inherits from `BaseSchema`. Example:
 
     class MyObject:
-        class Schema(pydantic.BaseModel):
+        class Schema(BaseSchema):
             ...
 
     This utility would provide `MySchema`. It works also if `MyObject` inherits from a class that holds the schema.
