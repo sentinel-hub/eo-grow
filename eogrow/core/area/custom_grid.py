@@ -32,7 +32,7 @@ class CustomGridAreaManager(AreaManager):
         )
 
     # TODO: The AreaManager needs to be reworked until this is no longer an issue
-    config: Schema  # type: ignore
+    config: Schema  # type: ignore[assignment]
 
     def get_area_dataframe(self, *, crs: CRS = CRS.WGS84, **_: Any) -> gpd.GeoDataFrame:
         """Provides a single dataframe that defines an AOI

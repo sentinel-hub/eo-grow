@@ -279,7 +279,7 @@ class Pipeline(EOGrowObject):
             raise NotImplementedError(
                 "Default implementation of run_procedure method requires implementation of build_workflow method"
             )
-        workflow = self.build_workflow()  # type: ignore
+        workflow = self.build_workflow()  # type: ignore[attr-defined]
         exec_args = self.get_execution_arguments(workflow)
 
         finished, failed, _ = self.run_execution(workflow, exec_args)
