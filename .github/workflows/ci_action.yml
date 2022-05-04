@@ -82,6 +82,7 @@ jobs:
           architecture: x64
       
       - name: Install packages
+        if: github.event_name == 'push'
         run: |
           pip install -e .[DEV]
       
@@ -136,6 +137,7 @@ jobs:
             --sh_client_id "${{ secrets.SH_CLIENT_ID }}" \
             --sh_client_secret "${{ secrets.SH_CLIENT_SECRET }}"
           pytest -m "fast"
+          pytest -m "chain"
 
   mirror-to-gitlab:
     if: github.event_name == 'push'
