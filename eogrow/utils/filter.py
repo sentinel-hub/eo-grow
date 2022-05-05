@@ -2,7 +2,7 @@
 Utilities for filtering eopatch lists
 """
 from concurrent.futures import ThreadPoolExecutor
-from typing import Iterable, List
+from typing import List, Sequence
 
 import fs
 from fs.base import FS
@@ -16,7 +16,7 @@ from ..utils.types import FeatureSpec
 def check_if_features_exist(
     filesystem: FS,
     eopatch_path: str,
-    features: Iterable[FeatureSpec],
+    features: Sequence[FeatureSpec],
 ) -> bool:
     """Checks whether an EOPatch in the given location has all specified features saved"""
     not_seen_features = set(features)
@@ -35,7 +35,7 @@ def get_patches_with_missing_features(
     filesystem: FS,
     patches_folder: str,
     patch_list: List[str],
-    features: Iterable[FeatureSpec],
+    features: Sequence[FeatureSpec],
 ) -> List[str]:
     """Filters out names of those EOPatches that are missing some given features.
 
