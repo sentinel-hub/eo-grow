@@ -2,7 +2,7 @@
 Module containing utilities for working with filesystems
 """
 import os
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 import fs
 import fs.copy
@@ -58,6 +58,7 @@ class BaseLocalObject:
             self._filesystem = self._remote_filesystem
             self._local_path = self._remote_path
         else:
+            self._add_tempfs_identifier(temp_fs_kwargs)
             self._filesystem = TempFS(**temp_fs_kwargs)
             self._local_path = fs.path.basename(self._remote_path)
 
@@ -108,6 +109,15 @@ class BaseLocalObject:
         if self._filesystem is not self._remote_filesystem:
             self._ensure_remote_location()
             self._copy_to_remote()
+
+    def _add_tempfs_identifier(self, temp_fs_kwargs: Dict[str, Any]) -> None:
+        """Adds an identifier name that will be used as a suffix of a temporary local folder. This is helpful for
+        debugging purposes."""
+        if "identifier" in temp_fs_kwargs:
+            return
+
+        object_name = fs.path.basename(self._remote_path.rstrip("/")).split(".", 1)[0]
+        temp_fs_kwargs["identifier"] = f"_{self.__class__.__name__}-{object_name}"
 
     def _ensure_remote_location(self) -> None:
         """Makes sure that the remote location exists. If it doesn't then it will try to create the missing folders.

@@ -21,6 +21,7 @@ def test_local_file(always_copy):
     with TempFS() as filesystem:
         with LocalFile("path/to/file/data.json", mode="w", filesystem=filesystem, always_copy=always_copy) as test_file:
             assert not os.path.exists(test_file.path)
+
             with open(test_file.path, "w") as fp:
                 json.dump({}, fp)
 
@@ -119,3 +120,16 @@ def test_write_no_data_local_folder(use_absolute_path):
             test_folder.copy_to_remote()
 
         assert filesystem.isdir(relative_remote_path)
+
+
+def test_path_identifier():
+    """Checks that a temporary folder gets correct identifier suffix."""
+    with TempFS() as filesystem:
+        with LocalFile("data.json", mode="w", filesystem=filesystem, always_copy=True) as test_file:
+            assert os.path.dirname(test_file.path).endswith("_LocalFile-data")
+
+        with LocalFile("data.json", mode="w", filesystem=filesystem, always_copy=True, identifier="xxx") as test_file:
+            assert os.path.dirname(test_file.path).endswith("xxx")
+
+        with LocalFolder("my-folder", mode="w", filesystem=filesystem, always_copy=True) as test_folder:
+            assert os.path.dirname(test_folder.path).endswith("_LocalFolder-my-folder")
