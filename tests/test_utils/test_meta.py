@@ -2,7 +2,8 @@ import datetime as dt
 
 import pytest
 
-from eogrow.utils.meta import import_object
+from eogrow import __version__
+from eogrow.utils.meta import get_package_versions, import_object
 
 pytestmark = pytest.mark.fast
 
@@ -20,3 +21,12 @@ def test_import_object_from_wrong_module():
 def test_import_object_with_wrong_name():
     with pytest.raises(ImportError):
         import_object("datetime.xyz")
+
+
+def test_get_package_versions():
+    versions = get_package_versions()
+
+    assert isinstance(versions, dict)
+    assert "error" not in versions
+    assert versions["eo-grow"] == __version__
+    assert len(versions) > 10
