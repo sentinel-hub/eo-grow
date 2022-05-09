@@ -2,11 +2,12 @@
 Module containing utilities for working with filesystems
 """
 import os
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 import fs
 import fs.copy
 from fs.base import FS
+from fs.errors import ResourceNotFound
 from fs.osfs import OSFS
 from fs.tempfs import TempFS
 from fs.walk import Walker
@@ -35,17 +36,13 @@ class BaseLocalObject:
         """
         :param path: Either a full path to a remote file or a path to remote file which is relative to given filesystem
             object.
-        :type path: str
         :param mode: One of the option `r', 'w', and 'rw`, which specify if a file should be read or written to remote.
             The default is 'r'.
-        :type mode: str
         :param filesystem: A filesystem of the remote. If not given, it will be determined from the path.
-        :type: fs.FS
-        :param config: A config object with which AWS credentials could be used to initialize a remote filesystem object
-        :type config: SHConfig
+        :param config: A config object with which AWS credentials could be used to initialize a remote filesystem
+            object.
         :param always_copy: If True it will always make a local copy to a temporary folder, even if a file is already
             in the local filesystem.
-        :type always_copy: bool
         :param temp_fs_kwargs: Parameters that will be propagated to fs.tempfs.TempFS
         """
         if filesystem is None:
@@ -61,6 +58,7 @@ class BaseLocalObject:
             self._filesystem = self._remote_filesystem
             self._local_path = self._remote_path
         else:
+            self._add_tempfs_identifier(temp_fs_kwargs)
             self._filesystem = TempFS(**temp_fs_kwargs)
             self._local_path = fs.path.basename(self._remote_path)
 
@@ -91,7 +89,7 @@ class BaseLocalObject:
     def close(self) -> None:
         """Close the local copy"""
         if "w" in self._mode:
-            self.copy_to_remote()
+            self.copy_to_remote(raise_missing=False)
 
         if self._filesystem is not self._remote_filesystem:
             self._filesystem.close()
@@ -101,11 +99,25 @@ class BaseLocalObject:
         if self._filesystem is not self._remote_filesystem:
             self._copy_to_local()
 
-    def copy_to_remote(self) -> None:
+    def copy_to_remote(self, raise_missing: bool = True) -> None:
         """Copy from local to remote location"""
+        if not self._filesystem.exists(self._local_path):
+            if raise_missing:
+                raise ResourceNotFound(f"Local resource {self._local_path} doesn't exist")
+            return
+
         if self._filesystem is not self._remote_filesystem:
             self._ensure_remote_location()
             self._copy_to_remote()
+
+    def _add_tempfs_identifier(self, temp_fs_kwargs: Dict[str, Any]) -> None:
+        """Adds an identifier name that will be used as a suffix of a temporary local folder. This is helpful for
+        debugging purposes."""
+        if "identifier" in temp_fs_kwargs:
+            return
+
+        object_name = fs.path.basename(self._remote_path.rstrip("/")).split(".", 1)[0]
+        temp_fs_kwargs["identifier"] = f"_{self.__class__.__name__}-{object_name}"
 
     def _ensure_remote_location(self) -> None:
         """Makes sure that the remote location exists. If it doesn't then it will try to create the missing folders.
@@ -145,9 +157,23 @@ class LocalFolder(BaseLocalObject):
     Check `BaseLocalObject` for more info.
     """
 
-    def __init__(self, *args: Any, walker: Optional[Walker] = None, workers: Optional[int] = None, **kwargs: Any):
+    def __init__(
+        self,
+        path: str,
+        *args: Any,
+        filesystem: Optional[FS] = None,
+        config: Optional[SHConfig] = None,
+        walker: Optional[Walker] = None,
+        workers: Optional[int] = None,
+        **kwargs: Any,
+    ):
         """
+        :param path: Either a full path to a remote folder or a path to remote folder which is relative to given
+            filesystem object.
         :param args: Positional arguments propagated to the base class.
+        :param filesystem: A filesystem of the remote. If not given, it will be determined from the path.
+        :param config: A config object with which AWS credentials could be used to initialize a remote filesystem
+            object.
         :param walker: An instance of `fs.walk.Walker` object used to configure advanced copying parameters. It is
             possible to set max folder depth of copy (default is entire tree), how to handle errors (by default are
             ignored), and what to include or exclude.
@@ -158,7 +184,12 @@ class LocalFolder(BaseLocalObject):
         self.walker = walker or Walker(ignore_errors=True)
         self.workers = 5 * (os.cpu_count() or 1) if workers is None else workers
 
-        super().__init__(*args, **kwargs)
+        if filesystem is None:
+            filesystem, path = get_base_filesystem_and_path(path, config=config)
+        if not path.endswith("/"):
+            path += "/"  # This way fs will treat the path as a folder
+
+        super().__init__(path, *args, filesystem=filesystem, **kwargs)
 
     def _copy_to_local(self) -> None:
         """Copy the folder content from remote to local location."""

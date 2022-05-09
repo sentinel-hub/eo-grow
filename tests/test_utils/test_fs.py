@@ -4,7 +4,9 @@ Tests for fs_utils module
 import json
 import os
 
+import fs.path
 import pytest
+from fs.errors import ResourceNotFound
 from fs.tempfs import TempFS
 from fs.walk import Walker
 
@@ -18,6 +20,8 @@ def test_local_file(always_copy):
     """Testing the procedure of saving and loading with LocalFile."""
     with TempFS() as filesystem:
         with LocalFile("path/to/file/data.json", mode="w", filesystem=filesystem, always_copy=always_copy) as test_file:
+            assert not os.path.exists(test_file.path)
+
             with open(test_file.path, "w") as fp:
                 json.dump({}, fp)
 
@@ -26,6 +30,20 @@ def test_local_file(always_copy):
                 result = json.load(fp)
 
         assert result == {}
+
+
+def test_write_no_data_local_file():
+    """Tests a case where no data is written to a local file. An error should only be raised if local file would be
+    explicitly copied to remote."""
+    with TempFS() as filesystem:
+        remote_path = "folder/data.json"
+        with LocalFile(remote_path, mode="w", filesystem=filesystem, always_copy=True) as test_file:
+            test_file.copy_to_remote(raise_missing=False)
+            with pytest.raises(ResourceNotFound):
+                test_file.copy_to_remote(raise_missing=True)
+        # A closure of "with statement" shouldn't raise an error or copy anything
+        assert not filesystem.exists(remote_path)
+        assert not filesystem.exists(fs.path.dirname(remote_path))
 
 
 @pytest.mark.parametrize("always_copy", [True, False])
@@ -67,6 +85,7 @@ def test_local_folder(always_copy, workers, walker):
         with LocalFolder(
             "path/to/folder/", mode="w", filesystem=filesystem, always_copy=always_copy, workers=workers, walker=walker
         ) as test_folder:
+            assert os.path.exists(test_folder.path)
             os.mkdir(os.path.join(test_folder.path, "subfolder"))
 
             for index, filename in enumerate(filenames):
@@ -85,3 +104,32 @@ def test_local_folder(always_copy, workers, walker):
                 with open(file_path, "r") as fp:
                     result = json.load(fp)
                     assert result == {"value": index}
+
+
+@pytest.mark.parametrize("use_absolute_path", [True, False])
+def test_write_no_data_local_folder(use_absolute_path):
+    """Tests a case where no data is written to a local folder."""
+    relative_remote_path = "folder/data-folder"
+    with TempFS() as filesystem:
+        if use_absolute_path:
+            params = dict(path=filesystem.getsyspath(relative_remote_path))
+        else:
+            params = dict(path=relative_remote_path, filesystem=filesystem)
+
+        with LocalFolder(**params, mode="w", always_copy=True) as test_folder:
+            test_folder.copy_to_remote()
+
+        assert filesystem.isdir(relative_remote_path)
+
+
+def test_path_identifier():
+    """Checks that a temporary folder gets correct identifier suffix."""
+    with TempFS() as filesystem:
+        with LocalFile("data.json", mode="w", filesystem=filesystem, always_copy=True) as test_file:
+            assert os.path.dirname(test_file.path).endswith("_LocalFile-data")
+
+        with LocalFile("data.json", mode="w", filesystem=filesystem, always_copy=True, identifier="xxx") as test_file:
+            assert os.path.dirname(test_file.path).endswith("xxx")
+
+        with LocalFolder("my-folder", mode="w", filesystem=filesystem, always_copy=True) as test_folder:
+            assert os.path.dirname(test_folder.path).endswith("_LocalFolder-my-folder")
