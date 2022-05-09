@@ -87,9 +87,9 @@ def get_package_versions() -> Dict[str, str]:
     try:
         import pkg_resources
 
-        dependency_packages = ["eogrow"] + [
+        dependency_packages = ["eo-grow"] + [
             requirement.name
-            for requirement in pkg_resources.working_set.by_key["eogrow"].requires()  # type: ignore[attr-defined]
+            for requirement in pkg_resources.working_set.by_key["eo-grow"].requires()  # type: ignore[attr-defined]
         ]
 
         return {name: pkg_resources.get_distribution(name).version for name in dependency_packages}
