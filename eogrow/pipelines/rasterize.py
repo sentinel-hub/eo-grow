@@ -106,7 +106,7 @@ class RasterizePipeline(Pipeline):
 
         if isinstance(self.config.vector_input, str):
             self.filename = self._parse_input_file(self.config.vector_input)
-            output_is_temporal = self.config.columns[0].is_temporal()
+            output_is_temporal = self.config.columns[0].output_feature[0].is_temporal()
             feature_type = FeatureType.VECTOR if output_is_temporal else FeatureType.VECTOR_TIMELESS
             self.vector_feature = feature_type, f"TEMP_{uuid.uuid4().hex}"
         else:
