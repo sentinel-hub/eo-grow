@@ -2,7 +2,7 @@
 Module containing utilities for working with filesystems
 """
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, TypeVar
 
 import fs
 import fs.copy
@@ -14,6 +14,8 @@ from fs.walk import Walker
 
 from eolearn.core.utils.fs import get_base_filesystem_and_path
 from sentinelhub import SHConfig
+
+Self = TypeVar("Self", bound="BaseLocalObject")
 
 
 class BaseLocalObject:
@@ -75,7 +77,7 @@ class BaseLocalObject:
         """Provides an absolute path to the copy in the local filesystem"""
         return self._absolute_local_path
 
-    def __enter__(self) -> "BaseLocalObject":
+    def __enter__(self: Self) -> Self:
         """This allows the class to be used as a context manager"""
         return self
 
