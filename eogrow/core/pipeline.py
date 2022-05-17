@@ -9,8 +9,6 @@ import uuid
 import warnings
 from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
 
-import ray
-
 from eolearn.core import CreateEOPatchTask, EOExecutor, EONode, EOWorkflow, LoadTask, SaveTask, WorkflowResults
 from eolearn.core.extra.ray import RayExecutor
 

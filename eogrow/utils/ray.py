@@ -2,14 +2,15 @@
 Modules with Ray-related utilities
 """
 import logging
-from typing import Literal, Union
 
 import ray
+
+from .types import BoolOrAuto
 
 LOGGER = logging.getLogger(__name__)
 
 
-def connect_to_ray(use_ray: Union[Literal["auto"], bool] = "auto") -> bool:
+def connect_to_ray(use_ray: BoolOrAuto = "auto") -> bool:
     """According to the given parameter it will try to connect to an existing Ray cluster.
 
     :param use_ray: Either a boolean flag or `"auto"` to define if the connection should be established or not.
