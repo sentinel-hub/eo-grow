@@ -13,12 +13,12 @@ from pydantic import Field
 
 from eolearn.core import EONode, EOTask, EOWorkflow, FeatureType, LoadTask, linearly_connect_tasks
 from eolearn.core.utils.fs import get_full_path, join_path
+from eolearn.core.utils.parallelize import parallelize
 from eolearn.features import LinearFunctionTask
 from eolearn.io import ExportToTiffTask
 
 from ..core.pipeline import Pipeline
 from ..utils.map import merge_maps
-from ..utils.parallelize import parallelize_with_threads
 from ..utils.types import Feature
 
 LOGGER = logging.getLogger(__name__)
@@ -125,8 +125,15 @@ class ExportMapsPipeline(Pipeline):
             temp_fs = TempFS(identifier="_merge_maps_temp")
 
             LOGGER.info("Copying tiffs to a temporary local folder %s", temp_fs.getsyspath("/"))
-            parallelize_with_threads(
-                fs.copy.copy_file, it.repeat(self.storage.filesystem), geotiff_paths, it.repeat(temp_fs), geotiff_names
+            parallelize(
+                fs.copy.copy_file,
+                it.repeat(self.storage.filesystem),
+                geotiff_paths,
+                it.repeat(temp_fs),
+                geotiff_names,
+                workers=None,
+                multiprocess=False,
+                desc="Local copies",
             )
 
             sys_paths = [temp_fs.getsyspath(name) for name in geotiff_names]
@@ -142,7 +149,9 @@ class ExportMapsPipeline(Pipeline):
             temp_fs.close()
         LOGGER.info("Merged map is saved at %s", get_full_path(self.storage.filesystem, merged_map_path))
 
-        parallelize_with_threads(self.storage.filesystem.remove, geotiff_paths)
+        parallelize(
+            self.storage.filesystem.remove, geotiff_paths, workers=None, multiprocess=False, desc="Deleting temp tiffs"
+        )
         LOGGER.info("Cleaned original temporary maps")
 
     def get_geotiff_name(self, name: str) -> str:
