@@ -15,6 +15,7 @@ from eolearn.core import CreateEOPatchTask, EOExecutor, EONode, EOWorkflow, Load
 from eolearn.core.extra.ray import RayExecutor
 
 from ..utils.meta import import_object
+from ..utils.ray import connect_to_ray
 from .area.base import AreaManager
 from .base import EOGrowObject
 from .config import RawConfig
@@ -177,18 +178,8 @@ class Pipeline(EOGrowObject):
 
         executor_class: Type[EOExecutor]
 
-        if self.config.use_ray == "auto":
-            try:
-                LOGGER.info("Searching for Ray cluster")
-                ray.init(address="auto", ignore_reinit_error=True)
-                executor_class = RayExecutor
-                LOGGER.info("Cluster found, pipeline will run using the RayExecutor.")
-            except ConnectionError:
-                LOGGER.info("No cluster found, pipeline will not use Ray.")
-                executor_class = EOExecutor
-                executor_run_params["workers"] = self.config.workers
-        elif self.config.use_ray:
-            ray.init(address="auto", ignore_reinit_error=True)
+        is_connected = connect_to_ray(self.config.use_ray)
+        if is_connected:
             executor_class = RayExecutor
         else:
             executor_class = EOExecutor

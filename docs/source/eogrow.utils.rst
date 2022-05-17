@@ -20,6 +20,7 @@ Submodules:
    eogrow.utils.map
    eogrow.utils.meta
    eogrow.utils.parallelize
+   eogrow.utils.ray
    eogrow.utils.testing
    eogrow.utils.types
    eogrow.utils.validators
