@@ -13,7 +13,7 @@ from eolearn.core import CreateEOPatchTask, EOExecutor, EONode, EOWorkflow, Load
 from eolearn.core.extra.ray import RayExecutor
 
 from ..utils.meta import import_object
-from ..utils.ray import connect_to_ray
+from ..utils.ray import handle_ray_connection
 from .area.base import AreaManager
 from .base import EOGrowObject
 from .config import RawConfig
@@ -176,7 +176,7 @@ class Pipeline(EOGrowObject):
 
         executor_class: Type[EOExecutor]
 
-        is_connected = connect_to_ray(self.config.use_ray)
+        is_connected = handle_ray_connection(self.config.use_ray)
         if is_connected:
             executor_class = RayExecutor
         else:

@@ -4,7 +4,7 @@ Tests for ray utilities
 import pytest
 import ray
 
-from eogrow.utils.ray import connect_to_ray
+from eogrow.utils.ray import handle_ray_connection
 
 pytestmark = pytest.mark.fast
 
@@ -27,9 +27,12 @@ class TestWithRayCluster:
             (False, False),
         ],
     )
-    def test_connect_to_ray_with_cluster(self, ray_cluster, use_ray, expected_connection):
-        is_connected = connect_to_ray(use_ray)
+    def test_handle_ray_connection_with_cluster(self, ray_cluster, use_ray, expected_connection):
+        is_connected = handle_ray_connection(use_ray)
         assert is_connected is expected_connection
+
+        if is_connected:
+            assert ray.is_initialized()
 
 
 @pytest.mark.parametrize(
@@ -40,10 +43,10 @@ class TestWithRayCluster:
         (False, False),
     ],
 )
-def test_connect_to_ray_without_cluster(use_ray, expected_connection):
+def test_handle_ray_connection_without_cluster(use_ray, expected_connection):
     if isinstance(expected_connection, bool):
-        is_connected = connect_to_ray(use_ray)
+        is_connected = handle_ray_connection(use_ray)
         assert is_connected is expected_connection
     else:
         with pytest.raises(expected_connection):
-            connect_to_ray(use_ray)
+            handle_ray_connection(use_ray)
