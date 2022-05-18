@@ -5,12 +5,12 @@ For each pipeline a separate schema has to be defined which inherits from Pipeli
 as an internal class of the implemented pipeline class
 """
 from inspect import isclass
-from typing import Dict, List, Literal, Optional, Type, Union
+from typing import Dict, List, Optional, Type
 
 from pydantic import BaseModel, Field
 from pydantic.fields import ModelField
 
-from ..utils.types import ImportPath, Path
+from ..utils.types import BoolOrAuto, ImportPath, Path
 from ..utils.validators import field_validator, validate_manager
 from .base import EOGrowObject
 
@@ -68,7 +68,7 @@ class PipelineSchema(EOGrowObject.Schema):
     workers: int = Field(
         1, description="Number of workers for parallel execution of workflows. Parameter does not affect ray clusters."
     )
-    use_ray: Union[Literal["auto"], bool] = Field(
+    use_ray: BoolOrAuto = Field(
         "auto",
         description=(
             "Whether to run the pipeline locally or using a (local or remote) ray cluster. When using `auto` the"
