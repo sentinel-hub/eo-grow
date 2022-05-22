@@ -211,7 +211,13 @@ class EOPatchManager(EOGrowObject):
         if id_list is None:
             return list(self.name_to_id_map)
 
-        return [self.name_to_id_map.inverse[eopatch_id] for eopatch_id in id_list]
+        try:
+            return [self.name_to_id_map.inverse[eopatch_id] for eopatch_id in id_list]
+        except KeyError as exception:
+            existing_ids = sorted(self.name_to_id_map.inverse)
+            raise KeyError(
+                f"Given patch IDs {id_list} are not a sublist of existing patch IDs {existing_ids}"
+            ) from exception
 
     def get_id_list_from_eopatch_list(self, eopatch_list: Optional[List[str]] = None) -> List[int]:
         """Return patch ID given the eopatch name"""
@@ -243,7 +249,7 @@ class CustomGridEOPatchManager(EOPatchManager):
         """Creates a bidirectional dictionary between names and indices"""
         names = bbox_dataframe[self.config.name_column]
         indices = bbox_dataframe[self.config.index_column]
-        return bidict((name, index) for name, index in zip(names, indices))
+        return bidict((name, int(index)) for name, index in zip(names, indices))
 
 
 class BatchTileManager(EOPatchManager):
