@@ -217,7 +217,7 @@ class EOPatchManager(EOGrowObject):
         except KeyError as exception:
             existing_ids = sorted(self.name_to_id_map.inverse)
             raise KeyError(
-                f"Given patch IDs {large_list_repr(id_list)} are not a sublist of existing patch IDs"
+                f"Given list of patch IDs {large_list_repr(id_list)} is not a sublist of the list of all patch IDs"
                 f" {large_list_repr(existing_ids)}"
             ) from exception
 
