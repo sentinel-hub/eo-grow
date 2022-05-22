@@ -25,11 +25,17 @@ def test_local_file(always_copy):
             with open(test_file.path, "w") as fp:
                 json.dump({}, fp)
 
+        tmp_file_still_exists = os.path.exists(test_file.path)
+        assert tmp_file_still_exists is not always_copy
+
         with LocalFile("path/to/file/data.json", mode="r", filesystem=filesystem, always_copy=always_copy) as test_file:
             with open(test_file.path, "r") as fp:
                 result = json.load(fp)
 
         assert result == {}
+
+        tmp_file_still_exists = os.path.exists(test_file.path)
+        assert tmp_file_still_exists is not always_copy
 
 
 def test_write_no_data_local_file():
@@ -52,10 +58,8 @@ def test_copies_between_local_and_remote(always_copy):
     with TempFS() as filesystem:
         remote_path = "folder/data.json"
         with LocalFile(remote_path, mode="w", filesystem=filesystem, always_copy=always_copy) as test_file:
-            if always_copy:
-                assert not filesystem.exists("folder")
-            else:
-                assert filesystem.exists("folder")
+            is_subfolder_created = filesystem.exists("folder")
+            assert is_subfolder_created is not always_copy
 
             with open(test_file.path, "w") as fp:
                 json.dump({}, fp)
@@ -93,6 +97,9 @@ def test_local_folder(always_copy, workers, walker):
                 with open(file_path, "w") as fp:
                     json.dump({"value": index}, fp)
 
+        tmp_folder_still_exists = os.path.exists(test_folder.path)
+        assert tmp_folder_still_exists is not always_copy
+
         with LocalFolder(
             "path/to/folder/", mode="r", filesystem=filesystem, always_copy=always_copy, workers=workers, walker=walker
         ) as test_folder:
@@ -104,6 +111,9 @@ def test_local_folder(always_copy, workers, walker):
                 with open(file_path, "r") as fp:
                     result = json.load(fp)
                     assert result == {"value": index}
+
+        tmp_folder_still_exists = os.path.exists(test_folder.path)
+        assert tmp_folder_still_exists is not always_copy
 
 
 @pytest.mark.parametrize("use_absolute_path", [True, False])
