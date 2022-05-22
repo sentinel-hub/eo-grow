@@ -13,6 +13,7 @@ from pydantic import Field
 
 from sentinelhub import CRS, BBox
 
+from ..utils.general import large_list_repr
 from .area.base import AreaManager
 from .area.batch import BatchAreaManager
 from .base import EOGrowObject
@@ -216,7 +217,8 @@ class EOPatchManager(EOGrowObject):
         except KeyError as exception:
             existing_ids = sorted(self.name_to_id_map.inverse)
             raise KeyError(
-                f"Given patch IDs {id_list} are not a sublist of existing patch IDs {existing_ids}"
+                f"Given patch IDs {large_list_repr(id_list)} are not a sublist of existing patch IDs"
+                f" {large_list_repr(existing_ids)}"
             ) from exception
 
     def get_id_list_from_eopatch_list(self, eopatch_list: Optional[List[str]] = None) -> List[int]:
