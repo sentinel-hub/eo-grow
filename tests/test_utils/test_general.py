@@ -11,7 +11,7 @@ from eolearn.core import FeatureType
 from sentinelhub import CRS, BBox, DataCollection
 
 from eogrow.utils.enum import BaseEOGrowEnum
-from eogrow.utils.general import convert_bbox_coords_to_int, convert_to_int, jsonify, reduce_to_coprime
+from eogrow.utils.general import convert_bbox_coords_to_int, convert_to_int, jsonify, large_list_repr, reduce_to_coprime
 
 pytestmark = pytest.mark.fast
 
@@ -77,3 +77,18 @@ def test_convert_bbox_coords_to_int():
     assert convert_bbox_coords_to_int(bbox) == rounded_bbox
     with pytest.raises(ValueError):
         assert convert_bbox_coords_to_int(bbox, error=1e-9)
+
+
+@pytest.mark.parametrize(
+    "values_num, expected_repr",
+    [
+        (0, "[]"),
+        (3, "[0, 1, 2]"),
+        (4, "[0, 1, 2, 3]"),
+        (10, "[0, 1, 2, ..., 9]"),
+    ],
+)
+def test_large_list_repr(values_num, expected_repr):
+    values = list(range(values_num))
+    values_repr = large_list_repr(values)
+    assert values_repr == expected_repr
