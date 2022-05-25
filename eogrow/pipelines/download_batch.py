@@ -256,7 +256,9 @@ class BatchDownloadPipeline(Pipeline):
         self.area_manager.cache_grid()
 
     @staticmethod
-    def _get_tile_names_from_results(results: DefaultDict[str, List[Dict]], tile_status: BatchTileStatus) -> List[str]:
+    def _get_tile_names_from_results(
+        results: DefaultDict[BatchTileStatus, List[Dict]], tile_status: BatchTileStatus
+    ) -> List[str]:
         """Collects tile names from a dictionary of batch tile results ordered by status"""
-        tile_list = results[tile_status.value]
+        tile_list = results[tile_status]
         return [tile["name"] for tile in tile_list]
