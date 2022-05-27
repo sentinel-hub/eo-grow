@@ -2,3 +2,4 @@ m2r2
 nbsphinx
 sphinx-rtd-theme
 sphinx
+jinja<3.10
