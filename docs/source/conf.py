@@ -256,7 +256,7 @@ process_readme()
 current_dir = os.path.abspath(os.path.dirname(__file__))
 module = os.path.join(current_dir, "..", "..", "eogrow")
 
-APIDOC_EXCLUDE = [os.path.join(module, "cli.py"), os.path.join(module, "tasks", "testing.py")]
+APIDOC_EXCLUDE = [os.path.join(module, "cli.py")]
 APIDOC_OPTIONS = ["--module-first", "--separate", "--no-toc", "--templatedir", os.path.join(current_dir, "_templates")]
 
 
