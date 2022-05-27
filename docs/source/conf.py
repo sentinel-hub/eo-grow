@@ -13,6 +13,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import sys
 import shutil
 
 # -- Project information -----------------------------------------------------
@@ -39,6 +40,8 @@ version = release.rsplit(".", 1)[0]
 # If your documentation needs a minimal Sphinx version, state it here.
 #
 # needs_sphinx = '1.0'
+
+autodoc_typehints = "description"
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -248,3 +251,22 @@ def process_readme():
 
 
 process_readme()
+
+# Auto-generate documentation pages
+current_dir = os.path.abspath(os.path.dirname(__file__))
+module = os.path.join(current_dir, "..", "..", "eogrow")
+
+APIDOC_EXCLUDE = [os.path.join(module, "cli.py"), os.path.join(module, "tasks", "testing.py")]
+APIDOC_OPTIONS = ["--module-first", "--separate", "--no-toc", "--templatedir", os.path.join(current_dir, "_templates")]
+
+
+def run_apidoc(_):
+    from sphinx.ext.apidoc import main
+
+    sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+
+    main(["-e", "-o", current_dir, module, *APIDOC_EXCLUDE, *APIDOC_OPTIONS])
+
+
+def setup(app):
+    app.connect("builder-inited", run_apidoc)
