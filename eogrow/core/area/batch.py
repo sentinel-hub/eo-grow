@@ -2,7 +2,7 @@
 Area managers for Sentinel Hub batch grids
 """
 import warnings
-from typing import Any, List, Tuple, cast
+from typing import Any, Dict, List, Tuple, cast
 
 from geopandas import GeoDataFrame
 from pydantic import Field
@@ -87,19 +87,21 @@ class BatchAreaManager(AreaManager):
         self._verify_batch_request(batch_request)
 
         splitter = BatchSplitter(batch_request=batch_request, config=self.storage.sh_config)
-        bbox_list = splitter.get_bbox_list()
+        # TODO: once the BatchSplitter is fixed we should be able to just do this
+        # bbox_list = splitter.get_bbox_list()
         info_list = splitter.get_info_list()
 
-        if not all(bbox.crs.is_utm() for bbox in bbox_list):
-            raise NotImplementedError("So far we only support UTM-based batch tiling grids")
-
-        # The problem is that Sentinel Hub service returns unbuffered tile geometries in WGS84. BatchSplitter then
-        # transforms them into UTM, but here we still have to fix numerical errors by rounding and then apply buffer.
-        bbox_list = [self._fix_batch_bbox(bbox) for bbox in bbox_list]
+        # The WGS84 geometry SentinelHub service returns is only the approximation; if anyone wants to calculate the
+        # exact bbox coordinates in the native CRS, they have to use origin + grid w/h, resolution and potential
+        # buffer to calculate it.
+        bbox_list = [self._get_batch_bbox(info, batch_request.tiling_grid) for info in info_list]
 
         for info in info_list:
             info["split_x"] = 0
             info["split_y"] = 0
+
+        if not all(bbox.crs.is_utm() for bbox in bbox_list):
+            raise NotImplementedError("So far we only support UTM-based batch tiling grids")
 
         return self._to_dataframe_grid(bbox_list, info_list, self._BATCH_GRID_COLUMNS)
 
@@ -121,10 +123,14 @@ class BatchAreaManager(AreaManager):
                 f"request has parameters {batch_request.tiling_grid}"
             )
 
-    def _fix_batch_bbox(self, bbox: BBox) -> BBox:
-        """Fixes a batch tile bounding box so that it will be the same as in produced tiles on the bucket."""
-        corrected_bbox = convert_bbox_coords_to_int(bbox, error=self._SH_REPROJECTION_ERROR)
-        return corrected_bbox.buffer(self.absolute_buffer, relative=False)
+    def _get_batch_bbox(self, batch_info: Dict[str, Any], tiling_grid: Dict[str, Any]) -> BBox:
+        """Create a batch tile bounding box so that it will be the same as in produced tiles on the bucket."""
+        crs = CRS(batch_info["origin"]["crs"]["properties"]["name"])
+        ul_corner = batch_info["origin"]["coordinates"]
+        width, height = tiling_grid["properties"]["tileWidth"], tiling_grid["properties"]["tileHeight"]
+
+        bbox = BBox([ul_corner[0], ul_corner[1] - height, ul_corner[0] + width, ul_corner[1]], crs)
+        return bbox.buffer(self.absolute_buffer, relative=False)
 
     @staticmethod
     def _to_dataframe_grid(bbox_list: List[BBox], info_list: List[dict], info_columns: List[str]) -> List[GeoDataFrame]:
