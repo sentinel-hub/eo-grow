@@ -145,7 +145,7 @@ class BatchToEOPatchPipeline(Pipeline):
 
         save_task = SaveTask(
             path=self.storage.get_folder(self.config.output_folder_key, full_path=True),
-            features=[FeatureType.BBOX, FeatureType.TIMESTAMP],
+            features=[FeatureType.BBOX, FeatureType.TIMESTAMP, FeatureType.META_INFO],
             compress_level=1,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
             config=self.sh_config,
