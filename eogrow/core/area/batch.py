@@ -90,12 +90,12 @@ class BatchAreaManager(AreaManager):
         # TODO: once the BatchSplitter is fixed we should be able to just do this
         # bbox_list = splitter.get_bbox_list()
         info_list = splitter.get_info_list()
-        grind_info = batch_client.get_tiling_grid(self.config.tiling_grid_id)
+        grid_info = batch_client.get_tiling_grid(self.config.tiling_grid_id)
 
         # The WGS84 geometry SentinelHub service returns is only the approximation; if anyone wants to calculate the
         # exact bbox coordinates in the native CRS, they have to use origin + grid w/h, resolution and potential
         # buffer to calculate it.
-        bbox_list = [self._get_batch_bbox(info, grind_info) for info in info_list]
+        bbox_list = [self._get_batch_bbox(info, grid_info) for info in info_list]
 
         for info in info_list:
             info["split_x"] = 0
