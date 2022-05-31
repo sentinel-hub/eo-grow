@@ -133,7 +133,9 @@ class BatchToEOPatchPipeline(Pipeline):
                 config=self.sh_config,
             )
             save_node = EONode(save_task, inputs=[mapping_node])
-            previous_node = EONode(RemoveFeatureTask([feature]), inputs=[save_node], name=f"Remove {feature[1]}")
+
+            _, f_name = feature
+            previous_node = EONode(RemoveFeatureTask([feature]), inputs=[save_node], name=f"Remove {f_name}")
 
         if previous_node is None:
             raise ValueError(
