@@ -110,9 +110,9 @@ class BatchToEOPatchPipeline(Pipeline):
 
     def build_workflow(self) -> EOWorkflow:
         """Builds the workflow"""
-        userdata_node = None
+        last_node = None
         if self._has_userdata:
-            userdata_node = EONode(
+            last_node = EONode(
                 LoadUserDataTask(
                     path=self._input_folder,
                     userdata_feature_name=self.config.userdata_feature_name,
@@ -121,16 +121,19 @@ class BatchToEOPatchPipeline(Pipeline):
                 )
             )
 
-        mapping_nodes = [
-            self._get_tiff_mapping_node(feature_mapping, userdata_node) for feature_mapping in self.config.mapping
-        ]
+        for feature_mapping in self.config.mapping:
+            feature = feature_mapping.feature
+            mapping_node = self._get_tiff_mapping_node(feature_mapping, last_node)
 
-        last_node = userdata_node
-
-        if len(mapping_nodes) == 1:
-            last_node = mapping_nodes[0]
-        elif len(mapping_nodes) > 1:
-            last_node = EONode(MergeEOPatchesTask(), inputs=mapping_nodes)
+            save_task = SaveTask(
+                path=self.storage.get_folder(self.config.output_folder_key, full_path=True),
+                features=[feature],
+                compress_level=1,
+                overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
+                config=self.sh_config,
+            )
+            save_node = EONode(save_task, inputs=[mapping_node])
+            last_node = EONode(RemoveFeatureTask([feature]), inputs=[save_node], name=f"Remove {feature[1]}")
 
         if last_node is None:
             raise ValueError(
@@ -142,6 +145,7 @@ class BatchToEOPatchPipeline(Pipeline):
 
         save_task = SaveTask(
             path=self.storage.get_folder(self.config.output_folder_key, full_path=True),
+            features=[FeatureType.BBOX, FeatureType.TIMESTAMP],
             compress_level=1,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
             config=self.sh_config,
