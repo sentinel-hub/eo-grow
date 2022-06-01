@@ -17,7 +17,7 @@ from .base import EOGrowObject
 BaseSchema = EOGrowObject.Schema
 
 
-class ManagerSchema(EOGrowObject.Schema):
+class ManagerSchema(BaseSchema):
     """A basic schema for managers, to be used as a parent class for defining manager schemas"""
 
     manager: Optional[ImportPath] = Field(description="An import path to this specific manager.")
@@ -48,7 +48,7 @@ class LoggingManagerSchema(ManagerSchema):
     )
 
 
-class PipelineSchema(EOGrowObject.Schema):
+class PipelineSchema(BaseSchema):
     """Base schema of the Pipeline class."""
 
     pipeline: Optional[ImportPath] = Field(description="Import path to an implementation of Pipeline class.")
