@@ -2,7 +2,7 @@
 Download pipeline that works with Sentinel Hub batch service
 """
 import logging
-from typing import Any, DefaultDict, Dict, List, Optional, Tuple
+from typing import Any, DefaultDict, Dict, List, Literal, Optional, Tuple
 
 from pydantic import Field
 
@@ -109,6 +109,9 @@ class BatchDownloadPipeline(Pipeline):
                 "existing batch job. If it is not given it will create a new batch job."
             ),
         )
+        patch_list: None = None
+        input_patch_file: None = None
+        skip_existing: Literal[False] = False
 
     config: Schema
     area_manager: BatchAreaManager

@@ -35,6 +35,7 @@ class MergeSamplesPipeline(Pipeline):
         suffix: str = Field("", description="String to append to array filenames")
         workers: int = Field(1, description="Number of threads used to load data from EOPatches in parallel.")
         use_ray: Literal[False] = Field(False, description="Pipeline does not parallelize properly.")
+        skip_existing: Literal[False] = False
 
     config: Schema
 

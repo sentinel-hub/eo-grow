@@ -2,7 +2,7 @@
 Pipelines for testing
 """
 import logging
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Literal, Optional, Tuple
 
 from pydantic import Field, root_validator
 
@@ -95,6 +95,9 @@ class SwitchGridsPipeline(Pipeline):
                 "cause a misalignment. If False, misalignment issues will be ignored."
             ),
         )
+        patch_list: None = None
+        input_patch_file: None = None
+        skip_existing: Literal[False] = False
 
     config: Schema
 

@@ -58,6 +58,7 @@ class ExportMapsPipeline(Pipeline):
                 " With this parameter you force to always make copies."
             ),
         )
+        skip_existing: Literal[False] = False
 
     config: Schema
 
