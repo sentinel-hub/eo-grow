@@ -22,7 +22,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 class FeatureSchema(BaseSchema):
-    feature: FeatureSpec = Field(description="A feature to be processed.")
+    feature: Feature = Field(description="A feature to be processed.")
     no_data_value: float = Field(
         0,
         description=(
@@ -134,7 +134,9 @@ class SwitchGridsPipeline(Pipeline):
 
         input_path = self.storage.get_folder(self.config.input_folder_key, full_path=True)
         max_input_patch_num = max(len(transformation.source_bboxes) for transformation in transformations)
-        load_nodes = [EONode(LoadTask(input_path, config=self.sh_config)) for _ in range(max_input_patch_num)]
+        load_nodes = [
+            EONode(LoadTask(input_path, features=features, config=self.sh_config)) for _ in range(max_input_patch_num)
+        ]
 
         join_task = SpatialJoinTask(
             features,
@@ -229,6 +231,9 @@ class SwitchGridsPipeline(Pipeline):
     def _get_features(self) -> List[FeatureSpec]:
         """Provides features that will be transformed by the pipeline."""
         features = [feature_config.feature for feature_config in self.config.features]
+        if any(f_type.is_temporal() for f_type, _ in features):
+            features += [FeatureType.TIMESTAMP]
+
         return features + [FeatureType.BBOX]
 
     def _get_no_data_map(self) -> Dict[Feature, float]:

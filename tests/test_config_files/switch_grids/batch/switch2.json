@@ -24,9 +24,6 @@
       },
       {
         "feature": ["label", "LABELS"]
-      },
-      {
-        "feature": "timestamp"
       }
     ],
     "workers": 3
@@ -57,9 +54,6 @@
       },
       {
         "feature": ["label", "LABELS"]
-      },
-      {
-        "feature": "timestamp"
       }
     ],
     "workers": 3
