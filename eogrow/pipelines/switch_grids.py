@@ -22,7 +22,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 class FeatureSchema(BaseSchema):
-    feature: FeatureSpec = Field(description="A feature to be processed.")
+    feature: Feature = Field(description="A feature to be processed.")
     no_data_value: float = Field(
         0,
         description=(
