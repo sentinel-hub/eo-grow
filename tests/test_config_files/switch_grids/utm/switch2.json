@@ -28,9 +28,6 @@
       {
         "feature": ["label", "LABELS"],
         "no_data_value": 10
-      },
-      {
-        "feature": "timestamp"
       }
     ]
   }

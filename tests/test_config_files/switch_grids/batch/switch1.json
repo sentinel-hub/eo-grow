@@ -23,9 +23,6 @@
       },
       {
         "feature": ["label", "LABELS"]
-      },
-      {
-        "feature": "timestamp"
       }
     ]
   }
