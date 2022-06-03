@@ -4,23 +4,51 @@ Module implementing pipelines for downloading data
 import abc
 import datetime as dt
 import logging
-from typing import Any, Dict, List, Optional
+from contextlib import nullcontext
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
+import ray
 from pydantic import Field
 
 from eolearn.core import EONode, EOWorkflow, FeatureType, OverwritePermission, SaveTask
 from eolearn.features import LinearFunctionTask
 from eolearn.io import SentinelHubDemTask, SentinelHubEvalscriptTask, SentinelHubInputTask
-from sentinelhub import Band, DataCollection, MimeType, MosaickingOrder, ResamplingType, Unit, read_data
+from sentinelhub import (
+    Band,
+    DataCollection,
+    MimeType,
+    MosaickingOrder,
+    ResamplingType,
+    SentinelHubSession,
+    Unit,
+    read_data,
+)
+from sentinelhub.download import SessionSharing, collect_shared_session
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec, Path, TimePeriod
+from ..utils.types import ExecutionKind, Feature, FeatureSpec, Path, TimePeriod
 from ..utils.validators import field_validator, parse_data_collection, parse_time_period
 
 LOGGER = logging.getLogger(__name__)
+
+SessionLoaderType = Optional[Callable[[], SentinelHubSession]]
+
+
+@ray.remote
+class RaySessionActor:
+    """This object can share a session object with multiple workers."""
+
+    def __init__(self, session: SentinelHubSession):
+        self.session = session
+
+    def get_valid_session(self) -> SentinelHubSession:
+        """The following makes sure that a token is still valid or refreshed, and returns it in a
+        non-refreshing session object."""
+        token = self.session.token
+        return SentinelHubSession.from_token(token)
 
 
 class RescaleSchema(BaseSchema):
@@ -76,8 +104,15 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
         """Lists all features that are to be saved upon the pipeline completion"""
 
     @abc.abstractmethod
-    def _get_download_node(self) -> EONode:
+    def _get_download_node(self, session_loader: SessionLoaderType) -> EONode:
         """Provides node for downloading data."""
+
+    def _create_session_loader(self, execution_kind: ExecutionKind) -> SessionLoaderType:
+        if execution_kind == "ray":
+            session = SentinelHubSession(self.sh_config)
+            actor = RaySessionActor.remote(session)  # type: ignore[attr-defined]
+            return lambda: ray.get(actor.get_valid_session.remote())
+        return collect_shared_session if execution_kind == "multi" else None
 
     @staticmethod
     def get_postprocessing_node(postprocessing_config: PostprocessingRescale, previous_node: EONode) -> EONode:
@@ -93,9 +128,9 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
 
         return node
 
-    def build_workflow(self) -> EOWorkflow:
+    def build_workflow(self, session_loader: SessionLoaderType) -> EOWorkflow:
         """Method that builds a workflow"""
-        download_node = self._get_download_node()
+        download_node = self._get_download_node(session_loader)
         self.download_node_uid = download_node.uid
 
         postprocessing_node = None
@@ -134,6 +169,20 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
                 exec_args[index][download_node]["time_interval"] = self.config.time_period  # type: ignore[attr-defined]
 
         return exec_args
+
+    def run_procedure(self) -> Tuple[List[str], List[str]]:
+        execution_kind = self._prepare_execution()
+        session_loader = self._create_session_loader(execution_kind)
+
+        workflow = self.build_workflow(session_loader)
+        exec_args = self.get_execution_arguments(workflow)
+
+        context: Union[SessionSharing, nullcontext]
+        context = SessionSharing(SentinelHubSession(self.sh_config)) if execution_kind == "multi" else nullcontext()
+        with context:
+            finished, failed, _ = self.run_execution(workflow, exec_args)
+
+        return finished, failed
 
 
 class CommonDownloadFields(BaseSchema):
@@ -182,7 +231,7 @@ class DownloadPipeline(BaseDownloadPipeline):
         features.extend(self.config.additional_data)
         return features
 
-    def _get_download_node(self) -> EONode:
+    def _get_download_node(self, session_loader: SessionLoaderType) -> EONode:
         time_diff = None if self.config.time_difference is None else dt.timedelta(minutes=self.config.time_difference)
         bands_dtype = np.uint16 if self.config.use_dn else np.float32
         data_collection = self.config.data_collection
@@ -210,6 +259,7 @@ class DownloadPipeline(BaseDownloadPipeline):
             config=self.sh_config,
             mosaicking_order=self.config.mosaicking_order,
             aux_request_args=_get_aux_request_args(self.config.resampling_type),
+            session_loader=session_loader,
         )
         return EONode(download_task)
 
@@ -228,7 +278,7 @@ class DownloadEvalscriptPipeline(BaseDownloadPipeline):
         features.extend(self.config.features)
         return features
 
-    def _get_download_node(self) -> EONode:
+    def _get_download_node(self, session_loader: SessionLoaderType) -> EONode:
         evalscript = read_data(self.config.evalscript_path, data_format=MimeType.TXT)
         time_diff = None if self.config.time_difference is None else dt.timedelta(minutes=self.config.time_difference)
 
@@ -243,6 +293,7 @@ class DownloadEvalscriptPipeline(BaseDownloadPipeline):
             config=self.sh_config,
             mosaicking_order=self.config.mosaicking_order,
             aux_request_args=_get_aux_request_args(self.config.resampling_type),
+            session_loader=session_loader,
         )
         return EONode(download_task)
 
@@ -258,7 +309,7 @@ class DownloadTimelessPipeline(BaseDownloadPipeline):
     def _get_output_features(self) -> List[FeatureSpec]:
         return [(FeatureType.DATA_TIMELESS, self.config.feature_name), FeatureType.BBOX]
 
-    def _get_download_node(self) -> EONode:
+    def _get_download_node(self, session_loader: SessionLoaderType) -> EONode:
 
         download_task = SentinelHubDemTask(
             feature=(FeatureType.DATA_TIMELESS, self.config.feature_name),
@@ -268,6 +319,7 @@ class DownloadTimelessPipeline(BaseDownloadPipeline):
             max_threads=self.config.threads_per_worker,
             config=self.sh_config,
             aux_request_args=_get_aux_request_args(self.config.resampling_type),
+            session_loader=session_loader,
         )
         return EONode(download_task)
 

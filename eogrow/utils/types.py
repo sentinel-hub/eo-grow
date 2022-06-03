@@ -14,3 +14,5 @@ Feature = Tuple[FeatureType, str]
 FeatureSpec = Union[Tuple[FeatureType, str], FeatureType]
 
 BoolOrAuto = Union[Literal["auto"], bool]
+
+ExecutionKind = Literal["single", "multi", "ray"]
