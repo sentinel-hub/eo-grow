@@ -66,7 +66,7 @@ def prepare_batch_files(
         "batch_to_eopatch_no_userdata",
     ],
 )
-def test_rasterize_pipeline_preprocess(folders, experiment_name):
+def test_batch_to_eopatch_pipeline(folders, experiment_name):
     # Can't use utility testing due to custom pipeline
     config_filename = os.path.join(folders["config_folder"], experiment_name + ".json")
     stat_path = os.path.join(folders["stats_folder"], experiment_name + ".json")
