@@ -29,7 +29,7 @@ from sentinelhub.download import SessionSharing, collect_shared_session
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import ExecutionKind, Feature, FeatureSpec, Path, TimePeriod
+from ..utils.types import Feature, FeatureSpec, Path, ProcessingType, TimePeriod
 from ..utils.validators import field_validator, parse_data_collection, parse_time_period
 
 LOGGER = logging.getLogger(__name__)
@@ -107,12 +107,12 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
     def _get_download_node(self, session_loader: SessionLoaderType) -> EONode:
         """Provides node for downloading data."""
 
-    def _create_session_loader(self, execution_kind: ExecutionKind) -> SessionLoaderType:
-        if execution_kind is ExecutionKind.RAY:
+    def _create_session_loader(self, execution_kind: ProcessingType) -> SessionLoaderType:
+        if execution_kind is ProcessingType.RAY:
             session = SentinelHubSession(self.sh_config)
             actor = RaySessionActor.remote(session)  # type: ignore[attr-defined]
             return lambda: ray.get(actor.get_valid_session.remote())
-        return collect_shared_session if execution_kind is ExecutionKind.MULTI else None
+        return collect_shared_session if execution_kind is ProcessingType.MULTI else None
 
     @staticmethod
     def get_postprocessing_node(postprocessing_config: PostprocessingRescale, previous_node: EONode) -> EONode:
@@ -178,7 +178,7 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
         exec_args = self.get_execution_arguments(workflow)
 
         context: Union[SessionSharing, nullcontext] = nullcontext()
-        if execution_kind is ExecutionKind.MULTI:
+        if execution_kind is ProcessingType.MULTI:
             context = SessionSharing(SentinelHubSession(self.sh_config))
         with context:
             finished, failed, _ = self.run_execution(workflow, exec_args)

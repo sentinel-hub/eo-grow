@@ -17,7 +17,7 @@ FeatureSpec = Union[Tuple[FeatureType, str], FeatureType]
 BoolOrAuto = Union[Literal["auto"], bool]
 
 
-class ExecutionKind(Enum):
+class ProcessingType(Enum):
     RAY = "ray"
     SINGLE = "single"
     MULTI = "multi"
