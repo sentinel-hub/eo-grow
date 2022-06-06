@@ -201,8 +201,7 @@ class BatchToEOPatchPipeline(Pipeline):
         end_node = EONode(RemoveFeatureTask(tmp_features), inputs=[merge_node])
 
         if mapping.multiply_factor != 1 or mapping.dtype is not None:
-            factor = mapping.multiply_factor if mapping.multiply_factor is not None else 1
-            multiply_task = LinearFunctionTask(final_feature, slope=factor, dtype=mapping.dtype)
+            multiply_task = LinearFunctionTask(final_feature, slope=mapping.multiply_factor, dtype=mapping.dtype)
             end_node = EONode(multiply_task, inputs=[end_node])
 
         return end_node
