@@ -171,7 +171,7 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
         return exec_args
 
     def run_procedure(self) -> Tuple[List[str], List[str]]:
-        execution_kind = self._prepare_execution()
+        execution_kind = self._init_processing()
         session_loader = self._create_session_loader(execution_kind)
 
         workflow = self.build_workflow(session_loader)

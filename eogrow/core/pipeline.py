@@ -157,7 +157,7 @@ class Pipeline(EOGrowObject):
             exec_args.append(single_exec_dict)
         return exec_args
 
-    def _prepare_execution(self) -> ExecutionKind:
+    def _init_processing(self) -> ExecutionKind:
         """Figures out which execution mode is used and configures connection to Ray if required."""
         is_connected = handle_ray_connection(self.config.use_ray)
         if is_connected:
@@ -184,7 +184,7 @@ class Pipeline(EOGrowObject):
 
         executor_class: Type[EOExecutor]
 
-        execution_kind = self._prepare_execution()
+        execution_kind = self._init_processing()
         if execution_kind is ExecutionKind.RAY:
             executor_class = RayExecutor
         else:
