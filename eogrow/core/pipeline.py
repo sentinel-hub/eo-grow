@@ -161,8 +161,8 @@ class Pipeline(EOGrowObject):
         """Figures out which execution mode is used and configures connection to Ray if required."""
         is_connected = handle_ray_connection(self.config.use_ray)
         if is_connected:
-            return "ray"
-        return "multi" if self.config.workers > 1 else "single"
+            return ExecutionKind.RAY
+        return ExecutionKind.MULTI if self.config.workers > 1 else ExecutionKind.SINGLE
 
     def run_execution(
         self,
@@ -185,7 +185,7 @@ class Pipeline(EOGrowObject):
         executor_class: Type[EOExecutor]
 
         execution_kind = self._prepare_execution()
-        if execution_kind == "ray":
+        if execution_kind is ExecutionKind.RAY:
             executor_class = RayExecutor
         else:
             executor_class = EOExecutor

@@ -108,11 +108,11 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
         """Provides node for downloading data."""
 
     def _create_session_loader(self, execution_kind: ExecutionKind) -> SessionLoaderType:
-        if execution_kind == "ray":
+        if execution_kind is ExecutionKind.RAY:
             session = SentinelHubSession(self.sh_config)
             actor = RaySessionActor.remote(session)  # type: ignore[attr-defined]
             return lambda: ray.get(actor.get_valid_session.remote())
-        return collect_shared_session if execution_kind == "multi" else None
+        return collect_shared_session if execution_kind is ExecutionKind.MULTI else None
 
     @staticmethod
     def get_postprocessing_node(postprocessing_config: PostprocessingRescale, previous_node: EONode) -> EONode:
@@ -177,8 +177,9 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
         workflow = self.build_workflow(session_loader)
         exec_args = self.get_execution_arguments(workflow)
 
-        context: Union[SessionSharing, nullcontext]
-        context = SessionSharing(SentinelHubSession(self.sh_config)) if execution_kind == "multi" else nullcontext()
+        context: Union[SessionSharing, nullcontext] = nullcontext()
+        if execution_kind is ExecutionKind.MULTI:
+            context = SessionSharing(SentinelHubSession(self.sh_config))
         with context:
             finished, failed, _ = self.run_execution(workflow, exec_args)
 
