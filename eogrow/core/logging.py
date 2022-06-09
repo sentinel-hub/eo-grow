@@ -353,7 +353,7 @@ class LogFileFilter(Filter):
         "s3transfer",
         "matplotlib",
         "fiona",
-        "rasterio._env",
+        "rasterio",
         "graphviz",
         "urllib3",
         "boto3",
@@ -384,7 +384,7 @@ class EOExecutionFilter(Filter):
         "botocore",
         "s3transfer",
         "urllib3",
-        "rasterio._env",
+        "rasterio",
         "numba",
         "fiona.ogrext",
     )
