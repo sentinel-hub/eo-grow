@@ -319,9 +319,6 @@ class StdoutFilter(Filter):
 
     def filter(self, record: LogRecord) -> bool:
         """Shows only logs from eo-grow type packages and high-importance logs"""
-        if record.levelno >= logging.WARNING:
-            return True
-
         return any(package_name in record.name for package_name in self.log_packages)
 
 
@@ -334,7 +331,7 @@ class LogFileFilter(Filter):
         "s3transfer",
         "matplotlib",
         "fiona",
-        "rasterio",
+        "rasterio._env",
         "graphviz",
         "urllib3",
         "boto3",
@@ -365,7 +362,7 @@ class EOExecutionFilter(Filter):
         "botocore",
         "s3transfer",
         "urllib3",
-        "rasterio",
+        "rasterio._env",
         "numba",
         "fiona.ogrext",
     )
@@ -380,7 +377,4 @@ class EOExecutionFilter(Filter):
 
     def filter(self, record: LogRecord) -> bool:
         """Ignores logs from certain low-level packages"""
-        if record.levelno >= logging.INFO:
-            return True
-
         return not record.name.startswith(self.ignore_packages)
