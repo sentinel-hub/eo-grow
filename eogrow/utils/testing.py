@@ -181,7 +181,7 @@ class ContentTester:
 
 def check_pipeline_logs(pipeline: Pipeline) -> None:
     """A utility function which checks pipeline logs and makes sure there are no failed executions"""
-    if not pipeline.config.logging.save_logs:
+    if not pipeline.logging_manager.config.save_logs:
         raise ValueError("Pipeline did not save logs, this test would be useless")
 
     logs_folder = pipeline.logging_manager.get_pipeline_logs_folder(pipeline.current_execution_name)
