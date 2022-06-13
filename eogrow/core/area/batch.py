@@ -2,7 +2,7 @@
 Area managers for Sentinel Hub batch grids
 """
 import warnings
-from typing import Any, Dict, List, Tuple, cast
+from typing import Any, List, Tuple, cast
 
 from geopandas import GeoDataFrame
 from pydantic import Field
@@ -87,15 +87,8 @@ class BatchAreaManager(AreaManager):
         self._verify_batch_request(batch_request)
 
         splitter = BatchSplitter(batch_request=batch_request, config=self.storage.sh_config)
-        # TODO: once the BatchSplitter is fixed we should be able to just do this
-        # bbox_list = splitter.get_bbox_list()
+        bbox_list = splitter.get_bbox_list()
         info_list = splitter.get_info_list()
-        grid_info = batch_client.get_tiling_grid(self.config.tiling_grid_id)
-
-        # The WGS84 geometry SentinelHub service returns is only the approximation; if anyone wants to calculate the
-        # exact bbox coordinates in the native CRS, they have to use origin + grid w/h, resolution and potential
-        # buffer to calculate it.
-        bbox_list = [self._get_batch_bbox(info, grid_info) for info in info_list]
 
         for info in info_list:
             info["split_x"] = 0
@@ -123,15 +116,6 @@ class BatchAreaManager(AreaManager):
                 f"Tiling grid parameters in config are {expected_tiling_grid_params} but given batch "
                 f"request has parameters {batch_request.tiling_grid}"
             )
-
-    def _get_batch_bbox(self, batch_info: Dict[str, Any], grid_info: Dict[str, Any]) -> BBox:
-        """Create a batch tile bounding box so that it will be the same as in produced tiles on the bucket."""
-        crs = CRS(batch_info["origin"]["crs"]["properties"]["name"])
-        ul_corner = batch_info["origin"]["coordinates"]
-        width, height = grid_info["properties"]["tileWidth"], grid_info["properties"]["tileHeight"]
-
-        bbox = BBox([ul_corner[0], ul_corner[1] - height, ul_corner[0] + width, ul_corner[1]], crs)
-        return bbox.buffer(self.absolute_buffer, relative=False)
 
     @staticmethod
     def _to_dataframe_grid(bbox_list: List[BBox], info_list: List[dict], info_columns: List[str]) -> List[GeoDataFrame]:
