@@ -22,14 +22,36 @@ from ..utils.logging import get_instance_info
 from ..utils.meta import get_package_versions
 from .base import EOGrowObject
 from .config import RawConfig
-from .schemas import LoggingManagerSchema
+from .schemas import ManagerSchema
 from .storage import StorageManager
 
 
 class LoggingManager(EOGrowObject):
     """A class that manages logging specifics"""
 
-    class Schema(LoggingManagerSchema):
+    class Schema(ManagerSchema):
+
+        save_logs: bool = Field(
+            False,
+            description=(
+                "A flag to determine if pipeline logs and reports will be saved to "
+                "logs folder. This includes potential EOExecution reports and logs."
+            ),
+        )
+        include_logs_to_report: bool = Field(
+            False,
+            description=(
+                "If log files should be parsed into an EOExecution report file or just linked. When working "
+                "with larger number of EOPatches the recommended option is False."
+            ),
+        )
+        eoexecution_ignore_packages: Optional[List[str]] = Field(
+            description=(
+                "Names of packages which logs will not be written to EOExecution log files. The default null value "
+                "means that a default list of packages will be used."
+            )
+        )
+
         pipeline_ignore_packages: Optional[List[str]] = Field(
             description=(
                 "Names of packages which logs will not be written to the main pipeline log file. The default null "
@@ -319,9 +341,6 @@ class StdoutFilter(Filter):
 
     def filter(self, record: LogRecord) -> bool:
         """Shows only logs from eo-grow type packages and high-importance logs"""
-        if record.levelno >= logging.WARNING:
-            return True
-
         return any(package_name in record.name for package_name in self.log_packages)
 
 
@@ -380,7 +399,4 @@ class EOExecutionFilter(Filter):
 
     def filter(self, record: LogRecord) -> bool:
         """Ignores logs from certain low-level packages"""
-        if record.levelno >= logging.INFO:
-            return True
-
         return not record.name.startswith(self.ignore_packages)

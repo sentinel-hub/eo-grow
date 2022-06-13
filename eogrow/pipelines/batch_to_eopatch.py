@@ -35,12 +35,8 @@ class FeatureMappingSchema(BaseSchema):
         ),
     )
     feature: Feature
-    multiply_factor: Optional[float] = Field(description="Factor used to multiply feature values with.")
-    dtype: Optional[str] = Field(
-        description=(
-            "Dtype of the output feature. Only taken into account if `multiply_factor` is used. Default is `None`."
-        ),
-    )
+    multiply_factor: float = Field(1, description="Factor used to multiply feature values with.")
+    dtype: Optional[str] = Field(description="Dtype of the output feature.")
 
 
 class BatchToEOPatchPipeline(Pipeline):
@@ -204,7 +200,7 @@ class BatchToEOPatchPipeline(Pipeline):
 
         end_node = EONode(RemoveFeatureTask(tmp_features), inputs=[merge_node])
 
-        if mapping.multiply_factor is not None:
+        if mapping.multiply_factor != 1 or mapping.dtype is not None:
             multiply_task = LinearFunctionTask(final_feature, slope=mapping.multiply_factor, dtype=mapping.dtype)
             end_node = EONode(multiply_task, inputs=[end_node])
 
