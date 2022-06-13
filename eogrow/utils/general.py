@@ -65,3 +65,13 @@ def convert_bbox_coords_to_int(bbox: BBox, error: float = 1e-8) -> BBox:
     coords = np.array(list(bbox))
     fixed_coords = convert_to_int(coords, raise_diff=True, error=error)
     return BBox(tuple(fixed_coords), crs=bbox.crs)
+
+
+def large_list_repr(large_list: list) -> str:
+    """Creates a representation of a large list of elements that consists only of a representation of first 3 and the
+    last element."""
+    if len(large_list) <= 4:
+        return repr(large_list)
+
+    first_elements = ", ".join(map(repr, large_list[:3]))
+    return f"[{first_elements}, ..., {large_list[-1]}]"

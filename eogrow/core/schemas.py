@@ -5,50 +5,25 @@ For each pipeline a separate schema has to be defined which inherits from Pipeli
 as an internal class of the implemented pipeline class
 """
 from inspect import isclass
-from typing import Dict, List, Literal, Optional, Type, Union
+from typing import Dict, List, Optional, Type
 
 from pydantic import BaseModel, Field
 from pydantic.fields import ModelField
 
-from ..utils.types import ImportPath, Path
+from ..utils.types import BoolOrAuto, ImportPath, Path
 from ..utils.validators import field_validator, validate_manager
 from .base import EOGrowObject
 
 BaseSchema = EOGrowObject.Schema
 
 
-class ManagerSchema(EOGrowObject.Schema):
+class ManagerSchema(BaseSchema):
     """A basic schema for managers, to be used as a parent class for defining manager schemas"""
 
     manager: Optional[ImportPath] = Field(description="An import path to this specific manager.")
 
 
-class LoggingManagerSchema(ManagerSchema):
-    """Base schema of a logging manager. Only assumes fields required by the Pipeline class."""
-
-    save_logs: bool = Field(
-        False,
-        description=(
-            "A flag to determine if pipeline logs and reports will be saved to "
-            "logs folder. This includes potential EOExecution reports and logs."
-        ),
-    )
-    include_logs_to_report: bool = Field(
-        False,
-        description=(
-            "If log files should be parsed into an EOExecution report file or just linked. When working "
-            "with larger number of EOPatches the recommended option is False."
-        ),
-    )
-    eoexecution_ignore_packages: Optional[List[str]] = Field(
-        description=(
-            "Names of packages which logs will not be written to EOExecution log files. The default null value "
-            "means that a default list of packages will be used."
-        )
-    )
-
-
-class PipelineSchema(EOGrowObject.Schema):
+class PipelineSchema(BaseSchema):
     """Base schema of the Pipeline class."""
 
     pipeline: Optional[ImportPath] = Field(description="Import path to an implementation of Pipeline class.")
@@ -62,13 +37,13 @@ class PipelineSchema(EOGrowObject.Schema):
     eopatch: ManagerSchema = Field(description="A schema of an implementation of EOPatchManager class")
     validate_eopatch = field_validator("eopatch", validate_manager, pre=True)
 
-    logging: LoggingManagerSchema = Field(description="A schema of an implementation of LoggingManager class")
+    logging: ManagerSchema = Field(description="A schema of an implementation of LoggingManager class")
     validate_logging = field_validator("logging", validate_manager, pre=True)
 
     workers: int = Field(
         1, description="Number of workers for parallel execution of workflows. Parameter does not affect ray clusters."
     )
-    use_ray: Union[Literal["auto"], bool] = Field(
+    use_ray: BoolOrAuto = Field(
         "auto",
         description=(
             "Whether to run the pipeline locally or using a (local or remote) ray cluster. When using `auto` the"

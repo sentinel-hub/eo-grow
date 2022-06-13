@@ -9,12 +9,11 @@ import uuid
 import warnings
 from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
 
-import ray
-
 from eolearn.core import CreateEOPatchTask, EOExecutor, EONode, EOWorkflow, LoadTask, SaveTask, WorkflowResults
 from eolearn.core.extra.ray import RayExecutor
 
 from ..utils.meta import import_object
+from ..utils.ray import handle_ray_connection
 from .area.base import AreaManager
 from .base import EOGrowObject
 from .config import RawConfig
@@ -177,18 +176,8 @@ class Pipeline(EOGrowObject):
 
         executor_class: Type[EOExecutor]
 
-        if self.config.use_ray == "auto":
-            try:
-                LOGGER.info("Searching for Ray cluster")
-                ray.init(address="auto", ignore_reinit_error=True)
-                executor_class = RayExecutor
-                LOGGER.info("Cluster found, pipeline will run using the RayExecutor.")
-            except ConnectionError:
-                LOGGER.info("No cluster found, pipeline will not use Ray.")
-                executor_class = EOExecutor
-                executor_run_params["workers"] = self.config.workers
-        elif self.config.use_ray:
-            ray.init(address="auto", ignore_reinit_error=True)
+        is_connected = handle_ray_connection(self.config.use_ray)
+        if is_connected:
             executor_class = RayExecutor
         else:
             executor_class = EOExecutor
@@ -199,10 +188,10 @@ class Pipeline(EOGrowObject):
             workflow,
             exec_args,
             execution_names=eopatch_list,
-            save_logs=self.config.logging.save_logs,
+            save_logs=self.logging_manager.config.save_logs,
             logs_folder=self.logging_manager.get_pipeline_logs_folder(self.current_execution_name),
             filesystem=self.storage.filesystem,
-            logs_filter=EOExecutionFilter(ignore_packages=self.config.logging.eoexecution_ignore_packages),
+            logs_filter=EOExecutionFilter(ignore_packages=self.logging_manager.config.eoexecution_ignore_packages),
             logs_handler_factory=functools.partial(EOExecutionHandler, config=self.sh_config, encoding="utf-8"),
         )
         execution_results = executor.run(**executor_run_params)
@@ -216,8 +205,8 @@ class Pipeline(EOGrowObject):
             len(successful_eopatches) + len(failed_eopatches),
         )
 
-        if self.config.logging.save_logs:
-            executor.make_report(include_logs=self.config.logging.include_logs_to_report)
+        if self.logging_manager.config.save_logs:
+            executor.make_report(include_logs=self.logging_manager.config.include_logs_to_report)
             LOGGER.info("Saved EOExecution report to %s", executor.get_report_path(full_path=True))
 
         return successful_eopatches, failed_eopatches, execution_results

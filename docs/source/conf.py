@@ -14,6 +14,7 @@
 #
 import os
 import shutil
+import sys
 
 # -- Project information -----------------------------------------------------
 
@@ -57,6 +58,9 @@ extensions = [
     "sphinx.ext.githubpages",
     "m2r2",
 ]
+
+# Incude typehints in descriptions
+autodoc_typehints = "description"
 
 # Both the class’ and the __init__ method’s docstring are concatenated and inserted.
 autoclass_content = "both"
@@ -248,3 +252,24 @@ def process_readme():
 
 
 process_readme()
+
+# Auto-generate documentation pages
+current_dir = os.path.abspath(os.path.dirname(__file__))
+target_dir = os.path.join(current_dir, "reference")
+module = os.path.join(current_dir, "..", "..", "eogrow")
+os.makedirs(target_dir, exist_ok=True)
+
+APIDOC_EXCLUDE = [os.path.join(module, "cli.py")]
+APIDOC_OPTIONS = ["--module-first", "--separate", "--no-toc", "--templatedir", os.path.join(current_dir, "_templates")]
+
+
+def run_apidoc(_):
+    from sphinx.ext.apidoc import main
+
+    sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+
+    main(["-e", "-o", target_dir, module, *APIDOC_EXCLUDE, *APIDOC_OPTIONS])
+
+
+def setup(app):
+    app.connect("builder-inited", run_apidoc)

@@ -35,12 +35,8 @@ class FeatureMappingSchema(BaseSchema):
         ),
     )
     feature: Feature
-    multiply_factor: Optional[float] = Field(description="Factor used to multiply feature values with.")
-    dtype: Optional[str] = Field(
-        description=(
-            "Dtype of the output feature. Only taken into account if `multiply_factor` is used. Default is `None`."
-        ),
-    )
+    multiply_factor: float = Field(1, description="Factor used to multiply feature values with.")
+    dtype: Optional[str] = Field(description="Dtype of the output feature.")
 
 
 class BatchToEOPatchPipeline(Pipeline):
@@ -101,7 +97,7 @@ class BatchToEOPatchPipeline(Pipeline):
         features.extend(x.feature for x in self.config.mapping)
 
         if self.config.userdata_feature_name:
-            features.append((FeatureType.META_INFO, self.config.userdata_feature_name))
+            features.append(FeatureType.META_INFO)
 
         if self.config.userdata_timestamp_reader:
             features.append(FeatureType.TIMESTAMP)
@@ -110,9 +106,9 @@ class BatchToEOPatchPipeline(Pipeline):
 
     def build_workflow(self) -> EOWorkflow:
         """Builds the workflow"""
-        userdata_node = None
+        previous_node = None
         if self._has_userdata:
-            userdata_node = EONode(
+            previous_node = EONode(
                 LoadUserDataTask(
                     path=self._input_folder,
                     userdata_feature_name=self.config.userdata_feature_name,
@@ -121,27 +117,33 @@ class BatchToEOPatchPipeline(Pipeline):
                 )
             )
 
-        mapping_nodes = [
-            self._get_tiff_mapping_node(feature_mapping, userdata_node) for feature_mapping in self.config.mapping
-        ]
+        for feature_mapping in self.config.mapping:
+            feature = feature_mapping.feature
+            mapping_node = self._get_tiff_mapping_node(feature_mapping, previous_node)
 
-        last_node = userdata_node
+            save_task = SaveTask(
+                path=self.storage.get_folder(self.config.output_folder_key, full_path=True),
+                features=[feature],
+                compress_level=1,
+                overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
+                config=self.sh_config,
+            )
+            save_node = EONode(save_task, inputs=[mapping_node])
 
-        if len(mapping_nodes) == 1:
-            last_node = mapping_nodes[0]
-        elif len(mapping_nodes) > 1:
-            last_node = EONode(MergeEOPatchesTask(), inputs=mapping_nodes)
+            _, f_name = feature
+            previous_node = EONode(RemoveFeatureTask([feature]), inputs=[save_node], name=f"Remove {f_name}")
 
-        if last_node is None:
+        if previous_node is None:
             raise ValueError(
                 "At least one of `userdata_feature_name`, `userdata_timestamp_reader`, or `mapping` has to be set in"
                 " the config. This should have been caught in the validation phase, please report issue."
             )
 
-        processing_node = self.get_processing_node(last_node)
+        processing_node = self.get_processing_node(previous_node)
 
         save_task = SaveTask(
             path=self.storage.get_folder(self.config.output_folder_key, full_path=True),
+            features=[FeatureType.BBOX, FeatureType.TIMESTAMP, FeatureType.META_INFO],
             compress_level=1,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
             config=self.sh_config,
@@ -198,7 +200,7 @@ class BatchToEOPatchPipeline(Pipeline):
 
         end_node = EONode(RemoveFeatureTask(tmp_features), inputs=[merge_node])
 
-        if mapping.multiply_factor is not None:
+        if mapping.multiply_factor != 1 or mapping.dtype is not None:
             multiply_task = LinearFunctionTask(final_feature, slope=mapping.multiply_factor, dtype=mapping.dtype)
             end_node = EONode(multiply_task, inputs=[end_node])
 

@@ -90,16 +90,12 @@ class BatchAreaManager(AreaManager):
         bbox_list = splitter.get_bbox_list()
         info_list = splitter.get_info_list()
 
-        if not all(bbox.crs.is_utm() for bbox in bbox_list):
-            raise NotImplementedError("So far we only support UTM-based batch tiling grids")
-
-        # The problem is that Sentinel Hub service returns unbuffered tile geometries in WGS84. BatchSplitter then
-        # transforms them into UTM, but here we still have to fix numerical errors by rounding and then apply buffer.
-        bbox_list = [self._fix_batch_bbox(bbox) for bbox in bbox_list]
-
         for info in info_list:
             info["split_x"] = 0
             info["split_y"] = 0
+
+        if not all(bbox.crs.is_utm() for bbox in bbox_list):
+            raise NotImplementedError("So far we only support UTM-based batch tiling grids")
 
         return self._to_dataframe_grid(bbox_list, info_list, self._BATCH_GRID_COLUMNS)
 
@@ -120,11 +116,6 @@ class BatchAreaManager(AreaManager):
                 f"Tiling grid parameters in config are {expected_tiling_grid_params} but given batch "
                 f"request has parameters {batch_request.tiling_grid}"
             )
-
-    def _fix_batch_bbox(self, bbox: BBox) -> BBox:
-        """Fixes a batch tile bounding box so that it will be the same as in produced tiles on the bucket."""
-        corrected_bbox = convert_bbox_coords_to_int(bbox, error=self._SH_REPROJECTION_ERROR)
-        return corrected_bbox.buffer(self.absolute_buffer, relative=False)
 
     @staticmethod
     def _to_dataframe_grid(bbox_list: List[BBox], info_list: List[dict], info_columns: List[str]) -> List[GeoDataFrame]:
