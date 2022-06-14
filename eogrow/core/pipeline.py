@@ -14,6 +14,7 @@ from eolearn.core.extra.ray import RayExecutor
 
 from ..utils.meta import import_object
 from ..utils.ray import handle_ray_connection
+from ..utils.types import ProcessingType
 from .area.base import AreaManager
 from .base import EOGrowObject
 from .config import RawConfig
@@ -156,6 +157,13 @@ class Pipeline(EOGrowObject):
             exec_args.append(single_exec_dict)
         return exec_args
 
+    def _init_processing(self) -> ProcessingType:
+        """Figures out which execution mode is used and configures connection to Ray if required."""
+        is_connected = handle_ray_connection(self.config.use_ray)
+        if is_connected:
+            return ProcessingType.RAY
+        return ProcessingType.MULTI if self.config.workers > 1 else ProcessingType.SINGLE
+
     def run_execution(
         self,
         workflow: EOWorkflow,
@@ -176,8 +184,8 @@ class Pipeline(EOGrowObject):
 
         executor_class: Type[EOExecutor]
 
-        is_connected = handle_ray_connection(self.config.use_ray)
-        if is_connected:
+        execution_kind = self._init_processing()
+        if execution_kind is ProcessingType.RAY:
             executor_class = RayExecutor
         else:
             executor_class = EOExecutor

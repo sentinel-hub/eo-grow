@@ -90,6 +90,7 @@ ENV/
 
 # IDE config
 .idea/
+.vscode/
 
 # MacOS
 .DS_Store
