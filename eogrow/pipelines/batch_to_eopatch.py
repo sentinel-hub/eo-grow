@@ -23,6 +23,7 @@ from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.types import Feature, FeatureSpec
+from ..utils.validators import field_validator
 
 
 class FeatureMappingSchema(BaseSchema):
@@ -37,15 +38,33 @@ class FeatureMappingSchema(BaseSchema):
     feature: Feature
     multiply_factor: float = Field(1, description="Factor used to multiply feature values with.")
     dtype: Optional[str] = Field(description="Dtype of the output feature.")
+    save_early: bool = Field(
+        True,
+        description=(
+            "The pipeline allows that custom processing steps are added at the end. If this parameter is set to True"
+            " then the feature will be saved and removed from memory immediately after being loaded from tiffs. This"
+            " makes the pipeline more memory efficient. If set to False it will keep the feature in memory until the"
+            " end so that it can be used for processing steps."
+        ),
+    )
+
+
+def _sort_feature_mappings(mapping: List[FeatureMappingSchema]) -> List[FeatureMappingSchema]:
+    """Sorts feature mappings by putting the ones that will be saved early at the beginning. This optimizes the memory
+    usage."""
+    return sorted(mapping, key=lambda feature_mapping: not feature_mapping.save_early)
 
 
 class BatchToEOPatchPipeline(Pipeline):
     class Schema(Pipeline.Schema):
         input_folder_key: str = Field(description="Storage manager key pointing to the path with Batch results")
         output_folder_key: str = Field(description="Storage manager key pointing to where the eopatches are saved")
+
         mapping: List[FeatureMappingSchema] = Field(
             description="A list of mapping from batch files into EOPatch features."
         )
+        _sort_mapping = field_validator("mapping", _sort_feature_mappings)
+
         userdata_feature_name: Optional[str] = Field(
             description="A name of META_INFO feature in which userdata.json would be stored."
         )
@@ -94,7 +113,7 @@ class BatchToEOPatchPipeline(Pipeline):
     def _get_output_features(self) -> List[FeatureSpec]:
         """Lists all features that the pipeline outputs."""
         features: List[FeatureSpec] = [FeatureType.BBOX]
-        features.extend(x.feature for x in self.config.mapping)
+        features.extend(feature_mapping.feature for feature_mapping in self.config.mapping)
 
         if self.config.userdata_feature_name:
             features.append(FeatureType.META_INFO)
@@ -103,6 +122,14 @@ class BatchToEOPatchPipeline(Pipeline):
             features.append(FeatureType.TIMESTAMP)
 
         return features
+
+    def _get_final_output_features(self) -> List[FeatureSpec]:
+        """Output features that will be saved in the final saving step and not sooner."""
+        output_features = self._get_output_features()
+        features_saved_early = {
+            feature_mapping.feature for feature_mapping in self.config.mapping if feature_mapping.save_early
+        }
+        return [feature for feature in output_features if feature not in features_saved_early]
 
     def build_workflow(self) -> EOWorkflow:
         """Builds the workflow"""
@@ -121,17 +148,20 @@ class BatchToEOPatchPipeline(Pipeline):
             feature = feature_mapping.feature
             mapping_node = self._get_tiff_mapping_node(feature_mapping, previous_node)
 
-            save_task = SaveTask(
-                path=self.storage.get_folder(self.config.output_folder_key, full_path=True),
-                features=[feature],
-                compress_level=1,
-                overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
-                config=self.sh_config,
-            )
-            save_node = EONode(save_task, inputs=[mapping_node])
+            if feature_mapping.save_early:
+                save_task = SaveTask(
+                    path=self.storage.get_folder(self.config.output_folder_key, full_path=True),
+                    features=[feature],
+                    compress_level=1,
+                    overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
+                    config=self.sh_config,
+                )
+                save_node = EONode(save_task, inputs=[mapping_node])
 
-            _, f_name = feature
-            previous_node = EONode(RemoveFeatureTask([feature]), inputs=[save_node], name=f"Remove {f_name}")
+                _, f_name = feature
+                previous_node = EONode(RemoveFeatureTask([feature]), inputs=[save_node], name=f"Remove {f_name}")
+            else:
+                previous_node = mapping_node
 
         if previous_node is None:
             raise ValueError(
@@ -143,7 +173,7 @@ class BatchToEOPatchPipeline(Pipeline):
 
         save_task = SaveTask(
             path=self.storage.get_folder(self.config.output_folder_key, full_path=True),
-            features=[FeatureType.BBOX, FeatureType.TIMESTAMP, FeatureType.META_INFO],
+            features=self._get_final_output_features(),
             compress_level=1,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
             config=self.sh_config,
