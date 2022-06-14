@@ -4,6 +4,7 @@ Module implementing prediction pipeline
 import abc
 from typing import List, Optional, Tuple
 
+import numpy as np
 from pydantic import Field, validator
 
 from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, MergeEOPatchesTask, OverwritePermission, SaveTask
@@ -12,6 +13,7 @@ from ..core.pipeline import Pipeline
 from ..tasks.prediction import ClassificationPredictionTask, RegressionPredictionTask
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.types import Feature, FeatureSpec
+from ..utils.validators import optional_field_validator, parse_dtype
 
 
 class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
@@ -31,9 +33,10 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         output_folder_key: str = Field(
             description="The storage manager key pointing to the output folder for the prediction pipeline."
         )
-        dtype: Optional[str] = Field(
+        dtype: Optional[np.dtype] = Field(
             description="Casts the result to desired type. Uses predictor output type by default."
         )
+        _parse_dtype = optional_field_validator("dtype", parse_dtype, pre=True)
 
         prediction_mask_folder_key: Optional[str]
         prediction_mask_feature_name: Optional[str] = Field(

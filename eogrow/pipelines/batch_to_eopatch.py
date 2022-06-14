@@ -3,6 +3,7 @@ Conversion of batch results to EOPatches
 """
 from typing import Any, Dict, List, Optional
 
+import numpy as np
 from pydantic import Field, root_validator
 
 from eolearn.core import (
@@ -23,6 +24,7 @@ from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.types import Feature, FeatureSpec
+from ..utils.validators import optional_field_validator, parse_dtype
 
 
 class FeatureMappingSchema(BaseSchema):
@@ -36,7 +38,8 @@ class FeatureMappingSchema(BaseSchema):
     )
     feature: Feature
     multiply_factor: float = Field(1, description="Factor used to multiply feature values with.")
-    dtype: Optional[str] = Field(description="Dtype of the output feature.")
+    dtype: Optional[np.dtype] = Field(description="Dtype of the output feature.")
+    _parse_dtype = optional_field_validator("dtype", parse_dtype, pre=True)
 
 
 class BatchToEOPatchPipeline(Pipeline):

@@ -14,7 +14,7 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.testing import DummyRasterFeatureTask, DummyTimestampFeatureTask
 from ..utils.types import Feature, TimePeriod
-from ..utils.validators import field_validator, parse_time_period
+from ..utils.validators import field_validator, parse_dtype, parse_time_period
 
 Self = TypeVar("Self", bound="TestPipeline")
 LOGGER = logging.getLogger(__name__)
@@ -72,7 +72,8 @@ class FeatureSchema(BaseSchema):
 class RasterFeatureSchema(FeatureSchema):
     feature: Feature = Field(description="A feature to be processed.")
     shape: Tuple[int, ...] = Field(description="A shape of a feature")
-    dtype: str = Field(description="The output dtype of the feature")
+    dtype: np.dtype = Field(description="The output dtype of the feature")
+    _parse_dtype = field_validator("dtype", parse_dtype, pre=True)
     min_value: int = Field(0, description="All values in the feature will be greater or equal to this value.")
     max_value: int = Field(1, description="All values in the feature will be smaller to this value.")
 

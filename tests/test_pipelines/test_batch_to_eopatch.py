@@ -29,7 +29,7 @@ def prepare_batch_files(
     width: int,
     height: int,
     num_timestamps: int,
-    dtype: str,
+    dtype: np.dtype,
     add_userdata: bool,
 ):
     transform = rasterio.transform.from_bounds(*tiff_bbox, width=width, height=height)

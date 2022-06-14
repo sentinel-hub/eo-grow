@@ -30,7 +30,13 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.types import Feature, FeatureSpec, Path, ProcessingType, TimePeriod
-from ..utils.validators import field_validator, parse_data_collection, parse_time_period
+from ..utils.validators import (
+    field_validator,
+    optional_field_validator,
+    parse_data_collection,
+    parse_dtype,
+    parse_time_period,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -53,7 +59,8 @@ class RaySessionActor:
 
 class RescaleSchema(BaseSchema):
     rescale_factor: float = Field(1, description="Amount by which the selected features are multiplied")
-    dtype: Optional[str] = Field(description="The output dtype of data")
+    dtype: Optional[np.dtype] = Field(description="The output dtype of data")
+    _parse_dtype = optional_field_validator("dtype", parse_dtype, pre=True)
     features_to_rescale: List[Feature]
 
 

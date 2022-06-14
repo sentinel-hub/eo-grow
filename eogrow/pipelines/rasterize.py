@@ -31,6 +31,7 @@ from ..core.schemas import BaseSchema
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.fs import LocalFile
 from ..utils.types import Feature, FeatureSpec
+from ..utils.validators import field_validator, parse_dtype
 from ..utils.vector import concat_gdf
 
 LOGGER = logging.getLogger(__name__)
@@ -51,7 +52,8 @@ class VectorColumnSchema(BaseSchema):
     polygon_buffer: float = Field(0, description="The size of polygon buffering to be applied before rasterization.")
     resolution: float = Field(description="Rendering resolution in meters.")
     overlap_value: Optional[int] = Field(description="Value to write over the areas where polygons overlap.")
-    dtype: str = Field("int32", description="Numpy dtype of the output feature.")
+    dtype: np.dtype = Field(np.dtype("int32"), description="Numpy dtype of the output feature.")
+    _parse_dtype = field_validator("dtype", parse_dtype, pre=True)
     no_data_value: int = Field(0, description="The no_data_value argument to be passed to VectorToRasterTask")
 
     @validator("values_column")

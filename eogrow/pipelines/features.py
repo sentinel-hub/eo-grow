@@ -4,6 +4,7 @@ A pipeline to construct features for training/prediction
 import logging
 from typing import Dict, List, Optional, Tuple
 
+import numpy as np
 from pydantic import Field
 
 from eolearn.core import (
@@ -30,7 +31,7 @@ from ..tasks.features import (
 )
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.types import Feature, FeatureSpec, TimePeriod
-from ..utils.validators import field_validator, parse_time_period
+from ..utils.validators import field_validator, optional_field_validator, parse_dtype, parse_time_period
 
 LOGGER = logging.getLogger(__name__)
 
@@ -70,7 +71,8 @@ class FeaturesPipeline(Pipeline):
             ),
         )
 
-        dtype: Optional[str] = Field(description="The dtype under which the concatenated features should be saved")
+        dtype: Optional[np.dtype] = Field(description="The dtype under which the concatenated features should be saved")
+        _parse_dtype = optional_field_validator("dtype", parse_dtype, pre=True)
         output_feature_name: str = Field(description="Name of output data feature encompassing bands and NDIs")
         compress_level: int = Field(1, description="Level of compression used in saving eopatches")
 
