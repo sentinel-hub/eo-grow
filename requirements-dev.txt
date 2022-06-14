@@ -8,10 +8,9 @@ isort
 jupyter
 moto
 mypy
-pylint
+pytest>=4.0.0
 pytest-cov
 pytest-order
-pytest>=4.0.0
 types-requests
 types-setuptools
 types-urllib3
