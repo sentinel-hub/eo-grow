@@ -4,10 +4,10 @@ Tests for schemas module
 import pytest
 
 from eogrow.core.area import UtmZoneAreaManager
-from eogrow.core.schemas import build_schema_template, build_minimal_template
+from eogrow.core.schemas import build_minimal_template, build_schema_template
 from eogrow.core.storage import StorageManager
-from eogrow.pipelines.mapping import MappingPipeline
 from eogrow.pipelines.export_maps import ExportMapsPipeline
+from eogrow.pipelines.mapping import MappingPipeline
 
 
 @pytest.mark.fast
