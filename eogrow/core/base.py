@@ -19,6 +19,8 @@ class EOGrowObject:
 
             extra = "forbid"
             validate_all = True
+            allow_mutation = False
+            arbitrary_types_allowed = True
 
     config: Schema
 

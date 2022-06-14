@@ -5,6 +5,7 @@ import datetime as dt
 import inspect
 from typing import TYPE_CHECKING, Any, Callable, Tuple
 
+import numpy as np
 from pydantic import validator
 
 from sentinelhub import DataCollection
@@ -104,6 +105,10 @@ def parse_data_collection(value: str) -> DataCollection:
         "Data collection should be a name of an existing DataCollection enum, 'BYOC_<collection_id>', "
         f"or 'BATCH_<collection id>' but name '{value}' was given."
     )
+
+
+def parse_dtype(value: str) -> np.dtype:
+    return np.dtype(value)
 
 
 def validate_manager(value: dict) -> "ManagerSchema":

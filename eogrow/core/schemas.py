@@ -137,12 +137,11 @@ def _get_referred_model_name(openapi_schema: dict) -> Optional[str]:
 
 def build_minimal_template(
     schema: Type[BaseModel],
-    required_only: bool,
+    required_only: bool = False,
     pipeline_import_path: Optional[str] = None,
     add_descriptions: bool = False,
 ) -> dict:
     rec_flags: dict = dict(required_only=required_only, add_descriptions=add_descriptions)  # type is needed
-    json_schema = schema.schema()  # needed for descriptions
 
     template: dict = {}
     for name, field in schema.__fields__.items():
@@ -150,14 +149,16 @@ def build_minimal_template(
         if required_only and not field.required:
             continue
 
+        description = field.field_info.description if add_descriptions else None
+
         if name == "pipeline" and pipeline_import_path:
             template[name] = pipeline_import_path
         elif isclass(field.type_) and issubclass(field.type_, BaseModel):
             # Contains a subschema in the nesting
             if isclass(field.outer_type_) and issubclass(field.outer_type_, BaseModel):
                 template[name] = build_minimal_template(field.type_, **rec_flags)
-                if "description" in json_schema["properties"][name]:
-                    template[name]["<< description >>"] = json_schema["properties"][name]["description"]
+                if description:
+                    template[name]["<< description >>"] = description
             else:
                 template[name] = {
                     "<< type >>": repr(field._type_display()),
@@ -165,13 +166,13 @@ def build_minimal_template(
                     "<< sub-template >>": build_minimal_template(field.type_, **rec_flags),
                 }
         else:
-            template[name] = _field_description(field, json_schema["properties"][name], add_descriptions)
+            template[name] = _field_description(field, description)
 
     return template
 
 
-def _field_description(field: ModelField, field_schema: dict, add_descriptions: bool) -> str:
-    description = " // " + field_schema["description"] if "description" in field_schema and add_descriptions else ""
+def _field_description(field: ModelField, description: Optional[str]) -> str:
+    description = f" // {description}" if description else ""
     field_type = repr(field._type_display())
     default = repr(field.default) + " : " if field.default else ""
     return f"<< {default}{field_type}{description} >>"

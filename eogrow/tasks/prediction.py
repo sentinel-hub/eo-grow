@@ -24,7 +24,7 @@ class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
         input_features: List[Feature],
         mask_feature: Feature,
         output_feature: Feature,
-        output_dtype: Optional[str],
+        output_dtype: Optional[np.dtype],
         mp_lock: bool,
         sh_config: SHConfig,
     ):
