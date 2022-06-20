@@ -2,7 +2,7 @@
 This module handles everything regarding storage of the data
 """
 from io import StringIO
-from typing import Dict, List, Literal, Optional, Union
+from typing import Dict, List, Optional
 
 import fs
 from pydantic import Field
@@ -26,13 +26,7 @@ class StorageManager(EOGrowObject):
             ),
         )
         aws_profile: Optional[str] = Field(
-            description="The AWS profile with credentials needed to access the S3 bucket."
-        )
-        is_on_aws: Union[bool, Literal["auto"]] = Field(
-            "auto",
-            "Whether the project is on an S3 bucket, infers from `project_folder` and `aws_profile` when set to auto."
-            " If `aws_profile` is set to `None`, but this is set to `True`, credentials are read from the environment"
-            " (or default profile if credentials are not in the environment).",
+            description="The AWS profile with credentials needed to access the S3 bucket"
         )
         structure: Dict[str, str] = Field(
             default_factory=dict, description="A flat key: value store mapping each key to a path in the project."
