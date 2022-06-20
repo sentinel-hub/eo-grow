@@ -8,6 +8,7 @@ isort
 jupyter
 moto
 mypy
+nbqa
 pytest>=4.0.0
 pytest-cov
 pytest-order
