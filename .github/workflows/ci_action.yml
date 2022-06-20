@@ -11,7 +11,7 @@ env:
 
 jobs:
 
-    check-code-black-isort-flake8:
+  check-code-black-isort-flake8:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout branch
