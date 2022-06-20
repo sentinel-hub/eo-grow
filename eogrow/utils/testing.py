@@ -4,7 +4,7 @@ Module implementing utilities for unit testing pipeline results
 import functools
 import json
 import os
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import fs
 import numpy as np
@@ -16,7 +16,7 @@ from fs.base import FS
 
 from eolearn.core import EOPatch, FeatureType
 
-from ..core.config import collect_configs_from_path, interpret_config_from_dict
+from ..core.config import collect_configs_from_path, interpret_config_from_dict, interpret_config_from_path
 from ..core.pipeline import Pipeline
 from ..utils.meta import load_pipeline_class
 
@@ -228,9 +228,7 @@ def run_and_test_pipeline(
     for index, config in enumerate(raw_configs):
         output_folder_key = folder_key or config.get("output_folder_key")
         if output_folder_key is None:
-            raise ValueError(
-                "Pipeline does not have a `output_folder_key` parameter, `folder_key` must be set by hand."
-            )
+            raise ValueError("Pipeline does not have a `output_folder_key` parameter, `folder_key` must be set.")
 
         pipeline = load_pipeline_class(config).from_raw_config(config)
 
@@ -266,3 +264,31 @@ def create_folder_dict(config_folder: str, stats_folder: str, subfolder: Optiona
         "config_folder": os.path.join(config_folder, subfolder) if subfolder else config_folder,
         "stats_folder": os.path.join(stats_folder, subfolder) if subfolder else config_folder,
     }
+
+
+def run_dummy_data_pipeline(
+    config_file: str, *, config_folder: str, folder_key: Optional[str] = None, reset_folder: bool = True, **_: Any
+) -> None:
+    """A default way of testing a pipeline
+
+    :param config_file: Name of the config file containing a dummy data generating pipeline
+    :param config_folder: A path to folder containing the config file
+    :param folder_key: Folder containing results of the pipeline, if missing it's inferred from config
+    :param reset_folder: If True it will delete content of the folder with results before running the pipeline
+    """
+    if not config_file.endswith(".json"):
+        config_file += ".json"
+    path = os.path.join(config_folder, config_file)
+
+    config = interpret_config_from_path(path)
+    pipeline = load_pipeline_class(config).from_raw_config(config)
+
+    if reset_folder:
+        output_folder_key = folder_key or config.get("output_folder_key")
+        if output_folder_key is None:
+            raise ValueError("Pipeline does not have a `output_folder_key` parameter, `folder_key` must be set.")
+
+        folder = pipeline.storage.get_folder(output_folder_key)
+        pipeline.storage.filesystem.removetree(folder)
+
+    pipeline.run()
