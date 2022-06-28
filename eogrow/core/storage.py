@@ -15,7 +15,6 @@ from .schemas import ManagerSchema
 
 
 class StorageManager(EOGrowObject):
-
     PRESET_FOLDERS: Dict[str, str] = {"logs": "logs", "input_data": "input-data", "cache": "cache"}
 
     class Schema(ManagerSchema):

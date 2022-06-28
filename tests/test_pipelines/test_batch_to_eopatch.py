@@ -50,7 +50,6 @@ def prepare_batch_files(
                 transform=transform,
                 crs=tiff_bbox.crs.ogc_string(),
             ) as dst:
-
                 dst.write(10000 * generator.random((num_timestamps, height, width)))
 
     if add_userdata:

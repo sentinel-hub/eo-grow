@@ -44,7 +44,6 @@ def test_area_shape_simplification(storage, config, simplification_factor, point
 
 # No idea how to use @pytest.mark.parametrize over config, large_area_config
 def test_bbox_split(storage, config, large_area_config):
-
     for area_config, expected_zone_num, expected_bbox_num in [
         (config["area"], 1, 2),
         (large_area_config, 61, 311),

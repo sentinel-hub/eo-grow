@@ -34,7 +34,6 @@ def filtered_eopatch_manager_fixture(storage, config_folder):
 
 @pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_eopatch_filenames(eopatch_manager):
-
     assert eopatch_manager.get_eopatch_filenames()[0] == "eopatch-id-0-col-0-row-0"
 
     for folder, id_list, filter_existing, list_size in [
@@ -42,7 +41,6 @@ def test_eopatch_filenames(eopatch_manager):
         ("something", [1, 0, 0, 1], False, 4),
         (".", None, True, 0),
     ]:
-
         eopatch_list = eopatch_manager.get_eopatch_filenames(
             folder=folder, id_list=id_list, filter_existing=filter_existing
         )

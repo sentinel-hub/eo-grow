@@ -318,7 +318,6 @@ class DownloadTimelessPipeline(BaseDownloadPipeline):
         return [(FeatureType.DATA_TIMELESS, self.config.feature_name), FeatureType.BBOX]
 
     def _get_download_node(self, session_loader: SessionLoaderType) -> EONode:
-
         download_task = SentinelHubDemTask(
             feature=(FeatureType.DATA_TIMELESS, self.config.feature_name),
             data_collection=self.config.data_collection,

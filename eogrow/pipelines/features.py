@@ -37,7 +37,6 @@ LOGGER = logging.getLogger(__name__)
 
 
 class ValidityFiltering(BaseSchema):
-
     cloud_mask_feature_name: Optional[str] = Field(
         description="Name of cloud mask to enable additional filtering by cloud"
     )

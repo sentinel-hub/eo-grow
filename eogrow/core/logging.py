@@ -30,7 +30,6 @@ class LoggingManager(EOGrowObject):
     """A class that manages logging specifics"""
 
     class Schema(ManagerSchema):
-
         save_logs: bool = Field(
             False,
             description=(

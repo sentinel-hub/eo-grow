@@ -48,7 +48,6 @@ def test_storage_manager_fixture(project_folder):
 
 @pytest.fixture(name="storage")
 def storage_fixture(test_storage_manager):
-
     _clear_test_project_folder(test_storage_manager)
 
     yield test_storage_manager

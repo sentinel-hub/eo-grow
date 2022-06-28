@@ -36,7 +36,6 @@ class SimplePipeline(Pipeline):
 
 
 def test_pipeline_execution(simple_config_filename):
-
     config = interpret_config_from_path(simple_config_filename)
     pipeline = SimplePipeline.from_raw_config(config)
     pipeline.run()

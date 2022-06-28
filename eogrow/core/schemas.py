@@ -145,7 +145,6 @@ def build_minimal_template(
 
     template: dict = {}
     for name, field in schema.__fields__.items():
-
         if required_only and not field.required:
             continue
 
