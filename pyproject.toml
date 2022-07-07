@@ -28,11 +28,18 @@ disallow_untyped_defs = true
 disallow_untyped_decorators = true
 warn_unreachable = true
 strict_equality = true
+plugins = [
+    "pydantic.mypy"
+]
 # these ones are really strict, maybe later
 # no_implicit_reexport = true  # this one has issues with eolearn not specifying __all__ when reexporting
 # disallow_untyped_calls = true
 # disallow_any_generics = true
 # warn_return_any = true
+
+[tool.pydantic-mypy]
+# init_forbid_extra = true  # cant be used unless we change managers
+init_typed = true
 
 [tool.nbqa.addopts]
 flake8 = [
