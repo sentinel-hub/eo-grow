@@ -65,14 +65,16 @@ def test_bbox_split(storage, config, large_area_config):
         grid_filename = area_manager._construct_file_path(prefix="grid")
         assert area_manager.storage.filesystem.exists(grid_filename)
 
+        loader = area_manager._load_grid
         area_manager._load_grid = lambda x: 1 / 0
         with pytest.raises(ZeroDivisionError):
             area_manager.get_grid()
 
-        # start_time = time.time()
-        # grid = area_manager.get_grid()
-        # end_time = time.time()
-        # assert end_time - start_time < max(splitting_time / 2, 1)  # Checking if data is kept in the class
+        area_manager._load_grid = loader
+        start_time = time.time()
+        grid = area_manager.get_grid()
+        end_time = time.time()
+        assert end_time - start_time < max(splitting_time / 2, 1)  # Checking if data is kept in the class
 
         # _check_area_grid(
         #     grid,
