@@ -46,7 +46,7 @@ def test_area_shape_simplification(storage, config, simplification_factor, point
 def test_bbox_split(storage, config, large_area_config):
     for area_config, expected_zone_num, expected_bbox_num in [
         (config["area"], 1, 2),
-        (large_area_config, 61, 311),
+        (large_area_config, 71, 368),
     ]:
         area_manager = UtmZoneAreaManager.from_raw_config(area_config, storage)
 

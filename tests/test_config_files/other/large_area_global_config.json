@@ -7,7 +7,5 @@
   "patch_buffer_x": 0,
   "patch_buffer_y": 0,
   "offset_x": 0,
-  "offset_y": 0,
-  "region_column_name": "Regions",
-  "region_names": ["Region A", "Region B", "Region D", "Region E", "Region F"]
+  "offset_y": 0
 }
