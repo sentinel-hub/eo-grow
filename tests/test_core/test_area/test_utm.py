@@ -65,6 +65,8 @@ def test_bbox_split(storage, config, large_area_config):
         grid_filename = area_manager._construct_file_path(prefix="grid")
         assert area_manager.storage.filesystem.exists(grid_filename)
 
+        area_manager._load_grid = lambda x: 1/0
+
         start_time = time.time()
         grid = area_manager.get_grid()
         end_time = time.time()
