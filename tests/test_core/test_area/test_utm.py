@@ -1,4 +1,3 @@
-from decimal import DivisionByZero
 import os
 import time
 
@@ -67,7 +66,7 @@ def test_bbox_split(storage, config, large_area_config):
         assert area_manager.storage.filesystem.exists(grid_filename)
 
         area_manager._load_grid = lambda x: 1 / 0
-        with pytest.raises(DivisionByZero):
+        with pytest.raises(ZeroDivisionError):
             area_manager.get_grid()
 
         # start_time = time.time()
