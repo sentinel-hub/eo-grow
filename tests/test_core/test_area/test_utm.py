@@ -63,11 +63,12 @@ def test_bbox_split(storage, config, large_area_config):
         )
 
         start_time = time.time()
-        grid = area_manager.get_grid()
+        # grid = area_manager.get_grid()
 
         # DEBUGGING RUNNERS
         grid_filename = area_manager._construct_file_path(prefix="grid")
-        assert area_manager.storage.filesystem.exists(grid_filename)
+        area_manager._load_grid(grid_filename)
+        assert time.time() - start_time < 0, f"{time.time() - start_time} to load file."
 
         assert time.time() - start_time < max(splitting_time / 2, 1)  # Checking if data is kept in the class
 
