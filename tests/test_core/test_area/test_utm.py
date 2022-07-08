@@ -62,12 +62,13 @@ def test_bbox_split(storage, config, large_area_config):
             expected_columns=["index_n", "index_x", "index_y", "total_num", "geometry", "BBOX"],
         )
 
-        # start_time = time.time()
-        # grid = area_manager.get_grid()
-        # end_time = time.time()
-        # assert end_time - start_time < max(splitting_time / 2, 1)  # Checking if data is kept in the class
         grid_filename = area_manager._construct_file_path(prefix="grid")
         assert area_manager.storage.filesystem.exists(grid_filename)
+
+        start_time = time.time()
+        grid = area_manager.get_grid()
+        end_time = time.time()
+        assert end_time - start_time < max(splitting_time / 2, 1)  # Checking if data is kept in the class
 
         # _check_area_grid(
         #     grid,
