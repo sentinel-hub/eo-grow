@@ -66,6 +66,7 @@ class ContentTester:
 
         :param filename: A JSON filename (with file path) where statistics should be saved
         """
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, "w") as file:
             json.dump(self.stats, file, indent=2, sort_keys=True)
 
