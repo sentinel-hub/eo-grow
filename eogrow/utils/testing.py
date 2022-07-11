@@ -156,9 +156,10 @@ class ContentTester:
         """Calculates statistics over a .tiff image"""
         with self.filesystem.openbin(tiff_filename, "r") as file_handle:
             with rasterio.open(file_handle) as tiff:
-                raster = tiff.dataset_mask()
+                image = tiff.read()
+                mask = tiff.dataset_mask()
 
-        return self._calculate_raster_stats(raster)
+        return self._calculate_raster_stats(image) + self._calculate_raster_stats(mask)
 
     def _calculate_numpy_stats(self, numpy_filename: str) -> List[object]:
         """Calculates statistics over a .npy file containing a numpy array"""
