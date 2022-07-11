@@ -4,7 +4,7 @@ Module implementing utilities for unit testing pipeline results
 import functools
 import json
 import os
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, Optional, Tuple
 
 import fs
 import numpy as np
@@ -15,10 +15,12 @@ from deepdiff import DeepDiff
 from fs.base import FS
 
 from eolearn.core import EOPatch, FeatureType
+from eolearn.core.utils.common import is_discrete_type
 
 from ..core.config import collect_configs_from_path, interpret_config_from_dict
 from ..core.pipeline import Pipeline
 from ..utils.meta import load_pipeline_class
+from ..utils.types import JsonDict
 
 
 class ContentTester:
@@ -35,15 +37,26 @@ class ContentTester:
     this utility will let you know which statistics does not match
     """
 
-    def __init__(self, filesystem: FS, main_folder: str, decimals: int = 5):
+    _STATS_OPERATIONS: Dict[str, Callable] = {
+        "min": np.min,
+        "max": np.max,
+        "mean": np.mean,
+        "median": np.median,
+    }
+
+    def __init__(self, filesystem: FS, main_folder: str, decimals: int = 5, unique_values_threshold: int = 8):
         """
         :param filesystem: A filesystem containing project data
         :param main_folder: A folder path on the filesystem where results are saved
         :param decimals: Number of decimals to which values will be rounded
+        :param unique_values_threshold: If a raster has at most this many unique values then they will all statistics
+            will show all of them with their counts. Otherwise, multiple statistical properties will be calculated for
+            the values.
         """
         self.filesystem = filesystem
         self.main_folder = main_folder
         self.decimals = decimals
+        self.unique_values_threshold = unique_values_threshold
 
         if not filesystem.isdir(self.main_folder):
             raise ValueError(f"Folder {self.main_folder} does not exist on filesystem {self.filesystem}")
@@ -70,7 +83,7 @@ class ContentTester:
         with open(filename, "w") as file:
             json.dump(self.stats, file, indent=2, sort_keys=True)
 
-    def _calculate_stats(self, folder: Optional[str] = None) -> Dict[str, object]:
+    def _calculate_stats(self, folder: Optional[str] = None) -> JsonDict:
         """Calculates statistics of given folder and it's content"""
         stats: Dict[str, object] = {}
         if folder is None:
@@ -97,7 +110,7 @@ class ContentTester:
 
         return stats
 
-    def _calculate_eopatch_stats(self, eopatch: EOPatch) -> Dict[str, object]:
+    def _calculate_eopatch_stats(self, eopatch: EOPatch) -> JsonDict:
         """Calculates statistics of given EOPatch and it's content"""
         stats: Dict[str, object] = {}
 
@@ -127,58 +140,80 @@ class ContentTester:
 
         return stats
 
-    def _calculate_raster_stats(self, raster: np.ndarray) -> List[object]:
+    def _calculate_raster_stats(self, raster: np.ndarray) -> JsonDict:
         """Calculates statistics over a raster numpy array"""
-        stats = [*raster.shape, str(raster.dtype)]
+        stats = {"shape": raster.shape, "dtype": str(raster.dtype)}
         if raster.dtype == object or raster.dtype.kind == "U":
             return stats
 
-        stats.extend([np.count_nonzero(np.isnan(raster)), np.count_nonzero(np.isfinite(raster))])
+        unique_value_count = np.unique(raster).size
 
-        finite_values = raster[np.isfinite(raster)]
+        if unique_value_count <= self.unique_values_threshold:
+            values, counts = np.unique(raster, return_counts=True)
+            stats["values"] = [
+                {"value": self._round_value(value), "count": count} for value, count in zip(values, counts)
+            ]
 
-        if finite_values.size:
-            if finite_values.dtype == bool:
-                finite_values = finite_values.astype(np.uint8)
+        else:
+            number_values = raster[~np.isnan(raster)]
+            finite_values = number_values[np.isfinite(number_values)]
 
-            for operation in [np.min, np.max, np.mean, np.median]:
-                stats.append(round(float(operation(finite_values)), self.decimals))  # type: ignore[operator]
+            stats["nan_count"] = raster.size - number_values.size
+            stats["infinite_count"] = number_values.size - finite_values.size
 
-            stats.extend(map(int, np.histogram(finite_values, bins=8)[0]))
+            for name, operation in self._STATS_OPERATIONS.items():
+                stats[name] = self._round_value(operation(finite_values))
 
+            stats["histogram"] = list(map(int, np.histogram(finite_values, bins=self.unique_values_threshold)[0]))
+
+        if unique_value_count > 1:
             np.random.seed(0)
-            randomly_chosen_values = np.random.choice(finite_values, 8)
-            stats.extend(map(lambda value: round(float(value), self.decimals), randomly_chosen_values))
+            randomly_chosen_values = np.random.choice(raster.flatten(), self.unique_values_threshold)
+            stats["random_values"] = list(map(self._round_value, randomly_chosen_values))
 
         return stats
 
-    def _calculate_tiff_stats(self, tiff_filename: str) -> List[object]:
+    def _calculate_tiff_stats(self, tiff_filename: str) -> JsonDict:
         """Calculates statistics over a .tiff image"""
         with self.filesystem.openbin(tiff_filename, "r") as file_handle:
             with rasterio.open(file_handle) as tiff:
                 image = tiff.read()
                 mask = tiff.dataset_mask()
 
-        return self._calculate_raster_stats(image) + self._calculate_raster_stats(mask)
+        return {
+            "image": self._calculate_raster_stats(image),
+            "mask": self._calculate_raster_stats(mask),
+        }
 
-    def _calculate_numpy_stats(self, numpy_filename: str) -> List[object]:
+    def _calculate_numpy_stats(self, numpy_filename: str) -> JsonDict:
         """Calculates statistics over a .npy file containing a numpy array"""
         with self.filesystem.openbin(numpy_filename, "r") as file_handle:
             raster = np.load(file_handle, allow_pickle=True)
 
         return self._calculate_raster_stats(raster)
 
-    def _calculate_vector_stats(self, dataframe: pd.DataFrame) -> List[object]:
+    def _calculate_vector_stats(self, dataframe: pd.DataFrame) -> JsonDict:
         """Calculates statistics over a vector GeoDataFrame"""  # TODO: add more statistical properties
         rounder = functools.partial(_round_point_coords, decimals=self.decimals)
         dataframe["geometry"] = dataframe["geometry"].apply(lambda geometry: shapely.ops.transform(rounder, geometry))
 
-        stats = list(dataframe) + [len(dataframe.index), str(dataframe.crs)]
+        stats = {
+            "columns": list(dataframe),
+            "row_count": len(dataframe.index),
+            "crs": str(dataframe.crs),
+        }
 
         if len(dataframe.index):
-            stats.extend(list(map(str, dataframe.iloc[0])))
+            stats["first_row"] = list(map(str, dataframe.iloc[0]))
 
         return stats
+
+    def _round_value(self, value: Any) -> Any:
+        """If the given value is a float then it will round it."""
+        if not np.isfinite(value) or is_discrete_type(type(value)):
+            return value
+
+        return round(value, self.decimals)
 
 
 def check_pipeline_logs(pipeline: Pipeline) -> None:
