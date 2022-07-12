@@ -43,19 +43,26 @@ class ContentTester:
         "median": np.median,
     }
 
-    def __init__(self, filesystem: FS, main_folder: str, decimals: int = 5, unique_values_threshold: int = 8):
+    def __init__(self, filesystem: FS, main_folder: str, decimals: int = 5, unique_values_limit: int = 8,
+                 histogram_bin_num: int = 8, random_values_num: int = 8):
         """
         :param filesystem: A filesystem containing project data
         :param main_folder: A folder path on the filesystem where results are saved
         :param decimals: Number of decimals to which values will be rounded
-        :param unique_values_threshold: If a raster has at most this many unique values then they will all statistics
-            will show all of them with their counts. Otherwise, multiple statistical properties will be calculated for
+        :param unique_values_limit: If a raster has at most this many unique values then statistics will show all
+            unique values with their counts. Otherwise, multiple statistical properties will be calculated for
             the values.
+        :param histogram_bin_num: Number of bins in a histogram for statistics. The histogram will be calculated only
+            if number of unique values is higher than `unique_values_limit`.
+        :param random_values_num: Number of values that will be randomly sampled from an array for statistics. This
+            will happen only if the array contains at least `2` different unique values.
         """
         self.filesystem = filesystem
         self.main_folder = main_folder
         self.decimals = decimals
-        self.unique_values_threshold = unique_values_threshold
+        self.unique_values_limit = unique_values_limit
+        self.histogram_bin_num = histogram_bin_num
+        self.random_values_num = random_values_num
 
         if not filesystem.isdir(self.main_folder):
             raise ValueError(f"Folder {self.main_folder} does not exist on filesystem {self.filesystem}")
@@ -147,7 +154,7 @@ class ContentTester:
 
         unique_value_count = np.unique(raster).size
 
-        if unique_value_count <= self.unique_values_threshold:
+        if unique_value_count <= self.unique_values_limit:
             values, counts = np.unique(raster, return_counts=True)
             stats["values"] = [
                 {"value": self._prepare_value(value), "count": int(count)} for value, count in zip(values, counts)
@@ -166,7 +173,7 @@ class ContentTester:
                 for name, operation in self._STATS_OPERATIONS.items()
             }
 
-            counts, edges = np.histogram(finite_values, bins=self.unique_values_threshold)
+            counts, edges = np.histogram(finite_values, bins=self.histogram_bin_num)
             stats["histogram"] = {
                 "counts": counts.astype(int).tolist(),
                 "edges": list(map(self._prepare_value, edges)),
@@ -174,7 +181,7 @@ class ContentTester:
 
         if unique_value_count > 1:
             np.random.seed(0)
-            randomly_chosen_values = np.random.choice(raster.flatten(), self.unique_values_threshold)
+            randomly_chosen_values = np.random.choice(raster.flatten(), self.random_values_num)
             stats["random_values"] = list(map(self._prepare_value, randomly_chosen_values))
 
         return stats
