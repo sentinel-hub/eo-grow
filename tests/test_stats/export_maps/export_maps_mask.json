@@ -11,17 +11,17 @@
         "random_values": [
           {
             "position": [
-              7,
-              57,
-              196
+              1,
+              201,
+              64
             ],
-            "value": 0
+            "value": 1
           },
           {
             "position": [
-              34,
-              213,
-              196
+              26,
+              70,
+              155
             ],
             "value": 0
           }

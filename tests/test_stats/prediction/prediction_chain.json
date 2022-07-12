@@ -12,7 +12,23 @@
         "random_values": [
           {
             "position": [
-              167,
+              585,
+              0,
+              0
+            ],
+            "value": 9
+          },
+          {
+            "position": [
+              230,
+              0,
+              0
+            ],
+            "value": 4
+          },
+          {
+            "position": [
+              293,
               0,
               0
             ],
@@ -20,35 +36,19 @@
           },
           {
             "position": [
-              51,
+              236,
+              0,
+              0
+            ],
+            "value": 5
+          },
+          {
+            "position": [
+              96,
               0,
               0
             ],
             "value": 1
-          },
-          {
-            "position": [
-              314,
-              0,
-              0
-            ],
-            "value": 8
-          },
-          {
-            "position": [
-              539,
-              0,
-              0
-            ],
-            "value": 8
-          },
-          {
-            "position": [
-              464,
-              0,
-              0
-            ],
-            "value": 3
           }
         ],
         "values": [
@@ -93,15 +93,31 @@
         "random_values": [
           {
             "position": [
-              314,
+              799,
               0,
               0
             ],
-            "value": 1
+            "value": 9
           },
           {
             "position": [
-              570,
+              499,
+              0,
+              0
+            ],
+            "value": 4
+          },
+          {
+            "position": [
+              791,
+              0,
+              0
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              539,
               0,
               0
             ],
@@ -109,23 +125,7 @@
           },
           {
             "position": [
-              476,
-              0,
-              0
-            ],
-            "value": 1
-          },
-          {
-            "position": [
-              48,
-              0,
-              0
-            ],
-            "value": 1
-          },
-          {
-            "position": [
-              145,
+              87,
               0,
               0
             ],

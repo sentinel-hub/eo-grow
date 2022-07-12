@@ -45,43 +45,43 @@
         "random_values": [
           {
             "position": [
-              33,
-              262,
+              20,
+              142,
               0
             ],
-            "value": 63
+            "value": 88
           },
           {
             "position": [
-              14,
-              151,
+              52,
+              158,
               0
             ],
-            "value": 83
+            "value": 93
           },
           {
             "position": [
-              0,
-              64,
+              15,
+              115,
               0
             ],
-            "value": 94
+            "value": 90
           },
           {
             "position": [
-              107,
-              110,
+              31,
+              224,
               0
             ],
-            "value": 102
+            "value": 64
           },
           {
             "position": [
-              4,
-              156,
+              94,
+              178,
               0
             ],
-            "value": 76
+            "value": 78
           }
         ]
       }
@@ -133,43 +133,43 @@
         "random_values": [
           {
             "position": [
-              73,
-              191,
+              57,
+              41,
               0
             ],
-            "value": 64
+            "value": 86
           },
           {
             "position": [
-              21,
-              121,
+              75,
+              6,
               0
             ],
-            "value": 81
+            "value": 93
           },
           {
             "position": [
-              5,
-              208,
+              30,
+              164,
               0
             ],
-            "value": 71
+            "value": 83
           },
           {
             "position": [
-              102,
-              22,
+              25,
+              243,
               0
             ],
-            "value": 98
+            "value": 60
           },
           {
             "position": [
-              50,
-              168,
+              69,
+              189,
               0
             ],
-            "value": 70
+            "value": 66
           }
         ]
       }

@@ -12,43 +12,43 @@
         "random_values": [
           {
             "position": [
-              65,
-              44,
+              42,
+              138,
+              0
+            ],
+            "value": 5
+          },
+          {
+            "position": [
+              61,
+              8,
+              0
+            ],
+            "value": 2
+          },
+          {
+            "position": [
+              15,
+              238,
+              0
+            ],
+            "value": 4
+          },
+          {
+            "position": [
+              114,
+              136,
               0
             ],
             "value": 8
           },
           {
             "position": [
-              0,
-              30,
+              90,
+              106,
               0
             ],
-            "value": 8
-          },
-          {
-            "position": [
-              109,
-              225,
-              0
-            ],
-            "value": 8
-          },
-          {
-            "position": [
-              105,
-              112,
-              0
-            ],
-            "value": 8
-          },
-          {
-            "position": [
-              69,
-              97,
-              0
-            ],
-            "value": 8
+            "value": 9
           }
         ],
         "values": [
@@ -89,43 +89,43 @@
         "random_values": [
           {
             "position": [
-              56,
-              42,
+              44,
+              180,
+              0
+            ],
+            "value": 5
+          },
+          {
+            "position": [
+              48,
+              21,
               0
             ],
             "value": 2
           },
           {
             "position": [
-              0,
-              22,
+              111,
+              241,
+              0
+            ],
+            "value": 4
+          },
+          {
+            "position": [
+              77,
+              14,
               0
             ],
             "value": 8
           },
           {
             "position": [
-              88,
-              17,
+              116,
+              54,
               0
             ],
-            "value": 5
-          },
-          {
-            "position": [
-              66,
-              141,
-              0
-            ],
-            "value": 8
-          },
-          {
-            "position": [
-              92,
-              17,
-              0
-            ],
-            "value": 5
+            "value": 9
           }
         ],
         "values": [

@@ -232,7 +232,7 @@ class ContentTester:
         and values are used for statistics."""
         np.random.seed(0)
         randomly_chosen_values = np.random.choice(
-            raster.flatten(),
+            unique_values,
             size=min(self.max_random_values, unique_values.size),
             replace=False,
         )

@@ -12,16 +12,16 @@
         "random_values": [
           {
             "position": [
-              44,
-              247,
+              57,
+              26,
               0
             ],
-            "value": 0.0
+            "value": 3.5
           },
           {
             "position": [
-              0,
-              6,
+              82,
+              248,
               0
             ],
             "value": 0.0
@@ -48,16 +48,16 @@
         "random_values": [
           {
             "position": [
-              1,
-              7,
+              4,
+              0,
               0
             ],
-            "value": 0
+            "value": 3
           },
           {
             "position": [
-              7,
               9,
+              6,
               0
             ],
             "value": 0
@@ -89,16 +89,16 @@
         "random_values": [
           {
             "position": [
-              60,
-              157,
+              22,
+              57,
               0
             ],
-            "value": 0.0
+            "value": 3.5
           },
           {
             "position": [
-              0,
-              4,
+              56,
+              223,
               0
             ],
             "value": 0.0
@@ -125,16 +125,16 @@
         "random_values": [
           {
             "position": [
-              2,
-              4,
+              0,
+              3,
               0
             ],
-            "value": 0
+            "value": 3
           },
           {
             "position": [
-              8,
-              18,
+              4,
+              14,
               0
             ],
             "value": 0
