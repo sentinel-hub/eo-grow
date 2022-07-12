@@ -10,14 +10,22 @@
         ],
         "dtype": "int16",
         "random_values": [
-          8,
-          8,
-          8,
-          8,
-          8,
-          8,
-          8,
-          8
+          {
+            "position": [
+              7827,
+              0,
+              0
+            ],
+            "value": 8
+          },
+          {
+            "position": [
+              318,
+              0,
+              0
+            ],
+            "value": 8
+          }
         ],
         "values": [
           {
@@ -38,14 +46,22 @@
         ],
         "dtype": "uint8",
         "random_values": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
+          {
+            "position": [
+              0,
+              29,
+              0
+            ],
+            "value": 1
+          },
+          {
+            "position": [
+              108,
+              81,
+              0
+            ],
+            "value": 0
+          }
         ],
         "values": [
           {
@@ -99,14 +115,46 @@
           ]
         },
         "random_values": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
+          {
+            "position": [
+              7814,
+              0,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              290,
+              0,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              2852,
+              0,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              423,
+              0,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              6056,
+              0,
+              0
+            ],
+            "value": 0
+          }
         ]
       }
     }
@@ -122,14 +170,22 @@
         ],
         "dtype": "int16",
         "random_values": [
-          8,
-          8,
-          8,
-          8,
-          8,
-          8,
-          8,
-          8
+          {
+            "position": [
+              807,
+              0,
+              0
+            ],
+            "value": 8
+          },
+          {
+            "position": [
+              3386,
+              0,
+              0
+            ],
+            "value": 8
+          }
         ],
         "values": [
           {
@@ -150,14 +206,22 @@
         ],
         "dtype": "uint8",
         "random_values": [
-          1,
-          0,
-          0,
-          0,
-          0,
-          1,
-          1,
-          0
+          {
+            "position": [
+              45,
+              222,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              0,
+              19,
+              0
+            ],
+            "value": 1
+          }
         ],
         "values": [
           {
@@ -178,14 +242,46 @@
         ],
         "dtype": "int32",
         "random_values": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
+          {
+            "position": [
+              793,
+              0,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              3390,
+              0,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              5036,
+              0,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              2249,
+              0,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              5466,
+              0,
+              0
+            ],
+            "value": 0
+          }
         ],
         "values": [
           {

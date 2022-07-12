@@ -10,14 +10,22 @@
         ],
         "dtype": "float32",
         "random_values": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
+          {
+            "position": [
+              44,
+              247,
+              0
+            ],
+            "value": 0.0
+          },
+          {
+            "position": [
+              0,
+              6,
+              0
+            ],
+            "value": 0.0
+          }
         ],
         "values": [
           {
@@ -38,14 +46,22 @@
         ],
         "dtype": "uint8",
         "random_values": [
-          0,
-          3,
-          0,
-          0,
-          3,
-          0,
-          0,
-          0
+          {
+            "position": [
+              1,
+              7,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              7,
+              9,
+              0
+            ],
+            "value": 0
+          }
         ],
         "values": [
           {
@@ -71,14 +87,22 @@
         ],
         "dtype": "float32",
         "random_values": [
-          0.0,
-          0.0,
-          3.5,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
+          {
+            "position": [
+              60,
+              157,
+              0
+            ],
+            "value": 0.0
+          },
+          {
+            "position": [
+              0,
+              4,
+              0
+            ],
+            "value": 0.0
+          }
         ],
         "values": [
           {
@@ -99,14 +123,22 @@
         ],
         "dtype": "uint8",
         "random_values": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          3
+          {
+            "position": [
+              2,
+              4,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              8,
+              18,
+              0
+            ],
+            "value": 0
+          }
         ],
         "values": [
           {

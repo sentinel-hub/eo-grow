@@ -10,14 +10,46 @@
         ],
         "dtype": "int16",
         "random_values": [
-          0,
-          2,
-          0,
-          0,
-          0,
-          0,
-          5,
-          2
+          {
+            "position": [
+              107,
+              100,
+              0
+            ],
+            "value": 8
+          },
+          {
+            "position": [
+              0,
+              28,
+              0
+            ],
+            "value": 8
+          },
+          {
+            "position": [
+              64,
+              50,
+              0
+            ],
+            "value": 8
+          },
+          {
+            "position": [
+              50,
+              246,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              43,
+              116,
+              0
+            ],
+            "value": 0
+          }
         ],
         "values": [
           {
@@ -59,14 +91,46 @@
         ],
         "dtype": "int16",
         "random_values": [
-          8,
-          2,
-          2,
-          8,
-          5,
-          8,
-          8,
-          2
+          {
+            "position": [
+              64,
+              197,
+              0
+            ],
+            "value": 2
+          },
+          {
+            "position": [
+              117,
+              157,
+              0
+            ],
+            "value": 8
+          },
+          {
+            "position": [
+              0,
+              24,
+              0
+            ],
+            "value": 5
+          },
+          {
+            "position": [
+              115,
+              225,
+              0
+            ],
+            "value": 8
+          },
+          {
+            "position": [
+              77,
+              27,
+              0
+            ],
+            "value": 5
+          }
         ],
         "values": [
           {

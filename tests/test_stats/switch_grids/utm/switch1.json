@@ -44,14 +44,51 @@
           ]
         },
         "random_values": [
-          0.10419,
-          0.0,
-          0.43039,
-          0.0,
-          -0.80543,
-          0.0,
-          -0.04004,
-          0.0
+          {
+            "position": [
+              0,
+              58,
+              178,
+              2
+            ],
+            "value": 0.89263
+          },
+          {
+            "position": [
+              1,
+              2,
+              48,
+              2
+            ],
+            "value": 0.0
+          },
+          {
+            "position": [
+              1,
+              12,
+              150,
+              0
+            ],
+            "value": 0.30064
+          },
+          {
+            "position": [
+              1,
+              20,
+              93,
+              1
+            ],
+            "value": 0.0
+          },
+          {
+            "position": [
+              0,
+              26,
+              22,
+              1
+            ],
+            "value": 0.0
+          }
         ]
       }
     },
@@ -63,14 +100,41 @@
         ],
         "dtype": "int16",
         "random_values": [
-          0,
-          3,
-          4,
-          0,
-          4,
-          -2,
-          4,
-          5
+          {
+            "position": [
+              0,
+              2
+            ],
+            "value": -1
+          },
+          {
+            "position": [
+              0,
+              4
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              10
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              13
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              3
+            ],
+            "value": 4
+          }
         ],
         "values": [
           {
@@ -118,14 +182,42 @@
         ],
         "dtype": "uint8",
         "random_values": [
-          0,
-          0,
-          0,
-          4,
-          5,
-          4,
-          0,
-          5
+          {
+            "position": [
+              0,
+              157,
+              106,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              0,
+              45,
+              172,
+              0
+            ],
+            "value": 5
+          },
+          {
+            "position": [
+              1,
+              151,
+              198,
+              0
+            ],
+            "value": 6
+          },
+          {
+            "position": [
+              1,
+              150,
+              232,
+              0
+            ],
+            "value": 4
+          }
         ],
         "values": [
           {
@@ -156,14 +248,22 @@
         ],
         "dtype": "bool",
         "random_values": [
-          false,
-          false,
-          false,
-          false,
-          false,
-          false,
-          false,
-          true
+          {
+            "position": [
+              123,
+              45,
+              1
+            ],
+            "value": false
+          },
+          {
+            "position": [
+              115,
+              68,
+              0
+            ],
+            "value": false
+          }
         ],
         "values": [
           {
@@ -227,14 +327,51 @@
           ]
         },
         "random_values": [
-          -0.22119,
-          0.0,
-          0.97145,
-          0.0,
-          0.17571,
-          0.0,
-          0.7362,
-          0.0
+          {
+            "position": [
+              0,
+              58,
+              178,
+              2
+            ],
+            "value": -0.54779
+          },
+          {
+            "position": [
+              1,
+              2,
+              48,
+              2
+            ],
+            "value": 0.0
+          },
+          {
+            "position": [
+              1,
+              12,
+              150,
+              0
+            ],
+            "value": -0.78545
+          },
+          {
+            "position": [
+              1,
+              20,
+              93,
+              1
+            ],
+            "value": 0.0
+          },
+          {
+            "position": [
+              0,
+              26,
+              22,
+              1
+            ],
+            "value": 0.0
+          }
         ]
       }
     },
@@ -246,14 +383,41 @@
         ],
         "dtype": "int16",
         "random_values": [
-          0,
-          3,
-          4,
-          0,
-          4,
-          -2,
-          4,
-          5
+          {
+            "position": [
+              0,
+              2
+            ],
+            "value": -1
+          },
+          {
+            "position": [
+              0,
+              4
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              10
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              13
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              3
+            ],
+            "value": 4
+          }
         ],
         "values": [
           {
@@ -301,14 +465,42 @@
         ],
         "dtype": "uint8",
         "random_values": [
-          0,
-          0,
-          0,
-          4,
-          4,
-          5,
-          0,
-          4
+          {
+            "position": [
+              0,
+              157,
+              106,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              0,
+              46,
+              178,
+              0
+            ],
+            "value": 4
+          },
+          {
+            "position": [
+              1,
+              147,
+              182,
+              0
+            ],
+            "value": 4
+          },
+          {
+            "position": [
+              1,
+              157,
+              138,
+              0
+            ],
+            "value": 5
+          }
         ],
         "values": [
           {
@@ -339,14 +531,22 @@
         ],
         "dtype": "bool",
         "random_values": [
-          true,
-          false,
-          false,
-          false,
-          true,
-          true,
-          false,
-          false
+          {
+            "position": [
+              123,
+              31,
+              0
+            ],
+            "value": false
+          },
+          {
+            "position": [
+              115,
+              63,
+              0
+            ],
+            "value": false
+          }
         ],
         "values": [
           {
@@ -410,14 +610,51 @@
           ]
         },
         "random_values": [
-          -0.37656,
-          0.0,
-          0.70226,
-          0.0,
-          0.41566,
-          0.0,
-          -0.97818,
-          0.0
+          {
+            "position": [
+              0,
+              58,
+              178,
+              2
+            ],
+            "value": 0.52683
+          },
+          {
+            "position": [
+              0,
+              110,
+              28,
+              2
+            ],
+            "value": 0.0
+          },
+          {
+            "position": [
+              0,
+              128,
+              73,
+              1
+            ],
+            "value": 0.0
+          },
+          {
+            "position": [
+              1,
+              91,
+              29,
+              2
+            ],
+            "value": 0.0
+          },
+          {
+            "position": [
+              1,
+              119,
+              113,
+              0
+            ],
+            "value": 0.0
+          }
         ]
       }
     },
@@ -429,14 +666,41 @@
         ],
         "dtype": "int16",
         "random_values": [
-          0,
-          3,
-          4,
-          0,
-          4,
-          -2,
-          4,
-          5
+          {
+            "position": [
+              0,
+              2
+            ],
+            "value": -1
+          },
+          {
+            "position": [
+              0,
+              4
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              10
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              13
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              3
+            ],
+            "value": 4
+          }
         ],
         "values": [
           {
@@ -484,14 +748,42 @@
         ],
         "dtype": "uint8",
         "random_values": [
-          0,
-          0,
-          0,
-          0,
-          5,
-          0,
-          0,
-          5
+          {
+            "position": [
+              1,
+              109,
+              59,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              0,
+              108,
+              124,
+              0
+            ],
+            "value": 5
+          },
+          {
+            "position": [
+              1,
+              156,
+              9,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              1,
+              115,
+              45,
+              0
+            ],
+            "value": 0
+          }
         ],
         "values": [
           {
@@ -522,14 +814,22 @@
         ],
         "dtype": "bool",
         "random_values": [
-          false,
-          false,
-          false,
-          false,
-          false,
-          true,
-          false,
-          true
+          {
+            "position": [
+              97,
+              149,
+              1
+            ],
+            "value": false
+          },
+          {
+            "position": [
+              37,
+              223,
+              0
+            ],
+            "value": false
+          }
         ],
         "values": [
           {
@@ -593,14 +893,51 @@
           ]
         },
         "random_values": [
-          0.64689,
-          0.20676,
-          0.19642,
-          -0.41265,
-          0.28461,
-          0.70799,
-          0.71949,
-          -0.93751
+          {
+            "position": [
+              0,
+              58,
+              178,
+              2
+            ],
+            "value": 0.18112
+          },
+          {
+            "position": [
+              0,
+              135,
+              113,
+              2
+            ],
+            "value": 0.15374
+          },
+          {
+            "position": [
+              1,
+              12,
+              150,
+              0
+            ],
+            "value": -0.57542
+          },
+          {
+            "position": [
+              0,
+              14,
+              108,
+              2
+            ],
+            "value": 0.11295
+          },
+          {
+            "position": [
+              0,
+              56,
+              99,
+              1
+            ],
+            "value": -0.42168
+          }
         ]
       }
     },
@@ -612,14 +949,41 @@
         ],
         "dtype": "int16",
         "random_values": [
-          0,
-          3,
-          4,
-          0,
-          4,
-          -2,
-          4,
-          5
+          {
+            "position": [
+              0,
+              2
+            ],
+            "value": -1
+          },
+          {
+            "position": [
+              0,
+              4
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              10
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              13
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              3
+            ],
+            "value": 4
+          }
         ],
         "values": [
           {
@@ -667,14 +1031,33 @@
         ],
         "dtype": "uint8",
         "random_values": [
-          5,
-          4,
-          6,
-          6,
-          4,
-          5,
-          4,
-          6
+          {
+            "position": [
+              0,
+              154,
+              33,
+              0
+            ],
+            "value": 4
+          },
+          {
+            "position": [
+              0,
+              118,
+              147,
+              0
+            ],
+            "value": 4
+          },
+          {
+            "position": [
+              1,
+              63,
+              228,
+              0
+            ],
+            "value": 6
+          }
         ],
         "values": [
           {
@@ -701,14 +1084,22 @@
         ],
         "dtype": "bool",
         "random_values": [
-          false,
-          true,
-          false,
-          true,
-          false,
-          false,
-          true,
-          true
+          {
+            "position": [
+              75,
+              194,
+              0
+            ],
+            "value": true
+          },
+          {
+            "position": [
+              107,
+              69,
+              1
+            ],
+            "value": true
+          }
         ],
         "values": [
           {
@@ -772,14 +1163,51 @@
           ]
         },
         "random_values": [
-          -0.19006,
-          -0.13681,
-          -0.38688,
-          0.41515,
-          -0.58969,
-          -0.60763,
-          -0.1451,
-          -0.42618
+          {
+            "position": [
+              0,
+              58,
+              178,
+              2
+            ],
+            "value": -0.14369
+          },
+          {
+            "position": [
+              0,
+              135,
+              113,
+              2
+            ],
+            "value": 0.78728
+          },
+          {
+            "position": [
+              1,
+              12,
+              150,
+              0
+            ],
+            "value": -0.8445
+          },
+          {
+            "position": [
+              0,
+              14,
+              108,
+              2
+            ],
+            "value": -0.87854
+          },
+          {
+            "position": [
+              0,
+              56,
+              99,
+              1
+            ],
+            "value": 0.60369
+          }
         ]
       }
     },
@@ -791,14 +1219,41 @@
         ],
         "dtype": "int16",
         "random_values": [
-          0,
-          3,
-          4,
-          0,
-          4,
-          -2,
-          4,
-          5
+          {
+            "position": [
+              0,
+              2
+            ],
+            "value": -1
+          },
+          {
+            "position": [
+              0,
+              4
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              10
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              13
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              3
+            ],
+            "value": 4
+          }
         ],
         "values": [
           {
@@ -846,14 +1301,33 @@
         ],
         "dtype": "uint8",
         "random_values": [
-          6,
-          6,
-          4,
-          5,
-          6,
-          4,
-          6,
-          5
+          {
+            "position": [
+              0,
+              156,
+              209,
+              0
+            ],
+            "value": 5
+          },
+          {
+            "position": [
+              0,
+              117,
+              84,
+              0
+            ],
+            "value": 4
+          },
+          {
+            "position": [
+              1,
+              69,
+              22,
+              0
+            ],
+            "value": 5
+          }
         ],
         "values": [
           {
@@ -880,14 +1354,22 @@
         ],
         "dtype": "bool",
         "random_values": [
-          false,
-          false,
-          true,
-          false,
-          false,
-          true,
-          false,
-          false
+          {
+            "position": [
+              76,
+              109,
+              1
+            ],
+            "value": true
+          },
+          {
+            "position": [
+              106,
+              206,
+              1
+            ],
+            "value": false
+          }
         ],
         "values": [
           {
@@ -951,14 +1433,51 @@
           ]
         },
         "random_values": [
-          0.33437,
-          -0.57936,
-          0.92467,
-          0.01832,
-          -0.98812,
-          -0.86525,
-          0.72199,
-          -0.20337
+          {
+            "position": [
+              0,
+              58,
+              178,
+              2
+            ],
+            "value": -0.8353
+          },
+          {
+            "position": [
+              0,
+              135,
+              113,
+              2
+            ],
+            "value": 0.69296
+          },
+          {
+            "position": [
+              1,
+              12,
+              150,
+              0
+            ],
+            "value": -0.67681
+          },
+          {
+            "position": [
+              0,
+              14,
+              108,
+              2
+            ],
+            "value": -0.6605
+          },
+          {
+            "position": [
+              0,
+              56,
+              99,
+              1
+            ],
+            "value": 0.78788
+          }
         ]
       }
     },
@@ -970,14 +1489,41 @@
         ],
         "dtype": "int16",
         "random_values": [
-          0,
-          3,
-          4,
-          0,
-          4,
-          -2,
-          4,
-          5
+          {
+            "position": [
+              0,
+              2
+            ],
+            "value": -1
+          },
+          {
+            "position": [
+              0,
+              4
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              10
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              13
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              3
+            ],
+            "value": 4
+          }
         ],
         "values": [
           {
@@ -1025,14 +1571,33 @@
         ],
         "dtype": "uint8",
         "random_values": [
-          6,
-          6,
-          4,
-          5,
-          5,
-          4,
-          4,
-          4
+          {
+            "position": [
+              0,
+              153,
+              158,
+              0
+            ],
+            "value": 4
+          },
+          {
+            "position": [
+              0,
+              118,
+              123,
+              0
+            ],
+            "value": 6
+          },
+          {
+            "position": [
+              1,
+              64,
+              4,
+              0
+            ],
+            "value": 6
+          }
         ],
         "values": [
           {
@@ -1059,14 +1624,22 @@
         ],
         "dtype": "bool",
         "random_values": [
-          true,
-          true,
-          true,
-          true,
-          false,
-          true,
-          false,
-          true
+          {
+            "position": [
+              76,
+              21,
+              0
+            ],
+            "value": true
+          },
+          {
+            "position": [
+              107,
+              103,
+              1
+            ],
+            "value": false
+          }
         ],
         "values": [
           {
@@ -1130,14 +1703,51 @@
           ]
         },
         "random_values": [
-          0.0,
-          -0.81264,
-          0.0,
-          0.0,
-          0.0,
-          0.0089,
-          0.0,
-          0.0
+          {
+            "position": [
+              0,
+              111,
+              38,
+              2
+            ],
+            "value": 0.0
+          },
+          {
+            "position": [
+              0,
+              119,
+              243,
+              1
+            ],
+            "value": 0.0
+          },
+          {
+            "position": [
+              1,
+              76,
+              9,
+              2
+            ],
+            "value": 0.0
+          },
+          {
+            "position": [
+              0,
+              14,
+              108,
+              2
+            ],
+            "value": 0.76133
+          },
+          {
+            "position": [
+              0,
+              56,
+              99,
+              1
+            ],
+            "value": 0.09371
+          }
         ]
       }
     },
@@ -1149,14 +1759,41 @@
         ],
         "dtype": "int16",
         "random_values": [
-          0,
-          3,
-          4,
-          0,
-          4,
-          -2,
-          4,
-          5
+          {
+            "position": [
+              0,
+              2
+            ],
+            "value": -1
+          },
+          {
+            "position": [
+              0,
+              4
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              10
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              13
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              3
+            ],
+            "value": 4
+          }
         ],
         "values": [
           {
@@ -1204,14 +1841,42 @@
         ],
         "dtype": "uint8",
         "random_values": [
-          0,
-          5,
-          4,
-          0,
-          0,
-          0,
-          5,
-          0
+          {
+            "position": [
+              1,
+              84,
+              199,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              1,
+              73,
+              30,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              0,
+              108,
+              6,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              1,
+              159,
+              61,
+              0
+            ],
+            "value": 0
+          }
         ],
         "values": [
           {
@@ -1242,14 +1907,22 @@
         ],
         "dtype": "bool",
         "random_values": [
-          false,
-          false,
-          false,
-          false,
-          false,
-          false,
-          false,
-          false
+          {
+            "position": [
+              101,
+              116,
+              0
+            ],
+            "value": false
+          },
+          {
+            "position": [
+              19,
+              108,
+              1
+            ],
+            "value": true
+          }
         ],
         "values": [
           {
@@ -1313,14 +1986,51 @@
           ]
         },
         "random_values": [
-          0.0,
-          0.34939,
-          0.0,
-          0.09719,
-          0.0,
-          -0.42572,
-          0.0,
-          -0.12989
+          {
+            "position": [
+              1,
+              2,
+              178,
+              2
+            ],
+            "value": 0.0
+          },
+          {
+            "position": [
+              0,
+              135,
+              113,
+              2
+            ],
+            "value": 0.7997
+          },
+          {
+            "position": [
+              1,
+              20,
+              223,
+              1
+            ],
+            "value": 0.0
+          },
+          {
+            "position": [
+              0,
+              14,
+              108,
+              2
+            ],
+            "value": -0.0545
+          },
+          {
+            "position": [
+              0,
+              56,
+              99,
+              1
+            ],
+            "value": 0.75193
+          }
         ]
       }
     },
@@ -1332,14 +2042,41 @@
         ],
         "dtype": "int16",
         "random_values": [
-          0,
-          3,
-          4,
-          0,
-          4,
-          -2,
-          4,
-          5
+          {
+            "position": [
+              0,
+              2
+            ],
+            "value": -1
+          },
+          {
+            "position": [
+              0,
+              4
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              10
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              13
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              3
+            ],
+            "value": 4
+          }
         ],
         "values": [
           {
@@ -1387,14 +2124,42 @@
         ],
         "dtype": "uint8",
         "random_values": [
-          6,
-          4,
-          5,
-          0,
-          0,
-          0,
-          6,
-          0
+          {
+            "position": [
+              1,
+              131,
+              15,
+              0
+            ],
+            "value": 5
+          },
+          {
+            "position": [
+              0,
+              157,
+              236,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              1,
+              61,
+              214,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              1,
+              84,
+              185,
+              0
+            ],
+            "value": 0
+          }
         ],
         "values": [
           {
@@ -1425,14 +2190,22 @@
         ],
         "dtype": "bool",
         "random_values": [
-          false,
-          false,
-          false,
-          false,
-          true,
-          false,
-          true,
-          false
+          {
+            "position": [
+              99,
+              21,
+              0
+            ],
+            "value": true
+          },
+          {
+            "position": [
+              115,
+              36,
+              0
+            ],
+            "value": false
+          }
         ],
         "values": [
           {
@@ -1496,14 +2269,51 @@
           ]
         },
         "random_values": [
-          0.0,
-          0.69993,
-          0.0,
-          0.38574,
-          0.0,
-          0.0,
-          0.0,
-          -0.66005
+          {
+            "position": [
+              0,
+              110,
+              158,
+              2
+            ],
+            "value": 0.0
+          },
+          {
+            "position": [
+              0,
+              135,
+              113,
+              2
+            ],
+            "value": 0.50373
+          },
+          {
+            "position": [
+              0,
+              128,
+              203,
+              1
+            ],
+            "value": 0.0
+          },
+          {
+            "position": [
+              1,
+              91,
+              159,
+              2
+            ],
+            "value": 0.0
+          },
+          {
+            "position": [
+              0,
+              56,
+              99,
+              1
+            ],
+            "value": 0.8474
+          }
         ]
       }
     },
@@ -1515,14 +2325,41 @@
         ],
         "dtype": "int16",
         "random_values": [
-          0,
-          3,
-          4,
-          0,
-          4,
-          -2,
-          4,
-          5
+          {
+            "position": [
+              0,
+              2
+            ],
+            "value": -1
+          },
+          {
+            "position": [
+              0,
+              4
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              10
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              13
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              0,
+              3
+            ],
+            "value": 4
+          }
         ],
         "values": [
           {
@@ -1570,14 +2407,42 @@
         ],
         "dtype": "uint8",
         "random_values": [
-          6,
-          0,
-          0,
-          0,
-          0,
-          0,
-          5,
-          0
+          {
+            "position": [
+              0,
+              108,
+              5,
+              0
+            ],
+            "value": 4
+          },
+          {
+            "position": [
+              1,
+              156,
+              139,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              1,
+              115,
+              175,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              1,
+              117,
+              153,
+              0
+            ],
+            "value": 0
+          }
         ],
         "values": [
           {
@@ -1608,14 +2473,22 @@
         ],
         "dtype": "bool",
         "random_values": [
-          false,
-          true,
-          true,
-          false,
-          false,
-          false,
-          true,
-          false
+          {
+            "position": [
+              148,
+              67,
+              1
+            ],
+            "value": true
+          },
+          {
+            "position": [
+              97,
+              205,
+              0
+            ],
+            "value": false
+          }
         ],
         "values": [
           {

@@ -4,40 +4,72 @@
     "mask_timeless": {
       "PREDICTION_LABELS_MAPPED": {
         "array_shape": [
-          600,
-          1,
+          121,
+          264,
           1
         ],
         "dtype": "int16",
         "random_values": [
-          8,
-          2,
-          8,
-          2,
-          8,
-          8,
-          2,
-          8
-        ],
-        "values": [
           {
-            "count": 166,
-            "value": 2
-          },
-          {
-            "count": 2,
-            "value": 4
-          },
-          {
-            "count": 38,
-            "value": 5
-          },
-          {
-            "count": 393,
+            "position": [
+              65,
+              44,
+              0
+            ],
             "value": 8
           },
           {
-            "count": 1,
+            "position": [
+              0,
+              30,
+              0
+            ],
+            "value": 8
+          },
+          {
+            "position": [
+              109,
+              225,
+              0
+            ],
+            "value": 8
+          },
+          {
+            "position": [
+              105,
+              112,
+              0
+            ],
+            "value": 8
+          },
+          {
+            "position": [
+              69,
+              97,
+              0
+            ],
+            "value": 8
+          }
+        ],
+        "values": [
+          {
+            "count": 6989,
+            "value": 2
+          },
+          {
+            "count": 3,
+            "value": 4
+          },
+          {
+            "count": 2868,
+            "value": 5
+          },
+          {
+            "count": 22039,
+            "value": 8
+          },
+          {
+            "count": 45,
             "value": 9
           }
         ]
@@ -49,40 +81,72 @@
     "mask_timeless": {
       "PREDICTION_LABELS_MAPPED": {
         "array_shape": [
-          800,
-          1,
+          121,
+          264,
           1
         ],
         "dtype": "int16",
         "random_values": [
-          8,
-          5,
-          8,
-          2,
-          8,
-          8,
-          2,
-          2
-        ],
-        "values": [
           {
-            "count": 476,
+            "position": [
+              56,
+              42,
+              0
+            ],
             "value": 2
           },
           {
-            "count": 1,
-            "value": 4
-          },
-          {
-            "count": 85,
-            "value": 5
-          },
-          {
-            "count": 236,
+            "position": [
+              0,
+              22,
+              0
+            ],
             "value": 8
           },
           {
+            "position": [
+              88,
+              17,
+              0
+            ],
+            "value": 5
+          },
+          {
+            "position": [
+              66,
+              141,
+              0
+            ],
+            "value": 8
+          },
+          {
+            "position": [
+              92,
+              17,
+              0
+            ],
+            "value": 5
+          }
+        ],
+        "values": [
+          {
+            "count": 17763,
+            "value": 2
+          },
+          {
             "count": 2,
+            "value": 4
+          },
+          {
+            "count": 3584,
+            "value": 5
+          },
+          {
+            "count": 10569,
+            "value": 8
+          },
+          {
+            "count": 26,
             "value": 9
           }
         ]

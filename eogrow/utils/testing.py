@@ -4,7 +4,7 @@ Module implementing utilities for unit testing pipeline results
 import functools
 import json
 import os
-from typing import Any, Callable, Dict, Optional, Tuple, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 
 import fs
 import numpy as np
@@ -50,7 +50,7 @@ class ContentTester:
         decimals: int = 5,
         unique_values_limit: int = 8,
         histogram_bin_num: int = 8,
-        random_values_num: int = 8,
+        max_random_values: int = 5,
     ):
         """
         :param filesystem: A filesystem containing project data
@@ -61,7 +61,7 @@ class ContentTester:
             the values.
         :param histogram_bin_num: Number of bins in a histogram for statistics. The histogram will be calculated only
             if number of unique values is higher than `unique_values_limit`.
-        :param random_values_num: Number of values that will be randomly sampled from an array for statistics. This
+        :param max_random_values: Number of values that will be randomly sampled from an array for statistics. This
             will happen only if the array contains at least `2` different unique values.
         """
         self.filesystem = filesystem
@@ -69,7 +69,7 @@ class ContentTester:
         self.decimals = decimals
         self.unique_values_limit = unique_values_limit
         self.histogram_bin_num = histogram_bin_num
-        self.random_values_num = random_values_num
+        self.max_random_values = max_random_values
 
         if not filesystem.isdir(self.main_folder):
             raise ValueError(f"Folder {self.main_folder} does not exist on filesystem {self.filesystem}")
@@ -159,9 +159,9 @@ class ContentTester:
         if raster.dtype == object or raster.dtype.kind == "U":
             return stats
 
-        unique_value_count = np.unique(raster).size
+        unique_values = np.unique(raster)
 
-        if unique_value_count <= self.unique_values_limit:
+        if unique_values.size <= self.unique_values_limit:
             values, counts = np.unique(raster, return_counts=True)
             stats["values"] = [
                 {"value": self._prepare_value(value), "count": int(count)} for value, count in zip(values, counts)
@@ -186,10 +186,8 @@ class ContentTester:
                 "edges": list(map(self._prepare_value, edges)),
             }
 
-        if unique_value_count > 1:
-            np.random.seed(0)
-            randomly_chosen_values = np.random.choice(raster.flatten(), self.random_values_num)
-            stats["random_values"] = list(map(self._prepare_value, randomly_chosen_values))
+        if unique_values.size > 1:
+            stats["random_values"] = self._get_random_stats(raster, unique_values)
 
         return stats
 
@@ -227,6 +225,31 @@ class ContentTester:
             stats["first_row"] = list(map(str, dataframe.iloc[0]))
 
         return stats
+
+    def _get_random_stats(self, raster: np.ndarray, unique_values: np.ndarray) -> List[JsonDict]:
+        """First it randomly samples a few values from the list of unique values. Then for each one it checks where
+        this value is located in the original array and randomly selects one of its locations. Selected locations
+        and values are used for statistics."""
+        np.random.seed(0)
+        randomly_chosen_values = np.random.choice(
+            raster.flatten(),
+            size=min(self.max_random_values, unique_values.size),
+            replace=False,
+        )
+
+        random_stats: List[JsonDict] = []
+        for value in randomly_chosen_values:
+            value_mask = np.isnan(raster) if np.isnan(value) else raster == value
+            positions = np.argwhere(value_mask)
+
+            num_positions = positions.shape[0]
+            chosen_position_index = np.random.randint(num_positions)
+
+            random_stats.append(
+                {"value": self._prepare_value(value), "position": positions[chosen_position_index].tolist()}
+            )
+
+        return random_stats
 
     def _prepare_value(self, value: Any) -> Any:
         """Converts a value in a way that it can be compared and serialized into a JSON. It also rounds float values."""
