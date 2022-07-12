@@ -43,8 +43,15 @@ class ContentTester:
         "median": np.median,
     }
 
-    def __init__(self, filesystem: FS, main_folder: str, decimals: int = 5, unique_values_limit: int = 8,
-                 histogram_bin_num: int = 8, random_values_num: int = 8):
+    def __init__(
+        self,
+        filesystem: FS,
+        main_folder: str,
+        decimals: int = 5,
+        unique_values_limit: int = 8,
+        histogram_bin_num: int = 8,
+        random_values_num: int = 8,
+    ):
         """
         :param filesystem: A filesystem containing project data
         :param main_folder: A folder path on the filesystem where results are saved
@@ -108,7 +115,7 @@ class ContentTester:
             elif content_path.endswith("tiff"):
                 stats[content] = self._calculate_tiff_stats(content_path)
             elif content_path.endswith(".npy"):
-                stats[content] = self._calculate_numpy_stats(content_path)
+                stats[content] = self._calculate_numpy_file_stats(content_path)
             elif content_path.endswith(".aux.xml"):
                 pass
             else:
@@ -133,7 +140,7 @@ class ContentTester:
                 feature_stats_dict = {}
 
                 if feature_type.is_raster():
-                    calculation_method: Callable = self._calculate_raster_stats
+                    calculation_method: Callable = self._calculate_numpy_stats
                 elif feature_type.is_vector():
                     calculation_method = self._calculate_vector_stats
                 else:  # Only FeatureType.META_INFO remains
@@ -146,7 +153,7 @@ class ContentTester:
 
         return stats
 
-    def _calculate_raster_stats(self, raster: np.ndarray) -> JsonDict:
+    def _calculate_numpy_stats(self, raster: np.ndarray) -> JsonDict:
         """Calculates statistics over a raster numpy array"""
         stats: JsonDict = {"array_shape": list(raster.shape), "dtype": str(raster.dtype)}
         if raster.dtype == object or raster.dtype.kind == "U":
@@ -194,16 +201,16 @@ class ContentTester:
                 mask = tiff.dataset_mask()
 
         return {
-            "image": self._calculate_raster_stats(image),
-            "mask": self._calculate_raster_stats(mask),
+            "image": self._calculate_numpy_stats(image),
+            "mask": self._calculate_numpy_stats(mask),
         }
 
-    def _calculate_numpy_stats(self, numpy_filename: str) -> JsonDict:
+    def _calculate_numpy_file_stats(self, numpy_filename: str) -> JsonDict:
         """Calculates statistics over a .npy file containing a numpy array"""
         with self.filesystem.openbin(numpy_filename, "r") as file_handle:
             raster = np.load(file_handle, allow_pickle=True)
 
-        return self._calculate_raster_stats(raster)
+        return self._calculate_numpy_stats(raster)
 
     def _calculate_vector_stats(self, dataframe: pd.DataFrame) -> JsonDict:
         """Calculates statistics over a vector GeoDataFrame"""  # TODO: add more statistical properties
