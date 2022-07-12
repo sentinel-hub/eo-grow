@@ -4,7 +4,7 @@ Module implementing utilities for unit testing pipeline results
 import functools
 import json
 import os
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, Optional, Tuple, cast
 
 import fs
 import numpy as np
@@ -221,9 +221,11 @@ class ContentTester:
         if not np.isfinite(value):
             return repr(value)
         if np.issubdtype(type(value), np.integer):
+            value = cast(int, value)
             return int(value)
         if np.issubdtype(type(value), bool):
             return bool(value)
+        value = cast(float, value)
         return round(float(value), self.decimals)
 
 
