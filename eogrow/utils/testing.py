@@ -15,7 +15,6 @@ from deepdiff import DeepDiff
 from fs.base import FS
 
 from eolearn.core import EOPatch, FeatureType
-from eolearn.core.utils.common import is_discrete_type
 
 from ..core.config import collect_configs_from_path, interpret_config_from_dict
 from ..core.pipeline import Pipeline
@@ -142,7 +141,7 @@ class ContentTester:
 
     def _calculate_raster_stats(self, raster: np.ndarray) -> JsonDict:
         """Calculates statistics over a raster numpy array"""
-        stats = {"shape": raster.shape, "dtype": str(raster.dtype)}
+        stats: JsonDict = {"array_shape": list(raster.shape), "dtype": str(raster.dtype)}
         if raster.dtype == object or raster.dtype.kind == "U":
             return stats
 
@@ -151,25 +150,32 @@ class ContentTester:
         if unique_value_count <= self.unique_values_threshold:
             values, counts = np.unique(raster, return_counts=True)
             stats["values"] = [
-                {"value": self._round_value(value), "count": count} for value, count in zip(values, counts)
+                {"value": self._prepare_value(value), "count": int(count)} for value, count in zip(values, counts)
             ]
 
         else:
             number_values = raster[~np.isnan(raster)]
             finite_values = number_values[np.isfinite(number_values)]
 
-            stats["nan_count"] = raster.size - number_values.size
-            stats["infinite_count"] = number_values.size - finite_values.size
+            stats["counts"] = {
+                "nan": raster.size - number_values.size,
+                "infinite": number_values.size - finite_values.size,
+            }
+            stats["basic_stats"] = {
+                name: self._prepare_value(operation(finite_values))
+                for name, operation in self._STATS_OPERATIONS.items()
+            }
 
-            for name, operation in self._STATS_OPERATIONS.items():
-                stats[name] = self._round_value(operation(finite_values))
-
-            stats["histogram"] = list(map(int, np.histogram(finite_values, bins=self.unique_values_threshold)[0]))
+            counts, edges = np.histogram(finite_values, bins=self.unique_values_threshold)
+            stats["histogram"] = {
+                "counts": counts.astype(int).tolist(),
+                "edges": list(map(self._prepare_value, edges)),
+            }
 
         if unique_value_count > 1:
             np.random.seed(0)
             randomly_chosen_values = np.random.choice(raster.flatten(), self.unique_values_threshold)
-            stats["random_values"] = list(map(self._round_value, randomly_chosen_values))
+            stats["random_values"] = list(map(self._prepare_value, randomly_chosen_values))
 
         return stats
 
@@ -208,12 +214,17 @@ class ContentTester:
 
         return stats
 
-    def _round_value(self, value: Any) -> Any:
-        """If the given value is a float then it will round it."""
-        if not np.isfinite(value) or is_discrete_type(type(value)):
+    def _prepare_value(self, value: Any) -> Any:
+        """Converts a value in a way that it can be compared and serialized into a JSON. It also rounds float values."""
+        if not np.isscalar(value):
             return value
-
-        return round(value, self.decimals)
+        if not np.isfinite(value):
+            return repr(value)
+        if np.issubdtype(type(value), np.integer):
+            return int(value)
+        if np.issubdtype(type(value), bool):
+            return bool(value)
+        return round(float(value), self.decimals)
 
 
 def check_pipeline_logs(pipeline: Pipeline) -> None:
