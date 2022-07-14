@@ -2,67 +2,163 @@
   "eopatch-id-0-col-0-row-0": {
     "bbox": "BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS('32638'))",
     "mask_timeless": {
-      "PREDICTION_LABELS": [
-        121,
-        264,
-        1,
-        "int16",
-        0,
-        31944,
-        1.0,
-        9.0,
-        6.04965,
-        8.0,
-        6989,
-        0,
-        2404,
-        3,
-        464,
-        0,
-        0,
-        22084,
-        8.0,
-        1.0,
-        8.0,
-        8.0,
-        3.0,
-        8.0,
-        1.0,
-        1.0
-      ]
+      "PREDICTION_LABELS": {
+        "array_shape": [
+          121,
+          264,
+          1
+        ],
+        "dtype": "int16",
+        "random_values": [
+          {
+            "position": [
+              83,
+              105,
+              0
+            ],
+            "value": 9
+          },
+          {
+            "position": [
+              16,
+              238,
+              0
+            ],
+            "value": 4
+          },
+          {
+            "position": [
+              96,
+              23,
+              0
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              27,
+              177,
+              0
+            ],
+            "value": 5
+          },
+          {
+            "position": [
+              113,
+              47,
+              0
+            ],
+            "value": 1
+          }
+        ],
+        "values": [
+          {
+            "count": 6989,
+            "value": 1
+          },
+          {
+            "count": 2404,
+            "value": 3
+          },
+          {
+            "count": 3,
+            "value": 4
+          },
+          {
+            "count": 464,
+            "value": 5
+          },
+          {
+            "count": 22039,
+            "value": 8
+          },
+          {
+            "count": 45,
+            "value": 9
+          }
+        ]
+      }
     }
   },
   "eopatch-id-1-col-0-row-1": {
     "bbox": "BBox(((729480.0, 4391145.0), (732120.0, 4392355.0)), crs=CRS('32638'))",
     "mask_timeless": {
-      "PREDICTION_LABELS": [
-        121,
-        264,
-        1,
-        "int16",
-        0,
-        31944,
-        1.0,
-        9.0,
-        3.6975,
-        1.0,
-        17763,
-        0,
-        1182,
-        2,
-        2402,
-        0,
-        0,
-        10595,
-        8.0,
-        1.0,
-        1.0,
-        8.0,
-        5.0,
-        8.0,
-        3.0,
-        1.0
-      ]
+      "PREDICTION_LABELS": {
+        "array_shape": [
+          121,
+          264,
+          1
+        ],
+        "dtype": "int16",
+        "random_values": [
+          {
+            "position": [
+              117,
+              55,
+              0
+            ],
+            "value": 9
+          },
+          {
+            "position": [
+              109,
+              244,
+              0
+            ],
+            "value": 4
+          },
+          {
+            "position": [
+              92,
+              50,
+              0
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              110,
+              169,
+              0
+            ],
+            "value": 5
+          },
+          {
+            "position": [
+              112,
+              5,
+              0
+            ],
+            "value": 1
+          }
+        ],
+        "values": [
+          {
+            "count": 17763,
+            "value": 1
+          },
+          {
+            "count": 1182,
+            "value": 3
+          },
+          {
+            "count": 2,
+            "value": 4
+          },
+          {
+            "count": 2402,
+            "value": 5
+          },
+          {
+            "count": 10569,
+            "value": 8
+          },
+          {
+            "count": 26,
+            "value": 9
+          }
+        ]
+      }
     }
   }
 }
