@@ -340,7 +340,8 @@ def run_and_test_pipeline(
 
         stats_difference = tester.compare(expected_stats_file)
         if stats_difference:
-            raise AssertionError(f"Expected and obtained stats differ: {stats_difference}")
+            stats_difference_repr = stats_difference.to_json(indent=2, sort_keys=True)
+            raise AssertionError(f"Expected and obtained stats differ:\n{stats_difference_repr}")
 
 
 def _round_point_coords(x: float, y: float, decimals: int) -> Tuple[float, float]:
