@@ -10,6 +10,7 @@ from pydantic import Field
 from eolearn.core.utils.fs import get_aws_credentials, get_filesystem, is_s3_path
 from sentinelhub import SHConfig
 
+from ..utils.types import AwsAclType
 from .base import EOGrowObject
 from .schemas import ManagerSchema
 
@@ -26,6 +27,12 @@ class StorageManager(EOGrowObject):
         )
         aws_profile: Optional[str] = Field(
             description="The AWS profile with credentials needed to access the S3 bucket"
+        )
+        aws_acl: Optional[AwsAclType] = Field(
+            description=(
+                "An optional parameter to specify under what kind of access control list (ACL) objects should be saved"
+                " to an AWS S3 bucket."
+            )
         )
         structure: Dict[str, str] = Field(
             default_factory=dict, description="A flat key: value store mapping each key to a path in the project."
@@ -44,7 +51,11 @@ class StorageManager(EOGrowObject):
         if self.is_on_aws() and self.config.aws_profile:
             self.sh_config = get_aws_credentials(aws_profile=self.config.aws_profile, config=self.sh_config)
 
-        self.filesystem = get_filesystem(self.config.project_folder, create=True, config=self.sh_config)
+        fs_kwargs: Dict[str, str] = {}
+        if is_s3_path(self.config.project_folder) and self.config.aws_acl:
+            fs_kwargs["acl"] = self.config.aws_acl
+
+        self.filesystem = get_filesystem(self.config.project_folder, create=True, config=self.sh_config, **fs_kwargs)
 
     def get_folder(self, key: str, full_path: bool = False) -> str:
         """Returns the path  associated with a key in the structure config."""
