@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
 
 from eolearn.core import CreateEOPatchTask, EOExecutor, EONode, EOWorkflow, LoadTask, SaveTask, WorkflowResults
 from eolearn.core.extra.ray import RayExecutor
+from eolearn.core.utils.fs import pickle_fs
 
 from ..utils.meta import import_object
 from ..utils.ray import handle_ray_connection
@@ -200,7 +201,11 @@ class Pipeline(EOGrowObject):
             logs_folder=self.logging_manager.get_pipeline_logs_folder(self.current_execution_name),
             filesystem=self.storage.filesystem,
             logs_filter=EOExecutionFilter(ignore_packages=self.logging_manager.config.eoexecution_ignore_packages),
-            logs_handler_factory=functools.partial(EOExecutionHandler, config=self.sh_config, encoding="utf-8"),
+            logs_handler_factory=functools.partial(
+                EOExecutionHandler,
+                filesystem=pickle_fs(self.storage.filesystem),
+                encoding="utf-8",
+            ),
         )
         execution_results = executor.run(**executor_run_params)
 

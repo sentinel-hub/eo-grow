@@ -13,8 +13,7 @@ from fs.base import FS
 from fs.errors import FilesystemClosed
 from pydantic import Field
 
-from eolearn.core.utils.fs import join_path
-from sentinelhub import SHConfig
+from eolearn.core.utils.fs import join_path, unpickle_fs
 
 from ..utils.fs import LocalFile
 from ..utils.general import jsonify
@@ -246,15 +245,17 @@ class FilesystemHandler(FileHandler):
     process stuck waiting for a thread lock release.
     """
 
-    def __init__(self, path: str, filesystem: Optional[FS] = None, config: Optional[SHConfig] = None, **kwargs: Any):
+    def __init__(self, path: str, filesystem: Union[FS, bytes], **kwargs: Any):
         """
         :param path: A path to a log file. It should be an absolute path if filesystem object is not given and relative
             otherwise.
-        :param filesystem: A filesystem to where logs will be written.
+        :param filesystem: A filesystem to where logs will be written. It can either be an instance of a filesystem
+            object or its pickled copy.
         :param config: A config object holding credentials.
         :param kwargs: Keyword arguments that will be propagated to FileHandler.
         """
-        self.local_file = LocalFile(path, mode="w", filesystem=filesystem, config=config)
+        filesystem_object = unpickle_fs(filesystem) if isinstance(filesystem, bytes) else filesystem
+        self.local_file = LocalFile(path, mode="w", filesystem=filesystem_object)
 
         super().__init__(self.local_file.path, **kwargs)
 
