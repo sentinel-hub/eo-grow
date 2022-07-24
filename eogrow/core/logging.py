@@ -245,19 +245,19 @@ class FilesystemHandler(FileHandler):
     process stuck waiting for a thread lock release.
     """
 
-    def __init__(self, path: str, filesystem: Union[FS, bytes], **kwargs: Any):
+    def __init__(self, path: str, filesystem: Union[FS, bytes], encoding: Optional[str] = "utf-8", **kwargs: Any):
         """
         :param path: A path to a log file. It should be an absolute path if filesystem object is not given and relative
             otherwise.
         :param filesystem: A filesystem to where logs will be written. It can either be an instance of a filesystem
             object or its pickled copy.
-        :param config: A config object holding credentials.
+        :param encoding: Encoding used to write log files.
         :param kwargs: Keyword arguments that will be propagated to FileHandler.
         """
         filesystem_object = unpickle_fs(filesystem) if isinstance(filesystem, bytes) else filesystem
         self.local_file = LocalFile(path, mode="w", filesystem=filesystem_object)
 
-        super().__init__(self.local_file.path, **kwargs)
+        super().__init__(self.local_file.path, encoding=encoding, **kwargs)
 
         self.addFilter(FilesystemFilter())
 
