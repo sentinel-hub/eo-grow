@@ -7,10 +7,11 @@ from typing import List, Optional
 
 import fs
 import numpy as np
+from fs.base import FS
 
 from eolearn.core import EOPatch, EOTask
-from eolearn.core.utils.fs import get_base_filesystem_and_path
-from sentinelhub import SHConfig, parse_time
+from eolearn.core.utils.fs import pickle_fs, unpickle_fs
+from sentinelhub import parse_time
 
 from ..utils.meta import import_object
 from ..utils.types import Feature
@@ -22,26 +23,26 @@ class LoadUserDataTask(EOTask):
     def __init__(
         self,
         path: str,
+        filesystem: FS,
         userdata_feature_name: Optional[str] = None,
         userdata_timestamp_reader: Optional[str] = None,
-        config: Optional[SHConfig] = None,
     ):
         """
-        :param path: Path to folder containing the tiles
+        :param path: A path to folder containing the tiles, relative to the filesystem object.
+        :param filesystem: A filesystem object.
         :param userdata_feature_name: A name of a META_INFO feature in which userdata.json content could be stored
         :param userdata_timestamp_reader: A reference to a Python function or a Python code that collects timestamps
             from loaded userdata.json
-        :param config: A configuration object with AWS credentials
         """
         self.path = path
+        self.pickled_filesystem = pickle_fs(filesystem)
         self.userdata_feature_name = userdata_feature_name
         self.userdata_timestamp_reader = userdata_timestamp_reader
-        self.config = config
 
     def _load_userdata_file(self, folder: str, filename: str = "userdata.json") -> dict:
         """Loads a content of a JSON file"""
-        filesystem, relative_path = get_base_filesystem_and_path(self.path, config=self.config)
-        full_path = fs.path.join(relative_path, folder, filename)
+        filesystem = unpickle_fs(self.pickled_filesystem)
+        full_path = fs.path.join(self.path, folder, filename)
 
         userdata_text = filesystem.readtext(full_path, encoding="utf-8")
         return json.loads(userdata_text)
@@ -118,27 +119,24 @@ class FixImportedTimeDependentFeatureTask(EOTask):
 class DeleteFilesTask(EOTask):
     """Delete files"""
 
-    def __init__(self, path: str, filenames: List[str], config: Optional[SHConfig] = None):
+    def __init__(self, path: str, filesystem: FS, filenames: List[str]):
         """
-        :param path: Path to folder containing the files to be deleted
-        :type path: str
+        :param path: A path to folder containing the files to be deleted, relative to filesystem object.
+        :param filesystem: A filesystem object
         :param filenames: A list of filenames to delete
-        :type filenames: list(str)
-        :param config: A configuration object with AWS credentials
-        :type config: SHConfig
         """
         self.path = path
+        self.pickled_filesystem = pickle_fs(filesystem)
         self.filenames = filenames
-        self.config = config
 
     def execute(self, *_: EOPatch, folder: str) -> None:
         """Execute method to delete files relative to the specified tile
 
         :param folder: A folder containing files
         """
-        filesystem, relative_path = get_base_filesystem_and_path(self.path, config=self.config)
+        filesystem = unpickle_fs(self.pickled_filesystem)
+        file_paths = [fs.path.join(self.path, folder, filename) for filename in self.filenames]
 
-        file_paths = [fs.path.join(relative_path, folder, filename) for filename in self.filenames]
         with concurrent.futures.ThreadPoolExecutor() as executor:
             # The following is intentionally wrapped in a list in order to get back potential exceptions
             list(executor.map(filesystem.remove, file_paths))

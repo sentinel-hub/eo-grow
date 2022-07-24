@@ -22,7 +22,6 @@ from eolearn.core import (
     OverwritePermission,
     SaveTask,
 )
-from eolearn.core.utils.fs import join_path
 from eolearn.geometry import VectorToRasterTask
 from eolearn.io import VectorImportTask
 
@@ -144,7 +143,7 @@ class RasterizePipeline(Pipeline):
 
         dataset_gdf = self.preprocess_dataset(dataset_gdf)
 
-        dataset_path = self._get_dataset_path(filename, full_path=False)
+        dataset_path = self._get_dataset_path(filename)
         with LocalFile(dataset_path, mode="w", filesystem=self.storage.filesystem) as local_file:
             dataset_gdf.to_file(local_file.path, encoding="utf-8", driver="GPKG")
 
@@ -161,14 +160,17 @@ class RasterizePipeline(Pipeline):
             create_node = EONode(CreateEOPatchTask())
             path = self._get_dataset_path(self.filename)
             import_task = VectorImportTask(
-                self.vector_feature, path=path, layer=self.config.dataset_layer, config=self.sh_config
+                self.vector_feature,
+                path=path,
+                filesystem=self.storage.filesystem,
+                layer=self.config.dataset_layer,
             )
             data_preparation_node = EONode(import_task, inputs=[create_node])
         else:
             input_task = LoadTask(
-                self.storage.get_folder(self.config.input_folder_key, full_path=True),
+                self.storage.get_folder(self.config.input_folder_key),
+                filesystem=self.storage.filesystem,
                 features=[self.vector_feature, FeatureType.BBOX],
-                config=self.sh_config,
             )
             data_preparation_node = EONode(input_task)
 
@@ -179,10 +181,10 @@ class RasterizePipeline(Pipeline):
         postprocess_node = self.get_postrasterization_node(rasterization_node)
 
         save_task = SaveTask(
-            self.storage.get_folder(self.config.output_folder_key, full_path=True),
+            self.storage.get_folder(self.config.output_folder_key),
+            filesystem=self.storage.filesystem,
             features=self._get_output_features(),
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
-            config=self.sh_config,
         )
         save_node = EONode(save_task, inputs=[postprocess_node])
 
@@ -232,17 +234,15 @@ class RasterizePipeline(Pipeline):
             raise ValueError(f"Input file path {value} should be a GeoJSON, Shapefile, GeoPackage or GeoDataBase.")
         return value
 
-    def _get_dataset_path(self, filename: str, full_path: bool = True) -> str:
+    def _get_dataset_path(self, filename: str) -> str:
         """Provides a path from where dataset should be loaded into the workflow"""
         if self.config.preprocess_dataset is not None:
-            folder = self.storage.get_cache_folder(full_path=full_path)
+            folder = self.storage.get_cache_folder()
             filename = f"preprocessed_{filename}"
             filename = (os.path.splitext(filename))[0] + ".gpkg"
         else:
-            folder = self.storage.get_input_data_folder(full_path=full_path)
+            folder = self.storage.get_input_data_folder()
 
-        if full_path:
-            return join_path(folder, filename)
         return fs.path.combine(folder, filename)
 
     def _get_output_features(self) -> List[FeatureSpec]:

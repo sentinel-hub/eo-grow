@@ -18,6 +18,17 @@ BoolOrAuto = Union[Literal["auto"], bool]
 
 JsonDict = Dict[str, Any]
 
+AwsAclType = Literal[
+    "private",
+    "public-read",
+    "public-read-write",
+    "aws-exec-read",
+    "authenticated-read",
+    "bucket-owner-read",
+    "bucket-owner-full-control",
+    "log-delivery-write",
+]
+
 
 class ProcessingType(Enum):
     RAY = "ray"

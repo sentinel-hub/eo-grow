@@ -2,7 +2,6 @@
 Module where base Pipeline class is implemented
 """
 import datetime as dt
-import functools
 import logging
 import time
 import uuid
@@ -200,7 +199,7 @@ class Pipeline(EOGrowObject):
             logs_folder=self.logging_manager.get_pipeline_logs_folder(self.current_execution_name),
             filesystem=self.storage.filesystem,
             logs_filter=EOExecutionFilter(ignore_packages=self.logging_manager.config.eoexecution_ignore_packages),
-            logs_handler_factory=functools.partial(EOExecutionHandler, config=self.sh_config, encoding="utf-8"),
+            logs_handler_factory=EOExecutionHandler,
         )
         execution_results = executor.run(**executor_run_params)
 

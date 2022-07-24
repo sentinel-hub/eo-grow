@@ -4,8 +4,9 @@ import os
 
 import pytest
 from fs.osfs import OSFS
+from fs_s3fs import S3FS
 
-from eogrow.core.config import interpret_config_from_path
+from eogrow.core.config import RawConfig, interpret_config_from_path
 from eogrow.core.storage import StorageManager
 
 pytestmark = pytest.mark.fast
@@ -65,3 +66,20 @@ def test_get_custom_folder(local_storage_manager: StorageManager, project_folder
 
     abs_path = os.path.join(project_folder, "path", "to", "eopatches")
     assert local_storage_manager.get_folder("eopatches", full_path=True) == abs_path
+
+
+@pytest.mark.parametrize(
+    "config",
+    [
+        {"project_folder": "s3://fake-bucket/", "aws_acl": "bucket-owner-full-control"},
+        {"project_folder": "s3://fake-bucket/"},
+        {"project_folder": ".", "aws_acl": "public-read"},
+    ],
+)
+def test_aws_acl(config: RawConfig):
+    storage = StorageManager.from_raw_config(config)
+
+    if isinstance(storage.filesystem, S3FS):
+        config_acl = config.get("aws_acl")
+        filesystem_acl = None if storage.filesystem.upload_args is None else storage.filesystem.upload_args.get("ACL")
+        assert config_acl == filesystem_acl

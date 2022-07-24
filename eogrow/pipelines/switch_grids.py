@@ -132,10 +132,11 @@ class SwitchGridsPipeline(Pipeline):
         saving them."""
         features = self._get_features()
 
-        input_path = self.storage.get_folder(self.config.input_folder_key, full_path=True)
+        input_path = self.storage.get_folder(self.config.input_folder_key)
         max_input_patch_num = max(len(transformation.source_bboxes) for transformation in transformations)
         load_nodes = [
-            EONode(LoadTask(input_path, features=features, config=self.sh_config)) for _ in range(max_input_patch_num)
+            EONode(LoadTask(input_path, filesystem=self.storage.filesystem, features=features))
+            for _ in range(max_input_patch_num)
         ]
 
         join_task = SpatialJoinTask(
@@ -147,7 +148,7 @@ class SwitchGridsPipeline(Pipeline):
         join_node = EONode(join_task, inputs=load_nodes)
 
         save_nodes = []
-        output_path = self.storage.get_folder(self.config.output_folder_key, full_path=True)
+        output_path = self.storage.get_folder(self.config.output_folder_key)
         max_output_patch_num = max(len(transformation.target_bboxes) for transformation in transformations)
         for _ in range(max_output_patch_num):
             slice_task = SpatialSliceTask(features, raise_misaligned=self.config.raise_misaligned)
@@ -155,9 +156,9 @@ class SwitchGridsPipeline(Pipeline):
 
             save_task = SaveTask(
                 output_path,
+                filesystem=self.storage.filesystem,
                 features=features,
                 overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
-                config=self.sh_config,
             )
             save_node = EONode(save_task, inputs=[slice_node])
             save_nodes.append(save_node)
