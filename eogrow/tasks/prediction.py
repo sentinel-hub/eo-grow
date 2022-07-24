@@ -4,11 +4,13 @@ Task definitions for prediction
 import abc
 from typing import Any, Callable, List, Optional, Tuple, Union, cast
 
+import fs
 import joblib
 import numpy as np
+from fs.base import FS
 
-from eolearn.core import EOPatch, EOTask, execute_with_mp_lock, get_filesystem
-from sentinelhub import SHConfig
+from eolearn.core import EOPatch, EOTask, execute_with_mp_lock
+from eolearn.core.utils.fs import pickle_fs, unpickle_fs
 
 from ..utils.types import Feature
 
@@ -19,28 +21,25 @@ class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
     def __init__(
         self,
         *,
-        model_folder: str,
-        model_filename: str,
+        model_path: str,
+        filesystem: FS,
         input_features: List[Feature],
         mask_feature: Feature,
         output_feature: Feature,
         output_dtype: Optional[np.dtype],
         mp_lock: bool,
-        sh_config: SHConfig,
     ):
         """
-        :param model_folder: Path to the folder where model is stored
-        :param model_filename: Name of file containing the model
+        :param model_path: A file path to the model. The path is relative to the filesystem object.
+        :param filesystem: A filesystem object.
         :param input_features: List of features containing input for the model, which are concatenated in given order
         :param mask_feature: Mask specifying which points are to be predicted
         :param output_feature: Feature into which predictions are saved
         :param mp_lock: If predictions should be executed with a multiprocessing lock
-        :param sh_config: SentinelHub config
         """
-
-        self.model_folder = model_folder
-        self.model_filename = model_filename
+        self.model_path = model_path
         self._model = None
+        self.pickled_filesystem = pickle_fs(filesystem)
 
         self.input_features = input_features
         self.mask_feature = mask_feature
@@ -48,7 +47,6 @@ class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
         self.output_dtype = output_dtype
 
         self.mp_lock = mp_lock
-        self.sh_config = sh_config
 
     def process_data(self, eopatch: EOPatch, mask: np.ndarray) -> np.ndarray:
         """Masks and reshapes data into a form suitable for the model"""
@@ -68,11 +66,13 @@ class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
 
     @property
     def model(self) -> Any:
-        """Implements lazy loading that gets around file-system issues"""
+        """Implements lazy loading that gets around filesystem issues"""
         if self._model is None:
-            file_system = get_filesystem(self.model_folder, config=self.sh_config)
-            with file_system.openbin(self.model_filename, "r") as file_handle:
+            filesystem = unpickle_fs(self.pickled_filesystem)
+
+            with filesystem.openbin(self.model_path, "r") as file_handle:
                 self._model = joblib.load(file_handle)
+
         return self._model
 
     def apply_predictor(
@@ -127,7 +127,8 @@ class ClassificationPredictionTask(BasePredictionTask):
         **kwargs: Any,
     ):
         """
-        :param label_encoder_filename: Name of file containing the label encoder with which to decode predictions
+        :param label_encoder_filename: Name of file containing the label encoder with which to decode predictions. The
+            file should be in the same folder as the model.
         :param output_probability_feature: If specified saves pseudo-probabilities into given feature.
         :param kwargs: Parameters of `BasePredictionTask`
         """
@@ -138,11 +139,16 @@ class ClassificationPredictionTask(BasePredictionTask):
 
     @property
     def label_encoder(self) -> Any:
-        """Implements lazy loading that gets around file-system issues"""
+        """Implements lazy loading that gets around filesystem issues"""
         if self._label_encoder is None and self.label_encoder_filename is not None:
-            file_system = get_filesystem(self.model_folder, config=self.sh_config)
-            with file_system.openbin(self.label_encoder_filename, "r") as file_handle:
+            filesystem = unpickle_fs(self.pickled_filesystem)
+
+            model_folder = fs.path.dirname(self.model_path)
+            label_encoder_path = fs.path.join(model_folder, self.label_encoder_filename)
+
+            with filesystem.openbin(label_encoder_path, "r") as file_handle:
                 self._label_encoder = joblib.load(file_handle)
+
         return self._label_encoder
 
     def add_predictions(self, eopatch: EOPatch, processed_features: np.ndarray, mask: np.ndarray) -> EOPatch:

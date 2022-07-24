@@ -4,6 +4,7 @@ Module implementing prediction pipeline
 import abc
 from typing import List, Optional, Tuple
 
+import fs
 import numpy as np
 from pydantic import Field, validator
 
@@ -91,9 +92,9 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         """Returns nodes containing for loading and preparing the data as well as the endpoint tasks"""
         features_load_node = EONode(
             LoadTask(
-                self.storage.get_folder(self.config.input_folder_key, full_path=True),
+                self.storage.get_folder(self.config.input_folder_key),
+                filesystem=self.storage.filesystem,
                 features=[FeatureType.BBOX, FeatureType.TIMESTAMP, *self.config.input_features],
-                config=self.sh_config,
             )
         )
 
@@ -102,9 +103,9 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
 
         mask_load_node = EONode(
             LoadTask(
-                self.storage.get_folder(self.config.prediction_mask_folder_key, full_path=True),
+                self.storage.get_folder(self.config.prediction_mask_folder_key),
+                filesystem=self.storage.filesystem,
                 features=[(FeatureType.MASK_TIMELESS, self.config.prediction_mask_feature_name)],
-                config=self.sh_config,
             )
         )
 
@@ -117,10 +118,10 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
     def _get_saving_node(self, previous_node: EONode) -> EONode:
         """Returns nodes for finalizing and saving features"""
         save_task = SaveTask(
-            self.storage.get_folder(self.config.output_folder_key, full_path=True),
+            self.storage.get_folder(self.config.output_folder_key),
+            filesystem=self.storage.filesystem,
             features=self._get_output_features(),
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
-            config=self.sh_config,
             compress_level=self.config.compress_level,
         )
 
@@ -141,15 +142,15 @@ class RegressionPredictionPipeline(BasePredictionPipeline):
         return [FeatureType.BBOX, (FeatureType.DATA_TIMELESS, self.config.output_feature_name)]
 
     def _get_prediction_node(self, previous_node: EONode) -> EONode:
+        model_path = fs.path.join(self.storage.get_folder(self.config.model_folder_key), self.config.model_filename)
         prediction_task = RegressionPredictionTask(
-            model_folder=self.storage.get_folder(self.config.model_folder_key, full_path=True),
-            model_filename=self.config.model_filename,
+            model_path=model_path,
+            filesystem=self.storage.filesystem,
             input_features=self.config.input_features,
             mask_feature=_optional_typed_feature(FeatureType.MASK_TIMELESS, self.config.prediction_mask_feature_name),
             output_feature=(FeatureType.DATA_TIMELESS, self.config.output_feature_name),
             output_dtype=self.config.dtype,
             mp_lock=self._is_mp_lock_needed,
-            sh_config=self.sh_config,
             clip_predictions=self.config.clip_predictions,
         )
         return EONode(prediction_task, inputs=[previous_node])
@@ -176,9 +177,10 @@ class ClassificationPredictionPipeline(BasePredictionPipeline):
         return features
 
     def _get_prediction_node(self, previous_node: EONode) -> EONode:
+        model_path = fs.path.join(self.storage.get_folder(self.config.model_folder_key), self.config.model_filename)
         prediction_task = ClassificationPredictionTask(
-            model_folder=self.storage.get_folder(self.config.model_folder_key, full_path=True),
-            model_filename=self.config.model_filename,
+            model_path=model_path,
+            filesystem=self.storage.filesystem,
             input_features=self.config.input_features,
             mask_feature=_optional_typed_feature(FeatureType.MASK_TIMELESS, self.config.prediction_mask_feature_name),
             output_feature=(FeatureType.MASK_TIMELESS, self.config.output_feature_name),
@@ -187,7 +189,6 @@ class ClassificationPredictionPipeline(BasePredictionPipeline):
             ),
             output_dtype=self.config.dtype,
             mp_lock=self._is_mp_lock_needed,
-            sh_config=self.sh_config,
             label_encoder_filename=self.config.label_encoder_filename,
         )
         return EONode(prediction_task, inputs=[previous_node])
