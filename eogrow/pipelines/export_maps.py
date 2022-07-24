@@ -12,7 +12,7 @@ from fs.tempfs import TempFS
 from pydantic import Field
 
 from eolearn.core import EONode, EOTask, EOWorkflow, FeatureType, LoadTask, linearly_connect_tasks
-from eolearn.core.utils.fs import get_full_path, join_path
+from eolearn.core.utils.fs import get_full_path
 from eolearn.core.utils.parallelize import parallelize
 from eolearn.features import LinearFunctionTask
 from eolearn.io import ExportToTiffTask
@@ -74,9 +74,9 @@ class ExportMapsPipeline(Pipeline):
     def build_workflow(self) -> EOWorkflow:
         """Method where workflow is constructed"""
         load_task = LoadTask(
-            self.storage.get_folder(self.config.input_folder_key, full_path=True),
+            self.storage.get_folder(self.config.input_folder_key),
+            filesystem=self.storage.filesystem,
             features=[self.config.feature, FeatureType.BBOX],
-            config=self.sh_config,
         )
         task_list: List[EOTask] = [load_task]
 
@@ -85,14 +85,14 @@ class ExportMapsPipeline(Pipeline):
             task_list.append(rescale_task)
 
         feature_name = self.config.feature[1]
-        folder = join_path(self.storage.get_folder(self.config.output_folder_key, full_path=True), feature_name)
+        folder = fs.path.join(self.storage.get_folder(self.config.output_folder_key), feature_name)
         export_to_tiff_task = ExportToTiffTask(
             self.config.feature,
             folder=folder,
+            filesystem=self.storage.filesystem,
             no_data_value=self.config.no_data_value,
             image_dtype=np.dtype(self.config.map_dtype),
             band_indices=self.config.band_indices,
-            config=self.sh_config,
         )
         task_list.append(export_to_tiff_task)
 

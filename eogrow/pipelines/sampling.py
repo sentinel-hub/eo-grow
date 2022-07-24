@@ -67,11 +67,11 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
         sampling_node = self._get_sampling_node(preprocessing_node)
 
         save_task = SaveTask(
-            self.storage.get_folder(self.config.output_folder_key, full_path=True),
+            self.storage.get_folder(self.config.output_folder_key),
+            filesystem=self.storage.filesystem,
             features=self._get_output_features(),
             compress_level=self.config.compress_level,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
-            config=self.sh_config,
         )
 
         return EOWorkflow.from_endnodes(EONode(save_task, inputs=[sampling_node]))
@@ -97,10 +97,10 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
                 load_features.append(FeatureType.TIMESTAMP)
 
             load_task = LoadTask(
-                self.storage.get_folder(folder_name, full_path=True),
+                self.storage.get_folder(folder_name),
+                filesystem=self.storage.filesystem,
                 lazy_loading=True,
                 features=load_features,
-                config=self.sh_config,
             )
             load_nodes.append(EONode(load_task, name=f"Load from {folder_name}"))
 

@@ -114,11 +114,11 @@ class FeaturesPipeline(Pipeline):
         postprocessing_node = self.get_postprocessing_node(ndi_node)
 
         save_task = SaveTask(
-            self.storage.get_folder(self.config.output_folder_key, full_path=True),
+            self.storage.get_folder(self.config.output_folder_key),
+            filesystem=self.storage.filesystem,
             features=self._get_output_features(),
             compress_level=self.config.compress_level,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
-            config=self.sh_config,
         )
         save_node = EONode(save_task, inputs=[postprocessing_node])
 
@@ -132,9 +132,9 @@ class FeaturesPipeline(Pipeline):
         filtering_config = self.config.data_preparation
 
         load_task = LoadTask(
-            self.storage.get_folder(self.config.input_folder_key, full_path=True),
+            self.storage.get_folder(self.config.input_folder_key),
+            filesystem=self.storage.filesystem,
             lazy_loading=True,
-            config=self.sh_config,
         )
         end_node = EONode(load_task)
 
