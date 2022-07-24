@@ -96,7 +96,7 @@ class BatchToEOPatchPipeline(Pipeline):
         """Additionally sets some basic parameters calculated from config parameters"""
         super().__init__(*args, **kwargs)
 
-        self._input_folder = self.storage.get_folder(self.config.input_folder_key, full_path=True)
+        self._input_folder = self.storage.get_folder(self.config.input_folder_key)
         self._has_userdata = self.config.userdata_feature_name or self.config.userdata_timestamp_reader
         self._all_batch_files = self._get_all_batch_files()
 
@@ -140,9 +140,9 @@ class BatchToEOPatchPipeline(Pipeline):
             previous_node = EONode(
                 LoadUserDataTask(
                     path=self._input_folder,
+                    filesystem=self.storage.filesystem,
                     userdata_feature_name=self.config.userdata_feature_name,
                     userdata_timestamp_reader=self.config.userdata_timestamp_reader,
-                    config=self.sh_config,
                 )
             )
 
@@ -152,11 +152,11 @@ class BatchToEOPatchPipeline(Pipeline):
 
             if feature_mapping.save_early:
                 save_task = SaveTask(
-                    path=self.storage.get_folder(self.config.output_folder_key, full_path=True),
+                    path=self.storage.get_folder(self.config.output_folder_key),
+                    filesystem=self.storage.filesystem,
                     features=[feature],
                     compress_level=1,
                     overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
-                    config=self.sh_config,
                 )
                 save_node = EONode(save_task, inputs=[mapping_node])
 
@@ -174,18 +174,20 @@ class BatchToEOPatchPipeline(Pipeline):
         processing_node = self.get_processing_node(previous_node)
 
         save_task = SaveTask(
-            path=self.storage.get_folder(self.config.output_folder_key, full_path=True),
+            path=self.storage.get_folder(self.config.output_folder_key),
+            filesystem=self.storage.filesystem,
             features=self._get_final_output_features(),
             compress_level=1,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
-            config=self.sh_config,
         )
         save_node = EONode(save_task, inputs=([processing_node] if processing_node else []))
 
         cleanup_node = None
         if self.config.remove_batch_data:
             delete_task = DeleteFilesTask(
-                path=self._input_folder, filenames=self._all_batch_files, config=self.sh_config
+                path=self._input_folder,
+                filesystem=self.storage.filesystem,
+                filenames=self._all_batch_files,
             )
             cleanup_node = EONode(delete_task, inputs=[save_node], name="Delete batch data")
 
@@ -210,7 +212,11 @@ class BatchToEOPatchPipeline(Pipeline):
                 FeatureType.MASK_TIMELESS if feature_type.is_discrete() else FeatureType.DATA_TIMELESS
             ), feature[1]
 
-            import_task = ImportFromTiffTask(tmp_timeless_feature, folder=self._input_folder, config=self.sh_config)
+            import_task = ImportFromTiffTask(
+                tmp_timeless_feature,
+                folder=self._input_folder,
+                filesystem=self.storage.filesystem,
+            )
             # Filename is written into the dependency name to be used later for execution arguments:
             import_node = EONode(
                 import_task,
