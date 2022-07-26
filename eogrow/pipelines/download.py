@@ -9,7 +9,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import ray
-from pydantic import Field
+from pydantic import Field, root_validator
 
 from eolearn.core import EONode, EOWorkflow, FeatureType, OverwritePermission, SaveTask
 from eolearn.features import LinearFunctionTask
@@ -197,13 +197,36 @@ class CommonDownloadFields(BaseSchema):
     data_collection: DataCollection = Field(description="Data collection from which data will be downloaded.")
     _validate_data_collection = field_validator("data_collection", parse_data_collection, pre=True)
 
-    resolution: float = Field(description="Resolution of downloaded data in meters")
+    resolution: Optional[float] = Field(
+        description=(
+            "Resolution of downloaded data in meters. Exactly one of the parameters resolution and size has to be"
+            " specified."
+        )
+    )
+    size: Optional[Tuple[int, int]] = Field(
+        description=(
+            "A pair (width, height) of downloaded data in pixels. . Exactly one of the parameters resolution and size"
+            " has to be specified."
+        )
+    )
 
     maxcc: Optional[float] = Field(ge=0, le=1, description="Maximal cloud coverage filter.")
 
     resampling_type: Optional[ResamplingType] = Field(
         description="A type of downsampling and upsampling used by Sentinel Hub service. Default is NEAREST"
     )
+
+    @root_validator
+    def check_resolution_and_size(cls, values):
+        """Check that exactly one of the parameters resolution and size is defined."""
+        is_resolution_defined = values.get("resolution") is not None
+        is_size_defined = values.get("size") is not None
+
+        assert (
+            is_resolution_defined != is_size_defined
+        ), "Exactly one of the parameters resolution and size has to be specified."
+
+        return values
 
 
 class TimeDependantFields(BaseSchema):
@@ -258,6 +281,7 @@ class DownloadPipeline(BaseDownloadPipeline):
             bands_feature=(FeatureType.DATA, self.config.bands_feature_name),
             bands=self.config.bands,
             resolution=self.config.resolution,
+            size=self.config.size,
             maxcc=self.config.maxcc,
             time_difference=time_diff,
             data_collection=data_collection,
@@ -295,6 +319,7 @@ class DownloadEvalscriptPipeline(BaseDownloadPipeline):
             evalscript=evalscript,
             data_collection=self.config.data_collection,
             resolution=self.config.resolution,
+            size=self.config.size,
             maxcc=self.config.maxcc,
             time_difference=time_diff,
             max_threads=self.config.threads_per_worker,
@@ -322,6 +347,7 @@ class DownloadTimelessPipeline(BaseDownloadPipeline):
             feature=(FeatureType.DATA_TIMELESS, self.config.feature_name),
             data_collection=self.config.data_collection,
             resolution=self.config.resolution,
+            size=self.config.size,
             maxcc=self.config.maxcc,
             max_threads=self.config.threads_per_worker,
             config=self.sh_config,
