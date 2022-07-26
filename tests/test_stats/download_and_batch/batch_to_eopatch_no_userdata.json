@@ -45,45 +45,51 @@
         "random_values": [
           {
             "position": [
-              473,
-              133,
-              6
-            ],
-            "value": 9394
-          },
-          {
-            "position": [
-              83,
-              2,
-              5
-            ],
-            "value": 898
-          },
-          {
-            "position": [
-              308,
-              147,
+              645,
+              53,
               7
             ],
-            "value": 2398
+            "value": 6367
           },
           {
             "position": [
-              97,
-              49,
-              3
-            ],
-            "value": 5906
-          },
-          {
-            "position": [
-              283,
-              177,
+              520,
+              84,
               10
             ],
-            "value": 2343
+            "value": 5110
+          },
+          {
+            "position": [
+              729,
+              169,
+              8
+            ],
+            "value": 2697
+          },
+          {
+            "position": [
+              424,
+              279,
+              5
+            ],
+            "value": 3078
+          },
+          {
+            "position": [
+              475,
+              358,
+              7
+            ],
+            "value": 8502
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 9999,
+          "mean": 4998.79685,
+          "median": 5001.0,
+          "min": 0
+        }
       },
       "bands": {
         "array_shape": [
@@ -128,45 +134,51 @@
         "random_values": [
           {
             "position": [
-              764,
-              382,
+              659,
+              58,
+              9
+            ],
+            "value": 6367.0
+          },
+          {
+            "position": [
+              522,
+              385,
               14
             ],
-            "value": 9394.0
+            "value": 5110.0
           },
           {
             "position": [
-              608,
-              397,
-              17
+              718,
+              43,
+              1
             ],
-            "value": 898.0
+            "value": 2697.0
           },
           {
             "position": [
-              477,
-              282,
-              11
+              408,
+              115,
+              22
             ],
-            "value": 2398.0
+            "value": 3078.0
           },
           {
             "position": [
-              705,
-              231,
-              19
+              497,
+              321,
+              10
             ],
-            "value": 5906.0
-          },
-          {
-            "position": [
-              559,
-              245,
-              17
-            ],
-            "value": 2343.0
+            "value": 8502.0
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 9999.0,
+          "mean": 4995.19531,
+          "median": 4994.0,
+          "min": 0.0
+        }
       }
     }
   },
@@ -216,45 +228,51 @@
         "random_values": [
           {
             "position": [
-              473,
-              133,
-              6
-            ],
-            "value": 9394
-          },
-          {
-            "position": [
-              83,
-              2,
-              5
-            ],
-            "value": 898
-          },
-          {
-            "position": [
-              308,
-              147,
+              645,
+              53,
               7
             ],
-            "value": 2398
+            "value": 6367
           },
           {
             "position": [
-              97,
-              49,
-              3
-            ],
-            "value": 5906
-          },
-          {
-            "position": [
-              283,
-              177,
+              520,
+              84,
               10
             ],
-            "value": 2343
+            "value": 5110
+          },
+          {
+            "position": [
+              729,
+              169,
+              8
+            ],
+            "value": 2697
+          },
+          {
+            "position": [
+              424,
+              279,
+              5
+            ],
+            "value": 3078
+          },
+          {
+            "position": [
+              475,
+              358,
+              7
+            ],
+            "value": 8502
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 9999,
+          "mean": 4998.79685,
+          "median": 5001.0,
+          "min": 0
+        }
       },
       "bands": {
         "array_shape": [
@@ -299,45 +317,51 @@
         "random_values": [
           {
             "position": [
-              764,
-              382,
+              659,
+              58,
+              9
+            ],
+            "value": 6367.0
+          },
+          {
+            "position": [
+              522,
+              385,
               14
             ],
-            "value": 9394.0
+            "value": 5110.0
           },
           {
             "position": [
-              608,
-              397,
-              17
+              718,
+              43,
+              1
             ],
-            "value": 898.0
+            "value": 2697.0
           },
           {
             "position": [
-              477,
-              282,
-              11
+              408,
+              115,
+              22
             ],
-            "value": 2398.0
+            "value": 3078.0
           },
           {
             "position": [
-              705,
-              231,
-              19
+              497,
+              321,
+              10
             ],
-            "value": 5906.0
-          },
-          {
-            "position": [
-              559,
-              245,
-              17
-            ],
-            "value": 2343.0
+            "value": 8502.0
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 9999.0,
+          "mean": 4995.19531,
+          "median": 4994.0,
+          "min": 0.0
+        }
       }
     }
   }

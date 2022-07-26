@@ -45,45 +45,51 @@
         "random_values": [
           {
             "position": [
-              20,
-              142,
+              100,
+              78,
               0
             ],
             "value": 88
           },
           {
             "position": [
-              52,
-              158,
+              67,
+              176,
               0
             ],
-            "value": 93
+            "value": 83
           },
           {
             "position": [
-              15,
-              115,
+              117,
+              167,
               0
             ],
-            "value": 90
+            "value": 72
           },
           {
             "position": [
-              31,
-              224,
+              70,
+              190,
               0
             ],
-            "value": 64
+            "value": 74
           },
           {
             "position": [
-              94,
-              178,
+              68,
+              123,
               0
             ],
-            "value": 78
+            "value": 96
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 106,
+          "mean": 85.68347,
+          "median": 93.0,
+          "min": 60
+        }
       }
     }
   },
@@ -133,45 +139,51 @@
         "random_values": [
           {
             "position": [
-              57,
-              41,
+              50,
+              80,
               0
             ],
-            "value": 86
+            "value": 82
           },
           {
             "position": [
-              75,
-              6,
+              46,
+              155,
               0
             ],
-            "value": 93
+            "value": 77
           },
           {
             "position": [
-              30,
-              164,
+              113,
+              209,
               0
             ],
-            "value": 83
+            "value": 67
           },
           {
             "position": [
-              25,
-              243,
+              61,
+              175,
               0
             ],
-            "value": 60
+            "value": 69
           },
           {
             "position": [
-              69,
-              189,
+              92,
+              49,
               0
             ],
-            "value": 66
+            "value": 90
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 99,
+          "mean": 77.80432,
+          "median": 82.0,
+          "min": 57
+        }
       }
     }
   }

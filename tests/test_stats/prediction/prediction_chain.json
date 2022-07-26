@@ -12,27 +12,11 @@
         "random_values": [
           {
             "position": [
-              585,
-              0,
-              0
-            ],
-            "value": 9
-          },
-          {
-            "position": [
               230,
               0,
               0
             ],
             "value": 4
-          },
-          {
-            "position": [
-              293,
-              0,
-              0
-            ],
-            "value": 3
           },
           {
             "position": [
@@ -44,11 +28,27 @@
           },
           {
             "position": [
-              96,
+              561,
               0,
               0
             ],
-            "value": 1
+            "value": 8
+          },
+          {
+            "position": [
+              585,
+              0,
+              0
+            ],
+            "value": 9
+          },
+          {
+            "position": [
+              209,
+              0,
+              0
+            ],
+            "value": 3
           }
         ],
         "values": [
@@ -93,14 +93,6 @@
         "random_values": [
           {
             "position": [
-              799,
-              0,
-              0
-            ],
-            "value": 9
-          },
-          {
-            "position": [
               499,
               0,
               0
@@ -109,15 +101,7 @@
           },
           {
             "position": [
-              791,
-              0,
-              0
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              539,
+              558,
               0,
               0
             ],
@@ -125,11 +109,27 @@
           },
           {
             "position": [
-              87,
+              702,
               0,
               0
             ],
-            "value": 1
+            "value": 8
+          },
+          {
+            "position": [
+              799,
+              0,
+              0
+            ],
+            "value": 9
+          },
+          {
+            "position": [
+              471,
+              0,
+              0
+            ],
+            "value": 3
           }
         ],
         "values": [
