@@ -180,10 +180,7 @@ class ContentTester:
                 for name, operation in self._STATS_OPERATIONS.items()
             }
 
-            subsample = self._get_subsample(finite_values)
-            stats["subsample_basic_stats"] = {
-                name: self._prepare_value(operation(subsample)) for name, operation in self._STATS_OPERATIONS.items()
-            }
+            stats["subsample_basic_stats"] = self._calculate_subsample_stats(finite_values)
 
             counts, edges = np.histogram(finite_values, bins=self.histogram_bin_num)
             stats["histogram"] = {
@@ -231,11 +228,12 @@ class ContentTester:
 
         return stats
 
-    def _get_subsample(self, values: np.ndarray, amount: float = 0.1) -> np.ndarray:
+    def _calculate_subsample_stats(self, values: np.ndarray, amount: float = 0.1) -> np.ndarray:
         """Randomly samples a small amount of points from the array (10% by default) to recalculate the statistics.
         This introduces a 'positional instability' so that accidental mirroring or re-orderings are detected."""
         rng = np.random.default_rng(0)
-        return rng.choice(values, int(values.size * amount))
+        subsample = rng.choice(values, int(values.size * amount))
+        return {name: self._prepare_value(operation(subsample)) for name, operation in self._STATS_OPERATIONS.items()}
 
     def _get_random_stats(self, raster: np.ndarray, unique_values: np.ndarray) -> List[JsonDict]:
         """First it randomly samples a few values from the list of unique values. Then for each one it checks where
