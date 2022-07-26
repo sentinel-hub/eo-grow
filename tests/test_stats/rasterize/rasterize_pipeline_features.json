@@ -12,43 +12,43 @@
         "random_values": [
           {
             "position": [
+              21,
+              107,
+              0
+            ],
+            "value": 14
+          },
+          {
+            "position": [
               61,
-              35,
+              37,
               0
             ],
             "value": 4
           },
           {
             "position": [
-              89,
-              11,
-              0
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              74,
-              0,
-              0
-            ],
-            "value": 1
-          },
-          {
-            "position": [
-              21,
-              15,
+              33,
+              31,
               0
             ],
             "value": 5
           },
           {
             "position": [
-              19,
-              128,
+              111,
+              35,
               0
             ],
-            "value": 14
+            "value": 0
+          },
+          {
+            "position": [
+              58,
+              2,
+              0
+            ],
+            "value": 1
           }
         ],
         "values": [
@@ -84,43 +84,43 @@
         "random_values": [
           {
             "position": [
-              76,
-              263,
-              0
-            ],
-            "value": 9
-          },
-          {
-            "position": [
-              101,
-              10,
-              0
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              53,
-              54,
-              0
-            ],
-            "value": 1
-          },
-          {
-            "position": [
               26,
-              232,
+              231,
               0
             ],
             "value": 4
           },
           {
             "position": [
-              9,
-              118,
+              89,
+              66,
               0
             ],
-            "value": 0
+            "value": 5
+          },
+          {
+            "position": [
+              76,
+              17,
+              0
+            ],
+            "value": 1
+          },
+          {
+            "position": [
+              70,
+              255,
+              0
+            ],
+            "value": 9
+          },
+          {
+            "position": [
+              93,
+              7,
+              0
+            ],
+            "value": 3
           }
         ],
         "values": [
@@ -197,45 +197,51 @@
         "random_values": [
           {
             "position": [
-              72,
-              102,
+              46,
+              125,
               0
             ],
-            "value": 417
+            "value": 1100
           },
           {
             "position": [
-              38,
-              107,
+              30,
+              57,
               0
             ],
-            "value": 473
+            "value": 970
           },
           {
             "position": [
-              14,
-              122,
+              93,
+              112,
               0
             ],
-            "value": 1039
+            "value": 561
           },
           {
             "position": [
-              7,
-              82,
+              22,
+              160,
               0
             ],
-            "value": 1002
+            "value": 604
           },
           {
             "position": [
-              74,
-              94,
+              99,
+              103,
               0
             ],
-            "value": 760
+            "value": 1504
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 2149,
+          "mean": 399.75517,
+          "median": 0.0,
+          "min": 0
+        }
       },
       "LULC_POLYGON_ERODED_02": {
         "array_shape": [
@@ -280,45 +286,51 @@
         "random_values": [
           {
             "position": [
-              81,
-              0,
+              62,
+              135,
               0
             ],
-            "value": 1977
+            "value": 1070
           },
           {
             "position": [
-              16,
-              91,
+              66,
+              111,
               0
             ],
-            "value": 804
-          },
-          {
-            "position": [
-              119,
-              3,
-              0
-            ],
-            "value": 1820
+            "value": 958
           },
           {
             "position": [
               20,
-              180,
+              114,
               0
             ],
-            "value": 1451
+            "value": 550
           },
           {
             "position": [
-              90,
-              88,
+              87,
+              30,
               0
             ],
-            "value": 1019
+            "value": 590
+          },
+          {
+            "position": [
+              95,
+              10,
+              0
+            ],
+            "value": 1492
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 2149,
+          "mean": 302.8516,
+          "median": 0.0,
+          "min": 0
+        }
       },
       "LULC_POLYGON_ID": {
         "array_shape": [
@@ -363,45 +375,51 @@
         "random_values": [
           {
             "position": [
-              98,
-              151,
-              0
-            ],
-            "value": 1120
-          },
-          {
-            "position": [
-              57,
-              62,
-              0
-            ],
-            "value": 1699
-          },
-          {
-            "position": [
-              14,
-              172,
-              0
-            ],
-            "value": 1449
-          },
-          {
-            "position": [
-              15,
-              59,
-              0
-            ],
-            "value": 574
-          },
-          {
-            "position": [
-              2,
               88,
+              86,
               0
             ],
-            "value": 827
+            "value": 1137
+          },
+          {
+            "position": [
+              4,
+              74,
+              0
+            ],
+            "value": 967
+          },
+          {
+            "position": [
+              51,
+              102,
+              0
+            ],
+            "value": 591
+          },
+          {
+            "position": [
+              84,
+              122,
+              0
+            ],
+            "value": 653
+          },
+          {
+            "position": [
+              99,
+              22,
+              0
+            ],
+            "value": 1579
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 2149,
+          "mean": 865.84784,
+          "median": 776.0,
+          "min": 0
+        }
       },
       "POLYGON_ID": {
         "array_shape": [
@@ -446,45 +464,51 @@
         "random_values": [
           {
             "position": [
-              62,
-              35,
+              37,
+              47,
               0
             ],
-            "value": 12
+            "value": 248
           },
           {
             "position": [
               36,
-              97,
-              0
-            ],
-            "value": 319
-          },
-          {
-            "position": [
-              51,
-              93,
-              0
-            ],
-            "value": 322
-          },
-          {
-            "position": [
-              35,
-              33,
+              36,
               0
             ],
             "value": 245
           },
           {
             "position": [
-              67,
-              41,
+              64,
+              45,
               0
             ],
-            "value": 226
+            "value": 90
+          },
+          {
+            "position": [
+              0,
+              4,
+              0
+            ],
+            "value": 111
+          },
+          {
+            "position": [
+              34,
+              94,
+              0
+            ],
+            "value": 320
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 327,
+          "mean": 11.74734,
+          "median": 0.0,
+          "min": 0
+        }
       }
     },
     "vector_timeless": {
@@ -521,43 +545,43 @@
         "random_values": [
           {
             "position": [
-              91,
-              241,
+              7,
+              52,
+              0
+            ],
+            "value": 14
+          },
+          {
+            "position": [
+              85,
+              239,
               0
             ],
             "value": 4
           },
           {
             "position": [
-              54,
-              0,
-              0
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              4,
-              144,
-              0
-            ],
-            "value": 1
-          },
-          {
-            "position": [
-              113,
-              19,
+              57,
+              28,
               0
             ],
             "value": 5
           },
           {
             "position": [
-              83,
-              51,
+              112,
+              40,
               0
             ],
-            "value": 14
+            "value": 0
+          },
+          {
+            "position": [
+              27,
+              135,
+              0
+            ],
+            "value": 1
           }
         ],
         "values": [
@@ -593,43 +617,43 @@
         "random_values": [
           {
             "position": [
-              94,
-              10,
-              0
-            ],
-            "value": 9
-          },
-          {
-            "position": [
-              78,
-              237,
-              0
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              40,
-              69,
-              0
-            ],
-            "value": 1
-          },
-          {
-            "position": [
-              107,
-              239,
+              116,
+              238,
               0
             ],
             "value": 4
           },
           {
             "position": [
-              61,
-              152,
+              66,
+              169,
               0
             ],
-            "value": 0
+            "value": 5
+          },
+          {
+            "position": [
+              84,
+              214,
+              0
+            ],
+            "value": 1
+          },
+          {
+            "position": [
+              85,
+              110,
+              0
+            ],
+            "value": 9
+          },
+          {
+            "position": [
+              72,
+              190,
+              0
+            ],
+            "value": 3
           }
         ],
         "values": [
@@ -706,45 +730,51 @@
         "random_values": [
           {
             "position": [
-              99,
-              43,
+              93,
+              101,
               0
             ],
-            "value": 127
+            "value": 924
           },
           {
             "position": [
-              89,
-              112,
+              93,
+              86,
               0
             ],
-            "value": 134
+            "value": 771
           },
           {
             "position": [
-              74,
-              111,
+              91,
+              49,
               0
             ],
-            "value": 133
+            "value": 207
           },
           {
             "position": [
-              102,
-              21,
-              0
-            ],
-            "value": 885
-          },
-          {
-            "position": [
-              84,
               92,
+              28,
               0
             ],
-            "value": 624
+            "value": 277
+          },
+          {
+            "position": [
+              83,
+              127,
+              0
+            ],
+            "value": 1411
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 2127,
+          "mean": 537.85786,
+          "median": 33.0,
+          "min": 0
+        }
       },
       "LULC_POLYGON_ERODED_02": {
         "array_shape": [
@@ -789,45 +819,51 @@
         "random_values": [
           {
             "position": [
-              77,
-              82,
+              118,
+              89,
               0
             ],
-            "value": 855
+            "value": 907
           },
           {
             "position": [
-              76,
-              107,
+              117,
+              54,
               0
             ],
-            "value": 1071
+            "value": 648
           },
           {
             "position": [
-              88,
-              119,
+              104,
+              75,
               0
             ],
-            "value": 135
+            "value": 155
           },
           {
             "position": [
-              110,
-              73,
+              113,
+              56,
               0
             ],
-            "value": 968
+            "value": 196
           },
           {
             "position": [
-              120,
-              172,
+              72,
+              0,
               0
             ],
-            "value": 1451
+            "value": 1667
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 2127,
+          "mean": 452.34565,
+          "median": 0.0,
+          "min": 0
+        }
       },
       "LULC_POLYGON_ID": {
         "array_shape": [
@@ -872,45 +908,51 @@
         "random_values": [
           {
             "position": [
-              55,
-              110,
+              119,
+              117,
               0
             ],
-            "value": 1658
+            "value": 1036
           },
           {
             "position": [
-              0,
-              23,
+              120,
+              48,
               0
             ],
-            "value": 183
+            "value": 824
           },
           {
             "position": [
-              109,
-              89,
+              85,
+              26,
               0
             ],
-            "value": 791
+            "value": 276
           },
           {
             "position": [
-              103,
-              60,
+              107,
+              30,
               0
             ],
-            "value": 753
+            "value": 308
           },
           {
             "position": [
-              111,
-              73,
+              3,
+              19,
               0
             ],
-            "value": 968
+            "value": 1722
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 2145,
+          "mean": 877.15623,
+          "median": 904.0,
+          "min": 5
+        }
       },
       "POLYGON_ID": {
         "array_shape": [
@@ -955,45 +997,51 @@
         "random_values": [
           {
             "position": [
-              1,
-              139,
+              35,
+              128,
               0
             ],
-            "value": 116
+            "value": 193
           },
           {
             "position": [
-              42,
-              137,
+              19,
+              254,
               0
             ],
-            "value": 207
+            "value": 133
           },
           {
             "position": [
-              79,
+              80,
+              33,
+              0
+            ],
+            "value": 113
+          },
+          {
+            "position": [
+              49,
+              85,
+              0
+            ],
+            "value": 115
+          },
+          {
+            "position": [
+              84,
               253,
               0
             ],
             "value": 272
-          },
-          {
-            "position": [
-              27,
-              16,
-              0
-            ],
-            "value": 170
-          },
-          {
-            "position": [
-              90,
-              242,
-              0
-            ],
-            "value": 10
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 334,
+          "mean": 38.81653,
+          "median": 0.0,
+          "min": 0
+        }
       }
     },
     "vector_timeless": {

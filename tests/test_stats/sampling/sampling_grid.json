@@ -47,49 +47,55 @@
           {
             "position": [
               32,
-              402,
-              19,
-              7
+              249,
+              5,
+              2
             ],
-            "value": 0.5535
+            "value": 0.5167
           },
           {
             "position": [
-              18,
-              619,
-              15,
-              11
+              22,
+              388,
+              5,
+              8
             ],
-            "value": 0.4103
-          },
-          {
-            "position": [
-              32,
-              50,
-              15,
-              3
-            ],
-            "value": 0.6793
+            "value": 0.4148
           },
           {
             "position": [
               29,
-              490,
+              888,
               24,
-              6
+              7
             ],
-            "value": 0.2317
+            "value": 0.2193
           },
           {
             "position": [
-              30,
-              277,
+              16,
+              497,
               12,
-              10
+              8
             ],
-            "value": 0.0046
+            "value": 0.2501
+          },
+          {
+            "position": [
+              9,
+              799,
+              9,
+              11
+            ],
+            "value": 0.6897
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 1.197,
+          "mean": 0.17332,
+          "median": 0.1535,
+          "min": 0.0007
+        }
       }
     },
     "mask": {
@@ -104,21 +110,21 @@
         "random_values": [
           {
             "position": [
-              18,
-              525,
-              17,
-              0
-            ],
-            "value": 1
-          },
-          {
-            "position": [
-              17,
-              290,
-              4,
+              16,
+              849,
+              24,
               0
             ],
             "value": 0
+          },
+          {
+            "position": [
+              18,
+              53,
+              24,
+              0
+            ],
+            "value": 1
           }
         ],
         "values": [
@@ -159,43 +165,43 @@
         "random_values": [
           {
             "position": [
-              811,
-              0,
-              0
-            ],
-            "value": 9
-          },
-          {
-            "position": [
-              781,
-              0,
-              0
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              373,
-              21,
-              0
-            ],
-            "value": 1
-          },
-          {
-            "position": [
-              334,
-              18,
+              354,
+              12,
               0
             ],
             "value": 4
           },
           {
             "position": [
-              107,
-              9,
+              959,
+              20,
               0
             ],
-            "value": 0
+            "value": 5
+          },
+          {
+            "position": [
+              682,
+              12,
+              0
+            ],
+            "value": 1
+          },
+          {
+            "position": [
+              704,
+              13,
+              0
+            ],
+            "value": 9
+          },
+          {
+            "position": [
+              740,
+              8,
+              0
+            ],
+            "value": 3
           }
         ],
         "values": [
@@ -239,27 +245,27 @@
         "random_values": [
           {
             "position": [
-              40,
-              23,
+              27,
+              163,
               0
             ],
             "value": 2
           },
           {
             "position": [
-              89,
-              13,
-              0
-            ],
-            "value": 1
-          },
-          {
-            "position": [
-              74,
-              23,
+              21,
+              251,
               0
             ],
             "value": 0
+          },
+          {
+            "position": [
+              6,
+              191,
+              0
+            ],
+            "value": 1
           }
         ],
         "values": [
@@ -363,50 +369,56 @@
         "random_values": [
           {
             "position": [
-              12,
-              324,
-              23,
+              32,
+              367,
+              9,
               7
             ],
-            "value": 0.2482
+            "value": 0.4961
           },
           {
             "position": [
               32,
-              940,
-              0,
+              340,
+              6,
+              11
+            ],
+            "value": 0.3983
+          },
+          {
+            "position": [
+              30,
+              726,
+              15,
+              12
+            ],
+            "value": 0.2105
+          },
+          {
+            "position": [
+              16,
+              878,
+              12,
               6
             ],
-            "value": 0.5183
+            "value": 0.2401
           },
           {
             "position": [
-              18,
-              215,
-              20,
-              8
+              32,
+              972,
+              12,
+              7
             ],
-            "value": 0.5415
-          },
-          {
-            "position": [
-              1,
-              806,
-              3,
-              5
-            ],
-            "value": 0.7335
-          },
-          {
-            "position": [
-              4,
-              305,
-              11,
-              6
-            ],
-            "value": 0.356
+            "value": 0.6623
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 0.8611,
+          "mean": 0.16894,
+          "median": 0.1488,
+          "min": 0.0006
+        }
       }
     },
     "mask": {
@@ -421,21 +433,21 @@
         "random_values": [
           {
             "position": [
-              18,
-              708,
-              18,
-              0
-            ],
-            "value": 1
-          },
-          {
-            "position": [
-              17,
-              107,
-              3,
+              16,
+              1042,
+              5,
               0
             ],
             "value": 0
+          },
+          {
+            "position": [
+              18,
+              38,
+              23,
+              0
+            ],
+            "value": 1
           }
         ],
         "values": [
@@ -476,43 +488,43 @@
         "random_values": [
           {
             "position": [
-              877,
-              10,
-              0
-            ],
-            "value": 9
-          },
-          {
-            "position": [
-              1060,
-              14,
-              0
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              409,
-              24,
-              0
-            ],
-            "value": 1
-          },
-          {
-            "position": [
               1078,
-              19,
+              24,
               0
             ],
             "value": 4
           },
           {
             "position": [
-              538,
-              16,
+              626,
+              4,
               0
             ],
-            "value": 0
+            "value": 5
+          },
+          {
+            "position": [
+              704,
+              1,
+              0
+            ],
+            "value": 1
+          },
+          {
+            "position": [
+              732,
+              8,
+              0
+            ],
+            "value": 9
+          },
+          {
+            "position": [
+              658,
+              10,
+              0
+            ],
+            "value": 3
           }
         ],
         "values": [
@@ -556,27 +568,27 @@
         "random_values": [
           {
             "position": [
-              40,
-              23,
+              27,
+              163,
               0
             ],
             "value": 2
           },
           {
             "position": [
-              89,
-              13,
-              0
-            ],
-            "value": 1
-          },
-          {
-            "position": [
-              74,
-              23,
+              21,
+              251,
               0
             ],
             "value": 0
+          },
+          {
+            "position": [
+              6,
+              191,
+              0
+            ],
+            "value": 1
           }
         ],
         "values": [

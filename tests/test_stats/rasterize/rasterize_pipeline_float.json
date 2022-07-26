@@ -12,19 +12,19 @@
         "random_values": [
           {
             "position": [
-              57,
-              26,
-              0
-            ],
-            "value": 3.5
-          },
-          {
-            "position": [
-              82,
-              248,
+              64,
+              185,
               0
             ],
             "value": 0.0
+          },
+          {
+            "position": [
+              27,
+              45,
+              0
+            ],
+            "value": 3.5
           }
         ],
         "values": [
@@ -48,19 +48,19 @@
         "random_values": [
           {
             "position": [
-              4,
-              0,
-              0
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              9,
-              6,
+              5,
+              7,
               0
             ],
             "value": 0
+          },
+          {
+            "position": [
+              2,
+              3,
+              0
+            ],
+            "value": 3
           }
         ],
         "values": [
@@ -89,19 +89,19 @@
         "random_values": [
           {
             "position": [
-              22,
-              57,
-              0
-            ],
-            "value": 3.5
-          },
-          {
-            "position": [
-              56,
-              223,
+              70,
+              204,
               0
             ],
             "value": 0.0
+          },
+          {
+            "position": [
+              13,
+              255,
+              0
+            ],
+            "value": 3.5
           }
         ],
         "values": [
@@ -125,19 +125,19 @@
         "random_values": [
           {
             "position": [
-              0,
-              3,
-              0
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              4,
-              14,
+              5,
+              17,
               0
             ],
             "value": 0
+          },
+          {
+            "position": [
+              1,
+              4,
+              0
+            ],
+            "value": 3
           }
         ],
         "values": [
