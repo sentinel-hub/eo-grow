@@ -5,7 +5,7 @@ import abc
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
-from pydantic import Field, validator
+from pydantic import Field, root_validator
 
 from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, MergeEOPatchesTask, OverwritePermission, SaveTask
 from eolearn.geometry import MorphologicalOperations, MorphologicalStructFactory
@@ -14,7 +14,7 @@ from eolearn.ml_tools import BlockSamplingTask, FractionSamplingTask, GridSampli
 from ..core.pipeline import Pipeline
 from ..tasks.common import ClassFilterTask
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec
+from ..utils.types import Feature, FeatureSpec, RawPipelineDict
 
 
 class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
@@ -254,13 +254,17 @@ class BlockSamplingPipeline(BaseRandomSamplingPipeline):
             )
         )
 
-        @validator("fraction_of_samples", always=True)
-        def validate_sampling_params(cls, fraction, values):  # type: ignore[no-untyped-def]
-            """Makes sure only one of the sampling parameters has been given"""
-            assert (fraction is None) != (
-                values.get("number_of_samples") is None
-            ), "Exactly one of the parameters fraction_of_samples and number_of_samples should be defined"
-            return fraction
+        @root_validator
+        def validate_sampling_params(cls, values: RawPipelineDict) -> RawPipelineDict:
+            """Makes sure only one of the sampling parameters has been given."""
+            is_fraction_defined = values.get("fraction_of_samples") is not None
+            is_number_defined = values.get("number_of_samples") is not None
+
+            assert (
+                is_fraction_defined != is_number_defined
+            ), "Exactly one of the parameters fraction_of_samples and number_of_samples should be given."
+
+            return values
 
     config: Schema
 

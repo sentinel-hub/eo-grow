@@ -23,7 +23,7 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec
+from ..utils.types import Feature, FeatureSpec, RawPipelineDict
 from ..utils.validators import field_validator, optional_field_validator, parse_dtype
 
 
@@ -82,7 +82,7 @@ class BatchToEOPatchPipeline(Pipeline):
         )
 
         @root_validator
-        def check_something_is_converted(cls, values):  # type: ignore[no-untyped-def]
+        def check_something_is_converted(cls, values: RawPipelineDict) -> RawPipelineDict:
             """Check that the pipeline has something to do."""
             params = "userdata_feature_name", "userdata_timestamp_reader", "mapping"
             assert any(
