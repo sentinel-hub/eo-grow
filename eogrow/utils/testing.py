@@ -228,7 +228,7 @@ class ContentTester:
 
         return stats
 
-    def _calculate_subsample_stats(self, values: np.ndarray, amount: float = 0.1) -> np.ndarray:
+    def _calculate_subsample_stats(self, values: np.ndarray, amount: float = 0.1) -> Dict[str, float]:
         """Randomly samples a small amount of points from the array (10% by default) to recalculate the statistics.
         This introduces a 'positional instability' so that accidental mirroring or re-orderings are detected."""
         rng = np.random.default_rng(0)
