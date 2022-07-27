@@ -14,6 +14,7 @@ from eolearn.core import (
     MergeFeatureTask,
     OverwritePermission,
     RemoveFeatureTask,
+    RenameFeatureTask,
     SaveTask,
 )
 from eolearn.features import LinearFunctionTask
@@ -195,16 +196,33 @@ class BatchToEOPatchPipeline(Pipeline):
         previous_node = EONode(MergeEOPatchesTask(), inputs=end_nodes) if len(end_nodes) > 1 else end_nodes[0]
 
         final_feature = feature_type, feature_name
-        merge_feature_task = MergeFeatureTask(input_features=tmp_features, output_feature=final_feature)
-        merge_node = EONode(merge_feature_task, inputs=[previous_node])
-
-        end_node = EONode(RemoveFeatureTask(tmp_features), inputs=[merge_node])
+        end_node = self._get_feature_merge_node(previous_node, tmp_features, final_feature)
 
         if mapping.multiply_factor != 1 or mapping.dtype is not None:
             multiply_task = LinearFunctionTask(final_feature, slope=mapping.multiply_factor, dtype=mapping.dtype)
             end_node = EONode(multiply_task, inputs=[end_node])
 
         return end_node
+
+    @staticmethod
+    def _get_feature_merge_node(
+        previous_node: EONode, input_features: List[Feature], output_feature: Feature
+    ) -> EONode:
+        """Merges input features into a single output feature and removes input features. In case there is a single
+        input feature this method just renames it into the output feature. This way it avoids memory duplication that
+        otherwise happens in `MergeFeatureTask`."""
+        if len(input_features) == 1:
+            feature_type, input_feature_name = input_features[0]
+            _, output_feature_name = output_feature
+
+            rename_task = RenameFeatureTask([(feature_type, input_feature_name, output_feature_name)])
+            return EONode(rename_task, inputs=[previous_node])
+
+        merge_feature_task = MergeFeatureTask(input_features=input_features, output_feature=output_feature)
+        merge_node = EONode(merge_feature_task, inputs=[previous_node])
+
+        remove_task = RemoveFeatureTask(input_features)
+        return EONode(remove_task, inputs=[merge_node])
 
     @staticmethod
     def get_processing_node(previous_node: EONode) -> EONode:
