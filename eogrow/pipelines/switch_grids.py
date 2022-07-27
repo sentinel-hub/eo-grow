@@ -15,7 +15,7 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema, ManagerSchema
 from ..tasks.spatial import SpatialJoinTask, SpatialSliceTask
 from ..utils.grid import GridTransformation
-from ..utils.types import Feature, FeatureSpec, RawPipelineDict
+from ..utils.types import Feature, FeatureSpec, RawSchemaDict
 from ..utils.validators import field_validator, optional_field_validator, validate_manager
 
 LOGGER = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ class FeatureSchema(BaseSchema):
     )
 
     @root_validator
-    def check_values(cls, values: RawPipelineDict) -> RawPipelineDict:
+    def check_values(cls, values: RawSchemaDict) -> RawSchemaDict:
         """Multiple different checks that given values make sense."""
         feature = values["feature"]
         feature_type = feature if isinstance(feature, FeatureType) else feature[0]

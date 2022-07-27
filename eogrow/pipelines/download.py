@@ -29,7 +29,7 @@ from sentinelhub.download import SessionSharing, collect_shared_session
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec, Path, ProcessingType, RawPipelineDict, TimePeriod
+from ..utils.types import Feature, FeatureSpec, Path, ProcessingType, RawSchemaDict, TimePeriod
 from ..utils.validators import (
     field_validator,
     optional_field_validator,
@@ -217,7 +217,7 @@ class CommonDownloadFields(BaseSchema):
     )
 
     @root_validator
-    def check_resolution_and_size(cls, values: RawPipelineDict) -> RawPipelineDict:
+    def check_resolution_and_size(cls, values: RawSchemaDict) -> RawSchemaDict:
         """Check that exactly one of the parameters resolution and size is defined."""
         is_resolution_defined = values.get("resolution") is not None
         is_size_defined = values.get("size") is not None

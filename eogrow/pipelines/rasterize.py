@@ -30,7 +30,7 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.fs import LocalFile
-from ..utils.types import Feature, FeatureSpec, RawPipelineDict
+from ..utils.types import Feature, FeatureSpec, RawSchemaDict
 from ..utils.validators import field_validator, parse_dtype
 from ..utils.vector import concat_gdf
 
@@ -57,7 +57,7 @@ class VectorColumnSchema(BaseSchema):
     no_data_value: int = Field(0, description="The no_data_value argument to be passed to VectorToRasterTask")
 
     @root_validator
-    def check_value_settings(cls, values: RawPipelineDict) -> RawPipelineDict:
+    def check_value_settings(cls, values: RawSchemaDict) -> RawSchemaDict:
         """Ensures that precisely one of `value` and `values_column` is set."""
         is_value_defined = values.get("value") is not None
         is_values_column_defined = values.get("values_column") is not None

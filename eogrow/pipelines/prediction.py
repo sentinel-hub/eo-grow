@@ -12,7 +12,7 @@ from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, MergeEOPatch
 from ..core.pipeline import Pipeline
 from ..tasks.prediction import ClassificationPredictionTask, RegressionPredictionTask
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec, RawPipelineDict
+from ..utils.types import Feature, FeatureSpec, RawSchemaDict
 from ..utils.validators import optional_field_validator, parse_dtype
 
 
@@ -49,7 +49,7 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
 
         @root_validator
-        def validate_prediction_mask(cls, values: RawPipelineDict) -> RawPipelineDict:
+        def validate_prediction_mask(cls, values: RawSchemaDict) -> RawSchemaDict:
             """If prediction mask is defined then also its input folder has to be defined."""
             is_mask_defined = values.get("prediction_mask_feature_name") is not None
             is_folder_defined = values.get("prediction_mask_folder_key") is not None

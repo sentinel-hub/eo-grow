@@ -14,7 +14,7 @@ from eolearn.ml_tools import BlockSamplingTask, FractionSamplingTask, GridSampli
 from ..core.pipeline import Pipeline
 from ..tasks.common import ClassFilterTask
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec, RawPipelineDict
+from ..utils.types import Feature, FeatureSpec, RawSchemaDict
 
 
 class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
@@ -255,7 +255,7 @@ class BlockSamplingPipeline(BaseRandomSamplingPipeline):
         )
 
         @root_validator
-        def validate_sampling_params(cls, values: RawPipelineDict) -> RawPipelineDict:
+        def validate_sampling_params(cls, values: RawSchemaDict) -> RawSchemaDict:
             """Makes sure only one of the sampling parameters has been given."""
             is_fraction_defined = values.get("fraction_of_samples") is not None
             is_number_defined = values.get("number_of_samples") is not None
