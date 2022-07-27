@@ -106,5 +106,5 @@ def test_batch_to_eopatch_pipeline(folders, experiment_name):
     check_pipeline_logs(pipeline)
 
     tester = ContentTester(pipeline.storage.filesystem, output_folder)
-    tester.save(stat_path)
+    # tester.save(stat_path)
     assert tester.compare(stat_path) == {}
