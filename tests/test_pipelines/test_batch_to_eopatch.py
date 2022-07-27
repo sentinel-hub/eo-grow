@@ -3,6 +3,7 @@ Testing batch-to-eopatch pipeline
 """
 import json
 import os
+from typing import Iterable, Optional
 
 import fs
 import numpy as np
@@ -25,18 +26,20 @@ def config_folder_fixture(config_folder, stats_folder):
 def prepare_batch_files(
     folder: str,
     filesystem: FS,
+    filenames: Iterable[str],
     tiff_bbox: BBox,
     width: int,
     height: int,
     num_timestamps: int,
-    dtype: np.dtype,
+    dtype: type,
     add_userdata: bool,
-):
+    timestamp_shuffle_seed: Optional[int] = None,
+) -> None:
     transform = rasterio.transform.from_bounds(*tiff_bbox, width=width, height=height)
     filesystem.makedirs(folder, recreate=True)
 
     generator = np.random.default_rng(42)
-    for filename in ["B01.tif", "B02.tif", "B03.tif"]:
+    for filename in filenames:
         with filesystem.openbin(fs.path.combine(folder, filename), "w") as file_handle:
             with rasterio.open(
                 file_handle,
@@ -53,7 +56,10 @@ def prepare_batch_files(
                 dst.write(10000 * generator.random((num_timestamps, height, width)))
 
     if add_userdata:
-        userdata = {"timestamps": [f"2020-11-{i}T01:23:45Z" for i in range(1, num_timestamps + 1)]}
+        timestamp = [f"2020-11-{i}T01:23:45Z" for i in range(1, num_timestamps + 1)]
+        if timestamp_shuffle_seed is not None:
+            np.random.default_rng(timestamp_shuffle_seed).shuffle(timestamp)
+        userdata = {"timestamps": timestamp}
         filesystem.writetext(fs.path.combine(folder, "userdata.json"), json.dumps(userdata))
 
 
@@ -83,7 +89,18 @@ def test_batch_to_eopatch_pipeline(folders, experiment_name):
     add_userdata = bool(pipeline.config.userdata_feature_name or pipeline.config.userdata_timestamp_reader)
     for bbox, patch_folder in zip(bboxes, folders):
         patch_path = fs.path.combine(input_folder, patch_folder)
-        prepare_batch_files(patch_path, filesystem, bbox, 400, 800, 12, "uint16", add_userdata)
+        prepare_batch_files(
+            folder=patch_path,
+            filesystem=filesystem,
+            filenames=["B01.tif", "B02.tif", "B03.tif"],
+            tiff_bbox=bbox,
+            width=200,
+            height=300,
+            num_timestamps=7,
+            dtype=np.uint16,
+            add_userdata=add_userdata,
+            timestamp_shuffle_seed=17,
+        )
 
     pipeline.run()
     check_pipeline_logs(pipeline)
