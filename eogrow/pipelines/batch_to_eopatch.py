@@ -14,6 +14,7 @@ from eolearn.core import (
     MergeFeatureTask,
     OverwritePermission,
     RemoveFeatureTask,
+    RenameFeatureTask,
     SaveTask,
 )
 from eolearn.features import LinearFunctionTask
@@ -23,8 +24,8 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec
-from ..utils.validators import field_validator, optional_field_validator, parse_dtype
+from ..utils.types import Feature, FeatureSpec, RawSchemaDict
+from ..utils.validators import optional_field_validator, parse_dtype
 
 
 class FeatureMappingSchema(BaseSchema):
@@ -40,32 +41,16 @@ class FeatureMappingSchema(BaseSchema):
     multiply_factor: float = Field(1, description="Factor used to multiply feature values with.")
     dtype: Optional[np.dtype] = Field(description="Dtype of the output feature.")
     _parse_dtype = optional_field_validator("dtype", parse_dtype, pre=True)
-    save_early: bool = Field(
-        True,
-        description=(
-            "The pipeline allows that custom processing steps are added at the end. If this parameter is set to True"
-            " then the feature will be saved and removed from memory immediately after being loaded from tiffs. This"
-            " makes the pipeline more memory efficient. If set to False it will keep the feature in memory until the"
-            " end so that it can be used for processing steps."
-        ),
-    )
-
-
-def _sort_feature_mappings(mapping: List[FeatureMappingSchema]) -> List[FeatureMappingSchema]:
-    """Sorts feature mappings by putting the ones that will be saved early at the beginning. This optimizes the memory
-    usage."""
-    return sorted(mapping, key=lambda feature_mapping: not feature_mapping.save_early)
 
 
 class BatchToEOPatchPipeline(Pipeline):
     class Schema(Pipeline.Schema):
         input_folder_key: str = Field(description="Storage manager key pointing to the path with Batch results")
-        output_folder_key: str = Field(description="Storage manager key pointing to where the eopatches are saved")
+        output_folder_key: str = Field(description="Storage manager key pointing to where the EOPatches are saved")
 
         mapping: List[FeatureMappingSchema] = Field(
             description="A list of mapping from batch files into EOPatch features."
         )
-        _sort_mapping = field_validator("mapping", _sort_feature_mappings)
 
         userdata_feature_name: Optional[str] = Field(
             description="A name of META_INFO feature in which userdata.json would be stored."
@@ -82,7 +67,7 @@ class BatchToEOPatchPipeline(Pipeline):
         )
 
         @root_validator
-        def check_something_is_converted(cls, values):  # type: ignore[no-untyped-def]
+        def check_something_is_converted(cls, values: RawSchemaDict) -> RawSchemaDict:
             """Check that the pipeline has something to do."""
             params = "userdata_feature_name", "userdata_timestamp_reader", "mapping"
             assert any(
@@ -125,19 +110,11 @@ class BatchToEOPatchPipeline(Pipeline):
 
         return features
 
-    def _get_final_output_features(self) -> List[FeatureSpec]:
-        """Output features that will be saved in the final saving step and not sooner."""
-        output_features = self._get_output_features()
-        features_saved_early = {
-            feature_mapping.feature for feature_mapping in self.config.mapping if feature_mapping.save_early
-        }
-        return [feature for feature in output_features if feature not in features_saved_early]
-
     def build_workflow(self) -> EOWorkflow:
         """Builds the workflow"""
-        previous_node = None
+        userdata_node = None
         if self._has_userdata:
-            previous_node = EONode(
+            userdata_node = EONode(
                 LoadUserDataTask(
                     path=self._input_folder,
                     filesystem=self.storage.filesystem,
@@ -146,37 +123,28 @@ class BatchToEOPatchPipeline(Pipeline):
                 )
             )
 
-        for feature_mapping in self.config.mapping:
-            feature = feature_mapping.feature
-            mapping_node = self._get_tiff_mapping_node(feature_mapping, previous_node)
+        mapping_nodes = [
+            self._get_tiff_mapping_node(feature_mapping, userdata_node) for feature_mapping in self.config.mapping
+        ]
 
-            if feature_mapping.save_early:
-                save_task = SaveTask(
-                    path=self.storage.get_folder(self.config.output_folder_key),
-                    filesystem=self.storage.filesystem,
-                    features=[feature],
-                    compress_level=1,
-                    overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
-                )
-                save_node = EONode(save_task, inputs=[mapping_node])
+        last_node = userdata_node
+        if len(mapping_nodes) == 1:
+            last_node = mapping_nodes[0]
+        elif len(mapping_nodes) > 1:
+            last_node = EONode(MergeEOPatchesTask(), inputs=mapping_nodes)
 
-                _, f_name = feature
-                previous_node = EONode(RemoveFeatureTask([feature]), inputs=[save_node], name=f"Remove {f_name}")
-            else:
-                previous_node = mapping_node
-
-        if previous_node is None:
+        if last_node is None:
             raise ValueError(
                 "At least one of `userdata_feature_name`, `userdata_timestamp_reader`, or `mapping` has to be set in"
                 " the config. This should have been caught in the validation phase, please report issue."
             )
 
-        processing_node = self.get_processing_node(previous_node)
+        processing_node = self.get_processing_node(last_node)
 
         save_task = SaveTask(
             path=self.storage.get_folder(self.config.output_folder_key),
             filesystem=self.storage.filesystem,
-            features=self._get_final_output_features(),
+            features=self._get_output_features(),
             compress_level=1,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
         )
@@ -233,16 +201,33 @@ class BatchToEOPatchPipeline(Pipeline):
         previous_node = EONode(MergeEOPatchesTask(), inputs=end_nodes) if len(end_nodes) > 1 else end_nodes[0]
 
         final_feature = feature_type, feature_name
-        merge_feature_task = MergeFeatureTask(input_features=tmp_features, output_feature=final_feature)
-        merge_node = EONode(merge_feature_task, inputs=[previous_node])
-
-        end_node = EONode(RemoveFeatureTask(tmp_features), inputs=[merge_node])
+        end_node = self._get_feature_merge_node(previous_node, tmp_features, final_feature)
 
         if mapping.multiply_factor != 1 or mapping.dtype is not None:
             multiply_task = LinearFunctionTask(final_feature, slope=mapping.multiply_factor, dtype=mapping.dtype)
             end_node = EONode(multiply_task, inputs=[end_node])
 
         return end_node
+
+    @staticmethod
+    def _get_feature_merge_node(
+        previous_node: EONode, input_features: List[Feature], output_feature: Feature
+    ) -> EONode:
+        """Merges input features into a single output feature and removes input features. In case there is a single
+        input feature this method just renames it into the output feature. This way it avoids memory duplication that
+        otherwise happens in `MergeFeatureTask`."""
+        if len(input_features) == 1:
+            feature_type, input_feature_name = input_features[0]
+            _, output_feature_name = output_feature
+
+            rename_task = RenameFeatureTask([(feature_type, input_feature_name, output_feature_name)])
+            return EONode(rename_task, inputs=[previous_node])
+
+        merge_feature_task = MergeFeatureTask(input_features=input_features, output_feature=output_feature)
+        merge_node = EONode(merge_feature_task, inputs=[previous_node])
+
+        remove_task = RemoveFeatureTask(input_features)
+        return EONode(remove_task, inputs=[merge_node])
 
     @staticmethod
     def get_processing_node(previous_node: EONode) -> EONode:

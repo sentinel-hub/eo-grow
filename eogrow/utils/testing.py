@@ -180,6 +180,8 @@ class ContentTester:
                 for name, operation in self._STATS_OPERATIONS.items()
             }
 
+            stats["subsample_basic_stats"] = self._calculate_subsample_stats(finite_values)
+
             counts, edges = np.histogram(finite_values, bins=self.histogram_bin_num)
             stats["histogram"] = {
                 "counts": counts.astype(int).tolist(),
@@ -226,12 +228,19 @@ class ContentTester:
 
         return stats
 
+    def _calculate_subsample_stats(self, values: np.ndarray, amount: float = 0.1) -> Dict[str, float]:
+        """Randomly samples a small amount of points from the array (10% by default) to recalculate the statistics.
+        This introduces a 'positional instability' so that accidental mirroring or re-orderings are detected."""
+        rng = np.random.default_rng(0)
+        subsample = rng.choice(values, int(values.size * amount))
+        return {name: self._prepare_value(operation(subsample)) for name, operation in self._STATS_OPERATIONS.items()}
+
     def _get_random_stats(self, raster: np.ndarray, unique_values: np.ndarray) -> List[JsonDict]:
         """First it randomly samples a few values from the list of unique values. Then for each one it checks where
         this value is located in the original array and randomly selects one of its locations. Selected locations
         and values are used for statistics."""
-        np.random.seed(0)
-        randomly_chosen_values = np.random.choice(
+        rng = np.random.default_rng(0)
+        randomly_chosen_values = rng.choice(
             unique_values,
             size=min(self.max_random_values, unique_values.size),
             replace=False,
@@ -243,7 +252,7 @@ class ContentTester:
             positions = np.argwhere(value_mask)
 
             num_positions = positions.shape[0]
-            chosen_position_index = np.random.randint(num_positions)
+            chosen_position_index = rng.integers(num_positions)
 
             random_stats.append(
                 {"value": self._prepare_value(value), "position": positions[chosen_position_index].tolist()}

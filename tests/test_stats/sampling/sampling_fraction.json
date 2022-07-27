@@ -12,19 +12,19 @@
         "random_values": [
           {
             "position": [
-              3292,
-              0,
-              0
-            ],
-            "value": 8
-          },
-          {
-            "position": [
-              3,
+              14,
               0,
               0
             ],
             "value": 4
+          },
+          {
+            "position": [
+              2476,
+              0,
+              0
+            ],
+            "value": 8
           }
         ],
         "values": [
@@ -48,19 +48,19 @@
         "random_values": [
           {
             "position": [
-              36,
-              98,
-              0
-            ],
-            "value": 1
-          },
-          {
-            "position": [
-              72,
-              138,
+              64,
+              118,
               0
             ],
             "value": 0
+          },
+          {
+            "position": [
+              26,
+              154,
+              0
+            ],
+            "value": 1
           }
         ],
         "values": [
@@ -117,35 +117,27 @@
         "random_values": [
           {
             "position": [
-              5008,
+              7767,
               0,
               0
             ],
-            "value": 325
+            "value": 320
           },
           {
             "position": [
-              3524,
+              6700,
+              0,
+              0
+            ],
+            "value": 324
+          },
+          {
+            "position": [
+              6899,
               0,
               0
             ],
             "value": 316
-          },
-          {
-            "position": [
-              6927,
-              0,
-              0
-            ],
-            "value": 178
-          },
-          {
-            "position": [
-              4022,
-              0,
-              0
-            ],
-            "value": 321
           },
           {
             "position": [
@@ -154,8 +146,22 @@
               0
             ],
             "value": 326
+          },
+          {
+            "position": [
+              4022,
+              0,
+              0
+            ],
+            "value": 321
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 0,
+          "mean": 0.0,
+          "median": 0.0,
+          "min": 0
+        }
       }
     }
   },
@@ -172,19 +178,19 @@
         "random_values": [
           {
             "position": [
-              2624,
-              0,
-              0
-            ],
-            "value": 8
-          },
-          {
-            "position": [
-              0,
+              8,
               0,
               0
             ],
             "value": 4
+          },
+          {
+            "position": [
+              1579,
+              0,
+              0
+            ],
+            "value": 8
           }
         ],
         "values": [
@@ -208,19 +214,19 @@
         "random_values": [
           {
             "position": [
-              77,
-              139,
-              0
-            ],
-            "value": 1
-          },
-          {
-            "position": [
-              42,
-              74,
+              57,
+              191,
               0
             ],
             "value": 0
+          },
+          {
+            "position": [
+              49,
+              135,
+              0
+            ],
+            "value": 1
           }
         ],
         "values": [
@@ -244,6 +250,30 @@
         "random_values": [
           {
             "position": [
+              4250,
+              0,
+              0
+            ],
+            "value": 22
+          },
+          {
+            "position": [
+              977,
+              0,
+              0
+            ],
+            "value": 207
+          },
+          {
+            "position": [
+              5507,
+              0,
+              0
+            ],
+            "value": 10
+          },
+          {
+            "position": [
               2510,
               0,
               0
@@ -252,35 +282,11 @@
           },
           {
             "position": [
-              1166,
+              4018,
               0,
               0
             ],
             "value": 21
-          },
-          {
-            "position": [
-              3616,
-              0,
-              0
-            ],
-            "value": 10
-          },
-          {
-            "position": [
-              5541,
-              0,
-              0
-            ],
-            "value": 22
-          },
-          {
-            "position": [
-              3489,
-              0,
-              0
-            ],
-            "value": 0
           }
         ],
         "values": [

@@ -17,6 +17,7 @@ FeatureSpec = Union[Tuple[FeatureType, str], FeatureType]
 BoolOrAuto = Union[Literal["auto"], bool]
 
 JsonDict = Dict[str, Any]
+RawSchemaDict = Dict[str, Any]
 
 AwsAclType = Literal[
     "private",

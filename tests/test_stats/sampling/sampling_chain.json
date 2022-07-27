@@ -46,50 +46,56 @@
         "random_values": [
           {
             "position": [
-              9,
-              285,
+              32,
+              443,
               0,
-              2
+              3
             ],
-            "value": 0.5052
+            "value": 0.4264
           },
           {
             "position": [
               18,
-              513,
+              119,
               0,
-              8
+              1
             ],
-            "value": 0.5203
+            "value": 0.3424
           },
           {
             "position": [
-              8,
-              272,
+              33,
+              451,
               0,
-              4
+              12
             ],
-            "value": 0.1199
+            "value": 0.1812
           },
           {
             "position": [
-              31,
-              517,
+              21,
+              255,
               0,
-              9
+              5
             ],
-            "value": 0.0482
+            "value": 0.2067
           },
           {
             "position": [
-              31,
-              576,
+              32,
+              307,
               0,
-              9
+              3
             ],
-            "value": 0.0454
+            "value": 0.5753
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 0.8265,
+          "mean": 0.17645,
+          "median": 0.156,
+          "min": 0.0007
+        }
       }
     },
     "mask": {
@@ -104,21 +110,21 @@
         "random_values": [
           {
             "position": [
-              32,
-              521,
-              0,
-              0
-            ],
-            "value": 1
-          },
-          {
-            "position": [
-              17,
-              362,
+              16,
+              477,
               0,
               0
             ],
             "value": 0
+          },
+          {
+            "position": [
+              18,
+              7,
+              0,
+              0
+            ],
+            "value": 1
           }
         ],
         "values": [
@@ -159,15 +165,7 @@
         "random_values": [
           {
             "position": [
-              590,
-              0,
-              0
-            ],
-            "value": 9
-          },
-          {
-            "position": [
-              229,
+              230,
               0,
               0
             ],
@@ -175,15 +173,7 @@
           },
           {
             "position": [
-              188,
-              0,
-              0
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              238,
+              240,
               0,
               0
             ],
@@ -191,11 +181,27 @@
           },
           {
             "position": [
-              70,
+              555,
               0,
               0
             ],
-            "value": 1
+            "value": 8
+          },
+          {
+            "position": [
+              592,
+              0,
+              0
+            ],
+            "value": 9
+          },
+          {
+            "position": [
+              198,
+              0,
+              0
+            ],
+            "value": 3
           }
         ],
         "values": [
@@ -235,19 +241,19 @@
         "random_values": [
           {
             "position": [
-              104,
-              41,
-              0
-            ],
-            "value": 1
-          },
-          {
-            "position": [
-              38,
-              63,
+              62,
+              11,
               0
             ],
             "value": 0
+          },
+          {
+            "position": [
+              27,
+              99,
+              0
+            ],
+            "value": 1
           }
         ],
         "values": [
@@ -304,7 +310,15 @@
         "random_values": [
           {
             "position": [
-              131,
+              76,
+              0,
+              0
+            ],
+            "value": 244
+          },
+          {
+            "position": [
+              79,
               0,
               0
             ],
@@ -312,15 +326,7 @@
           },
           {
             "position": [
-              104,
-              0,
-              0
-            ],
-            "value": 246
-          },
-          {
-            "position": [
-              29,
+              99,
               0,
               0
             ],
@@ -328,21 +334,27 @@
           },
           {
             "position": [
-              12,
+              82,
               0,
               0
             ],
-            "value": 247
+            "value": 88
           },
           {
             "position": [
-              32,
+              113,
               0,
               0
             ],
-            "value": 180
+            "value": 178
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 246,
+          "mean": 19.66667,
+          "median": 0.0,
+          "min": 0
+        }
       }
     },
     "timestamp": [
@@ -431,49 +443,55 @@
           {
             "position": [
               32,
-              631,
+              231,
               0,
-              0
+              1
             ],
-            "value": 0.5174
+            "value": 0.3972
+          },
+          {
+            "position": [
+              18,
+              405,
+              0,
+              2
+            ],
+            "value": 0.3189
           },
           {
             "position": [
               33,
-              508,
+              420,
               0,
-              12
+              7
             ],
-            "value": 0.0668
+            "value": 0.1687
           },
           {
             "position": [
-              12,
-              283,
+              23,
+              135,
               0,
-              8
+              11
             ],
-            "value": 0.4632
+            "value": 0.1924
           },
           {
             "position": [
-              15,
-              339,
+              32,
+              697,
               0,
-              5
+              6
             ],
-            "value": 0.2256
-          },
-          {
-            "position": [
-              24,
-              733,
-              0,
-              5
-            ],
-            "value": 0.1837
+            "value": 0.5328
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 0.8584,
+          "mean": 0.16946,
+          "median": 0.148,
+          "min": 0.0006
+        }
       }
     },
     "mask": {
@@ -488,21 +506,21 @@
         "random_values": [
           {
             "position": [
-              32,
-              548,
-              0,
-              0
-            ],
-            "value": 1
-          },
-          {
-            "position": [
-              13,
-              157,
+              16,
+              762,
               0,
               0
             ],
             "value": 0
+          },
+          {
+            "position": [
+              18,
+              59,
+              0,
+              0
+            ],
+            "value": 1
           }
         ],
         "values": [
@@ -543,14 +561,6 @@
         "random_values": [
           {
             "position": [
-              793,
-              0,
-              0
-            ],
-            "value": 9
-          },
-          {
-            "position": [
               499,
               0,
               0
@@ -559,15 +569,7 @@
           },
           {
             "position": [
-              456,
-              0,
-              0
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              570,
+              557,
               0,
               0
             ],
@@ -575,11 +577,27 @@
           },
           {
             "position": [
-              88,
+              711,
               0,
               0
             ],
-            "value": 1
+            "value": 8
+          },
+          {
+            "position": [
+              798,
+              0,
+              0
+            ],
+            "value": 9
+          },
+          {
+            "position": [
+              459,
+              0,
+              0
+            ],
+            "value": 3
           }
         ],
         "values": [
@@ -619,19 +637,19 @@
         "random_values": [
           {
             "position": [
-              75,
-              182,
-              0
-            ],
-            "value": 1
-          },
-          {
-            "position": [
-              38,
-              110,
+              62,
+              15,
               0
             ],
             "value": 0
+          },
+          {
+            "position": [
+              26,
+              240,
+              0
+            ],
+            "value": 1
           }
         ],
         "values": [
@@ -688,7 +706,15 @@
         "random_values": [
           {
             "position": [
-              76,
+              416,
+              0,
+              0
+            ],
+            "value": 170
+          },
+          {
+            "position": [
+              276,
               0,
               0
             ],
@@ -696,37 +722,35 @@
           },
           {
             "position": [
-              180,
+              498,
               0,
               0
             ],
-            "value": 119
+            "value": 113
           },
           {
             "position": [
-              264,
+              204,
               0,
               0
             ],
-            "value": 277
+            "value": 114
           },
           {
             "position": [
-              100,
+              310,
               0,
               0
             ],
-            "value": 176
-          },
-          {
-            "position": [
-              406,
-              0,
-              0
-            ],
-            "value": 274
+            "value": 231
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 309,
+          "mean": 43.7625,
+          "median": 0.0,
+          "min": 0
+        }
       }
     },
     "timestamp": [

@@ -46,50 +46,56 @@
         "random_values": [
           {
             "position": [
-              0,
-              67,
-              6,
-              2
-            ],
-            "value": 0.62362
-          },
-          {
-            "position": [
-              0,
-              115,
-              71,
-              2
-            ],
-            "value": 0.19227
-          },
-          {
-            "position": [
               1,
-              50,
-              363,
-              2
-            ],
-            "value": -0.15035
-          },
-          {
-            "position": [
-              1,
-              55,
-              160,
-              2
-            ],
-            "value": 0.56438
-          },
-          {
-            "position": [
-              0,
-              163,
-              357,
+              205,
+              292,
               0
             ],
-            "value": -0.19727
+            "value": 0.27196
+          },
+          {
+            "position": [
+              1,
+              6,
+              267,
+              1
+            ],
+            "value": 0.02187
+          },
+          {
+            "position": [
+              0,
+              92,
+              487,
+              1
+            ],
+            "value": -0.45858
+          },
+          {
+            "position": [
+              1,
+              5,
+              9,
+              1
+            ],
+            "value": -0.38261
+          },
+          {
+            "position": [
+              0,
+              44,
+              219,
+              0
+            ],
+            "value": 0.69961
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 1.0,
+          "mean": 0.00201,
+          "median": 0.00291,
+          "min": -0.99998
+        }
       }
     },
     "label": {
@@ -103,30 +109,30 @@
           {
             "position": [
               1,
-              6
+              8
             ],
-            "value": 4
+            "value": 2
+          },
+          {
+            "position": [
+              1,
+              3
+            ],
+            "value": 3
           },
           {
             "position": [
               0,
-              12
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              0,
-              1
+              2
             ],
             "value": -1
           },
           {
             "position": [
               1,
-              14
+              1
             ],
-            "value": 5
+            "value": 0
           },
           {
             "position": [
@@ -184,30 +190,30 @@
         "random_values": [
           {
             "position": [
-              1,
-              36,
-              308,
+              0,
+              130,
+              53,
               0
             ],
             "value": 6
           },
           {
             "position": [
-              1,
-              59,
-              61,
+              0,
+              17,
+              166,
               0
             ],
-            "value": 5
+            "value": 4
           },
           {
             "position": [
               0,
-              126,
-              8,
+              32,
+              464,
               0
             ],
-            "value": 4
+            "value": 5
           }
         ],
         "values": [
@@ -237,19 +243,19 @@
         "random_values": [
           {
             "position": [
-              86,
-              277,
+              108,
+              392,
               0
             ],
-            "value": true
+            "value": false
           },
           {
             "position": [
-              83,
-              405,
-              1
+              58,
+              46,
+              0
             ],
-            "value": false
+            "value": true
           }
         ],
         "values": [
@@ -316,50 +322,56 @@
         "random_values": [
           {
             "position": [
-              0,
-              135,
-              423,
+              1,
+              131,
+              489,
               0
             ],
-            "value": -0.14238
+            "value": 0.27196
           },
           {
             "position": [
               0,
-              59,
-              223,
-              0
-            ],
-            "value": 0.30647
-          },
-          {
-            "position": [
-              0,
-              208,
-              153,
+              102,
+              155,
               1
             ],
-            "value": -0.18121
+            "value": 0.0218
           },
           {
             "position": [
               1,
-              47,
-              452,
-              1
+              46,
+              485,
+              0
             ],
-            "value": 0.99174
+            "value": -0.45886
           },
           {
             "position": [
               1,
-              16,
-              58,
+              111,
+              215,
+              1
+            ],
+            "value": -0.38294
+          },
+          {
+            "position": [
+              0,
+              42,
+              340,
               0
             ],
-            "value": 0.04969
+            "value": 0.70054
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 0.99999,
+          "mean": 0.00213,
+          "median": 0.00582,
+          "min": -0.99989
+        }
       }
     },
     "label": {
@@ -373,30 +385,30 @@
           {
             "position": [
               1,
-              6
+              8
             ],
-            "value": 4
+            "value": 2
+          },
+          {
+            "position": [
+              1,
+              3
+            ],
+            "value": 3
           },
           {
             "position": [
               0,
-              12
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              0,
-              1
+              2
             ],
             "value": -1
           },
           {
             "position": [
               1,
-              14
+              1
             ],
-            "value": 5
+            "value": 0
           },
           {
             "position": [
@@ -454,30 +466,30 @@
         "random_values": [
           {
             "position": [
-              1,
-              36,
-              313,
+              0,
+              131,
+              260,
               0
             ],
             "value": 6
           },
           {
             "position": [
-              1,
-              58,
-              413,
+              0,
+              18,
+              205,
               0
             ],
-            "value": 5
+            "value": 4
           },
           {
             "position": [
               0,
-              126,
-              338,
+              31,
+              233,
               0
             ],
-            "value": 4
+            "value": 5
           }
         ],
         "values": [
@@ -507,19 +519,19 @@
         "random_values": [
           {
             "position": [
-              85,
-              168,
+              109,
+              500,
               1
             ],
-            "value": true
+            "value": false
           },
           {
             "position": [
-              84,
-              492,
+              57,
+              182,
               0
             ],
-            "value": false
+            "value": true
           }
         ],
         "values": [
@@ -586,50 +598,56 @@
         "random_values": [
           {
             "position": [
-              0,
-              111,
-              190,
-              1
-            ],
-            "value": 0.06143
-          },
-          {
-            "position": [
-              0,
-              211,
-              474,
-              1
-            ],
-            "value": -0.21615
-          },
-          {
-            "position": [
-              0,
+              1,
+              186,
               85,
-              44,
               0
             ],
-            "value": -0.04704
+            "value": 0.27156
           },
           {
             "position": [
               1,
-              127,
-              443,
-              0
+              80,
+              21,
+              1
             ],
-            "value": -0.83748
+            "value": 0.02119
           },
           {
             "position": [
               1,
-              44,
-              216,
+              120,
+              192,
               2
             ],
-            "value": 0.29457
+            "value": -0.45905
+          },
+          {
+            "position": [
+              0,
+              182,
+              119,
+              0
+            ],
+            "value": -0.38301
+          },
+          {
+            "position": [
+              0,
+              19,
+              63,
+              0
+            ],
+            "value": 0.70032
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 0.99996,
+          "mean": -0.00268,
+          "median": -0.00386,
+          "min": -0.99993
+        }
       }
     },
     "label": {
@@ -643,30 +661,30 @@
           {
             "position": [
               1,
-              6
+              8
             ],
-            "value": 4
+            "value": 2
+          },
+          {
+            "position": [
+              1,
+              3
+            ],
+            "value": 3
           },
           {
             "position": [
               0,
-              12
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              0,
-              1
+              2
             ],
             "value": -1
           },
           {
             "position": [
               1,
-              14
+              1
             ],
-            "value": 5
+            "value": 0
           },
           {
             "position": [
@@ -724,30 +742,30 @@
         "random_values": [
           {
             "position": [
-              1,
-              38,
-              393,
+              0,
+              132,
+              120,
               0
             ],
             "value": 6
           },
           {
             "position": [
-              1,
-              57,
-              324,
+              0,
+              17,
+              329,
               0
             ],
-            "value": 5
+            "value": 4
           },
           {
             "position": [
               0,
-              125,
-              185,
+              32,
+              84,
               0
             ],
-            "value": 4
+            "value": 5
           }
         ],
         "values": [
@@ -777,19 +795,19 @@
         "random_values": [
           {
             "position": [
-              86,
-              250,
-              1
-            ],
-            "value": true
-          },
-          {
-            "position": [
-              83,
-              457,
+              108,
+              501,
               1
             ],
             "value": false
+          },
+          {
+            "position": [
+              57,
+              491,
+              0
+            ],
+            "value": true
           }
         ],
         "values": [
@@ -856,50 +874,56 @@
         "random_values": [
           {
             "position": [
-              0,
-              13,
-              5,
-              2
-            ],
-            "value": 0.46572
-          },
-          {
-            "position": [
               1,
-              4,
-              365,
-              2
-            ],
-            "value": 0.75211
-          },
-          {
-            "position": [
-              0,
-              116,
-              49,
-              0
-            ],
-            "value": -0.95074
-          },
-          {
-            "position": [
-              1,
-              131,
-              97,
+              163,
+              427,
               1
             ],
-            "value": -0.264
+            "value": 0.27343
           },
           {
             "position": [
-              0,
-              20,
-              429,
+              1,
+              128,
+              354,
+              2
+            ],
+            "value": 0.02283
+          },
+          {
+            "position": [
+              1,
+              130,
+              470,
               0
             ],
-            "value": 0.33223
+            "value": -0.45824
+          },
+          {
+            "position": [
+              1,
+              207,
+              494,
+              0
+            ],
+            "value": -0.38313
+          },
+          {
+            "position": [
+              1,
+              176,
+              243,
+              2
+            ],
+            "value": 0.70049
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 0.99997,
+          "mean": 0.00167,
+          "median": 0.00425,
+          "min": -0.99999
+        }
       }
     },
     "label": {
@@ -913,30 +937,30 @@
           {
             "position": [
               1,
-              6
+              8
             ],
-            "value": 4
+            "value": 2
+          },
+          {
+            "position": [
+              1,
+              3
+            ],
+            "value": 3
           },
           {
             "position": [
               0,
-              12
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              0,
-              1
+              2
             ],
             "value": -1
           },
           {
             "position": [
               1,
-              14
+              1
             ],
-            "value": 5
+            "value": 0
           },
           {
             "position": [
@@ -994,30 +1018,30 @@
         "random_values": [
           {
             "position": [
-              1,
-              36,
-              42,
+              0,
+              131,
+              299,
               0
             ],
             "value": 6
           },
           {
             "position": [
-              1,
-              58,
-              399,
+              0,
+              17,
+              398,
               0
             ],
-            "value": 5
+            "value": 4
           },
           {
             "position": [
               0,
-              126,
-              415,
+              31,
+              221,
               0
             ],
-            "value": 4
+            "value": 5
           }
         ],
         "values": [
@@ -1047,19 +1071,19 @@
         "random_values": [
           {
             "position": [
-              85,
-              473,
-              1
+              109,
+              203,
+              0
             ],
-            "value": true
+            "value": false
           },
           {
             "position": [
-              84,
-              164,
-              1
+              57,
+              324,
+              0
             ],
-            "value": false
+            "value": true
           }
         ],
         "values": [
@@ -1126,50 +1150,56 @@
         "random_values": [
           {
             "position": [
+              0,
+              161,
+              142,
+              0
+            ],
+            "value": 0.27349
+          },
+          {
+            "position": [
               1,
-              188,
-              157,
-              2
-            ],
-            "value": -0.97899
-          },
-          {
-            "position": [
-              0,
-              116,
-              503,
-              2
-            ],
-            "value": -0.08956
-          },
-          {
-            "position": [
-              0,
-              176,
-              347,
-              2
-            ],
-            "value": -0.86789
-          },
-          {
-            "position": [
-              0,
-              93,
-              440,
+              69,
+              465,
               1
             ],
-            "value": -0.52434
+            "value": 0.02333
           },
           {
             "position": [
               0,
+              138,
               155,
-              283,
+              2
+            ],
+            "value": -0.45804
+          },
+          {
+            "position": [
+              1,
+              26,
+              372,
               1
             ],
-            "value": -0.99563
+            "value": -0.38149
+          },
+          {
+            "position": [
+              1,
+              44,
+              119,
+              0
+            ],
+            "value": 0.69961
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 1.0,
+          "mean": 0.00034,
+          "median": -0.00158,
+          "min": -0.99998
+        }
       }
     },
     "label": {
@@ -1183,30 +1213,30 @@
           {
             "position": [
               1,
-              6
+              8
             ],
-            "value": 4
+            "value": 2
+          },
+          {
+            "position": [
+              1,
+              3
+            ],
+            "value": 3
           },
           {
             "position": [
               0,
-              12
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              0,
-              1
+              2
             ],
             "value": -1
           },
           {
             "position": [
               1,
-              14
+              1
             ],
-            "value": 5
+            "value": 0
           },
           {
             "position": [
@@ -1264,30 +1294,30 @@
         "random_values": [
           {
             "position": [
-              1,
-              38,
-              309,
+              0,
+              132,
+              170,
               0
             ],
             "value": 6
           },
           {
             "position": [
-              1,
-              56,
-              320,
+              0,
+              17,
+              351,
               0
             ],
-            "value": 5
+            "value": 4
           },
           {
             "position": [
               0,
-              126,
-              230,
+              32,
+              251,
               0
             ],
-            "value": 4
+            "value": 5
           }
         ],
         "values": [
@@ -1317,19 +1347,19 @@
         "random_values": [
           {
             "position": [
-              86,
-              124,
-              1
-            ],
-            "value": true
-          },
-          {
-            "position": [
-              83,
-              502,
+              109,
+              71,
               0
             ],
             "value": false
+          },
+          {
+            "position": [
+              58,
+              2,
+              0
+            ],
+            "value": true
           }
         ],
         "values": [
@@ -1397,49 +1427,55 @@
           {
             "position": [
               1,
-              135,
-              164,
-              2
+              129,
+              25,
+              1
             ],
-            "value": 0.25247
+            "value": 0.2723
           },
           {
             "position": [
               1,
-              47,
-              34,
-              0
+              38,
+              37,
+              1
             ],
-            "value": 0.82179
+            "value": 0.02163
           },
           {
             "position": [
               0,
-              2,
+              43,
+              487,
+              1
+            ],
+            "value": -0.45916
+          },
+          {
+            "position": [
+              1,
+              126,
+              30,
+              1
+            ],
+            "value": -0.38301
+          },
+          {
+            "position": [
+              0,
               173,
+              255,
               1
             ],
-            "value": 0.93542
-          },
-          {
-            "position": [
-              1,
-              73,
-              149,
-              2
-            ],
-            "value": 0.00554
-          },
-          {
-            "position": [
-              1,
-              183,
-              191,
-              1
-            ],
-            "value": -0.53167
+            "value": 0.7006
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 0.99996,
+          "mean": 0.00134,
+          "median": 0.00167,
+          "min": -0.99998
+        }
       }
     },
     "label": {
@@ -1453,30 +1489,30 @@
           {
             "position": [
               1,
-              6
+              8
             ],
-            "value": 4
+            "value": 2
+          },
+          {
+            "position": [
+              1,
+              3
+            ],
+            "value": 3
           },
           {
             "position": [
               0,
-              12
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              0,
-              1
+              2
             ],
             "value": -1
           },
           {
             "position": [
               1,
-              14
+              1
             ],
-            "value": 5
+            "value": 0
           },
           {
             "position": [
@@ -1534,30 +1570,30 @@
         "random_values": [
           {
             "position": [
-              1,
-              38,
-              196,
+              0,
+              132,
+              209,
               0
             ],
             "value": 6
           },
           {
             "position": [
-              1,
-              58,
-              420,
+              0,
+              17,
+              314,
               0
             ],
-            "value": 5
+            "value": 4
           },
           {
             "position": [
               0,
-              125,
-              334,
+              32,
+              242,
               0
             ],
-            "value": 4
+            "value": 5
           }
         ],
         "values": [
@@ -1587,19 +1623,19 @@
         "random_values": [
           {
             "position": [
-              85,
-              480,
-              1
-            ],
-            "value": true
-          },
-          {
-            "position": [
-              84,
-              200,
+              109,
+              344,
               0
             ],
             "value": false
+          },
+          {
+            "position": [
+              57,
+              240,
+              1
+            ],
+            "value": true
           }
         ],
         "values": [
@@ -1667,49 +1703,55 @@
           {
             "position": [
               1,
-              123,
-              159,
-              2
+              15,
+              257,
+              1
             ],
-            "value": 0.81673
-          },
-          {
-            "position": [
-              0,
-              167,
-              223,
-              0
-            ],
-            "value": -0.79995
-          },
-          {
-            "position": [
-              0,
-              165,
-              265,
-              0
-            ],
-            "value": -0.93796
+            "value": 0.27393
           },
           {
             "position": [
               1,
-              5,
-              339,
-              2
+              182,
+              199,
+              1
             ],
-            "value": 0.24873
+            "value": 0.0238
           },
           {
             "position": [
               1,
-              170,
-              98,
-              2
+              107,
+              394,
+              1
             ],
-            "value": -0.23008
+            "value": -0.45701
+          },
+          {
+            "position": [
+              1,
+              82,
+              344,
+              1
+            ],
+            "value": -0.38097
+          },
+          {
+            "position": [
+              0,
+              171,
+              464,
+              1
+            ],
+            "value": 0.70148
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 0.99996,
+          "mean": 0.00116,
+          "median": 0.0013,
+          "min": -0.99998
+        }
       }
     },
     "label": {
@@ -1723,9 +1765,23 @@
           {
             "position": [
               0,
-              13
+              11
             ],
-            "value": 4
+            "value": 2
+          },
+          {
+            "position": [
+              1,
+              14
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              1,
+              1
+            ],
+            "value": -1
           },
           {
             "position": [
@@ -1736,22 +1792,8 @@
           },
           {
             "position": [
-              0,
-              6
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              0,
-              7
-            ],
-            "value": 5
-          },
-          {
-            "position": [
-              0,
-              9
+              1,
+              4
             ],
             "value": 1
           }
@@ -1804,30 +1846,30 @@
         "random_values": [
           {
             "position": [
-              1,
-              39,
-              191,
+              0,
+              132,
+              207,
               0
             ],
             "value": 6
           },
           {
             "position": [
-              1,
-              58,
-              294,
+              0,
+              17,
+              336,
               0
             ],
-            "value": 5
+            "value": 4
           },
           {
             "position": [
               0,
-              125,
-              94,
+              31,
+              470,
               0
             ],
-            "value": 4
+            "value": 5
           }
         ],
         "values": [
@@ -1857,19 +1899,19 @@
         "random_values": [
           {
             "position": [
-              86,
-              265,
+              109,
+              30,
               1
             ],
-            "value": true
+            "value": false
           },
           {
             "position": [
-              83,
-              436,
-              0
+              57,
+              377,
+              1
             ],
-            "value": false
+            "value": true
           }
         ],
         "values": [
@@ -1936,50 +1978,56 @@
         "random_values": [
           {
             "position": [
-              1,
-              27,
-              170,
-              1
-            ],
-            "value": 0.39345
-          },
-          {
-            "position": [
-              1,
-              198,
-              278,
-              1
-            ],
-            "value": -0.93747
-          },
-          {
-            "position": [
               0,
-              212,
-              178,
+              164,
+              240,
               2
             ],
-            "value": 0.66407
+            "value": 0.27345
           },
           {
             "position": [
               0,
-              62,
-              318,
+              38,
+              179,
               2
             ],
-            "value": -0.59441
+            "value": 0.02208
           },
           {
             "position": [
               0,
-              142,
-              135,
+              23,
+              335,
+              2
+            ],
+            "value": -0.45889
+          },
+          {
+            "position": [
+              0,
+              188,
+              466,
               0
             ],
-            "value": 0.94141
+            "value": -0.38322
+          },
+          {
+            "position": [
+              1,
+              96,
+              12,
+              2
+            ],
+            "value": 0.70072
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 1.0,
+          "mean": 0.0047,
+          "median": 0.00987,
+          "min": -1.0
+        }
       }
     },
     "label": {
@@ -1993,9 +2041,23 @@
           {
             "position": [
               0,
-              13
+              11
             ],
-            "value": 4
+            "value": 2
+          },
+          {
+            "position": [
+              1,
+              14
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              1,
+              1
+            ],
+            "value": -1
           },
           {
             "position": [
@@ -2006,22 +2068,8 @@
           },
           {
             "position": [
-              0,
-              6
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              0,
-              7
-            ],
-            "value": 5
-          },
-          {
-            "position": [
-              0,
-              9
+              1,
+              4
             ],
             "value": 1
           }
@@ -2074,30 +2122,30 @@
         "random_values": [
           {
             "position": [
-              1,
-              38,
-              393,
+              0,
+              131,
+              402,
               0
             ],
             "value": 6
           },
           {
             "position": [
-              1,
-              57,
-              489,
+              0,
+              17,
+              264,
               0
             ],
-            "value": 5
+            "value": 4
           },
           {
             "position": [
               0,
-              126,
-              284,
+              32,
+              50,
               0
             ],
-            "value": 4
+            "value": 5
           }
         ],
         "values": [
@@ -2127,19 +2175,19 @@
         "random_values": [
           {
             "position": [
-              85,
-              490,
+              109,
+              309,
               0
             ],
-            "value": true
+            "value": false
           },
           {
             "position": [
-              84,
-              192,
-              1
+              57,
+              184,
+              0
             ],
-            "value": false
+            "value": true
           }
         ],
         "values": [
@@ -2206,50 +2254,56 @@
         "random_values": [
           {
             "position": [
+              1,
+              38,
+              192,
+              1
+            ],
+            "value": 0.27343
+          },
+          {
+            "position": [
+              1,
+              202,
+              208,
+              1
+            ],
+            "value": 0.02302
+          },
+          {
+            "position": [
               0,
-              91,
-              444,
-              0
-            ],
-            "value": -0.77258
-          },
-          {
-            "position": [
-              1,
-              61,
-              282,
-              1
-            ],
-            "value": 0.40144
-          },
-          {
-            "position": [
-              1,
-              203,
-              49,
-              1
-            ],
-            "value": 0.10554
-          },
-          {
-            "position": [
-              1,
-              167,
-              26,
+              187,
+              490,
               2
             ],
-            "value": -0.27218
+            "value": -0.4586
           },
           {
             "position": [
               1,
+              169,
+              74,
+              2
+            ],
+            "value": -0.38249
+          },
+          {
+            "position": [
               1,
-              151,
+              114,
+              417,
               1
             ],
-            "value": 0.24349
+            "value": 0.70072
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 0.99998,
+          "mean": -0.00363,
+          "median": -0.00464,
+          "min": -0.99995
+        }
       }
     },
     "label": {
@@ -2263,9 +2317,23 @@
           {
             "position": [
               0,
-              13
+              11
             ],
-            "value": 4
+            "value": 2
+          },
+          {
+            "position": [
+              1,
+              14
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              1,
+              1
+            ],
+            "value": -1
           },
           {
             "position": [
@@ -2276,22 +2344,8 @@
           },
           {
             "position": [
-              0,
-              6
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              0,
-              7
-            ],
-            "value": 5
-          },
-          {
-            "position": [
-              0,
-              9
+              1,
+              4
             ],
             "value": 1
           }
@@ -2344,30 +2398,30 @@
         "random_values": [
           {
             "position": [
-              1,
-              38,
-              176,
+              0,
+              130,
+              346,
               0
             ],
             "value": 6
           },
           {
             "position": [
-              1,
-              59,
-              8,
+              0,
+              17,
+              132,
               0
             ],
-            "value": 5
+            "value": 4
           },
           {
             "position": [
               0,
-              125,
-              191,
+              32,
+              360,
               0
             ],
-            "value": 4
+            "value": 5
           }
         ],
         "values": [
@@ -2397,19 +2451,19 @@
         "random_values": [
           {
             "position": [
-              86,
-              62,
-              0
-            ],
-            "value": true
-          },
-          {
-            "position": [
-              84,
-              103,
+              109,
+              215,
               1
             ],
             "value": false
+          },
+          {
+            "position": [
+              57,
+              421,
+              1
+            ],
+            "value": true
           }
         ],
         "values": [
@@ -2476,50 +2530,56 @@
         "random_values": [
           {
             "position": [
-              0,
-              174,
-              113,
-              2
+              1,
+              160,
+              422,
+              1
             ],
-            "value": 0.24089
-          },
-          {
-            "position": [
-              0,
-              140,
-              62,
-              0
-            ],
-            "value": 0.47932
-          },
-          {
-            "position": [
-              0,
-              3,
-              308,
-              0
-            ],
-            "value": 0.2735
+            "value": 0.2694
           },
           {
             "position": [
               1,
-              163,
-              292,
-              1
+              30,
+              227,
+              2
             ],
-            "value": 0.59521
+            "value": 0.01998
           },
           {
             "position": [
-              0,
+              1,
+              66,
+              430,
+              0
+            ],
+            "value": -0.45896
+          },
+          {
+            "position": [
+              1,
               152,
-              306,
+              217,
               2
             ],
-            "value": -0.52145
+            "value": -0.38345
+          },
+          {
+            "position": [
+              1,
+              164,
+              4,
+              2
+            ],
+            "value": 0.69989
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 1.0,
+          "mean": -0.00295,
+          "median": -0.00189,
+          "min": -0.99996
+        }
       }
     },
     "label": {
@@ -2533,9 +2593,23 @@
           {
             "position": [
               0,
-              13
+              11
             ],
-            "value": 4
+            "value": 2
+          },
+          {
+            "position": [
+              1,
+              14
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              1,
+              1
+            ],
+            "value": -1
           },
           {
             "position": [
@@ -2546,22 +2620,8 @@
           },
           {
             "position": [
-              0,
-              6
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              0,
-              7
-            ],
-            "value": 5
-          },
-          {
-            "position": [
-              0,
-              9
+              1,
+              4
             ],
             "value": 1
           }
@@ -2614,30 +2674,30 @@
         "random_values": [
           {
             "position": [
-              1,
-              37,
-              344,
+              0,
+              132,
+              117,
               0
             ],
             "value": 6
           },
           {
             "position": [
-              1,
-              59,
-              64,
+              0,
+              17,
+              401,
               0
             ],
-            "value": 5
+            "value": 4
           },
           {
             "position": [
               0,
-              125,
-              235,
+              31,
+              482,
               0
             ],
-            "value": 4
+            "value": 5
           }
         ],
         "values": [
@@ -2667,19 +2727,19 @@
         "random_values": [
           {
             "position": [
-              86,
-              163,
-              1
-            ],
-            "value": true
-          },
-          {
-            "position": [
-              84,
-              3,
+              109,
+              75,
               1
             ],
             "value": false
+          },
+          {
+            "position": [
+              57,
+              386,
+              0
+            ],
+            "value": true
           }
         ],
         "values": [
@@ -2746,50 +2806,56 @@
         "random_values": [
           {
             "position": [
+              0,
+              132,
+              381,
+              0
+            ],
+            "value": 0.27208
+          },
+          {
+            "position": [
               1,
-              208,
-              23,
+              42,
+              104,
               1
             ],
-            "value": 0.35968
+            "value": 0.02126
           },
           {
             "position": [
               0,
-              57,
-              427,
-              1
-            ],
-            "value": -0.35412
-          },
-          {
-            "position": [
-              1,
-              148,
-              383,
-              2
-            ],
-            "value": -0.79701
-          },
-          {
-            "position": [
-              1,
-              9,
-              481,
+              33,
+              25,
               0
             ],
-            "value": 0.95137
+            "value": -0.4601
           },
           {
             "position": [
               1,
-              91,
-              501,
+              99,
+              505,
+              0
+            ],
+            "value": -0.38363
+          },
+          {
+            "position": [
+              0,
+              126,
+              69,
               1
             ],
-            "value": 0.49428
+            "value": 0.69922
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 0.99994,
+          "mean": 0.00138,
+          "median": 0.00049,
+          "min": -0.99997
+        }
       }
     },
     "label": {
@@ -2803,9 +2869,23 @@
           {
             "position": [
               0,
-              13
+              11
             ],
-            "value": 4
+            "value": 2
+          },
+          {
+            "position": [
+              1,
+              14
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              1,
+              1
+            ],
+            "value": -1
           },
           {
             "position": [
@@ -2816,22 +2896,8 @@
           },
           {
             "position": [
-              0,
-              6
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              0,
-              7
-            ],
-            "value": 5
-          },
-          {
-            "position": [
-              0,
-              9
+              1,
+              4
             ],
             "value": 1
           }
@@ -2884,30 +2950,30 @@
         "random_values": [
           {
             "position": [
-              1,
-              37,
-              284,
+              0,
+              131,
+              270,
               0
             ],
             "value": 6
           },
           {
             "position": [
-              1,
-              57,
-              505,
+              0,
+              17,
+              140,
               0
             ],
-            "value": 5
+            "value": 4
           },
           {
             "position": [
               0,
-              126,
-              1,
+              32,
+              7,
               0
             ],
-            "value": 4
+            "value": 5
           }
         ],
         "values": [
@@ -2937,19 +3003,19 @@
         "random_values": [
           {
             "position": [
-              86,
-              33,
-              0
-            ],
-            "value": true
-          },
-          {
-            "position": [
-              84,
-              83,
+              109,
+              245,
               1
             ],
             "value": false
+          },
+          {
+            "position": [
+              57,
+              295,
+              1
+            ],
+            "value": true
           }
         ],
         "values": [
@@ -3016,50 +3082,56 @@
         "random_values": [
           {
             "position": [
-              0,
-              24,
-              132,
-              2
-            ],
-            "value": -0.2382
-          },
-          {
-            "position": [
-              0,
-              110,
-              105,
-              2
-            ],
-            "value": -0.17357
-          },
-          {
-            "position": [
-              0,
-              167,
-              386,
+              1,
+              71,
+              295,
               1
             ],
-            "value": 0.21382
-          },
-          {
-            "position": [
-              0,
-              29,
-              156,
-              0
-            ],
-            "value": -0.78768
+            "value": 0.27224
           },
           {
             "position": [
               1,
-              84,
-              198,
+              204,
+              221,
               0
             ],
-            "value": -0.9583
+            "value": 0.0223
+          },
+          {
+            "position": [
+              0,
+              15,
+              407,
+              0
+            ],
+            "value": -0.45913
+          },
+          {
+            "position": [
+              0,
+              43,
+              155,
+              2
+            ],
+            "value": -0.38384
+          },
+          {
+            "position": [
+              0,
+              164,
+              201,
+              1
+            ],
+            "value": 0.70004
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 0.99992,
+          "mean": -0.00147,
+          "median": -0.0008,
+          "min": -0.99996
+        }
       }
     },
     "label": {
@@ -3073,16 +3145,16 @@
           {
             "position": [
               1,
-              14
+              10
             ],
-            "value": 4
+            "value": 2
           },
           {
             "position": [
-              1,
-              4
+              0,
+              6
             ],
-            "value": 0
+            "value": 3
           },
           {
             "position": [
@@ -3093,15 +3165,15 @@
           },
           {
             "position": [
-              1,
-              3
+              0,
+              12
             ],
-            "value": 5
+            "value": 0
           },
           {
             "position": [
               1,
-              1
+              9
             ],
             "value": 1
           }
@@ -3154,30 +3226,30 @@
         "random_values": [
           {
             "position": [
-              1,
-              38,
-              159,
+              0,
+              131,
+              381,
               0
             ],
             "value": 6
           },
           {
             "position": [
-              1,
-              59,
-              182,
+              0,
+              17,
+              351,
               0
             ],
-            "value": 5
+            "value": 4
           },
           {
             "position": [
               0,
-              126,
-              214,
+              32,
+              61,
               0
             ],
-            "value": 4
+            "value": 5
           }
         ],
         "values": [
@@ -3207,19 +3279,19 @@
         "random_values": [
           {
             "position": [
-              86,
-              231,
-              1
+              109,
+              207,
+              0
             ],
-            "value": true
+            "value": false
           },
           {
             "position": [
-              83,
-              482,
-              1
+              58,
+              56,
+              0
             ],
-            "value": false
+            "value": true
           }
         ],
         "values": [
@@ -3287,49 +3359,55 @@
           {
             "position": [
               0,
-              70,
-              136,
+              16,
+              371,
               0
             ],
-            "value": -0.17065
+            "value": 0.27486
           },
           {
             "position": [
               1,
-              196,
-              375,
-              0
+              84,
+              388,
+              2
             ],
-            "value": -0.9318
+            "value": 0.02276
           },
           {
             "position": [
               1,
-              128,
-              340,
-              0
+              127,
+              450,
+              1
             ],
-            "value": -0.57114
+            "value": -0.45999
           },
           {
             "position": [
               0,
-              137,
-              499,
-              2
+              51,
+              359,
+              0
             ],
-            "value": 0.92286
+            "value": -0.38377
           },
           {
             "position": [
               1,
-              139,
-              368,
+              15,
+              267,
               0
             ],
-            "value": -0.53299
+            "value": 0.70101
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 0.99998,
+          "mean": -0.00184,
+          "median": -0.00422,
+          "min": -0.99999
+        }
       }
     },
     "label": {
@@ -3343,16 +3421,16 @@
           {
             "position": [
               1,
-              14
+              10
             ],
-            "value": 4
+            "value": 2
           },
           {
             "position": [
-              1,
-              4
+              0,
+              6
             ],
-            "value": 0
+            "value": 3
           },
           {
             "position": [
@@ -3363,15 +3441,15 @@
           },
           {
             "position": [
-              1,
-              3
+              0,
+              12
             ],
-            "value": 5
+            "value": 0
           },
           {
             "position": [
               1,
-              1
+              9
             ],
             "value": 1
           }
@@ -3424,30 +3502,30 @@
         "random_values": [
           {
             "position": [
-              1,
-              37,
-              304,
+              0,
+              131,
+              10,
               0
             ],
             "value": 6
           },
           {
             "position": [
-              1,
-              58,
-              492,
+              0,
+              17,
+              166,
               0
             ],
-            "value": 5
+            "value": 4
           },
           {
             "position": [
               0,
-              125,
-              383,
+              32,
+              317,
               0
             ],
-            "value": 4
+            "value": 5
           }
         ],
         "values": [
@@ -3477,19 +3555,19 @@
         "random_values": [
           {
             "position": [
-              85,
-              493,
+              109,
+              357,
               1
             ],
-            "value": true
+            "value": false
           },
           {
             "position": [
-              84,
-              172,
+              57,
+              283,
               0
             ],
-            "value": false
+            "value": true
           }
         ],
         "values": [
@@ -3556,50 +3634,56 @@
         "random_values": [
           {
             "position": [
-              0,
-              175,
-              384,
-              0
-            ],
-            "value": -0.6
-          },
-          {
-            "position": [
-              0,
-              98,
-              468,
-              2
-            ],
-            "value": -0.03552
-          },
-          {
-            "position": [
-              0,
-              114,
-              362,
+              1,
+              190,
+              399,
               1
             ],
-            "value": 0.20515
-          },
-          {
-            "position": [
-              0,
-              127,
-              242,
-              2
-            ],
-            "value": 0.28025
+            "value": 0.27123
           },
           {
             "position": [
               1,
+              53,
               7,
-              316,
-              2
+              1
             ],
-            "value": -0.60919
+            "value": 0.01998
+          },
+          {
+            "position": [
+              1,
+              168,
+              114,
+              1
+            ],
+            "value": -0.46185
+          },
+          {
+            "position": [
+              1,
+              75,
+              150,
+              0
+            ],
+            "value": -0.38597
+          },
+          {
+            "position": [
+              0,
+              179,
+              130,
+              0
+            ],
+            "value": 0.69863
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 0.99996,
+          "mean": -0.0031,
+          "median": -0.00431,
+          "min": -0.99999
+        }
       }
     },
     "label": {
@@ -3613,16 +3697,16 @@
           {
             "position": [
               1,
-              14
+              10
             ],
-            "value": 4
+            "value": 2
           },
           {
             "position": [
-              1,
-              4
+              0,
+              6
             ],
-            "value": 0
+            "value": 3
           },
           {
             "position": [
@@ -3633,15 +3717,15 @@
           },
           {
             "position": [
-              1,
-              3
+              0,
+              12
             ],
-            "value": 5
+            "value": 0
           },
           {
             "position": [
               1,
-              1
+              9
             ],
             "value": 1
           }
@@ -3694,30 +3778,30 @@
         "random_values": [
           {
             "position": [
-              1,
-              40,
-              247,
+              0,
+              131,
+              273,
               0
             ],
             "value": 6
           },
           {
             "position": [
-              1,
-              58,
-              29,
+              0,
+              17,
+              204,
               0
             ],
-            "value": 5
+            "value": 4
           },
           {
             "position": [
               0,
-              124,
-              493,
+              32,
+              50,
               0
             ],
-            "value": 4
+            "value": 5
           }
         ],
         "values": [
@@ -3747,19 +3831,19 @@
         "random_values": [
           {
             "position": [
-              86,
-              160,
-              1
-            ],
-            "value": true
-          },
-          {
-            "position": [
-              84,
-              22,
+              109,
+              346,
               0
             ],
             "value": false
+          },
+          {
+            "position": [
+              57,
+              262,
+              1
+            ],
+            "value": true
           }
         ],
         "values": [
@@ -3826,50 +3910,56 @@
         "random_values": [
           {
             "position": [
-              1,
-              203,
-              279,
-              0
+              0,
+              204,
+              34,
+              2
             ],
-            "value": -0.38873
+            "value": 0.27348
           },
           {
             "position": [
               0,
-              180,
-              262,
+              140,
+              119,
               2
             ],
-            "value": -0.8268
+            "value": 0.02384
           },
           {
             "position": [
               1,
-              101,
-              381,
-              1
+              66,
+              416,
+              2
             ],
-            "value": 0.96845
+            "value": -0.45699
           },
           {
             "position": [
               0,
-              122,
-              344,
+              91,
+              202,
               2
             ],
-            "value": 0.31944
+            "value": -0.3819
           },
           {
             "position": [
               1,
-              169,
-              422,
+              172,
+              128,
               2
             ],
-            "value": 0.48146
+            "value": 0.70142
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 0.99999,
+          "mean": 0.00118,
+          "median": 0.00098,
+          "min": -0.99998
+        }
       }
     },
     "label": {
@@ -3883,16 +3973,16 @@
           {
             "position": [
               1,
-              14
+              10
             ],
-            "value": 4
+            "value": 2
           },
           {
             "position": [
-              1,
-              4
+              0,
+              6
             ],
-            "value": 0
+            "value": 3
           },
           {
             "position": [
@@ -3903,15 +3993,15 @@
           },
           {
             "position": [
-              1,
-              3
+              0,
+              12
             ],
-            "value": 5
+            "value": 0
           },
           {
             "position": [
               1,
-              1
+              9
             ],
             "value": 1
           }
@@ -3964,30 +4054,30 @@
         "random_values": [
           {
             "position": [
-              1,
-              38,
-              443,
+              0,
+              131,
+              236,
               0
             ],
             "value": 6
           },
           {
             "position": [
-              1,
-              58,
-              74,
+              0,
+              17,
+              82,
               0
             ],
-            "value": 5
+            "value": 4
           },
           {
             "position": [
               0,
-              126,
-              207,
+              32,
+              341,
               0
             ],
-            "value": 4
+            "value": 5
           }
         ],
         "values": [
@@ -4017,19 +4107,19 @@
         "random_values": [
           {
             "position": [
-              85,
-              289,
+              109,
+              183,
               1
             ],
-            "value": true
+            "value": false
           },
           {
             "position": [
-              84,
-              389,
-              0
+              57,
+              416,
+              1
             ],
-            "value": false
+            "value": true
           }
         ],
         "values": [
@@ -4096,50 +4186,56 @@
         "random_values": [
           {
             "position": [
-              0,
-              30,
-              44,
+              1,
+              36,
+              12,
               0
             ],
-            "value": 0.77609
+            "value": 0.27317
           },
           {
             "position": [
               1,
-              137,
-              194,
-              1
+              1,
+              325,
+              0
             ],
-            "value": 0.15259
+            "value": 0.02249
           },
           {
             "position": [
               0,
-              147,
-              177,
+              31,
+              451,
               2
             ],
-            "value": -0.62713
-          },
-          {
-            "position": [
-              0,
-              199,
-              39,
-              1
-            ],
-            "value": -0.32322
+            "value": -0.45697
           },
           {
             "position": [
               1,
-              194,
-              30,
+              9,
+              59,
               1
             ],
-            "value": 0.34103
+            "value": -0.38101
+          },
+          {
+            "position": [
+              0,
+              104,
+              156,
+              2
+            ],
+            "value": 0.70068
           }
-        ]
+        ],
+        "subsample_basic_stats": {
+          "max": 0.99997,
+          "mean": -0.00327,
+          "median": -0.00294,
+          "min": -0.99995
+        }
       }
     },
     "label": {
@@ -4153,16 +4249,16 @@
           {
             "position": [
               1,
-              14
+              10
             ],
-            "value": 4
+            "value": 2
           },
           {
             "position": [
-              1,
-              4
+              0,
+              6
             ],
-            "value": 0
+            "value": 3
           },
           {
             "position": [
@@ -4173,15 +4269,15 @@
           },
           {
             "position": [
-              1,
-              3
+              0,
+              12
             ],
-            "value": 5
+            "value": 0
           },
           {
             "position": [
               1,
-              1
+              9
             ],
             "value": 1
           }
@@ -4234,30 +4330,30 @@
         "random_values": [
           {
             "position": [
-              1,
-              37,
-              305,
+              0,
+              130,
+              475,
               0
             ],
             "value": 6
           },
           {
             "position": [
-              1,
-              58,
-              486,
+              0,
+              17,
+              327,
               0
             ],
-            "value": 5
+            "value": 4
           },
           {
             "position": [
               0,
-              125,
-              493,
+              32,
+              154,
               0
             ],
-            "value": 4
+            "value": 5
           }
         ],
         "values": [
@@ -4287,19 +4383,19 @@
         "random_values": [
           {
             "position": [
-              85,
-              389,
+              109,
+              332,
               1
             ],
-            "value": true
+            "value": false
           },
           {
             "position": [
-              84,
-              261,
-              0
+              57,
+              231,
+              1
             ],
-            "value": false
+            "value": true
           }
         ],
         "values": [
