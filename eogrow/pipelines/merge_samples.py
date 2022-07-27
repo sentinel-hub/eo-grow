@@ -62,9 +62,9 @@ class MergeSamplesPipeline(Pipeline):
         features_to_load: List[FeatureSpec] = [FeatureType.TIMESTAMP] if self.config.include_timestamp else []
         features_to_load.extend(self.config.features_to_merge)
         load_task = LoadTask(
-            self.storage.get_folder(self.config.input_folder_key, full_path=True),
+            self.storage.get_folder(self.config.input_folder_key),
+            filesystem=self.storage.filesystem,
             features=features_to_load,
-            config=self.sh_config,
         )
         output_task = OutputTask(name=self._OUTPUT_NAME)
         return EOWorkflow(linearly_connect_tasks(load_task, output_task))

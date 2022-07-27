@@ -138,9 +138,9 @@ class DummyDataPipeline(Pipeline):
             previous_node = start_node
 
         save_task = SaveTask(
-            self.storage.get_folder(self.config.output_folder_key, full_path=True),
+            self.storage.get_folder(self.config.output_folder_key),
+            filesystem=self.storage.filesystem,
             overwrite_permission=OverwritePermission.OVERWRITE_PATCH,
-            config=self.sh_config,
         )
         save_node = EONode(save_task, inputs=[previous_node])
 

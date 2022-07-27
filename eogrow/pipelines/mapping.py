@@ -38,18 +38,18 @@ class MappingPipeline(Pipeline):
             output_features.append(FeatureType.BBOX)
 
         load_task = LoadTask(
-            self.storage.get_folder(self.config.input_folder_key, full_path=True),
+            self.storage.get_folder(self.config.input_folder_key),
+            filesystem=self.storage.filesystem,
             features=input_features,
-            config=self.sh_config,
         )
 
         mapping_task = MappingTask(input_feature, output_feature, self.config.mapping_dictionary)
 
         save_task = SaveTask(
-            self.storage.get_folder(self.config.output_folder_key, full_path=True),
+            self.storage.get_folder(self.config.output_folder_key),
+            filesystem=self.storage.filesystem,
             features=output_features,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
-            config=self.sh_config,
             compress_level=self.config.compress_level,
         )
 

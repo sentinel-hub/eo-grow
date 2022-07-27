@@ -13,8 +13,7 @@ from fs.base import FS
 from fs.errors import FilesystemClosed
 from pydantic import Field
 
-from eolearn.core.utils.fs import join_path
-from sentinelhub import SHConfig
+from eolearn.core.utils.fs import join_path, unpickle_fs
 
 from ..utils.fs import LocalFile
 from ..utils.general import jsonify
@@ -246,17 +245,18 @@ class FilesystemHandler(FileHandler):
     process stuck waiting for a thread lock release.
     """
 
-    def __init__(self, path: str, filesystem: Optional[FS] = None, config: Optional[SHConfig] = None, **kwargs: Any):
+    def __init__(self, path: str, filesystem: Union[FS, bytes], encoding: Optional[str] = "utf-8", **kwargs: Any):
         """
-        :param path: A path to a log file. It should be an absolute path if filesystem object is not given and relative
-            otherwise.
-        :param filesystem: A filesystem to where logs will be written.
-        :param config: A config object holding credentials.
+        :param path: A path to a log file that is relative to the given `filesystem` object.
+        :param filesystem: A filesystem to where logs will be written. It can either be an instance of a filesystem
+            object or its pickled copy.
+        :param encoding: Encoding used to write log files.
         :param kwargs: Keyword arguments that will be propagated to FileHandler.
         """
-        self.local_file = LocalFile(path, mode="w", filesystem=filesystem, config=config)
+        filesystem_object = unpickle_fs(filesystem) if isinstance(filesystem, bytes) else filesystem
+        self.local_file = LocalFile(path, mode="w", filesystem=filesystem_object)
 
-        super().__init__(self.local_file.path, **kwargs)
+        super().__init__(self.local_file.path, encoding=encoding, **kwargs)
 
         self.addFilter(FilesystemFilter())
 
@@ -272,12 +272,15 @@ class FilesystemHandler(FileHandler):
 class RegularBackupHandler(FilesystemHandler):
     """A customized FilesystemHandler that makes a copy to a remote location regularly after given amount of time."""
 
-    def __init__(self, *args: Any, backup_interval: Union[float, int], **kwargs: Any):
+    def __init__(self, path: str, filesystem: Union[FS, bytes], backup_interval: Union[float, int], **kwargs: Any):
         """
+        :param path: A path to a log file that is relative to the given `filesystem` object.
+        :param filesystem: A filesystem to where logs will be written. It can either be an instance of a filesystem
+            object or its pickled copy.
         :param backup_interval: A minimal number of seconds before handler will back up the log file to the remote
             location. The backup will only happen when the next log record will be emitted.
         """
-        super().__init__(*args, **kwargs)
+        super().__init__(path=path, filesystem=filesystem, **kwargs)
 
         self.backup_interval = backup_interval
         self._last_backup_time = time.monotonic()

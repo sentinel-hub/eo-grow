@@ -146,11 +146,11 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
 
         end_node = EONode(
             SaveTask(
-                self.storage.get_folder(self.config.output_folder_key, full_path=True),
+                self.storage.get_folder(self.config.output_folder_key),
+                filesystem=self.storage.filesystem,
                 features=self._get_output_features(),
                 compress_level=self.config.compress_level,
                 overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
-                config=self.sh_config,
             ),
             inputs=[postprocessing_node or download_node],
         )
