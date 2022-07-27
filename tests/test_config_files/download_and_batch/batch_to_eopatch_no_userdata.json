@@ -7,13 +7,11 @@
     {
       "batch_files": ["B01.tif", "B03.tif"],
       "feature": ["data_timeless", "bands"],
-      "dtype": "float32",
-      "save_early": false
+      "dtype": "float32"
     },
     {
       "batch_files": ["B02.tif"],
-      "feature": ["data_timeless", "band2"],
-      "save_early": true
+      "feature": ["data_timeless", "band2"]
     }
   ],
   "remove_batch_data": "true"
