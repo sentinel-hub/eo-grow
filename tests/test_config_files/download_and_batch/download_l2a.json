@@ -5,7 +5,7 @@
   "data_collection": "SENTINEL2_L2A",
   "time_period": ["yearly", 2017],
   "bands_feature_name": "BANDS-S2-L2A",
-  "resolution": 10,
+  "size": [264, 121],
   "maxcc": 0.3,
   "time_difference": 120,
   "additional_data": [["mask",  "CLM"], ["mask",  "dataMask"]],

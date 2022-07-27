@@ -10,7 +10,7 @@ import fiona
 import fs
 import geopandas as gpd
 import numpy as np
-from pydantic import Field, validator
+from pydantic import Field, root_validator
 
 from eolearn.core import (
     CreateEOPatchTask,
@@ -30,7 +30,7 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.fs import LocalFile
-from ..utils.types import Feature, FeatureSpec
+from ..utils.types import Feature, FeatureSpec, RawSchemaDict
 from ..utils.validators import field_validator, parse_dtype
 from ..utils.vector import concat_gdf
 
@@ -56,11 +56,17 @@ class VectorColumnSchema(BaseSchema):
     _parse_dtype = field_validator("dtype", parse_dtype, pre=True)
     no_data_value: int = Field(0, description="The no_data_value argument to be passed to VectorToRasterTask")
 
-    @validator("values_column")
-    def check_value_settings(cls, v, values):  # type: ignore[no-untyped-def]
+    @root_validator
+    def check_value_settings(cls, values: RawSchemaDict) -> RawSchemaDict:
         """Ensures that precisely one of `value` and `values_column` is set."""
-        assert (v is None) != (values["value"] is None), "Only one of `values_column` and `value` should be given."
-        return v
+        is_value_defined = values.get("value") is not None
+        is_values_column_defined = values.get("values_column") is not None
+
+        assert (
+            is_value_defined != is_values_column_defined
+        ), "Exactly one of parameters 'value' and 'values_column' should be given."
+
+        return values
 
 
 class Preprocessing(BaseSchema):
