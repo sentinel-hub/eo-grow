@@ -106,7 +106,9 @@ def merge_maps(
     :param delete_input: If True input images will be deleted at the end
     """
 
-    merge_tiffs(input_filename_list, merged_filename, overwrite=True, delete_input=delete_input)
+    merge_tiffs(
+        input_filename_list, merged_filename, overwrite=True, delete_input=delete_input, nodata=nodata, dtype=dtype
+    )
 
     if cogify:
         cogify_inplace(merged_filename, blocksize, nodata=nodata)
@@ -134,9 +136,17 @@ def merge_tiffs(
         else:
             raise OSError(f"{merged_filename} exists!")
 
+    gdalmerge_options = "-co BIGTIFF=YES -co compress=LZW"
+
+    if nodata is not None:
+        gdalmerge_options += f" -a_nodata {nodata}"
+
+    if dtype is not None:
+        gdalmerge_options += f" {GDAL_DTYPE_SETTINGS[dtype]}"
+
     LOGGER.info("merging %d tiffs to %s", len(input_filename_list), merged_filename)
     subprocess.check_call(
-        ["gdal_merge.py", "-co", "BIGTIFF=YES", "-co", "compress=LZW", "-o", merged_filename, *input_filename_list]
+        f"gdal_merge.py {gdalmerge_options} -o {merged_filename} {' '.join(input_filename_list)}", shell=True
     )
     LOGGER.info("merging done")
 
