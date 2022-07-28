@@ -6,7 +6,7 @@ import os
 import shutil
 import subprocess
 from tempfile import NamedTemporaryFile
-from typing import List, Literal, Optional, Union
+from typing import List, Literal, Union
 
 LOGGER = logging.getLogger(__name__)
 
