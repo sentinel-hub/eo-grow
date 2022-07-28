@@ -6,16 +6,23 @@ import os
 import shutil
 import subprocess
 from tempfile import NamedTemporaryFile
-from typing import List, Union
+from typing import List, Literal, Optional, Union
 
 LOGGER = logging.getLogger(__name__)
 
 
-def cogify_inplace(tiff_file: str, blocksize: int = 2048, nodata: Union[None, int, float] = None) -> None:
+
+def cogify_inplace(
+    tiff_file: str,
+    blocksize: int = 2048,
+    nodata: Union[None, int, float] = None,
+    dtype: Optional[Literal["int8", "int16", "uint8", "uint16", "float32"]] = None,
+) -> None:
     """Make the (geotiff) file a cog
     :param tiff_file: .tiff file to cogify
     :param blocksize: block size of tiled COG
     :param nodata: value to be treated as nodata, default value is None
+    :param dtype: output type of the in the resulting tiff, default is None
     """
     temp_file = NamedTemporaryFile()
     temp_file.close()
@@ -29,6 +36,7 @@ def cogify(
     output_file: str,
     blocksize: int = 2048,
     nodata: Union[None, int, float] = None,
+    dtype: Optional[Literal["int8", "int16", "uint8", "uint16", "float32"]] = None,
     overwrite: bool = False,
 ) -> None:
     """Create a cloud optimized version of input file
@@ -37,6 +45,7 @@ def cogify(
     :param output_file: Resulting cog file
     :param blocksize: block size of tiled COG
     :param nodata: value to be treated as nodata, default value is None
+    :param dtype: output type of the in the resulting tiff, default is None
     :param overwrite: If True overwrite the output file if it exists.
     """
     if input_file == output_file:
@@ -75,6 +84,7 @@ def merge_maps(
     *,
     blocksize: int = 2048,
     nodata: Union[None, int, float] = None,
+    dtype: Optional[Literal["int8", "int16", "uint8", "uint16", "float32"]] = None,
     cogify: bool = False,
     delete_input: bool = False,
 ) -> None:
@@ -82,8 +92,9 @@ def merge_maps(
 
     :param input_filename_list: A list of input tiff image filenames
     :param merged_filename: Filename of merged tiff image
-    :param blocksize: block size of tiled COG
-    :param nodata: which values should be treated as nodata in resulting COG, default is None
+    :param blocksize: block size of tiled tiff
+    :param nodata: which values should be treated as nodata in resulting tiff, default is None
+    :param dtype: output type of the in the resulting tiff, default is None
     :param cogify: If True make the final geotiff a COG.
     :param delete_input: If True input images will be deleted at the end
     """
@@ -95,7 +106,13 @@ def merge_maps(
 
 
 def merge_tiffs(
-    input_filename_list: List[str], merged_filename: str, *, overwrite: bool = False, delete_input: bool = False
+    input_filename_list: List[str],
+    merged_filename: str,
+    *,
+    overwrite: bool = False,
+    delete_input: bool = False,
+    nodata: Union[None, int, float] = None,
+    dtype: Optional[Literal["int8", "int16", "uint8", "uint16", "float32"]] = None,
 ) -> None:
     """Performs gdal_merge on a set of given geotiff images
 
