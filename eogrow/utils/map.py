@@ -6,21 +6,35 @@ import os
 import shutil
 import subprocess
 from tempfile import NamedTemporaryFile
-from typing import List, Union
+from typing import List, Literal, Optional
 
 LOGGER = logging.getLogger(__name__)
 
+GDAL_DTYPE_SETTINGS = {
+    "uint8": "-ot Byte",
+    "uint16": "-ot UInt16",
+    "int8": "-ot Byte -co PIXELTYPE=SIGNEDBYTE",
+    "int16": "-ot Int16",
+    "float32": "-ot Float32",
+}
 
-def cogify_inplace(tiff_file: str, blocksize: int = 2048, nodata: Union[None, int, float] = None) -> None:
+
+def cogify_inplace(
+    tiff_file: str,
+    blocksize: int = 2048,
+    nodata: Optional[float] = None,
+    dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
+) -> None:
     """Make the (geotiff) file a cog
     :param tiff_file: .tiff file to cogify
     :param blocksize: block size of tiled COG
     :param nodata: value to be treated as nodata, default value is None
+    :param dtype: output type of the in the resulting tiff, default is None
     """
     temp_file = NamedTemporaryFile()
     temp_file.close()
 
-    cogify(tiff_file, temp_file.name, blocksize, nodata=nodata, overwrite=True)
+    cogify(tiff_file, temp_file.name, blocksize, nodata=nodata, dtype=dtype, overwrite=True)
     shutil.move(temp_file.name, tiff_file)
 
 
@@ -28,7 +42,8 @@ def cogify(
     input_file: str,
     output_file: str,
     blocksize: int = 2048,
-    nodata: Union[None, int, float] = None,
+    nodata: Optional[float] = None,
+    dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
     overwrite: bool = False,
 ) -> None:
     """Create a cloud optimized version of input file
@@ -37,6 +52,7 @@ def cogify(
     :param output_file: Resulting cog file
     :param blocksize: block size of tiled COG
     :param nodata: value to be treated as nodata, default value is None
+    :param dtype: output type of the in the resulting tiff, default is None
     :param overwrite: If True overwrite the output file if it exists.
     """
     if input_file == output_file:
@@ -59,6 +75,9 @@ def cogify(
     if nodata is not None:
         gdaltranslate_options += f" -a_nodata {nodata}"
 
+    if dtype is not None:
+        gdaltranslate_options += f" {GDAL_DTYPE_SETTINGS[dtype]}"
+
     temp_filename = NamedTemporaryFile()
     temp_filename.close()
     shutil.copyfile(input_file, temp_filename.name)
@@ -74,7 +93,8 @@ def merge_maps(
     merged_filename: str,
     *,
     blocksize: int = 2048,
-    nodata: Union[None, int, float] = None,
+    nodata: Optional[float] = None,
+    dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
     cogify: bool = False,
     delete_input: bool = False,
 ) -> None:
@@ -82,20 +102,29 @@ def merge_maps(
 
     :param input_filename_list: A list of input tiff image filenames
     :param merged_filename: Filename of merged tiff image
-    :param blocksize: block size of tiled COG
-    :param nodata: which values should be treated as nodata in resulting COG, default is None
+    :param blocksize: block size of tiled tiff
+    :param nodata: which values should be treated as nodata in resulting tiff, default is None
+    :param dtype: output type of the in the resulting tiff, default is None
     :param cogify: If True make the final geotiff a COG.
     :param delete_input: If True input images will be deleted at the end
     """
 
-    merge_tiffs(input_filename_list, merged_filename, overwrite=True, delete_input=delete_input)
+    merge_tiffs(
+        input_filename_list, merged_filename, overwrite=True, delete_input=delete_input, nodata=nodata, dtype=dtype
+    )
 
     if cogify:
-        cogify_inplace(merged_filename, blocksize, nodata=nodata)
+        cogify_inplace(merged_filename, blocksize, nodata=nodata, dtype=dtype)
 
 
 def merge_tiffs(
-    input_filename_list: List[str], merged_filename: str, *, overwrite: bool = False, delete_input: bool = False
+    input_filename_list: List[str],
+    merged_filename: str,
+    *,
+    overwrite: bool = False,
+    delete_input: bool = False,
+    nodata: Optional[float] = None,
+    dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
 ) -> None:
     """Performs gdal_merge on a set of given geotiff images
 
@@ -110,9 +139,17 @@ def merge_tiffs(
         else:
             raise OSError(f"{merged_filename} exists!")
 
+    gdalmerge_options = "-co BIGTIFF=YES -co compress=LZW"
+
+    if nodata is not None:
+        gdalmerge_options += f" -a_nodata {nodata}"
+
+    if dtype is not None:
+        gdalmerge_options += f" {GDAL_DTYPE_SETTINGS[dtype]}"
+
     LOGGER.info("merging %d tiffs to %s", len(input_filename_list), merged_filename)
     subprocess.check_call(
-        ["gdal_merge.py", "-co", "BIGTIFF=YES", "-co", "compress=LZW", "-o", merged_filename, *input_filename_list]
+        f"gdal_merge.py {gdalmerge_options} -o {merged_filename} {' '.join(input_filename_list)}", shell=True
     )
     LOGGER.info("merging done")
 

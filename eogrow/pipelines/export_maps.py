@@ -143,7 +143,14 @@ class ExportMapsPipeline(Pipeline):
             sys_paths = [self.storage.filesystem.getsyspath(path) for path in geotiff_paths]
             sys_map_path = self.storage.filesystem.getsyspath(merged_map_path)
 
-        self._merge_map_function(sys_paths, sys_map_path, cogify=self.config.cogify, delete_input=False)
+        self._merge_map_function(
+            sys_paths,
+            sys_map_path,
+            nodata=self.config.no_data_value,
+            dtype=self.config.map_dtype,
+            cogify=self.config.cogify,
+            delete_input=False,
+        )
 
         if make_local_copies:
             fs.copy.copy_file(temp_fs, map_name, self.storage.filesystem, merged_map_path)
