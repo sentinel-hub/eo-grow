@@ -6,7 +6,7 @@ import os
 import shutil
 import subprocess
 from tempfile import NamedTemporaryFile
-from typing import List, Literal, Union
+from typing import List, Literal, Optional
 
 LOGGER = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ GDAL_DTYPE_SETTINGS = {
 def cogify_inplace(
     tiff_file: str,
     blocksize: int = 2048,
-    nodata: Union[None, int, float] = None,
+    nodata: Optional[float] = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
 ) -> None:
     """Make the (geotiff) file a cog
@@ -42,7 +42,7 @@ def cogify(
     input_file: str,
     output_file: str,
     blocksize: int = 2048,
-    nodata: Union[None, int, float] = None,
+    nodata: Optional[float] = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
     overwrite: bool = False,
 ) -> None:
@@ -93,7 +93,7 @@ def merge_maps(
     merged_filename: str,
     *,
     blocksize: int = 2048,
-    nodata: Union[None, int, float] = None,
+    nodata: Optional[float] = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
     cogify: bool = False,
     delete_input: bool = False,
@@ -123,7 +123,7 @@ def merge_tiffs(
     *,
     overwrite: bool = False,
     delete_input: bool = False,
-    nodata: Union[None, int, float] = None,
+    nodata: Optional[float] = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
 ) -> None:
     """Performs gdal_merge on a set of given geotiff images
