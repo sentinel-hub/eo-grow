@@ -23,7 +23,7 @@ def cogify_inplace(
     tiff_file: str,
     blocksize: int = 2048,
     nodata: Union[None, int, float] = None,
-    dtype: Optional[Literal["int8", "int16", "uint8", "uint16", "float32"]] = None,
+    dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
 ) -> None:
     """Make the (geotiff) file a cog
     :param tiff_file: .tiff file to cogify
@@ -43,7 +43,7 @@ def cogify(
     output_file: str,
     blocksize: int = 2048,
     nodata: Union[None, int, float] = None,
-    dtype: Optional[Literal["int8", "int16", "uint8", "uint16", "float32"]] = None,
+    dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
     overwrite: bool = False,
 ) -> None:
     """Create a cloud optimized version of input file
@@ -94,7 +94,7 @@ def merge_maps(
     *,
     blocksize: int = 2048,
     nodata: Union[None, int, float] = None,
-    dtype: Optional[Literal["int8", "int16", "uint8", "uint16", "float32"]] = None,
+    dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
     cogify: bool = False,
     delete_input: bool = False,
 ) -> None:
@@ -124,7 +124,7 @@ def merge_tiffs(
     overwrite: bool = False,
     delete_input: bool = False,
     nodata: Union[None, int, float] = None,
-    dtype: Optional[Literal["int8", "int16", "uint8", "uint16", "float32"]] = None,
+    dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
 ) -> None:
     """Performs gdal_merge on a set of given geotiff images
 
