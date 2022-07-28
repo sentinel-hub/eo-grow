@@ -34,7 +34,7 @@ def cogify_inplace(
     temp_file = NamedTemporaryFile()
     temp_file.close()
 
-    cogify(tiff_file, temp_file.name, blocksize, nodata=nodata, overwrite=True)
+    cogify(tiff_file, temp_file.name, blocksize, nodata=nodata, dtype=dtype, overwrite=True)
     shutil.move(temp_file.name, tiff_file)
 
 
@@ -75,6 +75,9 @@ def cogify(
     if nodata is not None:
         gdaltranslate_options += f" -a_nodata {nodata}"
 
+    if dtype is not None:
+        gdaltranslate_options += f" {GDAL_DTYPE_SETTINGS[dtype]}"
+
     temp_filename = NamedTemporaryFile()
     temp_filename.close()
     shutil.copyfile(input_file, temp_filename.name)
@@ -111,7 +114,7 @@ def merge_maps(
     )
 
     if cogify:
-        cogify_inplace(merged_filename, blocksize, nodata=nodata)
+        cogify_inplace(merged_filename, blocksize, nodata=nodata, dtype=dtype)
 
 
 def merge_tiffs(
