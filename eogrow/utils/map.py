@@ -10,6 +10,13 @@ from typing import List, Literal, Optional, Union
 
 LOGGER = logging.getLogger(__name__)
 
+GDAL_DTYPE_SETTINGS = {
+    "uint8": "-ot Byte",
+    "uint16": "-ot UInt16",
+    "int8": "-ot Byte -co PIXELTYPE=SIGNEDBYTE",
+    "int16": "-ot Int16",
+    "float32": "-ot Float32",
+}
 
 
 def cogify_inplace(
