@@ -6,6 +6,8 @@ import pytest
 from fs.osfs import OSFS
 from fs_s3fs import S3FS
 
+from eolearn.core.exceptions import EOUserWarning
+
 from eogrow.core.config import RawConfig, interpret_config_from_path
 from eogrow.core.storage import StorageManager
 
@@ -19,18 +21,16 @@ def local_storage_manager_fixture(config_folder):
     return StorageManager.from_raw_config(config["storage"])
 
 
-@pytest.fixture(scope="session", name="aws_storage_manager")
-def aws_storage_manager(project_folder, config_folder):
-    filename = os.path.join(config_folder, "other", "aws_storage_test.json")
-    config = interpret_config_from_path(filename)
-    config["storage"]["project_folder"] = project_folder
-    return StorageManager.from_raw_config(config["storage"])
-
-
-@pytest.fixture(scope="session", name="aws_storage_config_fixture")
-def aws_storage_config_fixture(config_folder):
+@pytest.fixture(scope="session", name="aws_storage_config")
+def aws_pipeline_config_fixture(config_folder):
     filename = os.path.join(config_folder, "other", "aws_storage_test.json")
     return interpret_config_from_path(filename)
+
+
+@pytest.fixture(scope="session", name="aws_storage_manager")
+def aws_storage_manager_fixture(aws_storage_config, project_folder):
+    aws_storage_config["project_folder"] = project_folder
+    return StorageManager.from_raw_config(aws_storage_config)
 
 
 def test_storage_basic_local(local_storage_manager, project_folder):
@@ -66,6 +66,14 @@ def test_get_custom_folder(local_storage_manager: StorageManager, project_folder
 
     abs_path = os.path.join(project_folder, "path", "to", "eopatches")
     assert local_storage_manager.get_folder("eopatches", full_path=True) == abs_path
+
+
+def test_missing_aws_profile(aws_storage_config: RawConfig):
+    """Makes sure that if an AWS profile doesn't exist a warning gets raised."""
+    aws_storage_config["aws_profile"] = "fake-nonexistent-aws-profile"
+
+    with pytest.warns(EOUserWarning):
+        StorageManager.from_raw_config(aws_storage_config)
 
 
 @pytest.mark.parametrize(

@@ -1,12 +1,15 @@
 """
 This module handles everything regarding storage of the data
 """
+import warnings
 from io import StringIO
 from typing import Dict, List, Optional
 
 import fs
+from botocore.exceptions import ProfileNotFound
 from pydantic import Field
 
+from eolearn.core.exceptions import EOUserWarning
 from eolearn.core.utils.fs import get_aws_credentials, get_filesystem, is_s3_path
 from sentinelhub import SHConfig
 
@@ -26,7 +29,10 @@ class StorageManager(EOGrowObject):
             ),
         )
         aws_profile: Optional[str] = Field(
-            description="The AWS profile with credentials needed to access the S3 bucket"
+            description=(
+                "The AWS profile with credentials needed to access the S3 buckets. In case the profile doesn't exist it"
+                " will show a warning."
+            )
         )
         aws_acl: Optional[AwsAclType] = Field(
             description=(
@@ -47,15 +53,26 @@ class StorageManager(EOGrowObject):
             if folder_key not in self.config.structure:
                 self.config.structure[folder_key] = folder_path
 
-        self.sh_config = SHConfig(hide_credentials=True)
-        if self.is_on_aws() and self.config.aws_profile:
-            self.sh_config = get_aws_credentials(aws_profile=self.config.aws_profile, config=self.sh_config)
+        self.sh_config = self._prepare_sh_config()
 
         fs_kwargs: Dict[str, str] = {}
         if is_s3_path(self.config.project_folder) and self.config.aws_acl:
             fs_kwargs["acl"] = self.config.aws_acl
 
         self.filesystem = get_filesystem(self.config.project_folder, create=True, config=self.sh_config, **fs_kwargs)
+
+    def _prepare_sh_config(self) -> SHConfig:
+        """Prepares an instance of `SHConfig` containing AWS credentials. In case given AWS profile doesn't exist it
+        will show a warning and return a config without AWS credentials."""
+        sh_config = SHConfig(hide_credentials=True)
+
+        if self.is_on_aws() and self.config.aws_profile:
+            try:
+                sh_config = get_aws_credentials(aws_profile=self.config.aws_profile, config=sh_config)
+            except ProfileNotFound as exception:
+                warnings.warn(str(exception), category=EOUserWarning)
+
+        return sh_config
 
     def get_folder(self, key: str, full_path: bool = False) -> str:
         """Returns the path  associated with a key in the structure config."""
