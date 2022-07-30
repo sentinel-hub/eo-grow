@@ -83,15 +83,19 @@ def test_aws_profile(aws_storage_config: RawConfig, config_profile: Optional[str
         elif parameter_key in config_dict:
             del config_dict[parameter_key]
 
-    expected_profile = config_profile if config_profile is not None else env_profile
-    if expected_profile:
-        with pytest.raises(ProfileNotFound) as exception_info:
-            StorageManager.from_raw_config(aws_storage_config)
+    try:
+        expected_profile = config_profile if config_profile is not None else env_profile
+        if expected_profile:
+            with pytest.raises(ProfileNotFound) as exception_info:
+                StorageManager.from_raw_config(aws_storage_config)
 
-        assert str(exception_info.value) == f"The config profile ({expected_profile}) could not be found"
-    else:
-        storage = StorageManager.from_raw_config(aws_storage_config)
-        assert storage.config.aws_profile == expected_profile
+            assert str(exception_info.value) == f"The config profile ({expected_profile}) could not be found"
+        else:
+            storage = StorageManager.from_raw_config(aws_storage_config)
+            assert storage.config.aws_profile == expected_profile
+    finally:
+        if "AWS_PROFILE" in os.environ:
+            del os.environ["AWS_PROFILE"]
 
 
 @pytest.mark.parametrize(
