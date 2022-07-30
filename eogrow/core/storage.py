@@ -45,6 +45,7 @@ class StorageManager(EOGrowObject):
 
         class Config(ManagerSchema.Config):
             case_sensitive = True
+            env_prefix = "eogrow_"
 
     config: Schema
 
