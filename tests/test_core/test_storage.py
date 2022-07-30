@@ -1,12 +1,12 @@
 """ A module for testing StorageManager class
 """
 import os
+from typing import Optional
 
 import pytest
+from botocore.exceptions import ProfileNotFound
 from fs.osfs import OSFS
 from fs_s3fs import S3FS
-
-from eolearn.core.exceptions import EOUserWarning
 
 from eogrow.core.config import RawConfig, interpret_config_from_path
 from eogrow.core.storage import StorageManager
@@ -14,20 +14,20 @@ from eogrow.core.storage import StorageManager
 pytestmark = pytest.mark.fast
 
 
-@pytest.fixture(scope="session", name="local_storage_manager")
+@pytest.fixture(name="local_storage_manager")
 def local_storage_manager_fixture(config_folder):
     filename = os.path.join(config_folder, "other", "local_storage_test.json")
     config = interpret_config_from_path(filename)
     return StorageManager.from_raw_config(config["storage"])
 
 
-@pytest.fixture(scope="session", name="aws_storage_config")
+@pytest.fixture(name="aws_storage_config")
 def aws_pipeline_config_fixture(config_folder):
     filename = os.path.join(config_folder, "other", "aws_storage_test.json")
     return interpret_config_from_path(filename)
 
 
-@pytest.fixture(scope="session", name="aws_storage_manager")
+@pytest.fixture(name="aws_storage_manager")
 def aws_storage_manager_fixture(aws_storage_config, project_folder):
     aws_storage_config["project_folder"] = project_folder
     return StorageManager.from_raw_config(aws_storage_config)
@@ -68,12 +68,30 @@ def test_get_custom_folder(local_storage_manager: StorageManager, project_folder
     assert local_storage_manager.get_folder("eopatches", full_path=True) == abs_path
 
 
-def test_missing_aws_profile(aws_storage_config: RawConfig):
-    """Makes sure that if an AWS profile doesn't exist a warning gets raised."""
-    aws_storage_config["aws_profile"] = "fake-nonexistent-aws-profile"
+@pytest.mark.parametrize("config_profile", [None, "", "nonexistent-config-profile"])
+@pytest.mark.parametrize("env_profile", [None, "", "nonexistent-env-profile"])
+def test_aws_profile(aws_storage_config: RawConfig, config_profile: Optional[str], env_profile: Optional[str]):
+    """Checks different combinations of profile being set with a config parameter and environmental variable. Checks
+    also that config parameter takes priority over environmental variable."""
 
-    with pytest.warns(EOUserWarning):
-        StorageManager.from_raw_config(aws_storage_config)
+    for parameter_key, parameter_value, config_dict in [
+        ("aws_profile", config_profile, aws_storage_config),
+        ("AWS_PROFILE", env_profile, os.environ),
+    ]:
+        if parameter_value is not None:
+            config_dict[parameter_key] = parameter_value
+        elif parameter_key in config_dict:
+            del config_dict[parameter_key]
+
+    expected_profile = config_profile if config_profile is not None else env_profile
+    if expected_profile:
+        with pytest.raises(ProfileNotFound) as exception_info:
+            StorageManager.from_raw_config(aws_storage_config)
+
+        assert str(exception_info.value) == f"The config profile ({expected_profile}) could not be found"
+    else:
+        storage = StorageManager.from_raw_config(aws_storage_config)
+        assert storage.config.aws_profile == expected_profile
 
 
 @pytest.mark.parametrize(
