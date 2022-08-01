@@ -72,7 +72,12 @@ def test_get_custom_folder(local_storage_manager: StorageManager, project_folder
 @pytest.mark.parametrize("env_profile", [None, "", "nonexistent-env-profile"])
 def test_aws_profile(aws_storage_config: RawConfig, config_profile: Optional[str], env_profile: Optional[str]):
     """Checks different combinations of profile being set with a config parameter and environmental variable. Checks
-    also that config parameter takes priority over environmental variable."""
+    also that config parameter takes priority over environmental variable.
+
+    In the first step of this test, we add given profile name parameters into the config dictionary and into the
+    dictionary of environmental variables. Note that if profile name is `None`, we instead remove the parameter from a
+    dictionary altogether.
+    """
 
     for parameter_key, parameter_value, config_dict in [
         ("aws_profile", config_profile, aws_storage_config),
