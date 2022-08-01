@@ -5,7 +5,8 @@ from io import StringIO
 from typing import Dict, List, Optional
 
 import fs
-from pydantic import Field
+from fs.base import FS
+from pydantic import BaseSettings, Field
 
 from eolearn.core.utils.fs import get_aws_credentials, get_filesystem, is_s3_path
 from sentinelhub import SHConfig
@@ -18,7 +19,7 @@ from .schemas import ManagerSchema
 class StorageManager(EOGrowObject):
     PRESET_FOLDERS: Dict[str, str] = {"logs": "logs", "input_data": "input-data", "cache": "cache"}
 
-    class Schema(ManagerSchema):
+    class Schema(ManagerSchema, BaseSettings):
         project_folder: str = Field(
             description=(
                 "The root project folder. Can be either local or on AWS S3 Bucket."
@@ -26,7 +27,11 @@ class StorageManager(EOGrowObject):
             ),
         )
         aws_profile: Optional[str] = Field(
-            description="The AWS profile with credentials needed to access the S3 bucket"
+            env="AWS_PROFILE",
+            description=(
+                "The AWS profile with credentials needed to access the S3 buckets. In case the profile isn't specified"
+                " with a parameter it can be read from an environmental variable."
+            ),
         )
         aws_acl: Optional[AwsAclType] = Field(
             description=(
@@ -38,6 +43,10 @@ class StorageManager(EOGrowObject):
             default_factory=dict, description="A flat key: value store mapping each key to a path in the project."
         )
 
+        class Config(ManagerSchema.Config):
+            case_sensitive = True
+            env_prefix = "eogrow_"
+
     config: Schema
 
     def __init__(self, config: Schema):
@@ -47,15 +56,26 @@ class StorageManager(EOGrowObject):
             if folder_key not in self.config.structure:
                 self.config.structure[folder_key] = folder_path
 
-        self.sh_config = SHConfig(hide_credentials=True)
-        if self.is_on_aws() and self.config.aws_profile:
-            self.sh_config = get_aws_credentials(aws_profile=self.config.aws_profile, config=self.sh_config)
+        self.sh_config = self._prepare_sh_config()
+        self.filesystem = self._prepare_filesystem()
 
+    def _prepare_sh_config(self) -> SHConfig:
+        """Prepares an instance of `SHConfig` containing AWS credentials. In case given AWS profile doesn't exist it
+        will show a warning and return a config without AWS credentials."""
+        sh_config = SHConfig(hide_credentials=True)
+
+        if self.is_on_aws() and self.config.aws_profile:
+            sh_config = get_aws_credentials(aws_profile=self.config.aws_profile, config=sh_config)
+
+        return sh_config
+
+    def _prepare_filesystem(self) -> FS:
+        """Prepares the main instance of filesystem object which contains all additional configuration parameters."""
         fs_kwargs: Dict[str, str] = {}
         if is_s3_path(self.config.project_folder) and self.config.aws_acl:
             fs_kwargs["acl"] = self.config.aws_acl
 
-        self.filesystem = get_filesystem(self.config.project_folder, create=True, config=self.sh_config, **fs_kwargs)
+        return get_filesystem(self.config.project_folder, create=True, config=self.sh_config, **fs_kwargs)
 
     def get_folder(self, key: str, full_path: bool = False) -> str:
         """Returns the path  associated with a key in the structure config."""
