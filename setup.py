@@ -35,6 +35,12 @@ setup(
     long_description=get_long_description(),
     long_description_content_type="text/markdown",
     url="https://github.com/sentinel-hub/eo-grow",
+    project_urls={
+        "Documentation": "https://eo-grow.readthedocs.io",
+        "Source Code": "https://github.com/sentinel-hub/eo-grow",
+        "Bug Tracker": "https://github.com/sentinel-hub/eo-grow/issues",
+        "Forum": "https://forum.sentinel-hub.com",
+    },
     author="Sinergise EO research team",
     author_email="eoresearch@sinergise.com",
     license="MIT",
