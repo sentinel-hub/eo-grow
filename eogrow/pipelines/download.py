@@ -359,5 +359,5 @@ class DownloadTimelessPipeline(BaseDownloadPipeline):
 
 def _get_aux_request_args(resampling: Optional[ResamplingType]) -> Optional[dict]:
     if resampling is not None:
-        return {"processing": {"downsampling": resampling, "upsampling": resampling}}
+        return {"processing": {"downsampling": resampling.value, "upsampling": resampling.value}}
     return None
