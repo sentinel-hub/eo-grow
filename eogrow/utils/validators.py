@@ -6,12 +6,12 @@ import inspect
 from typing import TYPE_CHECKING, Any, Callable, Tuple
 
 import numpy as np
-from pydantic import validator
+from pydantic import root_validator, validator
 
 from sentinelhub import DataCollection
 
 from .meta import collect_schema, import_object
-from .types import S3Path, TimePeriod
+from .types import RawSchemaDict, S3Path, TimePeriod
 
 if TYPE_CHECKING:
     from ..core.schemas import ManagerSchema
@@ -49,6 +49,21 @@ def validate_s3_path(value: S3Path) -> S3Path:
     """Validates the prefix of a S3 bucket path"""
     assert value.startswith("s3://"), "S3 path must start with s3://"
     return value
+
+
+def ensure_exactly_one_defined(param1: str, param2: str, allow_reuse: bool = True, **kwargs: Any) -> classmethod:
+    """A root validator that makes sure only one of the two parameters is defined."""
+
+    def ensure_exclusion(cls: type, values: RawSchemaDict) -> RawSchemaDict:
+        is_param1_defined = values.get(param1) is None
+        is_param2_defined = values.get(param2) is None
+        assert (
+            is_param1_defined != is_param2_defined
+        ), f"Exactly one of parameters `{param1}` and `{param2}` has to be specified."
+
+        return values
+
+    return root_validator(allow_reuse=allow_reuse, **kwargs)(ensure_exclusion)
 
 
 def parse_time_period(value: Tuple[str, str]) -> TimePeriod:

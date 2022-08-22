@@ -10,7 +10,7 @@ import fiona
 import fs
 import geopandas as gpd
 import numpy as np
-from pydantic import Field, root_validator
+from pydantic import Field
 
 from eolearn.core import (
     CreateEOPatchTask,
@@ -29,8 +29,8 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.fs import LocalFile
-from ..utils.types import Feature, FeatureSpec, RawSchemaDict
-from ..utils.validators import field_validator, parse_dtype
+from ..utils.types import Feature, FeatureSpec
+from ..utils.validators import ensure_exactly_one_defined, field_validator, parse_dtype
 from ..utils.vector import concat_gdf
 
 LOGGER = logging.getLogger(__name__)
@@ -49,23 +49,19 @@ class VectorColumnSchema(BaseSchema):
     )
     output_feature: Feature = Field(description="Output feature of rasterization.")
     polygon_buffer: float = Field(0, description="The size of polygon buffering to be applied before rasterization.")
-    resolution: float = Field(description="Rendering resolution in meters.")
+    resolution: Optional[float] = Field(
+        description="Rendering resolution in meters. Cannot be used with `raster_shape`."
+    )
+    raster_shape: Optional[Tuple[int, int]] = Field(
+        description="Shape of resulting raster image. Cannot be used with `resolution`."
+    )
     overlap_value: Optional[int] = Field(description="Value to write over the areas where polygons overlap.")
     dtype: np.dtype = Field(np.dtype("int32"), description="Numpy dtype of the output feature.")
     _parse_dtype = field_validator("dtype", parse_dtype, pre=True)
     no_data_value: int = Field(0, description="The no_data_value argument to be passed to VectorToRasterTask")
 
-    @root_validator
-    def check_value_settings(cls, values: RawSchemaDict) -> RawSchemaDict:
-        """Ensures that precisely one of `value` and `values_column` is set."""
-        is_value_defined = values.get("value") is not None
-        is_values_column_defined = values.get("values_column") is not None
-
-        assert (
-            is_value_defined != is_values_column_defined
-        ), "Exactly one of parameters 'value' and 'values_column' should be given."
-
-        return values
+    _check_value_values_column = ensure_exactly_one_defined("value", "values_column")
+    _check_shape_resolution = ensure_exactly_one_defined("raster_shape", "resolution")
 
 
 class Preprocessing(BaseSchema):
@@ -217,6 +213,7 @@ class RasterizePipeline(Pipeline):
                     values=column.value,
                     buffer=column.polygon_buffer,
                     raster_resolution=column.resolution,
+                    raster_shape=column.raster_shape,
                     raster_dtype=np.dtype(column.dtype),
                     no_data_value=column.no_data_value,
                     overlap_value=column.overlap_value,
