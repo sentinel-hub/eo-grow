@@ -13,7 +13,7 @@
     {
       "values_column": "POLYGON_ID",
       "output_feature": ["mask_timeless", "POLYGON_ID"],
-      "resolution": 10
+      "raster_shape": [121, 264]
     }
   ],
   "preprocess_dataset": {}

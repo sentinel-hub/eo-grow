@@ -49,7 +49,12 @@ class VectorColumnSchema(BaseSchema):
     )
     output_feature: Feature = Field(description="Output feature of rasterization.")
     polygon_buffer: float = Field(0, description="The size of polygon buffering to be applied before rasterization.")
-    resolution: float = Field(description="Rendering resolution in meters.")
+    resolution: Optional[float] = Field(
+        description="Rendering resolution in meters. Cannot be used with `raster_shape`."
+    )
+    raster_shape: Optional[Tuple[int, int]] = Field(
+        description="Shape of resulting raster image. Cannot be used with `resolution`."
+    )
     overlap_value: Optional[int] = Field(description="Value to write over the areas where polygons overlap.")
     dtype: np.dtype = Field(np.dtype("int32"), description="Numpy dtype of the output feature.")
     _parse_dtype = field_validator("dtype", parse_dtype, pre=True)
@@ -64,6 +69,12 @@ class VectorColumnSchema(BaseSchema):
         assert (
             is_value_defined != is_values_column_defined
         ), "Exactly one of parameters 'value' and 'values_column' should be given."
+
+        is_raster_shape_defined = values.get("raster_shape") is None
+        is_resolution_defined = values.get("resolution") is None
+        assert (
+            is_raster_shape_defined != is_resolution_defined
+        ), "Exactly one of parameters 'raster_shape' and 'raster_resolution' has to be specified"
 
         return values
 
@@ -217,6 +228,7 @@ class RasterizePipeline(Pipeline):
                     values=column.value,
                     buffer=column.polygon_buffer,
                     raster_resolution=column.resolution,
+                    raster_shape=column.raster_shape,
                     raster_dtype=np.dtype(column.dtype),
                     no_data_value=column.no_data_value,
                     overlap_value=column.overlap_value,
