@@ -5,16 +5,18 @@ import abc
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
-from pydantic import Field, root_validator
+from pydantic import Field
 
 from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, MergeEOPatchesTask, OverwritePermission, SaveTask
 from eolearn.geometry import MorphologicalOperations, MorphologicalStructFactory
 from eolearn.ml_tools import BlockSamplingTask, FractionSamplingTask, GridSamplingTask
 
+from eogrow.utils.validators import ensure_exactly_one_defined
+
 from ..core.pipeline import Pipeline
 from ..tasks.common import ClassFilterTask
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec, RawSchemaDict
+from ..utils.types import Feature, FeatureSpec
 
 
 class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
@@ -254,17 +256,7 @@ class BlockSamplingPipeline(BaseRandomSamplingPipeline):
             )
         )
 
-        @root_validator
-        def validate_sampling_params(cls, values: RawSchemaDict) -> RawSchemaDict:
-            """Makes sure only one of the sampling parameters has been given."""
-            is_fraction_defined = values.get("fraction_of_samples") is not None
-            is_number_defined = values.get("number_of_samples") is not None
-
-            assert (
-                is_fraction_defined != is_number_defined
-            ), "Exactly one of the parameters fraction_of_samples and number_of_samples should be given."
-
-            return values
+        _check_fraction_number = ensure_exactly_one_defined("fraction_of_samples", "number_of_samples")
 
     config: Schema
 
