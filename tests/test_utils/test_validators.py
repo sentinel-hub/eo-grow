@@ -10,6 +10,7 @@ import pytest
 from pydantic import ValidationError
 
 from sentinelhub import DataCollection
+from sentinelhub.data_collections_bands import Band, MetaBands, Unit
 
 from eogrow.core.schemas import BaseSchema, ManagerSchema
 from eogrow.utils.types import RawSchemaDict
@@ -127,27 +128,6 @@ def test_parse_time_period(time_period, year, expected_start_date, expected_end_
     assert end_date.isoformat() == expected_end_date
 
 
-@pytest.mark.parametrize(
-    "collection_input, is_byoc, is_batch",
-    [
-        ("SENTINEL2_L2A", False, False),
-        ("SENTINEL3_SLSTR", False, False),
-        ("BYOC_blabla", True, False),
-        ("BATCH_blabla", False, True),
-    ],
-)
-def test_parse_colletion(collection_input: str, is_byoc: bool, is_batch: bool):
-    class CollectionSchema(BaseSchema):
-        collection: DataCollection
-        _parse_collection = field_validator("collection", parse_data_collection, pre=True)
-
-    schema = CollectionSchema(collection=collection_input)
-    assert isinstance(schema.collection, DataCollection)
-    assert schema.collection.name in collection_input
-    assert schema.collection.is_byoc == is_byoc
-    assert schema.collection.is_batch == is_batch
-
-
 @pytest.mark.parametrize("dtype_input", ["uint8", "float32", np.uint8, np.dtype("int16")])
 def test_parse_dtype(dtype_input: Union[str, type, np.dtype]):
     class DtypeSchema(BaseSchema):
@@ -198,3 +178,59 @@ def test_validate_manager(manager_input: RawSchemaDict, succeeds: bool):
 
     with nullcontext() if succeeds else pytest.raises(ValidationError):
         SchemaWithManager(manager=manager_input)
+
+
+@pytest.mark.parametrize(
+    "collection_input, is_byoc, is_batch",
+    [
+        ("SENTINEL2_L2A", False, False),
+        ("SENTINEL3_SLSTR", False, False),
+        ("BYOC_blabla", True, False),
+        ("BATCH_blabla", False, True),
+    ],
+)
+def test_parse_collection_from_string(collection_input: str, is_byoc: bool, is_batch: bool):
+    class CollectionSchema(BaseSchema):
+        collection: DataCollection
+        _parse_collection = field_validator("collection", parse_data_collection, pre=True)
+
+    schema = CollectionSchema(collection=collection_input)
+    assert isinstance(schema.collection, DataCollection)
+    assert schema.collection.name in collection_input
+    assert schema.collection.is_byoc == is_byoc
+    assert schema.collection.is_batch == is_batch
+
+
+def test_parse_collection_from_dict():
+    class CollectionSchema(BaseSchema):
+        collection: DataCollection
+        _parse_collection = field_validator("collection", parse_data_collection, pre=True)
+
+    raw_schema = {
+        "name": "test",
+        "api_id": "sentinel-2-l1c",
+        "wfs_id": "DSS1",
+        "service_url": "blabla",
+        "processing_level": "L1C",
+        "bands": [{"name": "Band1", "units": ["DN"], "output_types": ["float32"]}],
+        "metabands": "SENTINEL2_L1C",
+    }
+    collection = CollectionSchema(collection=raw_schema).collection
+    assert isinstance(collection, DataCollection)
+    assert collection.bands == (Band("Band1", (Unit.DN,), (np.dtype("float32"),)),)
+    assert collection.metabands is MetaBands.SENTINEL2_L1C
+    assert collection.is_byoc is False
+
+    raw_schema = {
+        "name": "BYOC_test",
+        "api_id": "override",
+        "bands": [
+            {"name": "Band1", "units": ["DN"], "output_types": ["float32"]},
+            {"name": "Band2", "units": ["REFLECTANCE"], "output_types": ["bool"]},
+        ],
+    }
+    collection = CollectionSchema(collection=raw_schema).collection
+    assert isinstance(collection, DataCollection)
+    assert collection.catalog_id == "byoc-test"
+    assert collection.bands == (Band("Band1", (Unit.DN,), (np.float32,)), Band("Band2", (Unit.REFLECTANCE,), (bool,)))
+    assert collection.is_byoc is True

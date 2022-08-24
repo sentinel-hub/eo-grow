@@ -3,12 +3,13 @@ Module defining common validators for schemas and validator wrappers
 """
 import datetime as dt
 import inspect
-from typing import TYPE_CHECKING, Any, Callable, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Tuple, Type, Union
 
 import numpy as np
-from pydantic import root_validator, validator
+from pydantic import BaseModel, Field, root_validator, validator
 
 from sentinelhub import DataCollection
+from sentinelhub.data_collections_bands import Band, Bands, MetaBands, Unit
 
 from .meta import collect_schema, import_object
 from .types import RawSchemaDict, S3Path, TimePeriod
@@ -104,24 +105,6 @@ def parse_time_period(value: Tuple[str, str]) -> TimePeriod:
     return start, end
 
 
-def parse_data_collection(value: str) -> DataCollection:
-    """Validates and parses data collection"""
-    if value.startswith("BYOC_"):
-        collection_id = value.split("_")[-1]
-        return DataCollection.define_byoc(collection_id)
-
-    if value.startswith("BATCH_"):
-        collection_id = value.split("_")[-1]
-        return DataCollection.define_batch(collection_id)
-
-    if value in DataCollection.__members__:
-        return getattr(DataCollection, value)
-    raise ValueError(
-        "Data collection should be a name of an existing DataCollection enum, 'BYOC_<collection_id>', "
-        f"or 'BATCH_<collection id>' but name '{value}' was given."
-    )
-
-
 def parse_dtype(value: str) -> np.dtype:
     return np.dtype(value)
 
@@ -132,3 +115,81 @@ def validate_manager(value: dict) -> "ManagerSchema":
     manager_class = import_object(value["manager"])
     manager_schema = collect_schema(manager_class)
     return manager_schema.parse_obj(value)  # type: ignore[return-value]
+
+
+class BandSchema(BaseModel):
+    """Schema used in parsing DataCollection bands."""
+
+    name: str
+    units: Tuple[Unit, ...]
+    output_types: Tuple[type, ...]
+
+    @validator("output_types", pre=True, each_item=True)
+    def _parse_output_types(cls, value: str) -> type:
+        if value == "bool":
+            return bool
+        return np.dtype(value).type
+
+
+class DataCollectionSchema(BaseModel):
+    """Schema used in parsing DataCollection objects. Any extra parameters are passed to the definition as **params."""
+
+    name: str = Field(
+        "Name of the data collection. When defining BYOC collections use `BYOC_` prefix and for Batch collections use"
+        " `BATCH_` to auto-generate fields with `define_byoc` or `define_batch`."
+    )
+    bands: Union[None, str, Tuple[BandSchema, ...]] = Field(
+        None, description="Name of predefined collection in `Bands` or custom specification via `BandSchema`."
+    )
+    metabands: Union[None, str, Tuple[BandSchema, ...]] = Field(
+        None, description="Name of predefined collection in `MetaBands` or custom specification via `BandSchema`."
+    )
+
+    class Config:
+        extra = "allow"  # in order to pass on arbitrary parameters but keep definition shorter
+        arbitrary_types_allowed = True
+
+
+def _bands_parser(
+    bands_collection: Union[Type[Bands], Type[MetaBands]], value: Union[None, str, Tuple[BandSchema, ...]]
+) -> Optional[Tuple[Band, ...]]:
+    """Collects defaults or parses bands from schemas."""
+
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return getattr(bands_collection, value)
+    return tuple(Band(band_schema.name, band_schema.units, band_schema.output_types) for band_schema in value)
+
+
+def parse_data_collection(value: Union[str, dict, DataCollection]) -> DataCollection:
+    """Validates and parses the data collection.
+
+    If a string is given, then it tries to fetch a pre-defined collection. Otherwise it constructs a new collection
+    according to the prefix of the name (BYOC_ prefix to use `define_byoc` and `BATCH_` to use `define_batch`).
+    """
+    if isinstance(value, DataCollection):
+        return value  # required in order to allow default values
+
+    assert isinstance(value, (str, dict)), "Can only parse collection names or `DataCollectionSchema` definitions."
+
+    params: Dict[str, Any] = {}
+    if isinstance(value, str):
+        name = value
+        if name in DataCollection.__members__:
+            return getattr(DataCollection, name)
+    else:
+        params = dict(DataCollectionSchema.parse_obj(value))
+        params["bands"] = _bands_parser(Bands, params["bands"])
+        params["metabands"] = _bands_parser(MetaBands, params["metabands"])
+        name = params.pop("name")
+
+    if name.startswith("BYOC_"):
+        collection_id = name.split("_")[-1]
+        return DataCollection.define_byoc(collection_id, **params)
+
+    if name.startswith("BATCH_"):
+        collection_id = name.split("_")[-1]
+        return DataCollection.define_batch(collection_id, **params)
+
+    return DataCollection.define(name, **params)
