@@ -189,7 +189,7 @@ def test_validate_manager(manager_input: RawSchemaDict, succeeds: bool):
         ("BATCH_blabla", False, True),
     ],
 )
-def test_parse_colletion_from_string(collection_input: str, is_byoc: bool, is_batch: bool):
+def test_parse_collection_from_string(collection_input: str, is_byoc: bool, is_batch: bool):
     class CollectionSchema(BaseSchema):
         collection: DataCollection
         _parse_collection = field_validator("collection", parse_data_collection, pre=True)
@@ -201,7 +201,7 @@ def test_parse_colletion_from_string(collection_input: str, is_byoc: bool, is_ba
     assert schema.collection.is_batch == is_batch
 
 
-def test_parse_colletion_from_dict():
+def test_parse_collection_from_dict():
     class CollectionSchema(BaseSchema):
         collection: DataCollection
         _parse_collection = field_validator("collection", parse_data_collection, pre=True)
