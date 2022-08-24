@@ -43,10 +43,6 @@ def optional_field_validator(
             return validator_fun(value, **kwargs)
         return None
 
-    optional_validator.__name__ = f"optional_{validator_fun.__name__}"  # for docbuilding purposes
-    # the correct approach would be to use `functools.wraps` but this messes with the `inspect.signature` that
-    # pydantic magic uses
-
     return validator(field, allow_reuse=allow_reuse, **kwargs)(optional_validator)
 
 
