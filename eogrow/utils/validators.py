@@ -9,10 +9,10 @@ import numpy as np
 from pydantic import BaseModel, Field, root_validator, validator
 
 from sentinelhub import DataCollection
-from sentinelhub.data_collections_bands import Band, Unit, Bands, MetaBands
+from sentinelhub.data_collections_bands import Band, Bands, MetaBands, Unit
 
 from .meta import collect_schema, import_object
-from .types import JsonDict, RawSchemaDict, S3Path, TimePeriod
+from .types import RawSchemaDict, S3Path, TimePeriod
 
 if TYPE_CHECKING:
     from ..core.schemas import ManagerSchema
@@ -122,23 +122,13 @@ class BandSchema(BaseModel):
 
     name: str
     units: Tuple[Unit, ...]
-    output_types: Tuple[np.dtype, ...]
-    _parse_output_types = field_validator("output_types", parse_dtype, pre=True, each_item=True)
+    output_types: Tuple[type, ...]
 
-    class Config:
-        arbitrary_types_allowed = True  # required for np.dtype validation
-
-
-def _bands_parser(bands_collection: Union[Type[Bands], Type[MetaBands]]) -> Callable:
-    """Constructs a parser for data collection bands."""
-
-    def _parser(value: Union[str, Tuple[JsonDict, ...]]) -> Tuple[Band, ...]:
-        if isinstance(value, str):
-            return getattr(bands_collection, value)
-        band_schemas = map(BandSchema.parse_obj, value)
-        return tuple(Band(**dict(band_schema)) for band_schema in band_schemas)
-
-    return _parser
+    @validator("output_types", pre=True, each_item=True)
+    def _parse_output_types(cls, value: str) -> type:
+        if value == "bool":
+            return bool
+        return np.dtype(value).type
 
 
 class DataCollectionSchema(BaseModel):
@@ -148,18 +138,28 @@ class DataCollectionSchema(BaseModel):
         "Name of the data collection. When defining BYOC collections use `BYOC_` prefix and for Batch collections use"
         " `BATCH_` to auto-generate fields with `define_byoc` or `define_batch`."
     )
-    bands: Optional[Tuple[Band, ...]] = Field(
-        "Specification of bands provided with a list of `BandSchema` or a name of predefined collection in `Bands`."
+    bands: Union[None, str, Tuple[BandSchema, ...]] = Field(
+        None, description="Name of predefined collection in `Bands` or custom specification via `BandSchema`."
     )
-    metabands: Optional[Tuple[Band, ...]] = Field(
-        "Specification of bands provided with a list of `BandSchema` or a name of predefined collection in `MetaBands`."
+    metabands: Union[None, str, Tuple[BandSchema, ...]] = Field(
+        None, description="Name of predefined collection in `MetaBands` or custom specification via `BandSchema`."
     )
-
-    _parse_data_collection_bands = optional_field_validator("bands", _bands_parser(Bands), pre=True)
-    _parse_data_collection_metabands = optional_field_validator("metabands", _bands_parser(MetaBands), pre=True)
 
     class Config:
         extra = "allow"  # in order to pass on arbitrary parameters but keep definition shorter
+        arbitrary_types_allowed = True
+
+
+def _bands_parser(
+    bands_collection: Union[Type[Bands], Type[MetaBands]], value: Union[None, str, Tuple[BandSchema, ...]]
+) -> Optional[Tuple[Band, ...]]:
+    """Collects defaults or parses bands from schemas."""
+
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return getattr(bands_collection, value)
+    return tuple(Band(band_schema.name, band_schema.units, band_schema.output_types) for band_schema in value)
 
 
 def parse_data_collection(value: Union[str, dict, DataCollection]) -> DataCollection:
@@ -180,6 +180,8 @@ def parse_data_collection(value: Union[str, dict, DataCollection]) -> DataCollec
             return getattr(DataCollection, name)
     else:
         params = dict(DataCollectionSchema.parse_obj(value))
+        params["bands"] = _bands_parser(Bands, params["bands"])
+        params["metabands"] = _bands_parser(MetaBands, params["metabands"])
         name = params.pop("name")
 
     if name.startswith("BYOC_"):
