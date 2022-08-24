@@ -57,6 +57,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.githubpages",
     "m2r2",
+    "sphinxcontrib.autodoc_pydantic",
 ]
 
 # Incude typehints in descriptions
