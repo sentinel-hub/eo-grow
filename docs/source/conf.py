@@ -63,7 +63,6 @@ extensions = [
 # autodoc_pydantic settings
 autodoc_pydantic_settings_show_json = False
 autodoc_pydantic_settings_show_config_summary = False
-autodoc_pydantic_settings_summary_list_order = "bysource"
 
 # Incude typehints in descriptions
 autodoc_typehints = "description"

@@ -3,7 +3,6 @@ Module defining common validators for schemas and validator wrappers
 """
 import datetime as dt
 import inspect
-from functools import wraps
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Tuple, Type, Union
 
 import numpy as np
@@ -37,13 +36,16 @@ def optional_field_validator(
     # In order to propagate the pydantic python magic we need a bit of python magic ourselves
     additional_args = inspect.getfullargspec(validator_fun).args[1:]
 
-    @wraps(validator_fun)
     def optional_validator(value, values, config, field):  # type: ignore[no-untyped-def]
         if value is not None:
             all_kwargs = {"values": values, "config": config, "field": field}
             kwargs = {k: v for k, v in all_kwargs.items() if k in additional_args}
             return validator_fun(value, **kwargs)
         return None
+
+    optional_validator.__name__ = f"optional_{validator_fun.__name__}"  # for docbuilding purposes
+    # the correct approach would be to use `functools.wraps` but this messes with the `inspect.signature` that
+    # pydantic magic uses
 
     return validator(field, allow_reuse=allow_reuse, **kwargs)(optional_validator)
 
