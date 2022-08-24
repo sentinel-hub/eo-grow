@@ -195,7 +195,12 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
 
 
 class CommonDownloadFields(BaseSchema):
-    data_collection: DataCollection = Field(description="Data collection from which data will be downloaded.")
+    data_collection: DataCollection = Field(
+        description=(
+            "Data collection from which data will be downloaded. See `utils.validators.parse_data_collection` for more"
+            " info on input options."
+        )
+    )
     _validate_data_collection = field_validator("data_collection", parse_data_collection, pre=True)
 
     resolution: Optional[float] = Field(
