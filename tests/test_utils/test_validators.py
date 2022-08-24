@@ -215,8 +215,22 @@ def test_parse_colletion_from_dict():
         "bands": [{"name": "Band1", "units": ["DN"], "output_types": ["float32"]}],
         "metabands": "SENTINEL2_L1C",
     }
-    schema = CollectionSchema(collection=raw_schema)
-    assert isinstance(schema.collection, DataCollection)
-    assert schema.collection.bands == (Band("Band1", (Unit.DN,), (np.float32,)))
-    assert schema.collection.metabands is MetaBands.SENTINEL2_L1C
-    assert schema.collection.is_batch == False
+    collection = CollectionSchema(collection=raw_schema).collection
+    assert isinstance(collection, DataCollection)
+    assert collection.bands == (Band("Band1", (Unit.DN,), (np.dtype("float32"),)),)
+    assert collection.metabands is MetaBands.SENTINEL2_L1C
+    assert collection.is_byoc is False
+
+    raw_schema = {
+        "name": "BYOC_test",
+        "api_id": "override",
+        "bands": [
+            {"name": "Band1", "units": ["DN"], "output_types": ["float32"]},
+            {"name": "Band2", "units": ["REFLECTANCE"], "output_types": ["bool"]},
+        ],
+    }
+    collection = CollectionSchema(collection=raw_schema).collection
+    assert isinstance(collection, DataCollection)
+    assert collection.catalog_id == "byoc-test"
+    assert collection.bands == (Band("Band1", (Unit.DN,), (np.float32,)), Band("Band2", (Unit.REFLECTANCE,), (bool,)))
+    assert collection.is_byoc is True
