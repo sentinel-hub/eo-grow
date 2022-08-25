@@ -135,7 +135,8 @@ class BandSchema(BaseModel):
 
 
 class DataCollectionSchema(BaseModel):
-    """Schema used in parsing DataCollection objects. Any extra parameters are passed to the definition as **params."""
+    """Schema used in parsing DataCollection objects. Any extra parameters are passed to the definition as `**params`.
+    """
 
     name: str = Field(
         "Name of the data collection. When defining BYOC collections use `BYOC_` prefix and for Batch collections use"
@@ -169,7 +170,7 @@ def parse_data_collection(value: Union[str, dict, DataCollection]) -> DataCollec
     """Validates and parses the data collection.
 
     If a string is given, then it tries to fetch a pre-defined collection. Otherwise it constructs a new collection
-    according to the prefix of the name (BYOC_ prefix to use `define_byoc` and `BATCH_` to use `define_batch`).
+    according to the prefix of the name (`BYOC_` prefix to use `define_byoc` and `BATCH_` to use `define_batch`).
     """
     if isinstance(value, DataCollection):
         return value  # required in order to allow default values
