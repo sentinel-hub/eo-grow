@@ -42,6 +42,9 @@ def optional_field_validator(
             kwargs = {k: v for k, v in all_kwargs.items() if k in additional_args}
             return validator_fun(value, **kwargs)
         return None
+    
+    optional_validator.__name__ = f"optional_{validator_fun}"  # used for docbuilding purposes
+    # the correct way would be to use `functools.wraps` but this breaks pydantics python magic
 
     return validator(field, allow_reuse=allow_reuse, **kwargs)(optional_validator)
 
