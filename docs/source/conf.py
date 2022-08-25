@@ -64,9 +64,15 @@ extensions = [
 autodoc_pydantic_model_show_json = False
 autodoc_pydantic_model_show_config = False
 autodoc_pydantic_model_show_config_summary = False
+autodoc_pydantic_model_show_validators_summary = False
+autodoc_pydantic_model_summary_list_order = "bysource"
+autodoc_pydantic_model_member_order = "bysource"
 autodoc_pydantic_settings_show_json = False
 autodoc_pydantic_settings_show_config = False
 autodoc_pydantic_settings_show_config_summary = False
+autodoc_pydantic_settings_show_validators_summary = False
+autodoc_pydantic_settings_summary_list_order = "bysource"
+autodoc_pydantic_settings_member_order = "bysource"
 
 # Incude typehints in descriptions
 autodoc_typehints = "description"
