@@ -78,7 +78,7 @@ class BatchDownloadPipeline(Pipeline):
         batch_output_kwargs: dict = Field(
             default_factory=dict,
             description=(
-                "Any other arguments to be added to a dictionary of parameters. Passed as **kwargs to the `output`"
+                "Any other arguments to be added to a dictionary of parameters. Passed as `**kwargs` to the `output`"
                 " method of `SentinelHubBatch` during the creation process."
             ),
         )
