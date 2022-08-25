@@ -61,9 +61,8 @@ extensions = [
 ]
 
 # autodoc_pydantic settings
-autodoc_pydantic_settings_show_json = False
-autodoc_pydantic_model_show_config_member = False
-autodoc_pydantic_settings_show_config_summary = False
+autodoc_pydantic_show_json = False
+autodoc_pydantic_model_show_config = False
 
 # Incude typehints in descriptions
 autodoc_typehints = "description"
