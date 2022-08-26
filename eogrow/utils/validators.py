@@ -70,6 +70,21 @@ def ensure_exactly_one_defined(param1: str, param2: str, allow_reuse: bool = Tru
     return root_validator(allow_reuse=allow_reuse, **kwargs)(ensure_exclusion)
 
 
+def ensure_defined_together(param1: str, param2: str, allow_reuse: bool = True, **kwargs: Any) -> classmethod:
+    """A root validator that makes sure that the two parameters are either both (un)defined."""
+
+    def ensure_exclusion(cls: type, values: RawSchemaDict) -> RawSchemaDict:
+        is_param1_defined = values.get(param1) is None
+        is_param2_defined = values.get(param2) is None
+        assert (
+            is_param1_defined == is_param2_defined
+        ), f"Both or neither of parameters `{param1}` and `{param2}` have to be specified."
+
+        return values
+
+    return root_validator(allow_reuse=allow_reuse, **kwargs)(ensure_exclusion)
+
+
 def parse_time_period(value: Tuple[str, str]) -> TimePeriod:
     """Allows parsing of preset options of shape `[preset_kind, year]` but that requires `pre` validation"""
     presets = ["yearly", "season", "Q1", "Q2", "Q3", "Q4", "Q1-yearly", "Q2-yearly", "Q3-yearly", "Q4-yearly"]
