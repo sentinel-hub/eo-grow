@@ -108,19 +108,20 @@ class ExportMapsPipeline(Pipeline):
         crs_eopatch_dict = self.eopatch_manager.split_by_utm(patch_names)
 
         for crs, eopatch_list in crs_eopatch_dict.items():
-            subfolder_path = f"UTM_{crs.epsg}"
+            subfolder = f"UTM_{crs.epsg}"
             map_name = self.config.map_name or f"{feature_name}.tiff"
 
-            self.storage.filesystem.makedirs(fs.path.join(folder, subfolder_path), recreate=True)
-            self._create_single_map(folder, eopatch_list, fs.path.join(subfolder_path, map_name))
+            # manually make subfolder, otherwise things fail on S3 in later steps
+            self.storage.filesystem.makedirs(fs.path.join(folder, subfolder), recreate=True)
+            self._create_single_map(folder, eopatch_list, subfolder, map_name)
 
-    def _create_single_map(self, folder: str, eopatch_list: List[str], map_name: str) -> None:
+    def _create_single_map(self, folder: str, eopatch_list: List[str], subfolder: str, map_name: str) -> None:
         """Creates a single map"""
         make_local_copies = self.storage.is_on_aws() or self.config.force_local_copies
 
         geotiff_names = [self.get_geotiff_name(name) for name in eopatch_list]
         geotiff_paths = [fs.path.join(folder, name) for name in geotiff_names]
-        merged_map_path = fs.path.join(folder, map_name)
+        merged_map_path = fs.path.join(folder, subfolder, map_name)
 
         if make_local_copies:
             temp_fs = TempFS(identifier="_merge_maps_temp")
