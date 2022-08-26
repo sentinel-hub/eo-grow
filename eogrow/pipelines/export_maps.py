@@ -40,7 +40,7 @@ class ExportMapsPipeline(Pipeline):
         )
 
         feature: Feature
-        map_name: str = Field(regex=r".+\.tiff?\b")  # noqa
+        map_name: Optional[str] = Field(regex=r".+\.tiff?\b")  # noqa
         map_dtype: Literal["int8", "int16", "uint8", "uint16", "float32"]
         no_data_value: int = Field(0, description="No data value to be passed to GeoTIFFs")
         scale_factor: Optional[float] = Field(description="Feature will be multiplied by this value at export")
@@ -67,7 +67,7 @@ class ExportMapsPipeline(Pipeline):
         successful, failed = super().run_procedure()
 
         _, feature_name = self.config.feature
-        self.create_maps(feature_name, self.config.map_name, successful)
+        self.create_maps(feature_name, successful)
 
         return successful, failed
 
@@ -84,7 +84,7 @@ class ExportMapsPipeline(Pipeline):
             rescale_task = LinearFunctionTask(self.config.feature, slope=self.config.scale_factor)
             task_list.append(rescale_task)
 
-        feature_name = self.config.feature[1]
+        _, feature_name = self.config.feature
         folder = fs.path.join(self.storage.get_folder(self.config.output_folder_key), feature_name)
         export_to_tiff_task = ExportToTiffTask(
             self.config.feature,
@@ -98,21 +98,21 @@ class ExportMapsPipeline(Pipeline):
 
         return EOWorkflow(linearly_connect_tasks(*task_list))
 
-    def create_maps(self, feature_name: str, map_name: str, patch_names: List[str], utm_split: bool = True) -> None:
+    def create_maps(self, feature_name: str, patch_names: List[str]) -> None:
         """A method which creates a joined GeoTIFF maps from a list of exported GeoTIFFs"""
         if not patch_names:
             raise ValueError("Cannot create map with an empty list of EOPatch names")
 
         folder = fs.path.join(self.storage.get_folder(self.config.output_folder_key), feature_name)
 
-        if utm_split:  # TODO: this can be parallelized but _create_single_map would have to become static
-            crs_eopatch_dict = self.eopatch_manager.split_by_utm(patch_names)
+        crs_eopatch_dict = self.eopatch_manager.split_by_utm(patch_names)
 
-            for crs, eopatch_list in crs_eopatch_dict.items():
-                utm_map_name = f"utm{crs.epsg}_{map_name}"
-                self._create_single_map(folder, eopatch_list, utm_map_name)
-        else:
-            self._create_single_map(folder, patch_names, map_name)
+        for crs, eopatch_list in crs_eopatch_dict.items():
+            subfolder_path = f"UTM_{crs.epsg}"
+            map_name = self.config.map_name or f"{feature_name}.tiff"
+
+            self.storage.filesystem.makedirs(fs.path.join(folder, subfolder_path), recreate=True)
+            self._create_single_map(folder, eopatch_list, fs.path.join(subfolder_path, map_name))
 
     def _create_single_map(self, folder: str, eopatch_list: List[str], map_name: str) -> None:
         """Creates a single map"""
@@ -169,9 +169,9 @@ class ExportMapsPipeline(Pipeline):
     def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, object]]]:
         exec_args = super().get_execution_arguments(workflow)
         nodes = workflow.get_nodes()
-        for name, single_exec_dict in zip(self.patch_list, exec_args):
-            for node in nodes:
-                if isinstance(node.task, ExportToTiffTask):
+        for node in nodes:
+            if isinstance(node.task, ExportToTiffTask):
+                for name, single_exec_dict in zip(self.patch_list, exec_args):
                     single_exec_dict[node] = dict(filename=self.get_geotiff_name(name))
 
         return exec_args
