@@ -1,3 +1,6 @@
+"""
+Defines pipelines for ingesting and modifying BYOC collections.
+"""
 import datetime
 import logging
 from collections import defaultdict
@@ -32,7 +35,7 @@ class IngestByocTilesPipeline(Pipeline):
 
     class Schema(Pipeline.Schema):
         byoc_tile_folder_key: str
-        file_glob_pattern: str = Field("**/*.tif?", description="Pattern used for obtaining the TIFF files to use")
+        file_glob_pattern: str = Field("**/UTM_*/*.tiff", description="Pattern used to obtain the TIFF files to use")
 
         new_collection_name: Optional[str] = Field(description="Used for defining a new BYOC collection.")
         existing_collection: Optional[DataCollection] = Field(description="Used when updating and reingesting.")
@@ -49,6 +52,8 @@ class IngestByocTilesPipeline(Pipeline):
         cover_geometry: Optional[str] = Field(description="Specifies a geometry file describing the cover geometry.")
         _ensure_cover_geometry = ensure_defined_together("cover_geometry_folder_key", "cover_geometry")
 
+        reingest_existing: bool = Field(False, description="Whether to reingest or skip already ingested tiles.")
+
     config: Schema
 
     def __init__(self, config: Schema, raw_config: Optional[RawConfig] = None):
@@ -61,13 +66,11 @@ class IngestByocTilesPipeline(Pipeline):
 
     def get_byoc_collection(self, byoc_client: SentinelHubBYOC) -> JsonDict:
         """Obtains information about the existing collection or creates a new one."""
-        if self.config.new_collection_name is not None:
-            collection_spec = ByocCollection(
-                self.config.new_collection_name,
-                s3_bucket=self.bucket_name,
-            )
+        if self.config.new_collection_name:
+            collection_spec = ByocCollection(self.config.new_collection_name, s3_bucket=self.bucket_name)
             LOGGER.info("Creating new collection.")
             response = byoc_client.create_collection(collection_spec)
+            LOGGER.info("Collection %s created.", response["id"])
         else:
             existing_collection = cast(DataCollection, self.config.existing_collection)  # due to validation
             LOGGER.info("Obtaining full information for collection id %s.", existing_collection.collection_id)
@@ -88,10 +91,7 @@ class IngestByocTilesPipeline(Pipeline):
         return dict(folder_to_filename_map)
 
     def _get_tiff_paths(self) -> List[str]:
-        """Collects the paths to .tiff files that are to be ingested.
-
-        Paths are relative to bucket, not project.
-        """
+        """Collects the paths to .tiff files to ingest. Paths are relative to bucket, not project."""
         folder = self.storage.get_folder(key=self.config.byoc_tile_folder_key)
         filesystem = self.storage.filesystem
         return [
@@ -100,15 +100,30 @@ class IngestByocTilesPipeline(Pipeline):
         ]
 
     def _get_byoc_compliant_path(self, relative_path: str) -> str:
+        """Transforms a project relative path to a bucket-name relative path that is required by BYOC."""
         absolute_path = fs.path.combine(self.config.storage.project_folder, relative_path)  # type: ignore[attr-defined]
         return absolute_path[6 + len(self.bucket_name) :]  # removes s3://<bucket-name>/
 
     def _prepare_tile(self, folder: str, tiff_paths: List[str]) -> ByocTile:
+        """Collects all required metainfo to create a BYOC tile for the given folder."""
         some_tiff = fs.path.join(folder, tiff_paths[0])
         cover_geometry = self._get_tile_cover_geometry(some_tiff)
         return ByocTile(folder, cover_geometry=cover_geometry, sensing_time=self.config.sensing_time)
 
+    def _get_tile_cover_geometry(self, tiff_path: str) -> Geometry:
+        """Get geometry of the tile by intersecting the tiff geometry with the general cover geometry."""
+        full_path = f"s3://{self.bucket_name}/" + tiff_path
+        with rasterio.open(full_path) as tiff_data:
+            tiff_bounds = tiff_data.bounds
+            tiff_crs = CRS(tiff_data.crs.to_epsg())
+        tiff_poly = BBox([tiff_bounds.left, tiff_bounds.bottom, tiff_bounds.right, tiff_bounds.top], tiff_crs).geometry
+
+        cover_poly = self._get_cover_geometry(pyproj.CRS(tiff_crs.value))
+        final_poly = tiff_poly.intersection(cover_poly) if cover_poly else tiff_poly
+        return Geometry(final_poly, crs=tiff_crs)
+
     def _get_cover_geometry(self, crs: pyproj.CRS) -> Optional[Geometry]:
+        """Lazy-loads the cover geometry of whole area, reprojecting (and combining) in desired CRS on call."""
         if self.config.cover_geometry is None or self.config.cover_geometry_folder_key is None:
             return None
 
@@ -120,36 +135,31 @@ class IngestByocTilesPipeline(Pipeline):
 
         return self._cover_geometry_df.to_crs(crs).unary_union
 
-    def _get_tile_cover_geometry(self, tiff_path: str) -> Geometry:
-        full_path = f"s3://{self.bucket_name}/" + tiff_path
-        with rasterio.open(full_path) as tiff_data:
-            tiff_bounds = tiff_data.bounds
-            tiff_crs = CRS(tiff_data.crs.to_epsg())
-        tiff_poly = BBox([tiff_bounds.left, tiff_bounds.bottom, tiff_bounds.right, tiff_bounds.top], tiff_crs).geometry
-
-        cover_poly = self._get_cover_geometry(pyproj.CRS(tiff_crs.value))
-        final_poly = tiff_poly.intersection(cover_poly) if cover_poly else tiff_poly
-        return Geometry(final_poly, crs=tiff_crs)
-
-
     def run_procedure(self) -> Tuple[List[str], List[str]]:
+        """Runs the procedure.
+
+        1. Creates or loads the collection,
+        2. Checks existing tiles,
+        3. Creates new tiles and skips/reingests existing ones.
+        """
         byoc_client = SentinelHubBYOC(config=self.storage.sh_config)
         byoc_collection = self.get_byoc_collection(byoc_client)
 
-        finished, failed = [], []
+        existing_tiles = {fs.path.dirname(tile["path"]): tile["id"] for tile in byoc_client.iter_tiles(byoc_collection)}
+
         for tile_folder, tiff_paths in self.get_tile_paths().items():
-            tile = self._prepare_tile(tile_folder, tiff_paths)
-            response = byoc_client.create_tile(byoc_collection, tile)
-            if "id" in response:
-                finished.append({"tile_id": response["id"], "tile_folder": tile_folder})
+            if tile_folder in existing_tiles:
+                # reingest or skip existing
+                if self.config.reingest_existing:
+                    response = byoc_client.reingest_tile(byoc_collection, existing_tiles[tile_folder])
+                    LOGGER.info(f"Reingested tile for {tile_folder}{f'with response: {response}' if response else ''}.")
+                else:
+                    LOGGER.info(f"Tile {tile_folder} already exists, skipping.")
             else:
-                failed.append({"tile_path": tile_folder, "error": response})
+                tile = self._prepare_tile(tile_folder, tiff_paths)
+                response = byoc_client.create_tile(byoc_collection, tile)
+                if "errors" in response:
+                    LOGGER.info(f"Creation of tile {tile_folder} failed with response: {response}.")
+                LOGGER.info(f"Created tile for {tile_folder}.")
 
-        self.log_results(finished, failed)
-        # The returned finished/failed values are passed through an eopatch-name parsing, so it's not suitable for us
         return [], []
-
-    def log_results(self, finished: List[dict], failed: List[dict]) -> None:
-        LOGGER.info("Successfully created %d / %d tiles.", len(finished), len(finished) + len(failed))
-        for fail in failed:
-            LOGGER.info("Ingestion of %s failed with response %s.", fail["tile_path"], fail["error"])
