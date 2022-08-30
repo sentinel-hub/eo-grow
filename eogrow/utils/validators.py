@@ -71,7 +71,7 @@ def ensure_exactly_one_defined(param1: str, param2: str, allow_reuse: bool = Tru
 
 
 def ensure_defined_together(param1: str, param2: str, allow_reuse: bool = True, **kwargs: Any) -> classmethod:
-    """A root validator that makes sure that the two parameters are either both (un)defined."""
+    """A root validator that makes sure that the two parameters are both (un)defined."""
 
     def ensure_exclusion(cls: type, values: RawSchemaDict) -> RawSchemaDict:
         is_param1_defined = values.get(param1) is None

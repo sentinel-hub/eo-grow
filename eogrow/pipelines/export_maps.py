@@ -107,6 +107,7 @@ class ExportMapsPipeline(Pipeline):
 
         crs_eopatch_dict = self.eopatch_manager.split_by_utm(patch_names)
 
+        # TODO: This could be parallelized per-crs
         for crs, eopatch_list in crs_eopatch_dict.items():
             subfolder = f"UTM_{crs.epsg}"
             map_name = self.config.map_name or f"{feature_name}.tiff"

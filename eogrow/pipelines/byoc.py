@@ -104,10 +104,12 @@ class IngestByocTilesPipeline(Pipeline):
         absolute_path = fs.path.combine(self.config.storage.project_folder, relative_path)  # type: ignore[attr-defined]
         return absolute_path[6 + len(self.bucket_name) :]  # removes s3://<bucket-name>/
 
-    def _prepare_tile(self, folder: str, tiff_paths: List[str]) -> ByocTile:
+    def _prepare_tile(self, folder: str, tiff_paths: List[str]) -> Optional[ByocTile]:
         """Collects all required metainfo to create a BYOC tile for the given folder."""
         some_tiff = fs.path.join(folder, tiff_paths[0])
         cover_geometry = self._get_tile_cover_geometry(some_tiff)
+        if cover_geometry.geometry.is_empty:
+            return None
         return ByocTile(folder, cover_geometry=cover_geometry, sensing_time=self.config.sensing_time)
 
     def _get_tile_cover_geometry(self, tiff_path: str) -> Geometry:
@@ -157,6 +159,9 @@ class IngestByocTilesPipeline(Pipeline):
                     LOGGER.info(f"Tile {tile_folder} already exists, skipping.")
             else:
                 tile = self._prepare_tile(tile_folder, tiff_paths)
+                if tile is None:
+                    LOGGER.info(f"Intersection of tile {tile_folder} with cover geometry is empty, skipping.")
+                    continue
                 response = byoc_client.create_tile(byoc_collection, tile)
                 if "errors" in response:
                     LOGGER.info(f"Creation of tile {tile_folder} failed with response: {response}.")
