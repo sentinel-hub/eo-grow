@@ -92,7 +92,7 @@ def merge_maps(
     input_filename_list: List[str],
     merged_filename: str,
     *,
-    blocksize: int = 2048,
+    blocksize: int = 1024,
     nodata: Optional[float] = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
     cogify: bool = False,

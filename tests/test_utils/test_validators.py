@@ -15,6 +15,7 @@ from sentinelhub.data_collections_bands import Band, MetaBands, Unit
 from eogrow.core.schemas import BaseSchema, ManagerSchema
 from eogrow.utils.types import RawSchemaDict
 from eogrow.utils.validators import (
+    ensure_defined_together,
     ensure_exactly_one_defined,
     field_validator,
     optional_field_validator,
@@ -92,8 +93,8 @@ def test_ensure_exactly_one_defined():
         param2: Optional[float]
         _check_params = ensure_exactly_one_defined("param1", "param2")
 
-    DummySchema(param1=0)
-    DummySchema(param2=0)
+    assert DummySchema(param1=0).param1 == 0
+    assert DummySchema(param2=2.5).param2 == 2.5
     with pytest.raises(ValidationError):
         DummySchema()
     with pytest.raises(ValidationError):
@@ -104,10 +105,39 @@ def test_ensure_exactly_one_defined():
         param2: Optional[float]
         _check_params = ensure_exactly_one_defined("param1", "param2")
 
-    DummySchema2()
+    assert DummySchema2().param1 == 2
     with pytest.raises(ValidationError):
         DummySchema2(param2=0)
-    DummySchema2(param1=None, param2="3")
+    assert DummySchema2(param1=None, param2="3").param2 == 3
+
+
+def test_ensure_defined_together():
+    class DummySchema(BaseSchema):
+        param1: Optional[int]
+        param2: Optional[float]
+        _check_params = ensure_defined_together("param1", "param2")
+
+    schema1 = DummySchema()
+    assert schema1.param1 is None and schema1.param2 is None
+    schema2 = DummySchema(param1=2, param2=7.8)
+    assert schema2.param1 == 2 and schema2.param2 == 7.8
+    with pytest.raises(ValidationError):
+        DummySchema()
+        DummySchema(param1=0)
+    with pytest.raises(ValidationError):
+        DummySchema(param2=2.5)
+
+    class DummySchema2(BaseSchema):
+        param1: Optional[int] = 2
+        param2: Optional[float]
+        _check_params = ensure_defined_together("param1", "param2")
+
+    schema3 = DummySchema2(param2="0.87")
+    assert schema3.param1 == 2 and schema3.param2 == 0.87
+    schema4 = DummySchema2(param1=None)
+    assert schema4.param1 is None and schema4.param2 is None
+    with pytest.raises(ValidationError):
+        DummySchema2()
 
 
 @pytest.mark.parametrize(
