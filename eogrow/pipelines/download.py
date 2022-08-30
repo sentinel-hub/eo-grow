@@ -9,7 +9,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import ray
-from pydantic import Field, root_validator
+from pydantic import Field
 
 from eolearn.core import EONode, EOWorkflow, FeatureType, OverwritePermission, SaveTask
 from eolearn.features import LinearFunctionTask
@@ -29,8 +29,9 @@ from sentinelhub.download import SessionSharing, collect_shared_session
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec, Path, ProcessingType, RawSchemaDict, TimePeriod
+from ..utils.types import Feature, FeatureSpec, Path, ProcessingType, TimePeriod
 from ..utils.validators import (
+    ensure_exactly_one_defined,
     field_validator,
     optional_field_validator,
     parse_data_collection,
@@ -194,7 +195,12 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
 
 
 class CommonDownloadFields(BaseSchema):
-    data_collection: DataCollection = Field(description="Data collection from which data will be downloaded.")
+    data_collection: DataCollection = Field(
+        description=(
+            "Data collection from which data will be downloaded. See `utils.validators.parse_data_collection` for more"
+            " info on input options."
+        )
+    )
     _validate_data_collection = field_validator("data_collection", parse_data_collection, pre=True)
 
     resolution: Optional[float] = Field(
@@ -216,17 +222,7 @@ class CommonDownloadFields(BaseSchema):
         description="A type of downsampling and upsampling used by Sentinel Hub service. Default is NEAREST"
     )
 
-    @root_validator
-    def check_resolution_and_size(cls, values: RawSchemaDict) -> RawSchemaDict:
-        """Check that exactly one of the parameters resolution and size is defined."""
-        is_resolution_defined = values.get("resolution") is not None
-        is_size_defined = values.get("size") is not None
-
-        assert (
-            is_resolution_defined != is_size_defined
-        ), "Exactly one of the parameters resolution and size has to be given."
-
-        return values
+    _check_resolution_and_size = ensure_exactly_one_defined("resolution", "size")
 
 
 class TimeDependantFields(BaseSchema):
@@ -359,5 +355,5 @@ class DownloadTimelessPipeline(BaseDownloadPipeline):
 
 def _get_aux_request_args(resampling: Optional[ResamplingType]) -> Optional[dict]:
     if resampling is not None:
-        return {"processing": {"downsampling": resampling, "upsampling": resampling}}
+        return {"processing": {"downsampling": resampling.value, "upsampling": resampling.value}}
     return None

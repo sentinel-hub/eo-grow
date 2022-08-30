@@ -2,7 +2,19 @@
   "pipeline": "eogrow.pipelines.download.DownloadPipeline",
   "**global_config": "${config_path}/../global_config.json",
   "output_folder_key": "temp",
-  "data_collection": "SENTINEL2_L1C",
+  "data_collection": {
+    "name": "SENTINEL2_L1C_CUSTOM",
+    "api_id": "sentinel-2-l1c",
+    "catalog_id": "sentinel-2-l1c",
+    "service_url": "https://services.sentinel-hub.com",
+    "collection_type": "Sentinel-2",
+    "bands": "SENTINEL2_L1C",
+    "metabands": [
+      {"name": "CLM", "units": ["DN"], "output_types": ["uint8"]},
+      {"name": "dataMask", "units": ["DN"], "output_types": ["bool"]}
+    ],
+    "has_cloud_coverage": true
+  },
   "time_period": ["season", 2018],
   "bands_feature_name": "BANDS-S2-L1C",
   "resolution": 10,

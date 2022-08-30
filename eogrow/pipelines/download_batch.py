@@ -34,7 +34,12 @@ LOGGER = logging.getLogger(__name__)
 class InputDataSchema(BaseSchema):
     """Parameter structure for a single data collection used in a batch request."""
 
-    data_collection: DataCollection = Field(description="Data collection from which data will be downloaded.")
+    data_collection: DataCollection = Field(
+        description=(
+            "Data collection from which data will be downloaded. See `utils.validators.parse_data_collection` for more"
+            " info on input options."
+        )
+    )
     _validate_data_collection = field_validator("data_collection", parse_data_collection, pre=True)
 
     time_period: Optional[TimePeriod]
@@ -73,7 +78,7 @@ class BatchDownloadPipeline(Pipeline):
         batch_output_kwargs: dict = Field(
             default_factory=dict,
             description=(
-                "Any other arguments to be added to a dictionary of parameters. Passed as **kwargs to the `output`"
+                "Any other arguments to be added to a dictionary of parameters. Passed as `**kwargs` to the `output`"
                 " method of `SentinelHubBatch` during the creation process."
             ),
         )

@@ -10,5 +10,6 @@
   "time_difference": 120,
   "additional_data": [["mask",  "CLM"], ["mask",  "dataMask"]],
   "workers": 2,
-  "threads_per_worker": null
+  "threads_per_worker": null,
+  "resampling_type": "nearest"
 }

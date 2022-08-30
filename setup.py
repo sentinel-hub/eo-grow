@@ -1,9 +1,10 @@
 import os
+from typing import List
 
 from setuptools import find_packages, setup
 
 
-def get_long_description():
+def get_long_description() -> str:
     this_directory = os.path.abspath(os.path.dirname(__file__))
 
     with open(os.path.join(this_directory, "README.md"), encoding="utf-8") as f:
@@ -13,21 +14,17 @@ def get_long_description():
     return "\n".join(line for line in long_description.split("\n") if not line.strip().startswith("!["))
 
 
-def parse_requirements(file):
-    required_packages = []
-    with open(os.path.join(os.path.dirname(__file__), file)) as req_file:
-        for line in req_file:
-            if "/" not in line:
-                required_packages.append(line.strip())
-    return required_packages
+def parse_requirements(filename: str) -> List[str]:
+    with open(os.path.join(os.path.dirname(__file__), filename)) as req_file:
+        return list(req_file)
 
 
-def get_version():
+def get_version() -> str:
     for line in open(os.path.join(os.path.dirname(__file__), "eogrow", "__init__.py")):
         if line.find("__version__") >= 0:
             version = line.split("=")[1].strip()
-            version = version.strip('"').strip("'")
-    return version
+            return version.strip('"').strip("'")
+    raise ValueError("Package version not found")
 
 
 setup(
@@ -38,6 +35,12 @@ setup(
     long_description=get_long_description(),
     long_description_content_type="text/markdown",
     url="https://github.com/sentinel-hub/eo-grow",
+    project_urls={
+        "Documentation": "https://eo-grow.readthedocs.io",
+        "Source Code": "https://github.com/sentinel-hub/eo-grow",
+        "Bug Tracker": "https://github.com/sentinel-hub/eo-grow/issues",
+        "Forum": "https://forum.sentinel-hub.com",
+    },
     author="Sinergise EO research team",
     author_email="eoresearch@sinergise.com",
     license="MIT",
