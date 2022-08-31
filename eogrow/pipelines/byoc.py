@@ -8,7 +8,6 @@ from typing import Dict, List, Optional, Tuple, cast
 
 import fs
 import geopandas as gpd
-import pyproj
 import rasterio
 from pydantic import Field, validator
 
@@ -120,11 +119,11 @@ class IngestByocTilesPipeline(Pipeline):
             tiff_crs = CRS(tiff_data.crs.to_epsg())
         tiff_poly = BBox([tiff_bounds.left, tiff_bounds.bottom, tiff_bounds.right, tiff_bounds.top], tiff_crs).geometry
 
-        cover_poly = self._get_cover_geometry(pyproj.CRS(tiff_crs.value))
+        cover_poly = self._get_cover_geometry(tiff_crs)
         final_poly = tiff_poly.intersection(cover_poly) if cover_poly else tiff_poly
         return Geometry(final_poly, crs=tiff_crs)
 
-    def _get_cover_geometry(self, crs: pyproj.CRS) -> Optional[Geometry]:
+    def _get_cover_geometry(self, crs: CRS) -> Optional[Geometry]:
         """Lazy-loads the cover geometry of whole area, reprojecting (and combining) in desired CRS on call."""
         if self.config.cover_geometry is None or self.config.cover_geometry_folder_key is None:
             return None
@@ -135,7 +134,7 @@ class IngestByocTilesPipeline(Pipeline):
             with self.storage.filesystem.openbin(file_path, "r") as file_handle:
                 self._cover_geometry_df = gpd.read_file(file_handle)
 
-        return self._cover_geometry_df.to_crs(crs).unary_union
+        return self._cover_geometry_df.to_crs(crs.pyproj_crs()).unary_union
 
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         """Runs the procedure.
