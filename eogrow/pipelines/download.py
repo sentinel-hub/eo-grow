@@ -68,7 +68,7 @@ class RescaleSchema(BaseSchema):
 
 class PostprocessingRescale(BaseSchema):
     rescale_schemas: List[RescaleSchema] = Field(
-        default_factory=List[RescaleSchema], description="Specify different ways to rescale features"
+        default_factory=list_factory, description="Specify different ways to rescale features"
     )
 
 

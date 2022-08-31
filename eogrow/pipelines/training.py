@@ -24,7 +24,7 @@ from sklearn.preprocessing import LabelEncoder
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
-from ..utils.validators import dict_factory
+from ..utils.validators import dict_factory, list_factory
 
 LOGGER = logging.getLogger(__name__)
 
@@ -184,7 +184,7 @@ class ClassificationPreprocessSchema(BaseSchema):
     )
 
     filter_classes: List[int] = Field(
-        default_factory=List[int],
+        default_factory=list_factory,
         description=(
             "Specify IDs of classes that are going to be used for training. If empty, all the classes will be used."
         ),
