@@ -3,7 +3,7 @@ Module defining common validators for schemas and validator wrappers
 """
 import datetime as dt
 import inspect
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 from pydantic import BaseModel, Field, root_validator, validator
@@ -16,6 +16,16 @@ from .types import RawSchemaDict, S3Path, TimePeriod
 
 if TYPE_CHECKING:
     from ..core.schemas import ManagerSchema
+
+
+def list_factory() -> List[Any]:
+    """Required due to changes in pydantic mypy-plugin. Hopefully can be replaced by `list` in future."""
+    return []
+
+
+def dict_factory() -> Dict[Any, Any]:
+    """Required due to changes in pydantic mypy-plugin. Hopefully can be replaced by `dict` in future."""
+    return {}
 
 
 def field_validator(field: str, validator_fun: Callable, allow_reuse: bool = True, **kwargs: Any) -> classmethod:
