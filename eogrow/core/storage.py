@@ -12,6 +12,7 @@ from eolearn.core.utils.fs import get_aws_credentials, get_filesystem, is_s3_pat
 from sentinelhub import SHConfig
 
 from ..utils.types import AwsAclType
+from ..utils.validators import dict_factory
 from .base import EOGrowObject
 from .schemas import ManagerSchema
 
@@ -40,7 +41,7 @@ class StorageManager(EOGrowObject):
             )
         )
         structure: Dict[str, str] = Field(
-            default_factory=Dict[str, str],
+            default_factory=dict_factory,
             description="A flat key: value store mapping each key to a path in the project.",
         )
 

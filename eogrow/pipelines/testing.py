@@ -14,7 +14,7 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.testing import DummyRasterFeatureTask, DummyTimestampFeatureTask
 from ..utils.types import Feature, TimePeriod
-from ..utils.validators import field_validator, parse_dtype, parse_time_period
+from ..utils.validators import field_validator, list_factory, parse_dtype, parse_time_period
 
 Self = TypeVar("Self", bound="TestPipeline")
 LOGGER = logging.getLogger(__name__)
@@ -93,7 +93,7 @@ class DummyDataPipeline(Pipeline):
         seed: Optional[int] = Field(description="A randomness seed.")
 
         raster_features: List[RasterFeatureSchema] = Field(
-            default_factory=List[RasterFeatureSchema], description="A list of raster features to be generated."
+            default_factory=list_factory, description="A list of raster features to be generated."
         )
         timestamp_feature: Optional[TimestampFeatureSchema]
 
