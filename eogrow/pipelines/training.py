@@ -59,7 +59,7 @@ class BaseTrainingPipeline(Pipeline, metaclass=abc.ABCMeta):
         train_test_split: RandomTrainTestSplitSchema
 
         model_parameters: Dict[str, Any] = Field(
-            default_factory=dict, description="Parameters to be provided to the model"
+            default_factory=Dict[str, Any], description="Parameters to be provided to the model"
         )
         model_filename: str
         patch_list: None = None
@@ -183,7 +183,7 @@ class ClassificationPreprocessSchema(BaseSchema):
     )
 
     filter_classes: List[int] = Field(
-        default_factory=list,
+        default_factory=List[int],
         description=(
             "Specify IDs of classes that are going to be used for training. If empty, all the classes will be used."
         ),

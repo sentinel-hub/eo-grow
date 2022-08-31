@@ -71,7 +71,7 @@ class BatchDownloadPipeline(Pipeline):
         inputs: List[InputDataSchema]
         evalscript_path: Path
 
-        tiff_outputs: List[str] = Field(default_factory=list, description="Names of TIFF outputs of a batch job")
+        tiff_outputs: List[str] = Field(default_factory=List[str], description="Names of TIFF outputs of a batch job")
         save_userdata: bool = Field(
             False, description="A flag indicating if userdata.json should also be one of the results of the batch job."
         )

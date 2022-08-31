@@ -93,7 +93,7 @@ class DummyDataPipeline(Pipeline):
         seed: Optional[int] = Field(description="A randomness seed.")
 
         raster_features: List[RasterFeatureSchema] = Field(
-            default_factory=list, description="A list of raster features to be generated."
+            default_factory=List[RasterFeatureSchema], description="A list of raster features to be generated."
         )
         timestamp_feature: Optional[TimestampFeatureSchema]
 

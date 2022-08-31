@@ -40,7 +40,8 @@ class StorageManager(EOGrowObject):
             )
         )
         structure: Dict[str, str] = Field(
-            default_factory=dict, description="A flat key: value store mapping each key to a path in the project."
+            default_factory=Dict[str, str],
+            description="A flat key: value store mapping each key to a path in the project.",
         )
 
         class Config(ManagerSchema.Config):

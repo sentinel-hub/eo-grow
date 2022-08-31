@@ -63,7 +63,7 @@ class FeaturesPipeline(Pipeline):
         data_preparation: ValidityFiltering
 
         ndis: Dict[str, Tuple[int, int]] = Field(
-            default_factory=dict,
+            default_factory=Dict[str, Tuple[int, int]],
             description=(
                 "A dictionary of kind `{feature_name: (id1, id2)}` that specifies how to calculate the NDIs of bands "
                 "(with indices `id1` and `id2` in the bands feature) and save it under `feature_name`."
@@ -191,7 +191,9 @@ class InterpolationFeaturesPipeline(FeaturesPipeline):
 
     class Schema(FeaturesPipeline.Schema):
         interpolation: Optional[InterpolationSpecifications] = Field(
-            "Fine-tuning of interpolation parameters. If not set, the interpolation will work on current timestamps"
+            description=(
+                "Fine-tuning of interpolation parameters. If not set, the interpolation will work on current timestamps"
+            )
         )
 
     config: Schema
@@ -233,7 +235,9 @@ class MosaickingFeaturesPipeline(FeaturesPipeline):
 
     class Schema(FeaturesPipeline.Schema):
         mosaicking: MosaickingSpecifications = Field(
-            "Fine-tuning of mosaicking parameters. If not set, the interpolation will work on current timestamps"
+            description=(
+                "Fine-tuning of mosaicking parameters. If not set, the interpolation will work on current timestamps"
+            )
         )
 
     config: Schema

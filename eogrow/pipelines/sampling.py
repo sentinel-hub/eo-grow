@@ -201,7 +201,7 @@ class FractionSamplingPipeline(BaseRandomSamplingPipeline):
                 "feature."
             )
         )
-        exclude_values: List[int] = Field(default_factory=list, description="Values to be excluded from sampling")
+        exclude_values: List[int] = Field(default_factory=List[int], description="Values to be excluded from sampling")
 
     config: Schema
 
