@@ -28,7 +28,7 @@ class ValidDataFractionPredicate:
 
     def __call__(self, array: np.ndarray) -> bool:
         coverage = np.sum(array.astype(np.uint8)) / np.prod(array.shape)
-        return coverage > self.validity_threshold
+        return bool(coverage > self.validity_threshold)  # numpy return np.bool_ by default
 
 
 class MaxNDVI(MapFeatureTask):
