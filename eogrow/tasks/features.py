@@ -4,7 +4,6 @@ Definition of tasks needed for calculating features
 import abc
 from datetime import date, datetime, time, timedelta
 from typing import List, Optional, Sequence, Tuple, Union
-from typing_extensions import reveal_type
 
 import numpy as np
 
