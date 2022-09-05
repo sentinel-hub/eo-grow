@@ -4,6 +4,7 @@ Definition of tasks needed for calculating features
 import abc
 from datetime import date, datetime, time, timedelta
 from typing import List, Optional, Sequence, Tuple, Union
+from typing_extensions import reveal_type
 
 import numpy as np
 
@@ -26,7 +27,7 @@ class ValidDataFractionPredicate:
     def __init__(self, validity_threshold: float):
         self.validity_threshold = validity_threshold
 
-    def __call__(self, array: np.ndarray) -> np.ndarray:
+    def __call__(self, array: np.ndarray) -> bool:
         coverage = np.sum(array.astype(np.uint8)) / np.prod(array.shape)
         return coverage > self.validity_threshold
 
