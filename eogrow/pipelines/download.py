@@ -33,7 +33,6 @@ from ..utils.types import Feature, FeatureSpec, Path, ProcessingType, TimePeriod
 from ..utils.validators import (
     ensure_exactly_one_defined,
     field_validator,
-    list_factory,
     optional_field_validator,
     parse_data_collection,
     parse_dtype,
@@ -68,7 +67,7 @@ class RescaleSchema(BaseSchema):
 
 class PostprocessingRescale(BaseSchema):
     rescale_schemas: List[RescaleSchema] = Field(
-        default_factory=list_factory, description="Specify different ways to rescale features"
+        default_factory=list, description="Specify different ways to rescale features"
     )
 
 
@@ -243,7 +242,7 @@ class DownloadPipeline(BaseDownloadPipeline):
     class Schema(BaseDownloadPipeline.Schema, CommonDownloadFields, TimeDependantFields):
         bands_feature_name: str = Field(description="Name of a feature in which bands will be saved")
         bands: Optional[List[str]] = Field(description="Names of bands to download")
-        additional_data: List[Feature] = Field(default_factory=list_factory, description="Additional data to download")
+        additional_data: List[Feature] = Field(default_factory=list, description="Additional data to download")
         use_dn: bool = Field(
             False, description="Whether to save bands as float32 reflectance (default), or int16 digital numbers."
         )

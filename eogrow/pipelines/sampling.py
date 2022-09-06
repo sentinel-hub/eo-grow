@@ -17,7 +17,6 @@ from ..core.pipeline import Pipeline
 from ..tasks.common import ClassFilterTask
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.types import Feature, FeatureSpec
-from ..utils.validators import list_factory
 
 
 class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
@@ -202,9 +201,7 @@ class FractionSamplingPipeline(BaseRandomSamplingPipeline):
                 "feature."
             )
         )
-        exclude_values: List[int] = Field(
-            default_factory=list_factory, description="Values to be excluded from sampling"
-        )
+        exclude_values: List[int] = Field(default_factory=list, description="Values to be excluded from sampling")
 
     config: Schema
 
