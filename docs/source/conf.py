@@ -70,7 +70,7 @@ autodoc_pydantic_settings_show_config = False
 autodoc_pydantic_settings_show_config_summary = False
 autodoc_pydantic_settings_show_validator_summary = False
 
-# Incude typehints in descriptions
+# Include typehints in descriptions
 autodoc_typehints = "description"
 
 # Both the class’ and the __init__ method’s docstring are concatenated and inserted.
