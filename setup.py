@@ -20,7 +20,7 @@ def parse_requirements(filename: str) -> List[str]:
 
 
 def get_version() -> str:
-    path = os.path.join(os.path.dirname(__file__), "sentinelhub", "_version.py")
+    path = os.path.join(os.path.dirname(__file__), "eogrow", "__init__.py")
     with open(path) as version_file:
         for line in version_file:
             if line.find("__version__") >= 0:
