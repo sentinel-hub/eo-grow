@@ -6,7 +6,7 @@ repos:
       - id: requirements-txt-fixer
       - id: trailing-whitespace
       - id: debug-statements
-      - id: check-json
+      # - id: check-json  # does not agree with comments in JSONs :(
       - id: check-toml
       - id: check-yaml
       - id: check-merge-conflict

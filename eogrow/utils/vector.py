@@ -27,7 +27,7 @@ def concat_gdf(dataframe_list: List[GeoDataFrame], reproject_crs: Union[CRS, int
         crs = CRS(reproject_crs).pyproj_crs()
         dataframe_list = [gdf.to_crs(crs) for gdf in dataframe_list]
     else:
-        unique_crs = set(vector_gdf.crs for vector_gdf in dataframe_list)
+        unique_crs = {vector_gdf.crs for vector_gdf in dataframe_list}
         if len(unique_crs) > 1:
             raise ValueError("GeoDataFrames are in different CRS, therefore reproject_crs parameter should be given")
 

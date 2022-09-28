@@ -154,7 +154,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
         return output_features
 
 
-class BaseRandomSamplingPipeline(BaseSamplingPipeline, metaclass=abc.ABCMeta):
+class BaseRandomSamplingPipeline(BaseSamplingPipeline, metaclass=abc.ABCMeta):  # noqa B024
     """A base class for all sampling pipeline that work on random selection of samples"""
 
     class Schema(BaseSamplingPipeline.Schema):

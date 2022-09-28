@@ -30,10 +30,11 @@ doc_title = "eo-grow Documentation"
 # built documents.
 #
 # The release is read from __init__ file and version is shortened release string.
-for line in open(os.path.join(os.path.dirname(__file__), "../../eogrow/__init__.py")):
-    if line.find("__version__") >= 0:
-        release = line.split("=")[1].strip()
-        release = release.strip('"').strip("'")
+with open(os.path.join(os.path.dirname(__file__), "../../eogrow/__init__.py")) as init_file:
+    for line in init_file:
+        if line.find("__version__") >= 0:
+            release = line.split("=")[1].strip()
+            release = release.strip('"').strip("'")
 version = release.rsplit(".", 1)[0]
 
 # -- General configuration ------------------------------------------------

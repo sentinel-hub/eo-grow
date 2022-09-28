@@ -20,10 +20,12 @@ def parse_requirements(filename: str) -> List[str]:
 
 
 def get_version() -> str:
-    for line in open(os.path.join(os.path.dirname(__file__), "eogrow", "__init__.py")):
-        if line.find("__version__") >= 0:
-            version = line.split("=")[1].strip()
-            return version.strip('"').strip("'")
+    path = os.path.join(os.path.dirname(__file__), "sentinelhub", "_version.py")
+    with open(path) as version_file:
+        for line in version_file:
+            if line.find("__version__") >= 0:
+                version = line.split("=")[1].strip()
+                return version.strip('"').strip("'")
     raise ValueError("Package version not found")
 
 
