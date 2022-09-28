@@ -1,6 +1,7 @@
 """
 Area managers for Sentinel Hub batch grids
 """
+import contextlib
 import warnings
 from typing import Any, List, Tuple, cast
 
@@ -182,10 +183,8 @@ class BatchAreaManager(AreaManager):
         """First, it tries to obtain a target grid from target area manager. That would work if the grid is already
         cached or if target area manager is able to generate it. If not, then it creates the target grid from the
         given source grid."""
-        try:
+        with contextlib.suppress(MissingBatchIdError):
             return target_area_manager.get_grid(add_bbox_column=True)
-        except MissingBatchIdError:
-            pass
 
         basic_grid = self._join_batch_grid(source_grid, self.subsplit, self.absolute_buffer)
         target_grid = self._split_batch_grid(

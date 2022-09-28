@@ -190,7 +190,7 @@ class ClassificationPreprocessSchema(BaseSchema):
     )
 
 
-class ClassificationTrainingPipeline(BaseTrainingPipeline, metaclass=abc.ABCMeta):
+class ClassificationTrainingPipeline(BaseTrainingPipeline):
     """A base pipeline for training an ML classifier. Uses LGBMClassifier by default."""
 
     class Schema(BaseTrainingPipeline.Schema):

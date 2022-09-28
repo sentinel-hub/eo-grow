@@ -35,7 +35,7 @@ class SpatialJoinTask(EOTask):
         self, rasters: List[np.ndarray], bboxes: List[BBox], joined_bbox: BBox, no_data_value: float
     ) -> np.ndarray:
         """Joins all rasters into a single new rasters."""
-        if len(set(raster.dtype for raster in rasters)) != 1:
+        if len({raster.dtype for raster in rasters}) != 1:
             raise ValueError("Cannot join raster features with different dtypes")
 
         resolution = self._get_resolution(rasters, bboxes)

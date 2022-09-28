@@ -301,4 +301,4 @@ class AreaManager(EOGrowObject):
         """Adds a column with bounding boxes to all dataframes in a grid"""
         for bbox_df in grid:
             crs = CRS(bbox_df.crs)
-            bbox_df["BBOX"] = bbox_df.geometry.apply(lambda geo: BBox(geo.bounds, crs))
+            bbox_df["BBOX"] = bbox_df.geometry.apply(lambda geo: BBox(geo.bounds, crs))  # noqa B023

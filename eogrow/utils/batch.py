@@ -6,7 +6,7 @@ from typing import List
 
 def read_timestamps_from_orbits(userdata: dict) -> List[str]:
     """Parses batch orbits payload to obtain a list of timestamp strings"""
-    if "orbits" in userdata:
+    if "orbits" in userdata:  # noqa SIM908
         userdata = userdata["orbits"]
 
     return [orbit["tiles"][0]["date"] for orbit in userdata]
