@@ -8,7 +8,7 @@ mypy
 pytest>=4.0.0
 pytest-cov
 pytest-order
+twine
 types-requests
 types-setuptools
 types-urllib3
-twine
