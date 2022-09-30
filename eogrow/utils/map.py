@@ -142,7 +142,7 @@ def merge_tiffs(
     gdalmerge_options = "-co BIGTIFF=YES -co compress=LZW"
 
     if nodata is not None:
-        gdalmerge_options += f" -a_nodata {nodata}"
+        gdalmerge_options += f' -init "{nodata}" -a_nodata "{nodata}"'
 
     if dtype is not None:
         gdalmerge_options += f" {GDAL_DTYPE_SETTINGS[dtype]}"
