@@ -121,7 +121,7 @@ class MergeSamplesPipeline(Pipeline):
 
         del patch[feature]
 
-        axis = feature_type.ndim() - 2
+        axis = feature_type.ndim() - 2  # type: ignore[operator]
         feature_array = np.squeeze(feature_array, axis=axis)
 
         if feature_type in [FeatureType.DATA, FeatureType.MASK]:

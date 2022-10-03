@@ -2,13 +2,15 @@
 Utilities for filtering eopatch lists
 """
 from concurrent.futures import ThreadPoolExecutor
-from typing import List, Sequence
+from typing import List, Sequence, Set, Tuple, Union
 
 import fs
 from fs.base import FS
 from tqdm.auto import tqdm
 
+from eolearn.core import FeatureType
 from eolearn.core.eodata_io import walk_filesystem
+from eolearn.core.utils.types import EllipsisType
 
 from ..utils.types import FeatureSpec
 
@@ -19,7 +21,7 @@ def check_if_features_exist(
     features: Sequence[FeatureSpec],
 ) -> bool:
     """Checks whether an EOPatch in the given location has all specified features saved"""
-    not_seen_features = set(features)
+    not_seen_features: Set[Union[FeatureType, Tuple[FeatureType, Union[str, EllipsisType]]]] = set(features)
     try:
         for ftype, name, _ in walk_filesystem(filesystem, eopatch_path, features=features):
             if (ftype, name) in not_seen_features:

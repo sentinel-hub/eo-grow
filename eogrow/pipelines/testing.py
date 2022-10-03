@@ -111,23 +111,23 @@ class DummyDataPipeline(Pipeline):
         start_node = EONode(CreateEOPatchTask())
 
         if self.config.timestamp_feature:
-            task = DummyTimestampFeatureTask(
+            timestamp_task = DummyTimestampFeatureTask(
                 time_interval=self.config.timestamp_feature.time_period,
                 timestamp_num=self.config.timestamp_feature.timestamp_num,
             )
-            start_node = EONode(task, inputs=[start_node])
+            start_node = EONode(timestamp_task, inputs=[start_node])
             self._nodes_to_configs_map[start_node] = self.config.timestamp_feature
 
         add_feature_nodes = []
         for index, feature_config in enumerate(self.config.raster_features):
-            task = DummyRasterFeatureTask(
+            raster_task = DummyRasterFeatureTask(
                 feature_config.feature,
                 shape=feature_config.shape,
                 dtype=np.dtype(feature_config.dtype),
                 min_value=feature_config.min_value,
                 max_value=feature_config.max_value,
             )
-            node = EONode(task, inputs=[start_node], name=f"{DummyRasterFeatureTask.__name__}_{index}")
+            node = EONode(raster_task, inputs=[start_node], name=f"{DummyRasterFeatureTask.__name__}_{index}")
             add_feature_nodes.append(node)
             self._nodes_to_configs_map[node] = feature_config
 
