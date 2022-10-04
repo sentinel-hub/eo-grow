@@ -93,7 +93,7 @@ class MergeSamplesPipeline(Pipeline):
         if self.config.include_timestamp:
             arrays = []
             for patch, sample_num in zip(patches, patch_sample_nums):
-                arrays.append(np.tile(patch.timestamp, (sample_num, 1)))
+                arrays.append(np.tile(np.array(patch.timestamp), (sample_num, 1)))
                 patch.timestamp = []
 
             self._save_array(np.concatenate(arrays, axis=0), "TIMESTAMPS")
