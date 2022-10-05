@@ -96,6 +96,7 @@ class RasterizePipeline(Pipeline):
                 " step."
             )
         )
+        compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
 
     config: Schema
 
@@ -187,6 +188,7 @@ class RasterizePipeline(Pipeline):
             filesystem=self.storage.filesystem,
             features=self._get_output_features(),
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
+            compress_level=self.config.compress_level,
         )
         save_node = EONode(save_task, inputs=[postprocess_node])
 
