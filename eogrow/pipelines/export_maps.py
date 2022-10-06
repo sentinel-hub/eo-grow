@@ -18,7 +18,7 @@ from eolearn.features import LinearFunctionTask
 from eolearn.io import ExportToTiffTask
 
 from ..core.pipeline import Pipeline
-from ..utils.map import merge_maps
+from ..utils.map import cogify_inplace, merge_tiffs
 from ..utils.types import Feature
 
 LOGGER = logging.getLogger(__name__)
@@ -26,8 +26,6 @@ LOGGER = logging.getLogger(__name__)
 
 class ExportMapsPipeline(Pipeline):
     """Pipeline to export a feature into a tiff map"""
-
-    _merge_map_function = staticmethod(merge_maps)
 
     class Schema(Pipeline.Schema):
         input_folder_key: str = Field(
@@ -71,6 +69,28 @@ class ExportMapsPipeline(Pipeline):
 
         return successful, failed
 
+    def _merge_maps(self, input_filename_list: List[str], merged_filename: str) -> None:
+        """Performs gdal_merge on a set of given geotiff images, make them pixel aligned cogs if `cogify` is True
+
+        :param input_filename_list: A list of input tiff image filenames
+        :param merged_filename: Filename of merged tiff image
+        :param blocksize: block size of tiled tiff
+        """
+
+        merge_tiffs(
+            input_filename_list,
+            merged_filename,
+            overwrite=True,
+            delete_input=False,
+            nodata=self.config.no_data_value,
+            dtype=self.config.map_dtype,
+        )
+
+        if self.config.cogify:
+            cogify_inplace(
+                merged_filename, blocksize=1024, nodata=self.config.no_data_value, dtype=self.config.map_dtype
+            )
+
     def build_workflow(self) -> EOWorkflow:
         """Method where workflow is constructed"""
         load_task = LoadTask(
@@ -84,11 +104,9 @@ class ExportMapsPipeline(Pipeline):
             rescale_task = LinearFunctionTask(self.config.feature, slope=self.config.scale_factor)
             task_list.append(rescale_task)
 
-        _, feature_name = self.config.feature
-        folder = fs.path.join(self.storage.get_folder(self.config.output_folder_key), feature_name)
         export_to_tiff_task = ExportToTiffTask(
             self.config.feature,
-            folder=folder,
+            folder=self._get_output_folder(),
             filesystem=self.storage.filesystem,
             no_data_value=self.config.no_data_value,
             image_dtype=np.dtype(self.config.map_dtype),
@@ -98,13 +116,27 @@ class ExportMapsPipeline(Pipeline):
 
         return EOWorkflow(linearly_connect_tasks(*task_list))
 
+    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, object]]]:
+        exec_args = super().get_execution_arguments(workflow)
+        nodes = workflow.get_nodes()
+        for node in nodes:
+            if isinstance(node.task, ExportToTiffTask):
+                for name, single_exec_dict in zip(self.patch_list, exec_args):
+                    single_exec_dict[node] = dict(filename=self.get_geotiff_name(name))
+
+        return exec_args
+
+    def _get_output_folder(self) -> str:
+        """Designates to place the tiffs into a subfolder of output_folder_key named after the feature."""
+        _, feature_name = self.config.feature
+        return fs.path.join(self.storage.get_folder(self.config.output_folder_key), feature_name)
+
     def create_maps(self, feature_name: str, patch_names: List[str]) -> None:
         """A method which creates a joined GeoTIFF maps from a list of exported GeoTIFFs"""
         if not patch_names:
             raise ValueError("Cannot create map with an empty list of EOPatch names")
 
-        folder = fs.path.join(self.storage.get_folder(self.config.output_folder_key), feature_name)
-
+        folder = self._get_output_folder()
         crs_eopatch_dict = self.eopatch_manager.split_by_utm(patch_names)
 
         # TODO: This could be parallelized per-crs
@@ -114,15 +146,45 @@ class ExportMapsPipeline(Pipeline):
 
             # manually make subfolder, otherwise things fail on S3 in later steps
             self.storage.filesystem.makedirs(fs.path.join(folder, subfolder), recreate=True)
-            self._create_single_map(folder, eopatch_list, subfolder, map_name)
+            self._create_single_map(folder, subfolder, map_name, eopatch_list)
 
-    def _create_single_map(self, folder: str, eopatch_list: List[str], subfolder: str, map_name: str) -> None:
-        """Creates a single map"""
-        make_local_copies = self.storage.is_on_aws() or self.config.force_local_copies
+    def _create_single_map(self, folder: str, subfolder: str, map_name: str, eopatch_list: List[str]) -> None:
+        """Creates a single map
 
+        If necessary, copies the geotiffs to local storage. After the merging transfers the merged map to the
+        appropriate location and removes the per-eopatch tiffs.
+        """
         geotiff_names = [self.get_geotiff_name(name) for name in eopatch_list]
         geotiff_paths = [fs.path.join(folder, name) for name in geotiff_names]
         merged_map_path = fs.path.join(folder, subfolder, map_name)
+
+        temp_fs, sys_paths, sys_map_path = self._prepare_files(map_name, geotiff_names, geotiff_paths, merged_map_path)
+
+        self._merge_maps(sys_paths, sys_map_path)
+
+        if temp_fs is not None:  # copy to storage if a temporary FS was used
+            fs.copy.copy_file(temp_fs, map_name, self.storage.filesystem, merged_map_path)
+            temp_fs.close()
+
+        LOGGER.info("Merged map is saved at %s", get_full_path(self.storage.filesystem, merged_map_path))
+
+        # clean up eopatch tiffs
+        parallelize(
+            self.storage.filesystem.remove, geotiff_paths, workers=None, multiprocess=False, desc="Remove eopatch tiffs"
+        )
+
+    def _prepare_files(
+        self,
+        map_name: str,
+        geotiff_names: List[str],
+        geotiff_paths: List[str],
+        merged_map_path: str,
+    ) -> Tuple[Optional[TempFS], List[str], str]:
+        """Returns system paths that can be used to merge maps.
+
+        If required files are copied locally and a temporary filesystem object is returned.
+        """
+        make_local_copies = self.storage.is_on_aws() or self.config.force_local_copies
 
         if make_local_copies:
             temp_fs = TempFS(identifier="_merge_maps_temp")
@@ -136,44 +198,17 @@ class ExportMapsPipeline(Pipeline):
                 geotiff_names,
                 workers=None,
                 multiprocess=False,
-                desc="Local copies",
+                desc="Making local copies",
             )
 
             sys_paths = [temp_fs.getsyspath(name) for name in geotiff_names]
             sys_map_path = temp_fs.getsyspath(map_name)
-        else:
-            sys_paths = [self.storage.filesystem.getsyspath(path) for path in geotiff_paths]
-            sys_map_path = self.storage.filesystem.getsyspath(merged_map_path)
+            return temp_fs, sys_paths, sys_map_path
 
-        self._merge_map_function(
-            sys_paths,
-            sys_map_path,
-            nodata=self.config.no_data_value,
-            dtype=self.config.map_dtype,
-            cogify=self.config.cogify,
-            delete_input=False,
-        )
-
-        if make_local_copies:
-            fs.copy.copy_file(temp_fs, map_name, self.storage.filesystem, merged_map_path)
-            temp_fs.close()
-        LOGGER.info("Merged map is saved at %s", get_full_path(self.storage.filesystem, merged_map_path))
-
-        parallelize(
-            self.storage.filesystem.remove, geotiff_paths, workers=None, multiprocess=False, desc="Deleting temp tiffs"
-        )
-        LOGGER.info("Cleaned original temporary maps")
+        sys_paths = [self.storage.filesystem.getsyspath(path) for path in geotiff_paths]
+        sys_map_path = self.storage.filesystem.getsyspath(merged_map_path)
+        return None, sys_paths, sys_map_path
 
     def get_geotiff_name(self, name: str) -> str:
         """Creates a unique name of a geotiff image"""
         return f"{name}_{self.__class__.__name__}_{self.pipeline_id}.tiff"
-
-    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, object]]]:
-        exec_args = super().get_execution_arguments(workflow)
-        nodes = workflow.get_nodes()
-        for node in nodes:
-            if isinstance(node.task, ExportToTiffTask):
-                for name, single_exec_dict in zip(self.patch_list, exec_args):
-                    single_exec_dict[node] = dict(filename=self.get_geotiff_name(name))
-
-        return exec_args
