@@ -49,9 +49,7 @@ class MosaickingTask(EOTask, metaclass=abc.ABCMeta):
         valid_mask: Optional[Feature] = None,
         ndvi_feature: Optional[Feature] = None,
     ):
-        self.feature_type, self.feature_name, self.new_feature_name = self.parse_renamed_feature(
-            feature, allowed_feature_types={FeatureType.DATA}
-        )
+        self.parsed_feature = self.parse_renamed_feature(feature, allowed_feature_types={FeatureType.DATA})
         self.valid_mask_type, self.valid_mask_name = None, None
         if valid_mask is not None:
             self.valid_mask_type, self.valid_mask_name = self.parse_feature(
@@ -119,9 +117,10 @@ class MosaickingTask(EOTask, metaclass=abc.ABCMeta):
 
     def execute(self, eopatch: EOPatch) -> EOPatch:
         """Compute mosaic for given dates"""
+        feature_type, _, new_feature_name = self.parsed_feature
 
         eopatch.timestamp = [ts.replace(tzinfo=None) for ts in eopatch.timestamp]
-        eopatch[self.feature_type][self.new_feature_name] = self.compute_mosaic(eopatch)
+        eopatch[(feature_type, new_feature_name)] = self.compute_mosaic(eopatch)
 
         eopatch.timestamp = list(self.compute_mosaic_dates())
 
@@ -145,9 +144,9 @@ class MaxNDVIMosaickingTask(MosaickingTask):
     def _compute_single_mosaic(self, eopatch: EOPatch, idate: int) -> np.ndarray:
         """Compute single mosaic using values of the max NDVI"""
         array = self._find_time_indices(eopatch.timestamp, idate)
-
-        feat_values = eopatch[self.feature_type][self.feature_name][array].astype(np.float32)
-        ndvi_values = eopatch[self.ndvi_feature_type][self.ndvi_feature_name][array]
+        feature_type, feature_name, _ = self.parsed_feature
+        feat_values = eopatch[(feature_type, feature_name)][array].astype(np.float32)
+        ndvi_values = eopatch[(self.ndvi_feature_type, self.ndvi_feature_name)][array]  # type: ignore[index]
         valid_mask = (
             eopatch[self.valid_mask_type][self.valid_mask_name][array]
             if self.valid_mask_type is not None
@@ -193,10 +192,11 @@ class MedianMosaickingTask(MosaickingTask):
     def _compute_single_mosaic(self, eopatch: EOPatch, idate: int) -> np.ndarray:
         """Compute single mosaic using the median of values"""
         array = self._find_time_indices(eopatch.timestamp, idate)
+        feature_type, feature_name, _ = self.parsed_feature
 
-        feat_values = eopatch[self.feature_type][self.feature_name][array].astype(np.float32)
+        feat_values = eopatch[(feature_type, feature_name)][array].astype(np.float32)
         valid_mask = (
-            eopatch[self.valid_mask_type][self.valid_mask_name][array]
+            eopatch[(self.valid_mask_type, self.valid_mask_name)][array]
             if self.valid_mask_type is not None
             else np.ones(feat_values.shape, dtype=bool)
         )

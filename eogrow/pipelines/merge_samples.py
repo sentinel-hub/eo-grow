@@ -93,7 +93,7 @@ class MergeSamplesPipeline(Pipeline):
         if self.config.include_timestamp:
             arrays = []
             for patch, sample_num in zip(patches, patch_sample_nums):
-                arrays.append(np.tile(patch.timestamp, (sample_num, 1)))
+                arrays.append(np.tile(np.array(patch.timestamp), (sample_num, 1)))
                 patch.timestamp = []
 
             self._save_array(np.concatenate(arrays, axis=0), "TIMESTAMPS")
@@ -121,7 +121,7 @@ class MergeSamplesPipeline(Pipeline):
 
         del patch[feature]
 
-        axis = feature_type.ndim() - 2
+        axis = feature_type.ndim() - 2  # type: ignore[operator]
         feature_array = np.squeeze(feature_array, axis=axis)
 
         if feature_type in [FeatureType.DATA, FeatureType.MASK]:

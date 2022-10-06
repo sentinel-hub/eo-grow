@@ -232,10 +232,11 @@ class SwitchGridsPipeline(Pipeline):
     def _get_features(self) -> List[FeatureSpec]:
         """Provides features that will be transformed by the pipeline."""
         features = [feature_config.feature for feature_config in self.config.features]
+        meta_features: List[FeatureSpec] = [FeatureType.BBOX]
         if any(f_type.is_temporal() for f_type, _ in features):
-            features += [FeatureType.TIMESTAMP]
+            meta_features += [FeatureType.TIMESTAMP]
 
-        return features + [FeatureType.BBOX]
+        return meta_features + features  # type: ignore[operator]
 
     def _get_no_data_map(self) -> Dict[Feature, float]:
         """Provides a map between spatial raster features and their 'no data' values."""

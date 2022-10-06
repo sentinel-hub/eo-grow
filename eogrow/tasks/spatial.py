@@ -1,7 +1,7 @@
 """
 Tasks for spatial operations on EOPatches
 """
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np
 from geopandas import GeoDataFrame
@@ -98,10 +98,11 @@ class SpatialJoinTask(EOTask):
     def execute(self, *eopatches: EOPatch, bbox: BBox) -> EOPatch:
         """Spatially joins given EOPatches into a new EOPatch with given bounding box."""
         eopatches = tuple(eopatch for eopatch in eopatches if eopatch.get_features())
-        if not all(eopatch.bbox for eopatch in eopatches):
-            raise ValueError("All non-empty input EOPatches should have a bounding box")
-        if any(eopatch.bbox.crs is not bbox.crs for eopatch in eopatches):
-            raise ValueError("EOPatches must have the same CRS as the given bounding box")
+        for eopatch in eopatches:
+            if eopatch.bbox is None:
+                raise ValueError("All non-empty input EOPatches should have a bounding box")
+            if eopatch.bbox.crs is not bbox.crs:
+                raise ValueError("EOPatches must have the same CRS as the given bounding box")
 
         # Sorting EOPatches in unique order so that the values in the overlapping areas will always be computed in
         # the same way.
@@ -119,8 +120,9 @@ class SpatialJoinTask(EOTask):
                 continue
 
             if feature_type.is_spatial():
+                feature = cast(Feature, feature)  # bbox and timestamp are discarded with above check
                 if feature_type.is_raster():
-                    bboxes = [eopatch.bbox for eopatch in eopatches if feature in eopatch]
+                    bboxes: List[BBox] = [patch.bbox for patch in eopatches if feature in patch]  # type: ignore[misc]
                     joined_data = self._join_spatial_rasters(data, bboxes, bbox, self.no_data_map[feature])
                 else:
                     joined_data = self._join_vector_data(data, self.unique_columns_map.get(feature))

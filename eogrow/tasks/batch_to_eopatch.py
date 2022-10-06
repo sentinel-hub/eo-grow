@@ -106,7 +106,7 @@ class FixImportedTimeDependentFeatureTask(EOTask):
             if data.shape[0] != timeframe_num:  # Handling a case where data would contain some empty timeframes
                 data = data[:timeframe_num, ...]
 
-            order_mask = np.argsort(eopatch.timestamp)
+            order_mask = np.argsort(eopatch.timestamp)  # type: ignore[arg-type]
             is_strictly_increasing = (np.diff(order_mask) > 0).all()
             if not is_strictly_increasing:
                 eopatch.timestamp = sorted(eopatch.timestamp)
