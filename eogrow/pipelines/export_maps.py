@@ -69,28 +69,6 @@ class ExportMapsPipeline(Pipeline):
 
         return successful, failed
 
-    def _merge_maps(self, input_filename_list: List[str], merged_filename: str) -> None:
-        """Performs gdal_merge on a set of given geotiff images, make them pixel aligned cogs if `cogify` is True
-
-        :param input_filename_list: A list of input tiff image filenames
-        :param merged_filename: Filename of merged tiff image
-        :param blocksize: block size of tiled tiff
-        """
-
-        merge_tiffs(
-            input_filename_list,
-            merged_filename,
-            overwrite=True,
-            delete_input=False,
-            nodata=self.config.no_data_value,
-            dtype=self.config.map_dtype,
-        )
-
-        if self.config.cogify:
-            cogify_inplace(
-                merged_filename, blocksize=1024, nodata=self.config.no_data_value, dtype=self.config.map_dtype
-            )
-
     def build_workflow(self) -> EOWorkflow:
         """Method where workflow is constructed"""
         load_task = LoadTask(
@@ -125,6 +103,10 @@ class ExportMapsPipeline(Pipeline):
                     single_exec_dict[node] = dict(filename=self.get_geotiff_name(name))
 
         return exec_args
+
+    def get_geotiff_name(self, name: str) -> str:
+        """Creates a unique name of a geotiff image"""
+        return f"{name}_{self.__class__.__name__}_{self.pipeline_id}.tiff"
 
     def _get_output_folder(self) -> str:
         """Designates to place the tiffs into a subfolder of output_folder_key named after the feature."""
@@ -209,6 +191,24 @@ class ExportMapsPipeline(Pipeline):
         sys_map_path = self.storage.filesystem.getsyspath(merged_map_path)
         return None, sys_paths, sys_map_path
 
-    def get_geotiff_name(self, name: str) -> str:
-        """Creates a unique name of a geotiff image"""
-        return f"{name}_{self.__class__.__name__}_{self.pipeline_id}.tiff"
+    def _merge_maps(self, input_filename_list: List[str], merged_filename: str) -> None:
+        """Performs gdal_merge on a set of given geotiff images, make them pixel aligned cogs if `cogify` is True
+
+        :param input_filename_list: A list of input tiff image filenames
+        :param merged_filename: Filename of merged tiff image
+        :param blocksize: block size of tiled tiff
+        """
+
+        merge_tiffs(
+            input_filename_list,
+            merged_filename,
+            overwrite=True,
+            delete_input=False,
+            nodata=self.config.no_data_value,
+            dtype=self.config.map_dtype,
+        )
+
+        if self.config.cogify:
+            cogify_inplace(
+                merged_filename, blocksize=1024, nodata=self.config.no_data_value, dtype=self.config.map_dtype
+            )
