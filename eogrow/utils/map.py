@@ -6,7 +6,7 @@ import os
 import shutil
 import subprocess
 from tempfile import NamedTemporaryFile
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Sequence
 
 LOGGER = logging.getLogger(__name__)
 
@@ -129,3 +129,35 @@ def merge_tiffs(
         for filename in input_filename_list:
             if os.path.isfile(filename):
                 os.remove(filename)
+
+
+def extract_bands(
+    input_file: str,
+    output_file: str,
+    bands: Sequence[int],
+    overwrite: bool = False,
+) -> None:
+    """Extract bands from given input file
+
+    :param input_file: File containing all bands
+    :param output_file: Resulting file with extracted bands
+    :param bands: Sequence of bands to extract. Indexation starts at 0.
+    :param overwrite: If True overwrite the output file if it exists.
+    """
+    if input_file == output_file:
+        raise OSError("Input file is the same as output file.")
+
+    if os.path.exists(output_file):
+        if overwrite:
+            os.remove(output_file)
+        else:
+            raise OSError(f"{output_file} already exists. Set `overwrite` to true if it should be overwritten.")
+
+    # gdal_translate starts indexation at 1
+    translate_opts = "-co compress=LZW" + " ".join(f" -b {band - 1}" for band in bands)
+
+    temp_filename = NamedTemporaryFile()
+    temp_filename.close()
+    shutil.copyfile(input_file, temp_filename.name)
+
+    subprocess.check_call(f"gdal_translate {translate_opts} {temp_filename.name} {output_file}", shell=True)
