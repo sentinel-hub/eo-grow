@@ -88,35 +88,6 @@ def cogify(
     LOGGER.info("cogifying done")
 
 
-def merge_maps(
-    input_filename_list: List[str],
-    merged_filename: str,
-    *,
-    blocksize: int = 1024,
-    nodata: Optional[float] = None,
-    dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
-    cogify: bool = False,
-    delete_input: bool = False,
-) -> None:
-    """Performs gdal_merge on a set of given geotiff images, make them pixel aligned cogs if `cogify` is True
-
-    :param input_filename_list: A list of input tiff image filenames
-    :param merged_filename: Filename of merged tiff image
-    :param blocksize: block size of tiled tiff
-    :param nodata: which values should be treated as nodata in resulting tiff, default is None
-    :param dtype: output type of the in the resulting tiff, default is None
-    :param cogify: If True make the final geotiff a COG.
-    :param delete_input: If True input images will be deleted at the end
-    """
-
-    merge_tiffs(
-        input_filename_list, merged_filename, overwrite=True, delete_input=delete_input, nodata=nodata, dtype=dtype
-    )
-
-    if cogify:
-        cogify_inplace(merged_filename, blocksize, nodata=nodata, dtype=dtype)
-
-
 def merge_tiffs(
     input_filename_list: List[str],
     merged_filename: str,
