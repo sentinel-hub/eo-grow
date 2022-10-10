@@ -64,8 +64,32 @@ class ExportMapsPipeline(Pipeline):
         """Procedure which downloads satellite data"""
         successful, failed = super().run_procedure()
 
-        _, feature_name = self.config.feature
-        self.create_maps(feature_name, successful)
+        if not successful:
+            raise ValueError("Failed to extract tiff files from any of EOPatches.")
+
+        folder = self._get_output_folder()
+        crs_eopatch_dict = self.eopatch_manager.split_by_utm(successful)
+
+        # TODO: This could be parallelized per-crs
+        for crs, eopatch_list in crs_eopatch_dict.items():
+            subfolder = f"UTM_{crs.epsg}"
+            # manually make subfolder, otherwise things fail on S3 in later steps
+            self.storage.filesystem.makedirs(fs.path.join(folder, subfolder), recreate=True)
+
+            geotiff_paths = [fs.path.join(folder, self.get_geotiff_name(name)) for name in eopatch_list]
+            temp_fs, geotiff_sys_paths = self._prepare_input_files(geotiff_paths)
+
+            map_name = self.config.map_name or f"{self.config.feature[1]}.tiff"
+            merged_map_path = fs.path.join(folder, subfolder, map_name)
+            self._create_single_map(temp_fs, merged_map_path, geotiff_sys_paths)
+
+            parallelize(
+                self.storage.filesystem.remove,
+                geotiff_paths,
+                workers=None,
+                multiprocess=False,
+                desc=f"Remove per-eopatch tiffs for UTM {crs.epsg}",
+            )
 
         return successful, failed
 
@@ -113,56 +137,24 @@ class ExportMapsPipeline(Pipeline):
         _, feature_name = self.config.feature
         return fs.path.join(self.storage.get_folder(self.config.output_folder_key), feature_name)
 
-    def create_maps(self, feature_name: str, patch_names: List[str]) -> None:
-        """A method which creates a joined GeoTIFF maps from a list of exported GeoTIFFs"""
-        if not patch_names:
-            raise ValueError("Cannot create map with an empty list of EOPatch names")
+    def _create_single_map(self, temp_fs: Optional[TempFS], merged_map_path: str, geotiff_sys_paths: List[str]) -> None:
+        """Creates a single map from geotiffs. When using local copies (temp_fs is not None) the file transfer to the
+        appropriate location is done at the end."""
+        if temp_fs is not None:
+            temp_map_path = fs.path.basename(merged_map_path)
+            map_sys_path = temp_fs.getsyspath(temp_map_path)
+        else:
+            map_sys_path = self.storage.filesystem.getsyspath(merged_map_path)
 
-        folder = self._get_output_folder()
-        crs_eopatch_dict = self.eopatch_manager.split_by_utm(patch_names)
-
-        # TODO: This could be parallelized per-crs
-        for crs, eopatch_list in crs_eopatch_dict.items():
-            subfolder = f"UTM_{crs.epsg}"
-            map_name = self.config.map_name or f"{feature_name}.tiff"
-
-            # manually make subfolder, otherwise things fail on S3 in later steps
-            self.storage.filesystem.makedirs(fs.path.join(folder, subfolder), recreate=True)
-            self._create_single_map(folder, subfolder, map_name, eopatch_list)
-
-    def _create_single_map(self, folder: str, subfolder: str, map_name: str, eopatch_list: List[str]) -> None:
-        """Creates a single map
-
-        If necessary, copies the geotiffs to local storage. After the merging transfers the merged map to the
-        appropriate location and removes the per-eopatch tiffs.
-        """
-        geotiff_names = [self.get_geotiff_name(name) for name in eopatch_list]
-        geotiff_paths = [fs.path.join(folder, name) for name in geotiff_names]
-        merged_map_path = fs.path.join(folder, subfolder, map_name)
-
-        temp_fs, sys_paths, sys_map_path = self._prepare_files(map_name, geotiff_names, geotiff_paths, merged_map_path)
-
-        self._merge_maps(sys_paths, sys_map_path)
-
-        if temp_fs is not None:  # copy to storage if a temporary FS was used
-            fs.copy.copy_file(temp_fs, map_name, self.storage.filesystem, merged_map_path)
-            temp_fs.close()
-
+        self._merge_maps(geotiff_sys_paths, map_sys_path)
         LOGGER.info("Merged map is saved at %s", get_full_path(self.storage.filesystem, merged_map_path))
 
-        # clean up eopatch tiffs
-        parallelize(
-            self.storage.filesystem.remove, geotiff_paths, workers=None, multiprocess=False, desc="Remove eopatch tiffs"
-        )
+        if temp_fs is not None:  # copy to storage if a temporary FS was used
+            fs.copy.copy_file(temp_fs, temp_map_path, self.storage.filesystem, merged_map_path)
+            temp_fs.close()
 
-    def _prepare_files(
-        self,
-        map_name: str,
-        geotiff_names: List[str],
-        geotiff_paths: List[str],
-        merged_map_path: str,
-    ) -> Tuple[Optional[TempFS], List[str], str]:
-        """Returns system paths that can be used to merge maps.
+    def _prepare_input_files(self, geotiff_paths: List[str]) -> Tuple[Optional[TempFS], List[str]]:
+        """Returns system paths of geotiffs that can be used to merge maps.
 
         If required files are copied locally and a temporary filesystem object is returned.
         """
@@ -170,6 +162,7 @@ class ExportMapsPipeline(Pipeline):
 
         if make_local_copies:
             temp_fs = TempFS(identifier="_merge_maps_temp")
+            temp_geotiff_paths = [fs.path.basename(path) for path in geotiff_paths]
 
             LOGGER.info("Copying tiffs to a temporary local folder %s", temp_fs.getsyspath("/"))
             parallelize(
@@ -177,26 +170,23 @@ class ExportMapsPipeline(Pipeline):
                 it.repeat(self.storage.filesystem),
                 geotiff_paths,
                 it.repeat(temp_fs),
-                geotiff_names,
+                temp_geotiff_paths,
                 workers=None,
                 multiprocess=False,
                 desc="Making local copies",
             )
 
-            sys_paths = [temp_fs.getsyspath(name) for name in geotiff_names]
-            sys_map_path = temp_fs.getsyspath(map_name)
-            return temp_fs, sys_paths, sys_map_path
+            sys_paths = [temp_fs.getsyspath(path) for path in temp_geotiff_paths]
+            return temp_fs, sys_paths
 
         sys_paths = [self.storage.filesystem.getsyspath(path) for path in geotiff_paths]
-        sys_map_path = self.storage.filesystem.getsyspath(merged_map_path)
-        return None, sys_paths, sys_map_path
+        return None, sys_paths
 
     def _merge_maps(self, input_filename_list: List[str], merged_filename: str) -> None:
         """Performs gdal_merge on a set of given geotiff images, make them pixel aligned cogs if `cogify` is True
 
         :param input_filename_list: A list of input tiff image filenames
         :param merged_filename: Filename of merged tiff image
-        :param blocksize: block size of tiled tiff
         """
 
         merge_tiffs(

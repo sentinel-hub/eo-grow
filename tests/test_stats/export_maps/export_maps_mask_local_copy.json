@@ -1,0 +1,57 @@
+{
+  "CLM": {
+    "UTM_32638": {
+      "CLM.tiff": {
+        "image": {
+          "array_shape": [
+            35,
+            231,
+            264
+          ],
+          "dtype": "uint16",
+          "random_values": [
+            {
+              "position": [
+                16,
+                199,
+                219
+              ],
+              "value": 0
+            },
+            {
+              "position": [
+                18,
+                20,
+                58
+              ],
+              "value": 1
+            }
+          ],
+          "values": [
+            {
+              "count": 1897639,
+              "value": 0
+            },
+            {
+              "count": 236801,
+              "value": 1
+            }
+          ]
+        },
+        "mask": {
+          "array_shape": [
+            231,
+            264
+          ],
+          "dtype": "uint8",
+          "values": [
+            {
+              "count": 60984,
+              "value": 255
+            }
+          ]
+        }
+      }
+    }
+  }
+}
