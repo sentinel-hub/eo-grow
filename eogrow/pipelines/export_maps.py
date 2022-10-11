@@ -89,7 +89,7 @@ class ExportMapsPipeline(Pipeline):
             merged_map_path = fs.path.join(folder, subfolder, map_name)
             geotiff_paths = [fs.path.join(folder, self.get_geotiff_name(name)) for name in eopatch_list]
 
-            temp_fs, geotiff_sys_paths, map_sys_path = self._prepare_input_files(geotiff_paths, merged_map_path)
+            temp_fs, geotiff_sys_paths, map_sys_path = self._prepare_files(geotiff_paths, merged_map_path)
 
             merge_tiffs(
                 geotiff_sys_paths,
