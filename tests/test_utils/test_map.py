@@ -15,6 +15,8 @@ from sentinelhub import CRS, BBox
 
 from eogrow.utils.map import GDAL_DTYPE_SETTINGS, cogify, cogify_inplace
 
+pytestmark = pytest.mark.fast
+
 
 def make_geotiff(data: np.ndarray, bbox: BBox, filesystem: FS, *, folder: str = ".", name: str):
     feature = (FeatureType.DATA_TIMELESS, "data")
