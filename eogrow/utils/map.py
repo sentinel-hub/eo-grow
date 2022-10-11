@@ -131,12 +131,7 @@ def merge_tiffs(
                 os.remove(filename)
 
 
-def extract_bands(
-    input_file: str,
-    output_file: str,
-    bands: Sequence[int],
-    overwrite: bool = False,
-) -> None:
+def extract_bands(input_file: str, output_file: str, bands: Sequence[int], overwrite: bool = False) -> None:
     """Extract bands from given input file
 
     :param input_file: File containing all bands
