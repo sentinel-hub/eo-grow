@@ -61,7 +61,16 @@ class ExportMapsPipeline(Pipeline):
     config: Schema
 
     def run_procedure(self) -> Tuple[List[str], List[str]]:
-        """Procedure which downloads satellite data"""
+        """Extracts and merges the data from EOPatches into a TIFF file.
+
+        1. Extracts data from EOPatches via workflow into per-EOPatch tiffs.
+        2. For each UTM zone:
+            - Prepares tiffs for merging (transfers to local if needed).
+            - Merges the tiffs, cogification is done if requested.
+            - The output file is finalized (transferred if needed) and per-EOPatch tiffs are cleaned.
+
+        """
+
         successful, failed = super().run_procedure()
 
         if not successful:
@@ -76,12 +85,27 @@ class ExportMapsPipeline(Pipeline):
             # manually make subfolder, otherwise things fail on S3 in later steps
             self.storage.filesystem.makedirs(fs.path.join(folder, subfolder), recreate=True)
 
-            geotiff_paths = [fs.path.join(folder, self.get_geotiff_name(name)) for name in eopatch_list]
-            temp_fs, geotiff_sys_paths = self._prepare_input_files(geotiff_paths)
-
             map_name = self.config.map_name or f"{self.config.feature[1]}.tiff"
             merged_map_path = fs.path.join(folder, subfolder, map_name)
-            self._create_single_map(temp_fs, merged_map_path, geotiff_sys_paths)
+            geotiff_paths = [fs.path.join(folder, self.get_geotiff_name(name)) for name in eopatch_list]
+
+            temp_fs, geotiff_sys_paths, map_sys_path = self._prepare_input_files(geotiff_paths, merged_map_path)
+
+            merge_tiffs(
+                geotiff_sys_paths,
+                map_sys_path,
+                overwrite=True,
+                delete_input=False,
+                nodata=self.config.no_data_value,
+                dtype=self.config.map_dtype,
+            )
+
+            if self.config.cogify:
+                cogify_inplace(
+                    map_sys_path, blocksize=1024, nodata=self.config.no_data_value, dtype=self.config.map_dtype
+                )
+
+            self._finalize_output_files(temp_fs, map_sys_path, merged_map_path)
 
             parallelize(
                 self.storage.filesystem.remove,
@@ -93,8 +117,15 @@ class ExportMapsPipeline(Pipeline):
 
         return successful, failed
 
+    def _finalize_output_files(self, temp_fs: Optional[TempFS], map_sys_path: str, merged_map_path: str) -> None:
+        """In case a temporary filesystem was used the output files need to be transferred to the correct location."""
+        if temp_fs is not None:
+            temp_map_path = fs.path.frombase(temp_fs.getsyspath(""), map_sys_path)
+            fs.copy.copy_file(temp_fs, temp_map_path, self.storage.filesystem, merged_map_path)
+            temp_fs.close()
+        LOGGER.info("Merged map is saved at %s", get_full_path(self.storage.filesystem, merged_map_path))
+
     def build_workflow(self) -> EOWorkflow:
-        """Method where workflow is constructed"""
         load_task = LoadTask(
             self.storage.get_folder(self.config.input_folder_key),
             filesystem=self.storage.filesystem,
@@ -137,24 +168,10 @@ class ExportMapsPipeline(Pipeline):
         _, feature_name = self.config.feature
         return fs.path.join(self.storage.get_folder(self.config.output_folder_key), feature_name)
 
-    def _create_single_map(self, temp_fs: Optional[TempFS], merged_map_path: str, geotiff_sys_paths: List[str]) -> None:
-        """Creates a single map from geotiffs. When using local copies (temp_fs is not None) the file transfer to the
-        appropriate location is done at the end."""
-        if temp_fs is not None:
-            temp_map_path = fs.path.basename(merged_map_path)
-            map_sys_path = temp_fs.getsyspath(temp_map_path)
-        else:
-            map_sys_path = self.storage.filesystem.getsyspath(merged_map_path)
-
-        self._merge_maps(geotiff_sys_paths, map_sys_path)
-        LOGGER.info("Merged map is saved at %s", get_full_path(self.storage.filesystem, merged_map_path))
-
-        if temp_fs is not None:  # copy to storage if a temporary FS was used
-            fs.copy.copy_file(temp_fs, temp_map_path, self.storage.filesystem, merged_map_path)
-            temp_fs.close()
-
-    def _prepare_input_files(self, geotiff_paths: List[str]) -> Tuple[Optional[TempFS], List[str]]:
-        """Returns system paths of geotiffs that can be used to merge maps.
+    def _prepare_input_files(
+        self, geotiff_paths: List[str], output_file: str
+    ) -> Tuple[Optional[TempFS], List[str], str]:
+        """Returns system paths of geotiffs and output file that can be used to merge maps.
 
         If required files are copied locally and a temporary filesystem object is returned.
         """
@@ -177,28 +194,11 @@ class ExportMapsPipeline(Pipeline):
             )
 
             sys_paths = [temp_fs.getsyspath(path) for path in temp_geotiff_paths]
-            return temp_fs, sys_paths
+
+            temp_map_path = fs.path.basename(output_file)
+            map_sys_path = temp_fs.getsyspath(temp_map_path)
+            return temp_fs, sys_paths, map_sys_path
 
         sys_paths = [self.storage.filesystem.getsyspath(path) for path in geotiff_paths]
-        return None, sys_paths
-
-    def _merge_maps(self, input_filename_list: List[str], merged_filename: str) -> None:
-        """Performs gdal_merge on a set of given geotiff images, make them pixel aligned cogs if `cogify` is True
-
-        :param input_filename_list: A list of input tiff image filenames
-        :param merged_filename: Filename of merged tiff image
-        """
-
-        merge_tiffs(
-            input_filename_list,
-            merged_filename,
-            overwrite=True,
-            delete_input=False,
-            nodata=self.config.no_data_value,
-            dtype=self.config.map_dtype,
-        )
-
-        if self.config.cogify:
-            cogify_inplace(
-                merged_filename, blocksize=1024, nodata=self.config.no_data_value, dtype=self.config.map_dtype
-            )
+        map_sys_path = self.storage.filesystem.getsyspath(output_file)
+        return None, sys_paths, map_sys_path
