@@ -194,9 +194,9 @@ class ExportMapsPipeline(Pipeline):
             sys_paths = [temp_fs.getsyspath(path) for path in temp_geotiff_paths]
 
             temp_map_path = fs.path.basename(output_file)
-            map_sys_path = temp_fs.getsyspath(temp_map_path)
-            return temp_fs, sys_paths, map_sys_path
+            sys_map_path = temp_fs.getsyspath(temp_map_path)
+            return temp_fs, sys_paths, sys_map_path
 
         sys_paths = [self.storage.filesystem.getsyspath(path) for path in geotiff_paths]
-        map_sys_path = self.storage.filesystem.getsyspath(output_file)
-        return None, sys_paths, map_sys_path
+        sys_map_path = self.storage.filesystem.getsyspath(output_file)
+        return None, sys_paths, sys_map_path
