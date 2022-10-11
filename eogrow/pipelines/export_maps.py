@@ -168,9 +168,7 @@ class ExportMapsPipeline(Pipeline):
         _, feature_name = self.config.feature
         return fs.path.join(self.storage.get_folder(self.config.output_folder_key), feature_name)
 
-    def _prepare_input_files(
-        self, geotiff_paths: List[str], output_file: str
-    ) -> Tuple[Optional[TempFS], List[str], str]:
+    def _prepare_files(self, geotiff_paths: List[str], output_file: str) -> Tuple[Optional[TempFS], List[str], str]:
         """Returns system paths of geotiffs and output file that can be used to merge maps.
 
         If required files are copied locally and a temporary filesystem object is returned.
