@@ -1,19 +1,21 @@
 """
 Tests for utils.map module
 """
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 import pytest
 import rasterio
 from fs.base import FS
 from fs.tempfs import TempFS
+from numpy.testing import assert_array_almost_equal
+from pytest import approx
 
 from eolearn.core import EOPatch, FeatureType
 from eolearn.io import ExportToTiffTask
 from sentinelhub import CRS, BBox
 
-from eogrow.utils.map import GDAL_DTYPE_SETTINGS, cogify, cogify_inplace
+from eogrow.utils.map import GDAL_DTYPE_SETTINGS, cogify, cogify_inplace, merge_tiffs
 
 pytestmark = pytest.mark.fast
 
@@ -39,7 +41,7 @@ class TestCogify:
         make_geotiff(data, BBox((1, 2, 3, 4), CRS.WGS84), filesystem, name="input")
         return filesystem.getsyspath("input.tif")
 
-    @pytest.fixture(name="output_path")
+    @pytest.fixture(name="output_path", scope="class")
     def output_file_fixture(_, filesystem: FS) -> str:
         return filesystem.getsyspath("output.tif")
 
@@ -64,3 +66,45 @@ class TestCogify:
             for tiff_dtype, tiff_nodata in zip(src.dtypes, src.nodatavals):
                 assert tiff_dtype == dtype and tiff_nodata == nodata
                 assert len(set(src.block_shapes)) == 1, "tiff has multiple blocksizes"
+
+
+class TestMerge:
+    @pytest.fixture(name="output_path", scope="class")
+    def output_file_fixture(_, filesystem: FS) -> str:
+        return filesystem.getsyspath("output.tif")
+
+    @pytest.fixture(name="input_paths", scope="class")
+    def input_file_fixture(_, filesystem: FS) -> List[str]:
+        for i, bbox_coords in enumerate([(9, 9, 10, 10), (10, 9, 11, 10), (9, 10, 10, 11)]):
+            data = np.full((100, 100, 2), i, dtype="int16")
+            make_geotiff(data, BBox(bbox_coords, CRS.WGS84), filesystem, name=f"input{i}")
+        return [filesystem.getsyspath(f"input{i}.tif") for i in range(3)]
+
+    def _expected_output(_, nodata: Optional[float]) -> np.ndarray:
+        nodata = nodata or 0
+        output = np.full((200, 200, 2), nodata)
+        output[100:200, :100, ...] = 0
+        output[100:200, 100:200, ...] = 1
+        output[:100, :100, ...] = 2
+        return output
+
+    @pytest.mark.parametrize(
+        "nodata, dtype",
+        [
+            (None, "float32"),
+            (0, "float32"),
+            (-3.7, "float32"),
+            (-11, "int16"),
+            (11, "uint16"),
+            (2, "uint16"),
+            (3, "uint8"),
+        ],
+    )
+    def test_merge_tiffs(self, output_path: str, input_paths: List[str], nodata: Optional[float], dtype: str):
+        merge_tiffs(input_paths, output_path, nodata=nodata, dtype=dtype, overwrite=True)
+
+        with rasterio.open(output_path) as src:
+            for tiff_dtype, tiff_nodata in zip(src.dtypes, src.nodatavals):
+                assert tiff_dtype == dtype and tiff_nodata == approx(nodata)
+            output = np.moveaxis(src.read(), 0, -1)
+            assert_array_almost_equal(output, self._expected_output(nodata))
