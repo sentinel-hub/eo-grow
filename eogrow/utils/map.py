@@ -13,7 +13,6 @@ LOGGER = logging.getLogger(__name__)
 GDAL_DTYPE_SETTINGS = {
     "uint8": "-ot Byte",
     "uint16": "-ot UInt16",
-    "int8": "-ot Byte -co PIXELTYPE=SIGNEDBYTE",
     "int16": "-ot Int16",
     "float32": "-ot Float32",
 }
@@ -93,7 +92,6 @@ def merge_tiffs(
     merged_filename: str,
     *,
     overwrite: bool = False,
-    delete_input: bool = False,
     nodata: Optional[float] = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
 ) -> None:
@@ -124,19 +122,8 @@ def merge_tiffs(
     )
     LOGGER.info("merging done")
 
-    if delete_input:
-        LOGGER.info("deleting input files")
-        for filename in input_filename_list:
-            if os.path.isfile(filename):
-                os.remove(filename)
 
-
-def extract_bands(
-    input_file: str,
-    output_file: str,
-    bands: Sequence[int],
-    overwrite: bool = False,
-) -> None:
+def extract_bands(input_file: str, output_file: str, bands: Sequence[int], overwrite: bool = False) -> None:
     """Extract bands from given input file
 
     :param input_file: File containing all bands
@@ -144,6 +131,9 @@ def extract_bands(
     :param bands: Sequence of bands to extract. Indexation starts at 0.
     :param overwrite: If True overwrite the output file if it exists.
     """
+    if not bands:
+        raise ValueError("No bands were specified for extraction, undefined behaviour.")
+
     if input_file == output_file:
         raise OSError("Input file is the same as output file.")
 
@@ -154,7 +144,7 @@ def extract_bands(
             raise OSError(f"{output_file} already exists. Set `overwrite` to true if it should be overwritten.")
 
     # gdal_translate starts indexation at 1
-    translate_opts = "-co compress=LZW" + " ".join(f" -b {band - 1}" for band in bands)
+    translate_opts = "-co compress=LZW" + " ".join(f" -b {band + 1}" for band in bands)
 
     temp_filename = NamedTemporaryFile()
     temp_filename.close()
