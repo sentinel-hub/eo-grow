@@ -15,7 +15,7 @@ from eolearn.core import EOPatch, FeatureType
 from eolearn.io import ExportToTiffTask
 from sentinelhub import CRS, BBox
 
-from eogrow.utils.map import GDAL_DTYPE_SETTINGS, cogify, cogify_inplace, merge_tiffs
+from eogrow.utils.map import GDAL_DTYPE_SETTINGS, cogify, cogify_inplace, extract_bands, merge_tiffs
 
 pytestmark = pytest.mark.fast
 
@@ -108,3 +108,27 @@ class TestMerge:
                 assert tiff_dtype == dtype and tiff_nodata == approx(nodata)
             output = np.moveaxis(src.read(), 0, -1)
             assert_array_almost_equal(output, self._expected_output(nodata))
+
+
+class TestExtractBands:
+    @pytest.fixture(name="output_path", scope="class")
+    def output_file_fixture(_, filesystem: FS) -> str:
+        return filesystem.getsyspath("output.tif")
+
+    @pytest.fixture(name="input_data", scope="class")
+    def input_data_fixture(_) -> np.ndarray:
+        layers = [np.zeros((100, 100)), np.ones((100, 100)), np.arange(100 * 100).reshape((100, 100))]
+        return np.stack(layers, axis=-1).astype(np.int32)
+
+    @pytest.fixture(name="input_path", scope="class")
+    def input_file_fixture(_, input_data: np.ndarray, filesystem: FS) -> str:
+        make_geotiff(input_data, BBox((1, 2, 3, 4), CRS.WGS84), filesystem, name="input")
+        return filesystem.getsyspath("input.tif")
+
+    @pytest.mark.parametrize("bands", [[0], [1], [2], [0, 1], [2, 1, 0]])
+    def test_extract_bands(self, output_path: str, input_path: List[str], input_data: np.ndarray, bands: List[int]):
+        extract_bands(input_path, output_path, bands, overwrite=True)
+
+        with rasterio.open(output_path) as src:
+            output = np.moveaxis(src.read(), 0, -1)
+            assert_array_almost_equal(output, input_data[..., bands])
