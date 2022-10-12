@@ -63,7 +63,7 @@ def cogify(
         else:
             raise OSError(f"{output_file} exists!")
 
-    gdaladdo_options = f"-r mode --config GDAL_TIFF_OVR_BLOCKSIZE {blocksize} 2 4 8 16 32"
+    gdaladdo_options = f'-r mode --config GDAL_TIFF_OVR_BLOCKSIZE "{blocksize}" "2" "4" "8" "16" "32"'
 
     gdaltranslate_options = (
         "-co TILED=YES -co COPY_SRC_OVERVIEWS=YES "

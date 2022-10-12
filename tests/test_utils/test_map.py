@@ -52,7 +52,7 @@ class TestCogify:
         cogify(input_path, output_path, nodata=nodata, dtype=dtype, blocksize=block, overwrite=True)
         self._test_output_file(output_path, nodata, dtype, block)
 
-    @pytest.mark.parametrize("dtype", ("float32", "int8"))
+    @pytest.mark.parametrize("dtype", ("float32", "uint8"))
     @pytest.mark.parametrize("block", (1024, 64))
     @pytest.mark.parametrize("nodata", (None, 11))
     def test_cogify_inplace(self, input_path: str, nodata: Optional[float], dtype: str, block: int) -> None:
