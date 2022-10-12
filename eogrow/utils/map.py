@@ -131,6 +131,9 @@ def extract_bands(input_file: str, output_file: str, bands: Sequence[int], overw
     :param bands: Sequence of bands to extract. Indexation starts at 0.
     :param overwrite: If True overwrite the output file if it exists.
     """
+    if not bands:
+        raise ValueError("No bands were specified for extraction, undefined behaviour.")
+
     if input_file == output_file:
         raise OSError("Input file is the same as output file.")
 

@@ -132,3 +132,7 @@ class TestExtractBands:
         with rasterio.open(output_path) as src:
             output = np.moveaxis(src.read(), 0, -1)
             assert_array_almost_equal(output, input_data[..., bands])
+
+    def test_extract_bands_empty(self, output_path: str, input_path: List[str]):
+        with pytest.raises(ValueError):
+            extract_bands(input_path, output_path, [], overwrite=True)
