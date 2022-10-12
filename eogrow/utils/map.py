@@ -92,7 +92,6 @@ def merge_tiffs(
     merged_filename: str,
     *,
     overwrite: bool = False,
-    delete_input: bool = False,
     nodata: Optional[float] = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
 ) -> None:
@@ -122,12 +121,6 @@ def merge_tiffs(
         f"gdal_merge.py {gdalmerge_options} -o {merged_filename} {' '.join(input_filename_list)}", shell=True
     )
     LOGGER.info("merging done")
-
-    if delete_input:
-        LOGGER.info("deleting input files")
-        for filename in input_filename_list:
-            if os.path.isfile(filename):
-                os.remove(filename)
 
 
 def extract_bands(input_file: str, output_file: str, bands: Sequence[int], overwrite: bool = False) -> None:

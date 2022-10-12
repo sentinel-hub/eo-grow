@@ -95,7 +95,6 @@ class ExportMapsPipeline(Pipeline):
                 geotiff_sys_paths,
                 map_sys_path,
                 overwrite=True,
-                delete_input=False,
                 nodata=self.config.no_data_value,
                 dtype=self.config.map_dtype,
             )
