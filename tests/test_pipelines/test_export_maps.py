@@ -12,7 +12,9 @@ def config_folder_fixture(config_folder, stats_folder):
 
 
 @pytest.mark.order(after="test_download.py::test_download_step_of_chain")
-@pytest.mark.parametrize("experiment_name", ["export_maps_mask", "export_maps_mask_local_copy"])
+@pytest.mark.parametrize(
+    "experiment_name", ["export_maps_mask", "export_maps_mask_local_copy", "export_maps_data_compressed"]
+)
 def test_export_maps_pipeline(experiment_name, folders):
     run_and_test_pipeline(experiment_name, **folders)
 

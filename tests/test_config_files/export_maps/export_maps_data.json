@@ -6,7 +6,7 @@
   "feature": ["data", "BANDS-S2-L1C"],
   "map_name": "result.tiff",
   "map_dtype": "float32",
-  "band_indices": [0],
-  "cogify": false,
+  "band_indices": [0, 1],
+  "cogify": true,
   "workers": 1
 }

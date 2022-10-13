@@ -6,6 +6,7 @@
   "feature": ["mask", "CLM"],
   "map_dtype": "uint16",
   "band_indices": [0],
+  "compress_temporally": true,
   "cogify": true,
   "workers": 1
 }
