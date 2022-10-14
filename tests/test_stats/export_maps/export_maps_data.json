@@ -1,7 +1,7 @@
 {
   "BANDS-S2-L1C": {
     "UTM_32638": {
-      "result_2018-01-19T07:42:27.tiff": {
+      "result_2018-01-19T07-42-27.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -105,7 +105,7 @@
           ]
         }
       },
-      "result_2018-02-28T07:46:50.tiff": {
+      "result_2018-02-28T07-46-50.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -209,7 +209,7 @@
           ]
         }
       },
-      "result_2018-03-05T07:38:03.tiff": {
+      "result_2018-03-05T07-38-03.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -313,7 +313,7 @@
           ]
         }
       },
-      "result_2018-03-25T07:44:17.tiff": {
+      "result_2018-03-25T07-44-17.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -417,7 +417,7 @@
           ]
         }
       },
-      "result_2018-04-09T07:38:40.tiff": {
+      "result_2018-04-09T07-38-40.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -521,7 +521,7 @@
           ]
         }
       },
-      "result_2018-04-19T07:43:26.tiff": {
+      "result_2018-04-19T07-43-26.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -625,7 +625,7 @@
           ]
         }
       },
-      "result_2018-04-24T07:46:03.tiff": {
+      "result_2018-04-24T07-46-03.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -729,7 +729,7 @@
           ]
         }
       },
-      "result_2018-05-09T07:36:10.tiff": {
+      "result_2018-05-09T07-36-10.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -833,7 +833,7 @@
           ]
         }
       },
-      "result_2018-05-19T07:45:29.tiff": {
+      "result_2018-05-19T07-45-29.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -937,7 +937,7 @@
           ]
         }
       },
-      "result_2018-06-08T07:43:25.tiff": {
+      "result_2018-06-08T07-43-25.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -1041,7 +1041,7 @@
           ]
         }
       },
-      "result_2018-06-13T07:43:56.tiff": {
+      "result_2018-06-13T07-43-56.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -1145,7 +1145,7 @@
           ]
         }
       },
-      "result_2018-06-18T07:42:58.tiff": {
+      "result_2018-06-18T07-42-58.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -1249,7 +1249,7 @@
           ]
         }
       },
-      "result_2018-06-23T07:46:07.tiff": {
+      "result_2018-06-23T07-46-07.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -1353,7 +1353,7 @@
           ]
         }
       },
-      "result_2018-06-28T07:45:41.tiff": {
+      "result_2018-06-28T07-45-41.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -1457,7 +1457,7 @@
           ]
         }
       },
-      "result_2018-07-03T07:36:13.tiff": {
+      "result_2018-07-03T07-36-13.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -1561,7 +1561,7 @@
           ]
         }
       },
-      "result_2018-07-08T07:42:00.tiff": {
+      "result_2018-07-08T07-42-00.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -1665,7 +1665,7 @@
           ]
         }
       },
-      "result_2018-07-13T07:44:13.tiff": {
+      "result_2018-07-13T07-44-13.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -1769,7 +1769,7 @@
           ]
         }
       },
-      "result_2018-08-02T07:36:12.tiff": {
+      "result_2018-08-02T07-36-12.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -1873,7 +1873,7 @@
           ]
         }
       },
-      "result_2018-08-07T07:41:24.tiff": {
+      "result_2018-08-07T07-41-24.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -1977,7 +1977,7 @@
           ]
         }
       },
-      "result_2018-08-17T07:47:30.tiff": {
+      "result_2018-08-17T07-47-30.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -2081,7 +2081,7 @@
           ]
         }
       },
-      "result_2018-08-22T07:45:09.tiff": {
+      "result_2018-08-22T07-45-09.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -2185,7 +2185,7 @@
           ]
         }
       },
-      "result_2018-08-27T07:39:47.tiff": {
+      "result_2018-08-27T07-39-47.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -2289,7 +2289,7 @@
           ]
         }
       },
-      "result_2018-09-01T07:36:10.tiff": {
+      "result_2018-09-01T07-36-10.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -2393,7 +2393,7 @@
           ]
         }
       },
-      "result_2018-09-06T07:40:44.tiff": {
+      "result_2018-09-06T07-40-44.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -2497,7 +2497,7 @@
           ]
         }
       },
-      "result_2018-09-11T07:44:09.tiff": {
+      "result_2018-09-11T07-44-09.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -2601,7 +2601,7 @@
           ]
         }
       },
-      "result_2018-09-16T07:41:35.tiff": {
+      "result_2018-09-16T07-41-35.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -2705,7 +2705,7 @@
           ]
         }
       },
-      "result_2018-09-21T07:46:13.tiff": {
+      "result_2018-09-21T07-46-13.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -2809,7 +2809,7 @@
           ]
         }
       },
-      "result_2018-09-26T07:47:11.tiff": {
+      "result_2018-09-26T07-47-11.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -2913,7 +2913,7 @@
           ]
         }
       },
-      "result_2018-10-01T07:37:17.tiff": {
+      "result_2018-10-01T07-37-17.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -3017,7 +3017,7 @@
           ]
         }
       },
-      "result_2018-10-21T07:39:34.tiff": {
+      "result_2018-10-21T07-39-34.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -3121,7 +3121,7 @@
           ]
         }
       },
-      "result_2018-10-31T07:41:47.tiff": {
+      "result_2018-10-31T07-41-47.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -3225,7 +3225,7 @@
           ]
         }
       },
-      "result_2018-11-10T07:48:34.tiff": {
+      "result_2018-11-10T07-48-34.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -3329,7 +3329,7 @@
           ]
         }
       },
-      "result_2018-11-20T07:48:33.tiff": {
+      "result_2018-11-20T07-48-33.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -3433,7 +3433,7 @@
           ]
         }
       },
-      "result_2018-12-15T07:48:33.tiff": {
+      "result_2018-12-15T07-48-33.tiff": {
         "image": {
           "array_shape": [
             2,
@@ -3537,7 +3537,7 @@
           ]
         }
       },
-      "result_2018-12-30T07:48:33.tiff": {
+      "result_2018-12-30T07-48-33.tiff": {
         "image": {
           "array_shape": [
             2,
