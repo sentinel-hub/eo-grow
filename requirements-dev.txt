@@ -3,6 +3,7 @@ codecov
 fs_s3fs
 ipdb
 jupyter
+mock
 moto
 mypy
 pytest>=4.0.0
