@@ -237,16 +237,16 @@ class ExportMapsPipeline(Pipeline):
         self, filesystem: FS, output_paths: List[Tuple[str, Optional[dt.datetime]]], output_folder: str
     ) -> None:
         """Renames (or transfers in case of temporal FS) the files to the expected output files."""
+        map_name = self.config.map_name or f"{self.config.feature[1]}.tiff"
         for map_path, timestamp in output_paths:
-            output_map_path = self._get_map_name(output_folder, timestamp)
+            if timestamp is None:
+                output_map_path = fs.path.join(output_folder, map_name)
+            else:
+                timestamp_output_folder = fs.path.join(output_folder, timestamp.strftime(TIMESTAMP_FORMAT))
+                self.storage.filesystem.makedirs(timestamp_output_folder, recreate=True)
+                output_map_path = fs.path.join(timestamp_output_folder, map_name)
 
             fs.copy.copy_file(filesystem, map_path, self.storage.filesystem, output_map_path)
             filesystem.remove(map_path)
 
         LOGGER.info("Merged maps are saved in %s", get_full_path(self.storage.filesystem, output_folder))
-
-    def _get_map_name(self, output_folder: str, timestamp: Optional[dt.datetime]) -> str:
-        name = self.config.map_name or f"{self.config.feature[1]}.tiff"
-        if timestamp is not None:
-            name = f"{name.replace('.tiff', '')}_{timestamp.strftime(TIMESTAMP_FORMAT)}.tiff"
-        return fs.path.join(output_folder, name)
