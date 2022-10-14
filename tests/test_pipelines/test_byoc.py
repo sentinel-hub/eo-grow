@@ -24,30 +24,22 @@ MOCK_COVER_GEOM = [[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]
 
 @pytest.fixture(name="requests_mock")
 def request_mock_setup(requests_mock):
-    # logging
-    requests_mock.get(url="/latest/dynamic/instance-identity/document", response_list=[{}])
+    requests_mock.get(url="/latest/dynamic/instance-identity/document", response_list=[{}])  # logging
 
     requests_mock.post(
         url="/oauth/token",
-        response_list=[{"json": {"access_token": "x", "expires_in": 1000, "expires_at": time.time() + 10000}}],
+        response_list=[{"json": {"access_token": "x", "expires_in": 10000, "expires_at": time.time() + 10000}}],
     )
 
     # creating a new collection
-    requests_mock.post(
-        url="/api/v1/byoc/collections",
-        response_list=[{"json": {"data": {"id": "mock-collection"}}}],
+    requests_mock.post(url="/api/v1/byoc/collections", response_list=[{"json": {"data": {"id": "mock-collection"}}}])
+
+    requests_mock.get(  # searching for existing tiles
+        url="/api/v1/byoc/collections/mock-collection/tiles", response_list=[{"json": {"data": [], "links": {}}}]
     )
 
-    # searching for existing tiles
-    requests_mock.get(
-        url="/api/v1/byoc/collections/mock-collection/tiles",
-        response_list=[{"json": {"data": [], "links": {}}}],
-    )
-
-    # creating new tiles
-    requests_mock.post(
-        url="/api/v1/byoc/collections/mock-collection/tiles",
-        response_list=[{"json": {"data": {"id": i}}} for i in range(100)],
+    requests_mock.post(  # creating new tiles
+        url="/api/v1/byoc/collections/mock-collection/tiles", response_list=[{"json": {"data": {"id": 0}}}]
     )
     return requests_mock
 
@@ -56,14 +48,18 @@ def _get_tile_cover_geometry_mock(_: str) -> Geometry:
     return Geometry(Polygon(MOCK_COVER_GEOM), crs=CRS.WGS84)
 
 
-@pytest.mark.parametrize(
-    "preparation_config, config",
-    [
-        ("prepare_lulc_data.json", "ingest_lulc.json"),
-    ],
-)
+@pytest.mark.parametrize("preparation_config, config", [("prepare_lulc_data.json", "ingest_lulc.json")])
 @pytest.mark.order(after=["test_rasterize.py::test_rasterize_pipeline_features"])
 def test_timeless_byoc(config_folder, preparation_config, config, requests_mock):
+    """Requires heavy mocking to get any testing done.
+
+    Mocks:
+    - The pipeline has to be tricked into thinking it's on AWS during init so it doesn't raise an error.
+    - The bucket_name is changed since it's not parsed correctly (because we're not on S3).
+    - When reading the cover geometry the path is not filesystem relative (but a join of bucket name + bucket relative)
+      so we mock it to prevent `rasterio.open` to fail.
+    - All request endpoints are mocked in the `requests_mock` fixture.
+    """
     preparation_config_path = os.path.join(config_folder, CONFIG_SUBFOLDER, preparation_config)
     ExportMapsPipeline.from_path(preparation_config_path).run()
 
@@ -73,36 +69,29 @@ def test_timeless_byoc(config_folder, preparation_config, config, requests_mock)
         pipeline = IngestByocTilesPipeline.from_path(config_path)
         pipeline.bucket_name = "mock-bucket"
 
-    assert not pipeline.storage.is_on_aws()
-
-    # Rasterio crashes when trying to open a file whose path is reconfigured to suit the bucket
     with mock.patch.object(pipeline, "_get_tile_cover_geometry", _get_tile_cover_geometry_mock):
         pipeline.run()
 
     # filter out all requests pertaining to logging of instance details
     relevant_requests = [req for req in requests_mock.request_history if "instance-identity" not in req.url]
-    assert len(relevant_requests) == 4
 
-    # first call is to authenticate
     auth_request = relevant_requests.pop(0)
     assert auth_request.url == "https://services.sentinel-hub.com/oauth/token"
 
-    # create collection with correct name and mocked bucket name (because we're running locally)
-    create_request = relevant_requests.pop(0)
-    assert create_request.url == "https://services.sentinel-hub.com/api/v1/byoc/collections"
-    assert create_request.method == "POST"
-    assert create_request.json()["name"] == pipeline.config.new_collection_name
-    assert create_request.json()["s3Bucket"] == "mock-bucket"
+    creation_request = relevant_requests.pop(0)
+    assert creation_request.url == "https://services.sentinel-hub.com/api/v1/byoc/collections"
+    assert creation_request.method == "POST"
+    assert creation_request.json()["name"] == pipeline.config.new_collection_name
+    assert creation_request.json()["s3Bucket"] == "mock-bucket"
 
-    # check existing tiles
     check_request = relevant_requests.pop(0)
     assert check_request.url == "https://services.sentinel-hub.com/api/v1/byoc/collections/mock-collection/tiles"
     assert check_request.method == "GET"
 
     for tile_request in relevant_requests:
-        # create new tiles with correct path, sensing time, and cover geom
         assert tile_request.url == "https://services.sentinel-hub.com/api/v1/byoc/collections/mock-collection/tiles"
         assert tile_request.method == "POST"
+
         content = tile_request.json()
         assert content["coverGeometry"]["coordinates"] == [MOCK_COVER_GEOM]
         # it cannot strip the s3://<bucket-name> prefix since tests are local, so a full path is expected
