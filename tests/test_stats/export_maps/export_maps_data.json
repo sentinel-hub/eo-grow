@@ -1,7 +1,7 @@
 {
   "BANDS-S2-L1C": {
     "UTM_32638": {
-      "2018-01-19T07-42-27": {
+      "2019-01-04T07-48-37": {
         "result.tiff": {
           "image": {
             "array_shape": [
@@ -10,10 +10,10 @@
               264
             ],
             "basic_stats": {
-              "max": 0.9554,
-              "mean": 0.13572,
-              "median": 0.1443,
-              "min": 0.0862
+              "max": 0.5815,
+              "mean": 0.13932,
+              "median": 0.1497,
+              "min": 0.0805
             },
             "counts": {
               "infinite": 0,
@@ -22,2618 +22,74 @@
             "dtype": "float32",
             "histogram": {
               "counts": [
-                121716,
-                233,
-                18,
-                0,
-                0,
-                0,
-                0,
-                1
-              ],
-              "edges": [
-                0.0862,
-                0.19485,
-                0.3035,
-                0.41215,
-                0.5208,
-                0.62945,
-                0.7381,
-                0.84675,
-                0.9554
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  0,
-                  167,
-                  96
-                ],
-                "value": 0.1686
-              },
-              {
-                "position": [
-                  0,
-                  216,
-                  173
-                ],
-                "value": 0.154
-              },
-              {
-                "position": [
-                  1,
-                  206,
-                  150
-                ],
-                "value": 0.1259
-              },
-              {
-                "position": [
-                  1,
-                  119,
-                  33
-                ],
-                "value": 0.1303
-              },
-              {
-                "position": [
-                  1,
-                  211,
-                  134
-                ],
-                "value": 0.2013
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.407,
-              "mean": 0.13571,
-              "median": 0.144,
-              "min": 0.0954
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-02-28T07-46-50": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.7872,
-              "mean": 0.2204,
-              "median": 0.1705,
-              "min": 0.1076
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                78943,
-                15980,
-                9920,
-                7665,
-                6084,
-                2960,
-                415,
-                1
-              ],
-              "edges": [
-                0.1076,
-                0.19255,
-                0.2775,
-                0.36245,
-                0.4474,
-                0.53235,
-                0.6173,
-                0.70225,
-                0.7872
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  157,
-                  14
-                ],
-                "value": 0.4361
-              },
-              {
-                "position": [
-                  1,
-                  140,
-                  185
-                ],
-                "value": 0.3712
-              },
-              {
-                "position": [
-                  1,
-                  111,
-                  179
-                ],
-                "value": 0.247
-              },
-              {
-                "position": [
-                  1,
-                  165,
-                  15
-                ],
-                "value": 0.2666
-              },
-              {
-                "position": [
-                  1,
-                  138,
-                  23
-                ],
-                "value": 0.5495
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.681,
-              "mean": 0.21983,
-              "median": 0.1705,
-              "min": 0.1094
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-03-05T07-38-03": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.5755,
-              "mean": 0.13316,
-              "median": 0.1375,
-              "min": 0.0917
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                107655,
-                14205,
-                68,
-                22,
-                12,
-                3,
-                1,
-                2
-              ],
-              "edges": [
-                0.0917,
-                0.15218,
-                0.21265,
-                0.27312,
-                0.3336,
-                0.39408,
-                0.45455,
-                0.51503,
-                0.5755
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  91,
-                  131
-                ],
-                "value": 0.1649
-              },
-              {
-                "position": [
-                  0,
-                  207,
-                  232
-                ],
-                "value": 0.1505
-              },
-              {
-                "position": [
-                  1,
-                  215,
-                  102
-                ],
-                "value": 0.1227
-              },
-              {
-                "position": [
-                  1,
-                  121,
-                  100
-                ],
-                "value": 0.1271
-              },
-              {
-                "position": [
-                  0,
-                  170,
-                  105
-                ],
-                "value": 0.1931
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.3409,
-              "mean": 0.1331,
-              "median": 0.1375,
-              "min": 0.0922
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-03-25T07-44-17": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.4317,
-              "mean": 0.13897,
-              "median": 0.1421,
-              "min": 0.1045
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                71778,
-                49792,
-                335,
-                36,
-                17,
-                9,
-                0,
-                1
-              ],
-              "edges": [
-                0.1045,
-                0.1454,
-                0.1863,
-                0.2272,
-                0.2681,
-                0.309,
-                0.3499,
-                0.3908,
-                0.4317
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  189,
-                  126
-                ],
-                "value": 0.1687
-              },
-              {
-                "position": [
-                  0,
-                  204,
-                  159
-                ],
-                "value": 0.156
-              },
-              {
-                "position": [
-                  1,
-                  216,
-                  88
-                ],
-                "value": 0.1317
-              },
-              {
-                "position": [
-                  1,
-                  163,
-                  123
-                ],
-                "value": 0.1356
-              },
-              {
-                "position": [
-                  1,
-                  198,
-                  254
-                ],
-                "value": 0.1932
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.2653,
-              "mean": 0.13892,
-              "median": 0.142,
-              "min": 0.1047
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-04-09T07-38-40": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.7352,
-              "mean": 0.12667,
-              "median": 0.1292,
-              "min": 0.0885
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                120938,
-                981,
+                58087,
+                63724,
+                124,
                 26,
-                10,
-                7,
-                4,
-                1,
-                1
-              ],
-              "edges": [
-                0.0885,
-                0.16934,
-                0.25017,
-                0.33101,
-                0.41185,
-                0.49269,
-                0.57353,
-                0.65436,
-                0.7352
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  186,
-                  113
-                ],
-                "value": 0.1602
-              },
-              {
-                "position": [
-                  1,
-                  60,
-                  115
-                ],
-                "value": 0.1461
-              },
-              {
-                "position": [
-                  1,
-                  204,
-                  176
-                ],
-                "value": 0.1191
-              },
-              {
-                "position": [
-                  1,
-                  26,
-                  87
-                ],
-                "value": 0.1234
-              },
-              {
-                "position": [
-                  1,
-                  207,
-                  111
-                ],
-                "value": 0.1875
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.5837,
-              "mean": 0.12678,
-              "median": 0.1292,
-              "min": 0.0885
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-04-19T07-43-26": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.8663,
-              "mean": 0.12762,
-              "median": 0.1298,
-              "min": 0.0767
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                121364,
-                564,
-                25,
-                6,
-                2,
                 5,
                 0,
-                2
-              ],
-              "edges": [
-                0.0767,
-                0.1754,
-                0.2741,
-                0.3728,
-                0.4715,
-                0.5702,
-                0.6689,
-                0.7676,
-                0.8663
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  72,
-                  157
-                ],
-                "value": 0.1598
-              },
-              {
-                "position": [
-                  0,
-                  208,
-                  162
-                ],
-                "value": 0.1463
-              },
-              {
-                "position": [
-                  1,
-                  222,
-                  187
-                ],
-                "value": 0.1204
-              },
-              {
-                "position": [
-                  0,
-                  138,
-                  7
-                ],
-                "value": 0.1245
-              },
-              {
-                "position": [
-                  1,
-                  97,
-                  119
-                ],
-                "value": 0.1854
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.8339,
-              "mean": 0.12777,
-              "median": 0.1297,
-              "min": 0.0913
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-04-24T07-46-03": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.8068,
-              "mean": 0.12411,
-              "median": 0.1266,
-              "min": 0.0836
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                121161,
-                757,
-                30,
-                9,
-                4,
-                2,
-                3,
-                2
-              ],
-              "edges": [
-                0.0836,
-                0.174,
-                0.2644,
-                0.3548,
-                0.4452,
-                0.5356,
-                0.626,
-                0.7164,
-                0.8068
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  188,
-                  127
-                ],
-                "value": 0.1618
-              },
-              {
-                "position": [
-                  0,
-                  225,
-                  83
-                ],
-                "value": 0.1466
-              },
-              {
-                "position": [
-                  1,
-                  212,
-                  40
-                ],
-                "value": 0.1175
-              },
-              {
-                "position": [
-                  0,
-                  47,
-                  47
-                ],
-                "value": 0.1222
-              },
-              {
-                "position": [
-                  1,
-                  196,
-                  134
-                ],
-                "value": 0.1923
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.5264,
-              "mean": 0.12406,
-              "median": 0.1265,
-              "min": 0.0856
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-05-09T07-36-10": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.3907,
-              "mean": 0.12919,
-              "median": 0.1311,
-              "min": 0.0895
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                47538,
-                72922,
-                1363,
-                88,
-                32,
-                17,
-                5,
-                3
-              ],
-              "edges": [
-                0.0895,
-                0.12715,
-                0.1648,
-                0.20245,
-                0.2401,
-                0.27775,
-                0.3154,
-                0.35305,
-                0.3907
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  211,
-                  232
-                ],
-                "value": 0.1628
-              },
-              {
-                "position": [
-                  0,
-                  147,
-                  109
-                ],
-                "value": 0.1485
-              },
-              {
-                "position": [
-                  1,
-                  204,
-                  23
-                ],
-                "value": 0.121
-              },
-              {
-                "position": [
-                  1,
-                  95,
-                  109
-                ],
-                "value": 0.1253
-              },
-              {
-                "position": [
-                  1,
-                  190,
-                  116
-                ],
-                "value": 0.193
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.2853,
-              "mean": 0.1291,
-              "median": 0.1309,
-              "min": 0.0909
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-05-19T07-45-29": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.5098,
-              "mean": 0.12771,
-              "median": 0.129,
-              "min": 0.0789
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                71559,
-                49908,
-                427,
-                57,
-                15,
-                0,
                 0,
                 2
               ],
               "edges": [
-                0.0789,
-                0.13276,
-                0.18663,
-                0.24049,
-                0.29435,
-                0.34821,
-                0.40208,
-                0.45594,
-                0.5098
+                0.0805,
+                0.14312,
+                0.20575,
+                0.26838,
+                0.331,
+                0.39362,
+                0.45625,
+                0.51888,
+                0.5815
               ]
             },
             "random_values": [
               {
                 "position": [
-                  1,
-                  191,
-                  91
-                ],
-                "value": 0.165
-              },
-              {
-                "position": [
                   0,
-                  174,
-                  149
-                ],
-                "value": 0.1486
-              },
-              {
-                "position": [
-                  1,
-                  209,
-                  247
-                ],
-                "value": 0.1169
-              },
-              {
-                "position": [
-                  1,
-                  111,
-                  57
-                ],
-                "value": 0.122
-              },
-              {
-                "position": [
-                  1,
-                  224,
-                  200
-                ],
-                "value": 0.1951
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.2966,
-              "mean": 0.12767,
-              "median": 0.129,
-              "min": 0.0817
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-06-08T07-43-25": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.5778,
-              "mean": 0.16738,
-              "median": 0.1485,
-              "min": 0.093
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                73714,
-                36278,
-                2171,
-                2412,
-                2246,
-                1965,
-                2082,
-                1100
-              ],
-              "edges": [
-                0.093,
-                0.1536,
-                0.2142,
-                0.2748,
-                0.3354,
-                0.396,
-                0.4566,
-                0.5172,
-                0.5778
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  202,
-                  33
-                ],
-                "value": 0.3806
-              },
-              {
-                "position": [
-                  1,
-                  224,
-                  39
-                ],
-                "value": 0.3205
-              },
-              {
-                "position": [
-                  1,
-                  174,
-                  61
-                ],
-                "value": 0.205
-              },
-              {
-                "position": [
-                  0,
-                  186,
-                  63
-                ],
-                "value": 0.2245
-              },
-              {
-                "position": [
-                  1,
-                  218,
-                  27
-                ],
-                "value": 0.4911
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.576,
-              "mean": 0.16625,
-              "median": 0.1484,
-              "min": 0.0964
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-06-13T07-43-56": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.8896,
-              "mean": 0.12776,
-              "median": 0.1293,
-              "min": 0.0642
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                119630,
-                2280,
-                45,
-                6,
-                5,
-                1,
-                0,
-                1
-              ],
-              "edges": [
-                0.0642,
-                0.16737,
-                0.27055,
-                0.37372,
-                0.4769,
-                0.58007,
-                0.68325,
-                0.78642,
-                0.8896
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  204,
-                  132
-                ],
-                "value": 0.1667
-              },
-              {
-                "position": [
-                  1,
-                  171,
-                  73
-                ],
-                "value": 0.1495
-              },
-              {
-                "position": [
-                  1,
-                  211,
-                  46
-                ],
-                "value": 0.1164
-              },
-              {
-                "position": [
-                  0,
-                  170,
-                  25
-                ],
-                "value": 0.1217
-              },
-              {
-                "position": [
-                  1,
-                  185,
-                  94
-                ],
-                "value": 0.2021
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.3425,
-              "mean": 0.12768,
-              "median": 0.1291,
-              "min": 0.0642
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-06-18T07-42-58": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.7143,
-              "mean": 0.13171,
-              "median": 0.1336,
-              "min": 0.0593
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                87393,
-                34449,
-                110,
-                9,
-                4,
-                0,
-                1,
-                2
-              ],
-              "edges": [
-                0.0593,
-                0.14118,
-                0.22305,
-                0.30492,
-                0.3868,
-                0.46867,
-                0.55055,
-                0.63242,
-                0.7143
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  218,
-                  92
-                ],
-                "value": 0.1677
-              },
-              {
-                "position": [
-                  0,
-                  149,
-                  85
-                ],
-                "value": 0.1522
-              },
-              {
-                "position": [
-                  1,
-                  190,
-                  100
-                ],
-                "value": 0.1225
-              },
-              {
-                "position": [
-                  0,
-                  56,
-                  226
-                ],
-                "value": 0.1272
-              },
-              {
-                "position": [
-                  1,
-                  179,
-                  92
-                ],
-                "value": 0.1999
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.2962,
-              "mean": 0.13172,
-              "median": 0.1337,
-              "min": 0.0904
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-06-23T07-46-07": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.8968,
-              "mean": 0.13647,
-              "median": 0.1384,
-              "min": 0.093
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                121652,
-                290,
-                20,
-                4,
-                1,
-                0,
-                0,
-                1
-              ],
-              "edges": [
-                0.093,
-                0.19347,
-                0.29395,
-                0.39443,
-                0.4949,
-                0.59538,
-                0.69585,
-                0.79632,
-                0.8968
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  190,
-                  181
-                ],
-                "value": 0.171
-              },
-              {
-                "position": [
-                  0,
-                  175,
-                  87
-                ],
-                "value": 0.1557
-              },
-              {
-                "position": [
-                  1,
                   213,
-                  109
-                ],
-                "value": 0.1263
-              },
-              {
-                "position": [
-                  0,
-                  229,
-                  216
-                ],
-                "value": 0.131
-              },
-              {
-                "position": [
-                  1,
-                  172,
-                  111
-                ],
-                "value": 0.2004
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.2827,
-              "mean": 0.13632,
-              "median": 0.1384,
-              "min": 0.093
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-06-28T07-45-41": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.7681,
-              "mean": 0.13331,
-              "median": 0.1347,
-              "min": 0.0847
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                119521,
-                2391,
-                45,
-                7,
-                1,
-                1,
-                0,
-                2
-              ],
-              "edges": [
-                0.0847,
-                0.17013,
-                0.25555,
-                0.34098,
-                0.4264,
-                0.51183,
-                0.59725,
-                0.68268,
-                0.7681
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  207,
-                  34
-                ],
-                "value": 0.1704
-              },
-              {
-                "position": [
-                  0,
-                  225,
-                  147
-                ],
-                "value": 0.1537
-              },
-              {
-                "position": [
-                  1,
-                  203,
-                  188
-                ],
-                "value": 0.1217
-              },
-              {
-                "position": [
-                  0,
-                  61,
-                  243
-                ],
-                "value": 0.1268
-              },
-              {
-                "position": [
-                  1,
-                  102,
-                  118
-                ],
-                "value": 0.2014
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.3062,
-              "mean": 0.13335,
-              "median": 0.1349,
-              "min": 0.086
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-07-03T07-36-13": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.7034,
-              "mean": 0.13848,
-              "median": 0.1405,
-              "min": 0.0623
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                68095,
-                53765,
-                89,
-                11,
-                4,
-                3,
-                0,
-                1
-              ],
-              "edges": [
-                0.0623,
-                0.14244,
-                0.22258,
-                0.30271,
-                0.38285,
-                0.46299,
-                0.54313,
-                0.62326,
-                0.7034
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  0,
-                  229,
-                  59
-                ],
-                "value": 0.1722
-              },
-              {
-                "position": [
-                  0,
-                  153,
                   162
                 ],
-                "value": 0.1567
-              },
-              {
-                "position": [
-                  1,
-                  211,
-                  188
-                ],
-                "value": 0.1268
+                "value": 0.1693
               },
               {
                 "position": [
                   0,
-                  121,
-                  249
-                ],
-                "value": 0.1315
-              },
-              {
-                "position": [
-                  1,
-                  143,
-                  57
-                ],
-                "value": 0.2009
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.2822,
-              "mean": 0.13846,
-              "median": 0.1405,
-              "min": 0.0937
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-07-08T07-42-00": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.4883,
-              "mean": 0.14072,
-              "median": 0.1417,
-              "min": 0.0929
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                62756,
-                57748,
-                1143,
-                222,
-                86,
-                10,
-                2,
-                1
-              ],
-              "edges": [
-                0.0929,
-                0.14232,
-                0.19175,
-                0.24117,
-                0.2906,
-                0.34003,
-                0.38945,
-                0.43887,
-                0.4883
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  208,
-                  131
-                ],
-                "value": 0.1893
-              },
-              {
-                "position": [
-                  1,
-                  19,
-                  154
-                ],
-                "value": 0.1705
-              },
-              {
-                "position": [
-                  1,
-                  168,
-                  246
-                ],
-                "value": 0.1345
-              },
-              {
-                "position": [
-                  0,
-                  116,
-                  81
-                ],
-                "value": 0.1402
-              },
-              {
-                "position": [
-                  1,
-                  48,
-                  113
-                ],
-                "value": 0.2337
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.33,
-              "mean": 0.14079,
-              "median": 0.1418,
-              "min": 0.0929
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-07-13T07-44-13": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.4817,
-              "mean": 0.14089,
-              "median": 0.1431,
-              "min": 0.0971
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                68290,
-                53415,
-                212,
-                44,
-                6,
-                0,
-                0,
-                1
-              ],
-              "edges": [
-                0.0971,
-                0.14517,
-                0.19325,
-                0.24133,
-                0.2894,
-                0.33748,
-                0.38555,
-                0.43363,
-                0.4817
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  0,
-                  202,
-                  113
-                ],
-                "value": 0.1699
-              },
-              {
-                "position": [
-                  1,
-                  81,
-                  99
+                  118,
+                  72
                 ],
                 "value": 0.1558
               },
               {
                 "position": [
                   1,
-                  212,
-                  214
+                  209,
+                  81
                 ],
-                "value": 0.1286
-              },
-              {
-                "position": [
-                  1,
-                  83,
-                  248
-                ],
-                "value": 0.1329
-              },
-              {
-                "position": [
-                  1,
-                  131,
-                  220
-                ],
-                "value": 0.1958
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.2712,
-              "mean": 0.14087,
-              "median": 0.1431,
-              "min": 0.0987
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-08-02T07-36-12": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.3852,
-              "mean": 0.14589,
-              "median": 0.148,
-              "min": 0.1031
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                35874,
-                81942,
-                3984,
-                111,
-                34,
-                14,
-                6,
-                3
-              ],
-              "edges": [
-                0.1031,
-                0.13836,
-                0.17362,
-                0.20889,
-                0.24415,
-                0.27941,
-                0.31468,
-                0.34994,
-                0.3852
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  200,
-                  126
-                ],
-                "value": 0.1775
-              },
-              {
-                "position": [
-                  0,
-                  222,
-                  66
-                ],
-                "value": 0.1629
-              },
-              {
-                "position": [
-                  1,
-                  212,
-                  75
-                ],
-                "value": 0.1349
-              },
-              {
-                "position": [
-                  1,
-                  109,
-                  208
-                ],
-                "value": 0.1394
-              },
-              {
-                "position": [
-                  1,
-                  71,
-                  148
-                ],
-                "value": 0.2044
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.3311,
-              "mean": 0.14592,
-              "median": 0.1478,
-              "min": 0.1042
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-08-07T07-41-24": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.4766,
-              "mean": 0.36927,
-              "median": 0.3704,
-              "min": 0.202
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                32,
-                569,
-                5049,
-                21107,
-                38351,
-                37339,
-                17637,
-                1884
-              ],
-              "edges": [
-                0.202,
-                0.23633,
-                0.27065,
-                0.30498,
-                0.3393,
-                0.37363,
-                0.40795,
-                0.44227,
-                0.4766
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  148,
-                  42
-                ],
-                "value": 0.3861
-              },
-              {
-                "position": [
-                  1,
-                  114,
-                  152
-                ],
-                "value": 0.3581
-              },
-              {
-                "position": [
-                  1,
-                  119,
-                  129
-                ],
-                "value": 0.3043
-              },
-              {
-                "position": [
-                  0,
-                  8,
-                  42
-                ],
-                "value": 0.3129
-              },
-              {
-                "position": [
-                  1,
-                  213,
-                  141
-                ],
-                "value": 0.4337
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.4758,
-              "mean": 0.36918,
-              "median": 0.3706,
-              "min": 0.2177
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-08-17T07-47-30": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.658,
-              "mean": 0.13561,
-              "median": 0.1375,
-              "min": 0.0913
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                115944,
-                5958,
-                42,
-                11,
-                4,
-                4,
-                4,
-                1
-              ],
-              "edges": [
-                0.0913,
-                0.16214,
-                0.23298,
-                0.30381,
-                0.37465,
-                0.44549,
-                0.51632,
-                0.58716,
-                0.658
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  197,
-                  183
-                ],
-                "value": 0.1669
-              },
-              {
-                "position": [
-                  0,
-                  170,
-                  69
-                ],
-                "value": 0.1521
-              },
-              {
-                "position": [
-                  1,
-                  197,
-                  238
-                ],
-                "value": 0.1236
-              },
-              {
-                "position": [
-                  1,
-                  111,
-                  189
-                ],
-                "value": 0.1281
-              },
-              {
-                "position": [
-                  1,
-                  229,
-                  200
-                ],
-                "value": 0.1949
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.4914,
-              "mean": 0.1357,
-              "median": 0.1375,
-              "min": 0.0921
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-08-22T07-45-09": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.8101,
-              "mean": 0.13679,
-              "median": 0.1389,
-              "min": 0.0917
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                121062,
-                864,
-                19,
-                13,
-                3,
-                2,
-                3,
-                2
-              ],
-              "edges": [
-                0.0917,
-                0.1815,
-                0.2713,
-                0.3611,
-                0.4509,
-                0.5407,
-                0.6305,
-                0.7203,
-                0.8101
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  0,
-                  202,
-                  144
-                ],
-                "value": 0.1692
-              },
-              {
-                "position": [
-                  0,
-                  221,
-                  112
-                ],
-                "value": 0.154
-              },
-              {
-                "position": [
-                  1,
-                  213,
-                  189
-                ],
-                "value": 0.1249
-              },
-              {
-                "position": [
-                  1,
-                  105,
-                  198
-                ],
-                "value": 0.1296
-              },
-              {
-                "position": [
-                  1,
-                  162,
-                  208
-                ],
-                "value": 0.1968
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.5724,
-              "mean": 0.13678,
-              "median": 0.1387,
-              "min": 0.0917
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-08-27T07-39-47": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.7602,
-              "mean": 0.13698,
-              "median": 0.139,
-              "min": 0.0939
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                120799,
-                1125,
-                22,
-                10,
-                7,
-                3,
-                1,
-                1
-              ],
-              "edges": [
-                0.0939,
-                0.17719,
-                0.26048,
-                0.34376,
-                0.42705,
-                0.51034,
-                0.59363,
-                0.67691,
-                0.7602
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  0,
-                  195,
-                  162
-                ],
-                "value": 0.1677
-              },
-              {
-                "position": [
-                  0,
-                  186,
-                  66
-                ],
-                "value": 0.1532
-              },
-              {
-                "position": [
-                  1,
-                  211,
-                  222
-                ],
-                "value": 0.1253
-              },
-              {
-                "position": [
-                  1,
-                  93,
-                  14
-                ],
-                "value": 0.1298
-              },
-              {
-                "position": [
-                  1,
-                  204,
-                  31
-                ],
-                "value": 0.1944
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.5652,
-              "mean": 0.13703,
-              "median": 0.1386,
-              "min": 0.0945
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-09-01T07-36-10": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.4456,
-              "mean": 0.15551,
-              "median": 0.1579,
-              "min": 0.117
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                61435,
-                60094,
-                392,
-                23,
-                12,
-                5,
-                3,
-                4
-              ],
-              "edges": [
-                0.117,
-                0.15808,
-                0.19915,
-                0.24023,
-                0.2813,
-                0.32237,
-                0.36345,
-                0.40453,
-                0.4456
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  0,
-                  119,
-                  159
-                ],
-                "value": 0.1803
-              },
-              {
-                "position": [
-                  0,
-                  112,
-                  207
-                ],
-                "value": 0.168
-              },
-              {
-                "position": [
-                  1,
-                  213,
-                  106
-                ],
-                "value": 0.1441
-              },
-              {
-                "position": [
-                  1,
-                  99,
-                  240
-                ],
-                "value": 0.1479
-              },
-              {
-                "position": [
-                  1,
-                  179,
-                  134
-                ],
-                "value": 0.2027
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.4401,
-              "mean": 0.15555,
-              "median": 0.1578,
-              "min": 0.1177
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-09-06T07-40-44": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.3778,
-              "mean": 0.14421,
-              "median": 0.147,
-              "min": 0.1049
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                40240,
-                79404,
-                2239,
-                54,
-                11,
-                9,
-                8,
-                3
-              ],
-              "edges": [
-                0.1049,
-                0.13901,
-                0.17312,
-                0.20724,
-                0.24135,
-                0.27546,
-                0.30957,
-                0.34369,
-                0.3778
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  207,
-                  134
-                ],
-                "value": 0.1687
-              },
-              {
-                "position": [
-                  0,
-                  215,
-                  70
-                ],
-                "value": 0.1563
-              },
-              {
-                "position": [
-                  1,
-                  208,
-                  162
-                ],
-                "value": 0.1324
-              },
-              {
-                "position": [
-                  1,
-                  107,
-                  146
-                ],
-                "value": 0.1362
-              },
-              {
-                "position": [
-                  1,
-                  97,
-                  119
-                ],
-                "value": 0.1923
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.3363,
-              "mean": 0.14428,
-              "median": 0.14695,
-              "min": 0.1057
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-09-11T07-44-09": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.3702,
-              "mean": 0.14301,
-              "median": 0.1457,
-              "min": 0.1008
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                35799,
-                79945,
-                6105,
-                75,
-                21,
-                10,
-                10,
-                3
-              ],
-              "edges": [
-                0.1008,
-                0.13448,
-                0.16815,
-                0.20183,
-                0.2355,
-                0.26917,
-                0.30285,
-                0.33652,
-                0.3702
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  158,
-                  100
-                ],
-                "value": 0.1684
-              },
-              {
-                "position": [
-                  0,
-                  123,
-                  32
-                ],
-                "value": 0.1551
-              },
-              {
-                "position": [
-                  1,
-                  193,
-                  5
-                ],
-                "value": 0.1295
+                "value": 0.1299
               },
               {
                 "position": [
                   1,
                   117,
-                  186
+                  139
                 ],
-                "value": 0.1336
+                "value": 0.134
               },
               {
                 "position": [
                   1,
-                  215,
-                  144
+                  224,
+                  141
                 ],
-                "value": 0.1924
+                "value": 0.1999
               }
             ],
             "subsample_basic_stats": {
-              "max": 0.2931,
-              "mean": 0.14298,
-              "median": 0.1456,
-              "min": 0.1013
+              "max": 0.3462,
+              "mean": 0.13918,
+              "median": 0.1495,
+              "min": 0.1004
             }
           },
           "mask": {
@@ -2651,7 +107,7 @@
           }
         }
       },
-      "2018-09-16T07-41-35": {
+      "2019-01-24T07-48-39": {
         "result.tiff": {
           "image": {
             "array_shape": [
@@ -2660,10 +116,10 @@
               264
             ],
             "basic_stats": {
-              "max": 0.4021,
-              "mean": 0.13199,
-              "median": 0.1344,
-              "min": 0.084
+              "max": 0.7738,
+              "mean": 0.31091,
+              "median": 0.2997,
+              "min": 0.1363
             },
             "counts": {
               "infinite": 0,
@@ -2672,180 +128,286 @@
             "dtype": "float32",
             "histogram": {
               "counts": [
-                36220,
-                82132,
-                3494,
-                77,
-                28,
-                11,
+                21301,
+                37910,
+                30573,
+                22893,
+                7488,
+                1575,
+                207,
+                21
+              ],
+              "edges": [
+                0.1363,
+                0.21599,
+                0.29568,
+                0.37536,
+                0.45505,
+                0.53474,
+                0.61443,
+                0.69411,
+                0.7738
+              ]
+            },
+            "random_values": [
+              {
+                "position": [
+                  1,
+                  210,
+                  123
+                ],
+                "value": 0.4319
+              },
+              {
+                "position": [
+                  0,
+                  205,
+                  52
+                ],
+                "value": 0.3737
+              },
+              {
+                "position": [
+                  1,
+                  184,
+                  16
+                ],
+                "value": 0.2619
+              },
+              {
+                "position": [
+                  0,
+                  76,
+                  55
+                ],
+                "value": 0.2796
+              },
+              {
+                "position": [
+                  1,
+                  216,
+                  223
+                ],
+                "value": 0.5347
+              }
+            ],
+            "subsample_basic_stats": {
+              "max": 0.7608,
+              "mean": 0.31029,
+              "median": 0.2987,
+              "min": 0.1374
+            }
+          },
+          "mask": {
+            "array_shape": [
+              231,
+              264
+            ],
+            "dtype": "uint8",
+            "values": [
+              {
+                "count": 60984,
+                "value": 255
+              }
+            ]
+          }
+        }
+      },
+      "2019-02-13T07-48-39": {
+        "result.tiff": {
+          "image": {
+            "array_shape": [
+              2,
+              231,
+              264
+            ],
+            "basic_stats": {
+              "max": 0.7214,
+              "mean": 0.2737,
+              "median": 0.2407,
+              "min": 0.1077
+            },
+            "counts": {
+              "infinite": 0,
+              "nan": 0
+            },
+            "dtype": "float32",
+            "histogram": {
+              "counts": [
+                37415,
+                29412,
+                22862,
+                14220,
+                9994,
+                4817,
+                2671,
+                577
+              ],
+              "edges": [
+                0.1077,
+                0.18441,
+                0.26112,
+                0.33784,
+                0.41455,
+                0.49126,
+                0.56798,
+                0.64469,
+                0.7214
+              ]
+            },
+            "random_values": [
+              {
+                "position": [
+                  1,
+                  185,
+                  27
+                ],
+                "value": 0.4617
+              },
+              {
+                "position": [
+                  1,
+                  123,
+                  151
+                ],
+                "value": 0.3923
+              },
+              {
+                "position": [
+                  1,
+                  224,
+                  69
+                ],
+                "value": 0.2594
+              },
+              {
+                "position": [
+                  1,
+                  90,
+                  181
+                ],
+                "value": 0.2804
+              },
+              {
+                "position": [
+                  1,
+                  218,
+                  19
+                ],
+                "value": 0.5852
+              }
+            ],
+            "subsample_basic_stats": {
+              "max": 0.715,
+              "mean": 0.2703,
+              "median": 0.2367,
+              "min": 0.1122
+            }
+          },
+          "mask": {
+            "array_shape": [
+              231,
+              264
+            ],
+            "dtype": "uint8",
+            "values": [
+              {
+                "count": 60984,
+                "value": 255
+              }
+            ]
+          }
+        }
+      },
+      "2019-02-18T07-48-36": {
+        "result.tiff": {
+          "image": {
+            "array_shape": [
+              2,
+              231,
+              264
+            ],
+            "basic_stats": {
+              "max": 1.448,
+              "mean": 0.12402,
+              "median": 0.1308,
+              "min": 0.082
+            },
+            "counts": {
+              "infinite": 0,
+              "nan": 0
+            },
+            "dtype": "float32",
+            "histogram": {
+              "counts": [
+                121922,
+                40,
+                3,
                 2,
-                4
+                0,
+                0,
+                0,
+                1
               ],
               "edges": [
-                0.084,
-                0.12376,
-                0.16353,
-                0.20329,
-                0.24305,
-                0.28281,
-                0.32258,
-                0.36234,
-                0.4021
+                0.082,
+                0.25275,
+                0.4235,
+                0.59425,
+                0.765,
+                0.93575,
+                1.1065,
+                1.27725,
+                1.448
               ]
             },
             "random_values": [
               {
                 "position": [
                   0,
-                  99,
-                  127
+                  183,
+                  135
                 ],
-                "value": 0.1618
+                "value": 0.1576
               },
               {
                 "position": [
                   0,
-                  142,
-                  188
+                  211,
+                  106
                 ],
-                "value": 0.1466
+                "value": 0.1429
               },
               {
                 "position": [
                   1,
-                  196,
-                  90
+                  216,
+                  163
                 ],
-                "value": 0.1174
-              },
-              {
-                "position": [
-                  1,
-                  77,
-                  113
-                ],
-                "value": 0.122
-              },
-              {
-                "position": [
-                  1,
-                  86,
-                  119
-                ],
-                "value": 0.1895
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.3151,
-              "mean": 0.13209,
-              "median": 0.1342,
-              "min": 0.0852
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-09-21T07-46-13": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.3918,
-              "mean": 0.13622,
-              "median": 0.1397,
-              "min": 0.095
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                44254,
-                75675,
-                1934,
-                57,
-                23,
-                11,
-                8,
-                6
-              ],
-              "edges": [
-                0.095,
-                0.1321,
-                0.1692,
-                0.2063,
-                0.2434,
-                0.2805,
-                0.3176,
-                0.3547,
-                0.3918
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  0,
-                  130,
-                  187
-                ],
-                "value": 0.1649
-              },
-              {
-                "position": [
-                  0,
-                  223,
-                  160
-                ],
-                "value": 0.1513
-              },
-              {
-                "position": [
-                  1,
-                  209,
-                  24
-                ],
-                "value": 0.1249
+                "value": 0.1145
               },
               {
                 "position": [
                   1,
                   143,
-                  221
+                  153
                 ],
-                "value": 0.1291
+                "value": 0.119
               },
               {
                 "position": [
                   1,
-                  180,
-                  61
+                  181,
+                  250
                 ],
-                "value": 0.1905
+                "value": 0.1915
               }
             ],
             "subsample_basic_stats": {
-              "max": 0.296,
-              "mean": 0.1362,
-              "median": 0.1396,
-              "min": 0.0965
+              "max": 0.2989,
+              "mean": 0.12384,
+              "median": 0.1305,
+              "min": 0.0828
             }
           },
           "mask": {
@@ -2863,7 +425,7 @@
           }
         }
       },
-      "2018-09-26T07-47-11": {
+      "2019-02-23T07-49-38": {
         "result.tiff": {
           "image": {
             "array_shape": [
@@ -2872,10 +434,10 @@
               264
             ],
             "basic_stats": {
-              "max": 0.4731,
-              "mean": 0.13704,
-              "median": 0.1408,
-              "min": 0.0954
+              "max": 0.6527,
+              "mean": 0.55209,
+              "median": 0.5585,
+              "min": 0.2837
             },
             "counts": {
               "infinite": 0,
@@ -2884,816 +446,180 @@
             "dtype": "float32",
             "histogram": {
               "counts": [
-                66801,
-                54771,
-                342,
-                33,
-                15,
-                5,
-                0,
-                1
+                71,
+                246,
+                817,
+                3661,
+                14587,
+                43939,
+                52555,
+                6092
               ],
               "edges": [
-                0.0954,
-                0.14261,
-                0.18982,
-                0.23704,
-                0.28425,
-                0.33146,
-                0.37868,
-                0.42589,
-                0.4731
+                0.2837,
+                0.32982,
+                0.37595,
+                0.42208,
+                0.4682,
+                0.51433,
+                0.56045,
+                0.60658,
+                0.6527
               ]
             },
             "random_values": [
               {
                 "position": [
-                  0,
-                  82,
-                  107
+                  1,
+                  142,
+                  230
                 ],
-                "value": 0.1659
-              },
-              {
-                "position": [
-                  0,
-                  141,
-                  42
-                ],
-                "value": 0.1522
+                "value": 0.5421
               },
               {
                 "position": [
                   1,
-                  203,
-                  36
+                  60,
+                  234
                 ],
-                "value": 0.1258
+                "value": 0.5073
               },
               {
                 "position": [
                   1,
-                  100,
-                  146
+                  224,
+                  101
                 ],
-                "value": 0.13
+                "value": 0.4403
+              },
+              {
+                "position": [
+                  1,
+                  124,
+                  14
+                ],
+                "value": 0.4509
+              },
+              {
+                "position": [
+                  1,
+                  87,
+                  153
+                ],
+                "value": 0.6013
+              }
+            ],
+            "subsample_basic_stats": {
+              "max": 0.6494,
+              "mean": 0.55261,
+              "median": 0.55875,
+              "min": 0.3275
+            }
+          },
+          "mask": {
+            "array_shape": [
+              231,
+              264
+            ],
+            "dtype": "uint8",
+            "values": [
+              {
+                "count": 60984,
+                "value": 255
+              }
+            ]
+          }
+        }
+      },
+      "2019-03-05T07-55-53": {
+        "result.tiff": {
+          "image": {
+            "array_shape": [
+              2,
+              231,
+              264
+            ],
+            "basic_stats": {
+              "max": 0.4342,
+              "mean": 0.13081,
+              "median": 0.1354,
+              "min": 0.0871
+            },
+            "counts": {
+              "infinite": 0,
+              "nan": 0
+            },
+            "dtype": "float32",
+            "histogram": {
+              "counts": [
+                52676,
+                68420,
+                795,
+                46,
+                16,
+                10,
+                3,
+                2
+              ],
+              "edges": [
+                0.0871,
+                0.13049,
+                0.17388,
+                0.21726,
+                0.26065,
+                0.30404,
+                0.34742,
+                0.39081,
+                0.4342
+              ]
+            },
+            "random_values": [
+              {
+                "position": [
+                  1,
+                  184,
+                  233
+                ],
+                "value": 0.163
+              },
+              {
+                "position": [
+                  0,
+                  201,
+                  39
+                ],
+                "value": 0.1482
               },
               {
                 "position": [
                   1,
                   204,
-                  152
+                  212
                 ],
-                "value": 0.1941
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.2761,
-              "mean": 0.13701,
-              "median": 0.1406,
-              "min": 0.0968
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-10-01T07-37-17": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.4438,
-              "mean": 0.13699,
-              "median": 0.1407,
-              "min": 0.0937
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                51709,
-                69758,
-                434,
-                32,
-                17,
-                13,
-                4,
-                1
-              ],
-              "edges": [
-                0.0937,
-                0.13746,
-                0.18123,
-                0.22499,
-                0.26875,
-                0.31251,
-                0.35627,
-                0.40004,
-                0.4438
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  0,
-                  191,
-                  187
-                ],
-                "value": 0.1654
-              },
-              {
-                "position": [
-                  0,
-                  175,
-                  39
-                ],
-                "value": 0.1517
+                "value": 0.1198
               },
               {
                 "position": [
                   1,
-                  207,
-                  163
-                ],
-                "value": 0.1253
-              },
-              {
-                "position": [
-                  1,
-                  133,
-                  19
-                ],
-                "value": 0.1295
-              },
-              {
-                "position": [
-                  1,
-                  191,
-                  90
-                ],
-                "value": 0.192
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.3321,
-              "mean": 0.13699,
-              "median": 0.1405,
-              "min": 0.0961
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-10-21T07-39-34": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.3679,
-              "mean": 0.16102,
-              "median": 0.1626,
-              "min": 0.1166
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                36992,
-                61638,
-                22933,
-                375,
-                18,
-                7,
-                4,
-                1
-              ],
-              "edges": [
-                0.1166,
-                0.14801,
-                0.17943,
-                0.21084,
-                0.24225,
-                0.27366,
-                0.30508,
-                0.33649,
-                0.3679
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  0,
-                  160,
-                  174
-                ],
-                "value": 0.1802
-              },
-              {
-                "position": [
-                  1,
-                  54,
-                  162
-                ],
-                "value": 0.1677
-              },
-              {
-                "position": [
-                  1,
-                  221,
-                  0
-                ],
-                "value": 0.1437
-              },
-              {
-                "position": [
-                  1,
-                  125,
-                  176
-                ],
-                "value": 0.1475
-              },
-              {
-                "position": [
-                  1,
-                  186,
-                  116
-                ],
-                "value": 0.2019
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.2848,
-              "mean": 0.16088,
-              "median": 0.1625,
-              "min": 0.117
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-10-31T07-41-47": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.6459,
-              "mean": 0.17339,
-              "median": 0.1702,
-              "min": 0.0994
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                57759,
-                57919,
-                6267,
-                18,
-                3,
-                1,
-                0,
-                1
-              ],
-              "edges": [
-                0.0994,
-                0.16771,
-                0.23603,
-                0.30434,
-                0.37265,
-                0.44096,
-                0.50928,
-                0.57759,
-                0.6459
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  157,
-                  31
-                ],
-                "value": 0.2064
-              },
-              {
-                "position": [
-                  0,
-                  193,
-                  177
-                ],
-                "value": 0.1862
-              },
-              {
-                "position": [
-                  1,
-                  209,
-                  43
-                ],
-                "value": 0.1474
-              },
-              {
-                "position": [
-                  0,
-                  165,
-                  243
-                ],
-                "value": 0.1536
-              },
-              {
-                "position": [
-                  1,
-                  105,
-                  50
-                ],
-                "value": 0.2407
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.6459,
-              "mean": 0.17349,
-              "median": 0.1702,
-              "min": 0.1037
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-11-10T07-48-34": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.4026,
-              "mean": 0.1398,
-              "median": 0.1472,
-              "min": 0.0997
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                52651,
-                67825,
-                1388,
-                64,
-                24,
-                11,
-                3,
-                2
-              ],
-              "edges": [
-                0.0997,
-                0.13756,
-                0.17542,
-                0.21329,
-                0.25115,
-                0.28901,
-                0.32688,
-                0.36474,
-                0.4026
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  212,
-                  193
-                ],
-                "value": 0.1683
-              },
-              {
-                "position": [
-                  0,
-                  176,
-                  261
-                ],
-                "value": 0.155
-              },
-              {
-                "position": [
-                  1,
-                  213,
-                  53
-                ],
-                "value": 0.1294
-              },
-              {
-                "position": [
-                  1,
-                  159,
-                  112
-                ],
-                "value": 0.1334
-              },
-              {
-                "position": [
-                  1,
-                  202,
-                  148
-                ],
-                "value": 0.1954
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.3661,
-              "mean": 0.13977,
-              "median": 0.1471,
-              "min": 0.1017
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-11-20T07-48-33": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.7207,
-              "mean": 0.44212,
-              "median": 0.4333,
-              "min": 0.2033
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                205,
-                4655,
-                24412,
-                53759,
-                25150,
-                8596,
-                4116,
-                1075
-              ],
-              "edges": [
-                0.2033,
-                0.26798,
-                0.33265,
-                0.39733,
-                0.462,
-                0.52667,
-                0.59135,
-                0.65603,
-                0.7207
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  174,
-                  85
-                ],
-                "value": 0.5304
-              },
-              {
-                "position": [
-                  1,
-                  143,
-                  81
-                ],
-                "value": 0.476
-              },
-              {
-                "position": [
-                  1,
-                  217,
-                  112
-                ],
-                "value": 0.3716
-              },
-              {
-                "position": [
-                  1,
-                  34,
+                  150,
                   86
                 ],
-                "value": 0.3881
+                "value": 0.1243
               },
               {
                 "position": [
                   1,
-                  126,
-                  27
+                  167,
+                  116
                 ],
-                "value": 0.6243
+                "value": 0.1911
               }
             ],
             "subsample_basic_stats": {
-              "max": 0.7083,
-              "mean": 0.44142,
-              "median": 0.4329,
-              "min": 0.216
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-12-15T07-48-33": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.9704,
-              "mean": 0.13699,
-              "median": 0.146,
-              "min": 0.0828
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                121601,
-                351,
-                13,
-                2,
-                0,
-                0,
-                0,
-                1
-              ],
-              "edges": [
-                0.0828,
-                0.19375,
-                0.3047,
-                0.41565,
-                0.5266,
-                0.63755,
-                0.7485,
-                0.85945,
-                0.9704
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  0,
-                  225,
-                  149
-                ],
-                "value": 0.1702
-              },
-              {
-                "position": [
-                  0,
-                  154,
-                  174
-                ],
-                "value": 0.1553
-              },
-              {
-                "position": [
-                  1,
-                  217,
-                  12
-                ],
-                "value": 0.1267
-              },
-              {
-                "position": [
-                  1,
-                  140,
-                  189
-                ],
-                "value": 0.1313
-              },
-              {
-                "position": [
-                  1,
-                  205,
-                  152
-                ],
-                "value": 0.2025
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.3186,
-              "mean": 0.13686,
-              "median": 0.1458,
-              "min": 0.0915
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2018-12-30T07-48-33": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.4045,
-              "mean": 0.15168,
-              "median": 0.1625,
-              "min": 0.1132
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                56896,
-                63740,
-                1250,
-                58,
-                17,
-                4,
-                2,
-                1
-              ],
-              "edges": [
-                0.1132,
-                0.14961,
-                0.18603,
-                0.22244,
-                0.25885,
-                0.29526,
-                0.33167,
-                0.36809,
-                0.4045
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  0,
-                  203,
-                  78
-                ],
-                "value": 0.1753
-              },
-              {
-                "position": [
-                  0,
-                  34,
-                  214
-                ],
-                "value": 0.1633
-              },
-              {
-                "position": [
-                  1,
-                  214,
-                  163
-                ],
-                "value": 0.1401
-              },
-              {
-                "position": [
-                  1,
-                  120,
-                  190
-                ],
-                "value": 0.1438
-              },
-              {
-                "position": [
-                  1,
-                  106,
-                  44
-                ],
-                "value": 0.201
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.2819,
-              "mean": 0.15147,
-              "median": 0.1622,
-              "min": 0.115
+              "max": 0.2798,
+              "mean": 0.13068,
+              "median": 0.1353,
+              "min": 0.0889
             }
           },
           "mask": {

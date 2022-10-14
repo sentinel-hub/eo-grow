@@ -4,7 +4,7 @@
       "CLM.tiff": {
         "image": {
           "array_shape": [
-            35,
+            6,
             231,
             264
           ],
@@ -12,28 +12,28 @@
           "random_values": [
             {
               "position": [
-                16,
-                199,
-                219
+                3,
+                116,
+                215
               ],
               "value": 0
             },
             {
               "position": [
-                18,
-                20,
-                58
+                1,
+                183,
+                113
               ],
               "value": 1
             }
           ],
           "values": [
             {
-              "count": 1897639,
+              "count": 186408,
               "value": 0
             },
             {
-              "count": 236801,
+              "count": 179496,
               "value": 1
             }
           ]
