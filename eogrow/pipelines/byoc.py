@@ -36,7 +36,7 @@ class IngestByocTilesPipeline(Pipeline):
 
     class Schema(Pipeline.Schema):
         byoc_tile_folder_key: str
-        file_glob_pattern: str = Field("**/UTM_*/*.tiff", description="Pattern used to obtain the TIFF files to use")
+        file_glob_pattern: str = Field("**/*.tiff", description="Pattern used to obtain the TIFF files to use")
 
         new_collection_name: Optional[str] = Field(description="Used for defining a new BYOC collection.")
         existing_collection: Optional[DataCollection] = Field(description="Used when updating and reingesting.")

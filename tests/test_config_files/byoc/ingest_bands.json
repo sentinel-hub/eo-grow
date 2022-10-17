@@ -7,7 +7,7 @@
     }
   },
   "byoc_tile_folder_key": "byoc",
-  "new_collection_name": "whatever",
+  "new_collection_name": "whatever_temporal",
   "is_temporal": true,
   "cover_geometry_folder_key": "input_data",
   "cover_geometry": "test_area.geojson"

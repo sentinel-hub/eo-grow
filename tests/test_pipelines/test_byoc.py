@@ -11,7 +11,7 @@ import mock
 import pytest
 from shapely.geometry import Polygon
 
-from sentinelhub import CRS
+from sentinelhub import CRS, SentinelHubDownloadClient
 from sentinelhub.geometry import Geometry
 
 from eogrow.core.storage import StorageManager
@@ -60,6 +60,7 @@ def test_timeless_byoc(config_folder, preparation_config, config, requests_mock)
       so we mock it to prevent `rasterio.open` to fail.
     - All request endpoints are mocked in the `requests_mock` fixture.
     """
+    SentinelHubDownloadClient._CACHED_SESSIONS = {}
     preparation_config_path = os.path.join(config_folder, CONFIG_SUBFOLDER, preparation_config)
     ExportMapsPipeline.from_path(preparation_config_path).run()
 
@@ -99,7 +100,7 @@ def test_timeless_byoc(config_folder, preparation_config, config, requests_mock)
         assert content["sensingTime"] == pipeline.config.sensing_time.isoformat() + "Z"
 
 
-@pytest.mark.parametrize("preparation_config, config", [("prepare_lulc_data.json", "ingest_data.json")])
+@pytest.mark.parametrize("preparation_config, config", [("prepare_lulc_data.json", "ingest_bands.json")])
 @pytest.mark.order(after=["test_rasterize.py::test_rasterize_pipeline_features"])
 def test_temporal_byoc(config_folder, preparation_config, config, requests_mock):
     """Requires heavy mocking to get any testing done.
@@ -111,6 +112,8 @@ def test_temporal_byoc(config_folder, preparation_config, config, requests_mock)
       so we mock it to prevent `rasterio.open` to fail.
     - All request endpoints are mocked in the `requests_mock` fixture.
     """
+    SentinelHubDownloadClient._CACHED_SESSIONS = {}
+
     preparation_config_path = os.path.join(config_folder, CONFIG_SUBFOLDER, preparation_config)
     ExportMapsPipeline.from_path(preparation_config_path).run()
 
@@ -139,6 +142,14 @@ def test_temporal_byoc(config_folder, preparation_config, config, requests_mock)
     assert check_request.url == "https://services.sentinel-hub.com/api/v1/byoc/collections/mock-collection/tiles"
     assert check_request.method == "GET"
 
+    timestamps = [
+        "2019-01-04T07:48:37Z",
+        "2019-01-24T07:48:39Z",
+        "2019-02-13T07:48:39Z",
+        "2019-02-18T07:48:36Z",
+        "2019-02-23T07:49:38Z",
+        "2019-03-05T07:55:53Z",
+    ]
     for tile_request in relevant_requests:
         assert tile_request.url == "https://services.sentinel-hub.com/api/v1/byoc/collections/mock-collection/tiles"
         assert tile_request.method == "POST"
@@ -146,5 +157,10 @@ def test_temporal_byoc(config_folder, preparation_config, config, requests_mock)
         content = tile_request.json()
         assert content["coverGeometry"]["coordinates"] == [MOCK_COVER_GEOM]
         # it cannot strip the s3://<bucket-name> prefix since tests are local, so a full path is expected
-        assert content["path"] == pipeline.config.storage.project_folder + "/maps/LULC_ID/UTM_32638"
-        assert content["sensingTime"] == pipeline.config.sensing_time.isoformat() + "Z"
+        timestamp = content["sensingTime"]
+        assert timestamp in timestamps
+        timestamps.remove(timestamp)
+        subfolder = timestamp.replace(":", "-").replace("Z", "")
+        assert content["path"] == pipeline.config.storage.project_folder + f"/maps/BANDS-S2-L1C/UTM_32638/{subfolder}"
+
+    assert not timestamps
