@@ -121,8 +121,15 @@ class ExportMapsPipeline(Pipeline):
                 output_paths = self._split_temporally(filesystem, map_path, timestamp, output_folder)
 
             if self.config.cogify:
+                resampling = "mode" if feature_type.is_discrete() else "bilinear"
                 for path, _ in output_paths:
-                    cogify_inplace(filesystem.getsyspath(path), 1024, self.config.no_data_value, self.config.map_dtype)
+                    cogify_inplace(
+                        filesystem.getsyspath(path),
+                        blocksize=1024,
+                        nodata=self.config.no_data_value,
+                        dtype=self.config.map_dtype,
+                        resampling=resampling,
+                    )
 
             self._finalize_output_files(filesystem, output_paths, output_folder)
             if isinstance(filesystem, TempFS):

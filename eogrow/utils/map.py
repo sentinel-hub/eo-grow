@@ -23,17 +23,19 @@ def cogify_inplace(
     blocksize: int = 2048,
     nodata: Optional[float] = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
+    resampling: str = "mode",
 ) -> None:
     """Make the (geotiff) file a cog
     :param tiff_file: .tiff file to cogify
     :param blocksize: block size of tiled COG
     :param nodata: value to be treated as nodata, default value is None
     :param dtype: output type of the in the resulting tiff, default is None
+    :param resampling: The mode of resampling to use. Mode should be used for integers and bilinear for floats.
     """
     temp_file = NamedTemporaryFile()
     temp_file.close()
 
-    cogify(tiff_file, temp_file.name, blocksize, nodata=nodata, dtype=dtype, overwrite=True)
+    cogify(tiff_file, temp_file.name, blocksize, nodata=nodata, dtype=dtype, overwrite=True, resampling=resampling)
     shutil.move(temp_file.name, tiff_file)
 
 
@@ -44,6 +46,7 @@ def cogify(
     nodata: Optional[float] = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
     overwrite: bool = False,
+    resampling: str = "mode",
 ) -> None:
     """Create a cloud optimized version of input file
 
@@ -53,6 +56,7 @@ def cogify(
     :param nodata: value to be treated as nodata, default value is None
     :param dtype: output type of the in the resulting tiff, default is None
     :param overwrite: If True overwrite the output file if it exists.
+    :param resampling: The mode of resampling to use. Mode should be used for integers and bilinear for floats.
     """
     if input_file == output_file:
         raise OSError("Input file is the same as output file.")
@@ -63,7 +67,7 @@ def cogify(
         else:
             raise OSError(f"{output_file} exists!")
 
-    gdaladdo_options = f"-r mode --config GDAL_TIFF_OVR_BLOCKSIZE {blocksize} 2 4 8 16 32"
+    gdaladdo_options = f"-r {resampling} --config GDAL_TIFF_OVR_BLOCKSIZE {blocksize} 2 4 8 16 32"
 
     gdaltranslate_options = (
         "-co TILED=YES -co COPY_SRC_OVERVIEWS=YES "
