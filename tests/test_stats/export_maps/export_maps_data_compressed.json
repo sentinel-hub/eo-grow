@@ -1,109 +1,107 @@
 {
-  "BANDS-S2-L1C": {
-    "UTM_32638": {
-      "result.tiff": {
-        "image": {
-          "array_shape": [
-            35,
-            231,
-            264
-          ],
-          "basic_stats": {
-            "max": 0.6773,
-            "mean": 0.16853,
-            "median": 0.1497,
-            "min": 0.1147
-          },
-          "counts": {
-            "infinite": 0,
-            "nan": 0
-          },
-          "dtype": "float32",
-          "histogram": {
-            "counts": [
-              1928686,
-              60552,
-              13237,
-              50155,
-              55669,
-              18018,
-              5927,
-              2196
-            ],
-            "edges": [
-              0.1147,
-              0.18502,
-              0.25535,
-              0.32567,
-              0.396,
-              0.46632,
-              0.53665,
-              0.60697,
-              0.6773
-            ]
-          },
-          "random_values": [
-            {
-              "position": [
-                32,
-                59,
-                243
-              ],
-              "value": 0.3945
-            },
-            {
-              "position": [
-                18,
-                161,
-                187
-              ],
-              "value": 0.3486
-            },
-            {
-              "position": [
-                30,
-                165,
-                111
-              ],
-              "value": 0.2066
-            },
-            {
-              "position": [
-                1,
-                77,
-                13
-              ],
-              "value": 0.2215
-            },
-            {
-              "position": [
-                32,
-                162,
-                231
-              ],
-              "value": 0.4772
-            }
-          ],
-          "subsample_basic_stats": {
-            "max": 0.6773,
-            "mean": 0.16838,
-            "median": 0.1497,
-            "min": 0.1147
-          }
+  "UTM_32638": {
+    "result.tiff": {
+      "image": {
+        "array_shape": [
+          35,
+          231,
+          264
+        ],
+        "basic_stats": {
+          "max": 0.6773,
+          "mean": 0.16853,
+          "median": 0.1497,
+          "min": 0.1147
         },
-        "mask": {
-          "array_shape": [
-            231,
-            264
+        "counts": {
+          "infinite": 0,
+          "nan": 0
+        },
+        "dtype": "float32",
+        "histogram": {
+          "counts": [
+            1928686,
+            60552,
+            13237,
+            50155,
+            55669,
+            18018,
+            5927,
+            2196
           ],
-          "dtype": "uint8",
-          "values": [
-            {
-              "count": 60984,
-              "value": 255
-            }
+          "edges": [
+            0.1147,
+            0.18502,
+            0.25535,
+            0.32567,
+            0.396,
+            0.46632,
+            0.53665,
+            0.60697,
+            0.6773
           ]
+        },
+        "random_values": [
+          {
+            "position": [
+              32,
+              59,
+              243
+            ],
+            "value": 0.3945
+          },
+          {
+            "position": [
+              18,
+              161,
+              187
+            ],
+            "value": 0.3486
+          },
+          {
+            "position": [
+              30,
+              165,
+              111
+            ],
+            "value": 0.2066
+          },
+          {
+            "position": [
+              1,
+              77,
+              13
+            ],
+            "value": 0.2215
+          },
+          {
+            "position": [
+              32,
+              162,
+              231
+            ],
+            "value": 0.4772
+          }
+        ],
+        "subsample_basic_stats": {
+          "max": 0.6773,
+          "mean": 0.16838,
+          "median": 0.1497,
+          "min": 0.1147
         }
+      },
+      "mask": {
+        "array_shape": [
+          231,
+          264
+        ],
+        "dtype": "uint8",
+        "values": [
+          {
+            "count": 60984,
+            "value": 255
+          }
+        ]
       }
     }
   }

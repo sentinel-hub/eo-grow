@@ -91,7 +91,7 @@ class ExportMapsPipeline(Pipeline):
             raise ValueError("Failed to extract tiff files from any of EOPatches.")
 
         feature_type, _ = self.config.feature
-        folder = self._get_output_folder()
+        folder = self.storage.get_folder(self.config.output_folder_key)
         crs_eopatch_dict = self.eopatch_manager.split_by_utm(successful)
 
         # TODO: This could be parallelized per-crs
@@ -152,7 +152,7 @@ class ExportMapsPipeline(Pipeline):
 
         export_to_tiff_task = ExportToTiffTask(
             self.config.feature,
-            folder=self._get_output_folder(),
+            folder=self.storage.get_folder(self.config.output_folder_key),
             filesystem=self.storage.filesystem,
             no_data_value=self.config.no_data_value,
             image_dtype=np.dtype(self.config.map_dtype),
@@ -175,11 +175,6 @@ class ExportMapsPipeline(Pipeline):
     def get_geotiff_name(self, name: str) -> str:
         """Creates a unique name of a geotiff image"""
         return f"{name}_{self.__class__.__name__}_{self.pipeline_id}.tiff"
-
-    def _get_output_folder(self) -> str:
-        """Designates to place the tiffs into a subfolder of output_folder_key named after the feature."""
-        _, feature_name = self.config.feature
-        return fs.path.join(self.storage.get_folder(self.config.output_folder_key), feature_name)
 
     def _prepare_files(self, geotiff_paths: List[str], output_file: str) -> Tuple[FS, List[str], str]:
         """Returns system paths of geotiffs and output file that can be used to merge maps.

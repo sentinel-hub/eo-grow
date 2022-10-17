@@ -1,640 +1,638 @@
 {
-  "BANDS-S2-L1C": {
-    "UTM_32638": {
-      "2019-01-04T07-48-37": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
+  "UTM_32638": {
+    "2019-01-04T07-48-37": {
+      "result.tiff": {
+        "image": {
+          "array_shape": [
+            2,
+            231,
+            264
+          ],
+          "basic_stats": {
+            "max": 0.5815,
+            "mean": 0.13932,
+            "median": 0.1497,
+            "min": 0.0805
+          },
+          "counts": {
+            "infinite": 0,
+            "nan": 0
+          },
+          "dtype": "float32",
+          "histogram": {
+            "counts": [
+              58087,
+              63724,
+              124,
+              26,
+              5,
+              0,
+              0,
+              2
             ],
-            "basic_stats": {
-              "max": 0.5815,
-              "mean": 0.13932,
-              "median": 0.1497,
-              "min": 0.0805
+            "edges": [
+              0.0805,
+              0.14312,
+              0.20575,
+              0.26838,
+              0.331,
+              0.39362,
+              0.45625,
+              0.51888,
+              0.5815
+            ]
+          },
+          "random_values": [
+            {
+              "position": [
+                0,
+                213,
+                162
+              ],
+              "value": 0.1693
             },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
+            {
+              "position": [
+                0,
+                118,
+                72
+              ],
+              "value": 0.1558
             },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                58087,
-                63724,
+            {
+              "position": [
+                1,
+                209,
+                81
+              ],
+              "value": 0.1299
+            },
+            {
+              "position": [
+                1,
+                117,
+                139
+              ],
+              "value": 0.134
+            },
+            {
+              "position": [
+                1,
+                224,
+                141
+              ],
+              "value": 0.1999
+            }
+          ],
+          "subsample_basic_stats": {
+            "max": 0.3462,
+            "mean": 0.13918,
+            "median": 0.1495,
+            "min": 0.1004
+          }
+        },
+        "mask": {
+          "array_shape": [
+            231,
+            264
+          ],
+          "dtype": "uint8",
+          "values": [
+            {
+              "count": 60984,
+              "value": 255
+            }
+          ]
+        }
+      }
+    },
+    "2019-01-24T07-48-39": {
+      "result.tiff": {
+        "image": {
+          "array_shape": [
+            2,
+            231,
+            264
+          ],
+          "basic_stats": {
+            "max": 0.7738,
+            "mean": 0.31091,
+            "median": 0.2997,
+            "min": 0.1363
+          },
+          "counts": {
+            "infinite": 0,
+            "nan": 0
+          },
+          "dtype": "float32",
+          "histogram": {
+            "counts": [
+              21301,
+              37910,
+              30573,
+              22893,
+              7488,
+              1575,
+              207,
+              21
+            ],
+            "edges": [
+              0.1363,
+              0.21599,
+              0.29568,
+              0.37536,
+              0.45505,
+              0.53474,
+              0.61443,
+              0.69411,
+              0.7738
+            ]
+          },
+          "random_values": [
+            {
+              "position": [
+                1,
+                210,
+                123
+              ],
+              "value": 0.4319
+            },
+            {
+              "position": [
+                0,
+                205,
+                52
+              ],
+              "value": 0.3737
+            },
+            {
+              "position": [
+                1,
+                184,
+                16
+              ],
+              "value": 0.2619
+            },
+            {
+              "position": [
+                0,
+                76,
+                55
+              ],
+              "value": 0.2796
+            },
+            {
+              "position": [
+                1,
+                216,
+                223
+              ],
+              "value": 0.5347
+            }
+          ],
+          "subsample_basic_stats": {
+            "max": 0.7608,
+            "mean": 0.31029,
+            "median": 0.2987,
+            "min": 0.1374
+          }
+        },
+        "mask": {
+          "array_shape": [
+            231,
+            264
+          ],
+          "dtype": "uint8",
+          "values": [
+            {
+              "count": 60984,
+              "value": 255
+            }
+          ]
+        }
+      }
+    },
+    "2019-02-13T07-48-39": {
+      "result.tiff": {
+        "image": {
+          "array_shape": [
+            2,
+            231,
+            264
+          ],
+          "basic_stats": {
+            "max": 0.7214,
+            "mean": 0.2737,
+            "median": 0.2407,
+            "min": 0.1077
+          },
+          "counts": {
+            "infinite": 0,
+            "nan": 0
+          },
+          "dtype": "float32",
+          "histogram": {
+            "counts": [
+              37415,
+              29412,
+              22862,
+              14220,
+              9994,
+              4817,
+              2671,
+              577
+            ],
+            "edges": [
+              0.1077,
+              0.18441,
+              0.26112,
+              0.33784,
+              0.41455,
+              0.49126,
+              0.56798,
+              0.64469,
+              0.7214
+            ]
+          },
+          "random_values": [
+            {
+              "position": [
+                1,
+                185,
+                27
+              ],
+              "value": 0.4617
+            },
+            {
+              "position": [
+                1,
+                123,
+                151
+              ],
+              "value": 0.3923
+            },
+            {
+              "position": [
+                1,
+                224,
+                69
+              ],
+              "value": 0.2594
+            },
+            {
+              "position": [
+                1,
+                90,
+                181
+              ],
+              "value": 0.2804
+            },
+            {
+              "position": [
+                1,
+                218,
+                19
+              ],
+              "value": 0.5852
+            }
+          ],
+          "subsample_basic_stats": {
+            "max": 0.715,
+            "mean": 0.2703,
+            "median": 0.2367,
+            "min": 0.1122
+          }
+        },
+        "mask": {
+          "array_shape": [
+            231,
+            264
+          ],
+          "dtype": "uint8",
+          "values": [
+            {
+              "count": 60984,
+              "value": 255
+            }
+          ]
+        }
+      }
+    },
+    "2019-02-18T07-48-36": {
+      "result.tiff": {
+        "image": {
+          "array_shape": [
+            2,
+            231,
+            264
+          ],
+          "basic_stats": {
+            "max": 1.448,
+            "mean": 0.12402,
+            "median": 0.1308,
+            "min": 0.082
+          },
+          "counts": {
+            "infinite": 0,
+            "nan": 0
+          },
+          "dtype": "float32",
+          "histogram": {
+            "counts": [
+              121922,
+              40,
+              3,
+              2,
+              0,
+              0,
+              0,
+              1
+            ],
+            "edges": [
+              0.082,
+              0.25275,
+              0.4235,
+              0.59425,
+              0.765,
+              0.93575,
+              1.1065,
+              1.27725,
+              1.448
+            ]
+          },
+          "random_values": [
+            {
+              "position": [
+                0,
+                183,
+                135
+              ],
+              "value": 0.1576
+            },
+            {
+              "position": [
+                0,
+                211,
+                106
+              ],
+              "value": 0.1429
+            },
+            {
+              "position": [
+                1,
+                216,
+                163
+              ],
+              "value": 0.1145
+            },
+            {
+              "position": [
+                1,
+                143,
+                153
+              ],
+              "value": 0.119
+            },
+            {
+              "position": [
+                1,
+                181,
+                250
+              ],
+              "value": 0.1915
+            }
+          ],
+          "subsample_basic_stats": {
+            "max": 0.2989,
+            "mean": 0.12384,
+            "median": 0.1305,
+            "min": 0.0828
+          }
+        },
+        "mask": {
+          "array_shape": [
+            231,
+            264
+          ],
+          "dtype": "uint8",
+          "values": [
+            {
+              "count": 60984,
+              "value": 255
+            }
+          ]
+        }
+      }
+    },
+    "2019-02-23T07-49-38": {
+      "result.tiff": {
+        "image": {
+          "array_shape": [
+            2,
+            231,
+            264
+          ],
+          "basic_stats": {
+            "max": 0.6527,
+            "mean": 0.55209,
+            "median": 0.5585,
+            "min": 0.2837
+          },
+          "counts": {
+            "infinite": 0,
+            "nan": 0
+          },
+          "dtype": "float32",
+          "histogram": {
+            "counts": [
+              71,
+              246,
+              817,
+              3661,
+              14587,
+              43939,
+              52555,
+              6092
+            ],
+            "edges": [
+              0.2837,
+              0.32982,
+              0.37595,
+              0.42208,
+              0.4682,
+              0.51433,
+              0.56045,
+              0.60658,
+              0.6527
+            ]
+          },
+          "random_values": [
+            {
+              "position": [
+                1,
+                142,
+                230
+              ],
+              "value": 0.5421
+            },
+            {
+              "position": [
+                1,
+                60,
+                234
+              ],
+              "value": 0.5073
+            },
+            {
+              "position": [
+                1,
+                224,
+                101
+              ],
+              "value": 0.4403
+            },
+            {
+              "position": [
+                1,
                 124,
-                26,
-                5,
-                0,
-                0,
-                2
+                14
               ],
-              "edges": [
-                0.0805,
-                0.14312,
-                0.20575,
-                0.26838,
-                0.331,
-                0.39362,
-                0.45625,
-                0.51888,
-                0.5815
-              ]
+              "value": 0.4509
             },
-            "random_values": [
-              {
-                "position": [
-                  0,
-                  213,
-                  162
-                ],
-                "value": 0.1693
-              },
-              {
-                "position": [
-                  0,
-                  118,
-                  72
-                ],
-                "value": 0.1558
-              },
-              {
-                "position": [
-                  1,
-                  209,
-                  81
-                ],
-                "value": 0.1299
-              },
-              {
-                "position": [
-                  1,
-                  117,
-                  139
-                ],
-                "value": 0.134
-              },
-              {
-                "position": [
-                  1,
-                  224,
-                  141
-                ],
-                "value": 0.1999
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.3462,
-              "mean": 0.13918,
-              "median": 0.1495,
-              "min": 0.1004
+            {
+              "position": [
+                1,
+                87,
+                153
+              ],
+              "value": 0.6013
             }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
+          ],
+          "subsample_basic_stats": {
+            "max": 0.6494,
+            "mean": 0.55261,
+            "median": 0.55875,
+            "min": 0.3275
           }
+        },
+        "mask": {
+          "array_shape": [
+            231,
+            264
+          ],
+          "dtype": "uint8",
+          "values": [
+            {
+              "count": 60984,
+              "value": 255
+            }
+          ]
         }
-      },
-      "2019-01-24T07-48-39": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.7738,
-              "mean": 0.31091,
-              "median": 0.2997,
-              "min": 0.1363
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                21301,
-                37910,
-                30573,
-                22893,
-                7488,
-                1575,
-                207,
-                21
-              ],
-              "edges": [
-                0.1363,
-                0.21599,
-                0.29568,
-                0.37536,
-                0.45505,
-                0.53474,
-                0.61443,
-                0.69411,
-                0.7738
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  210,
-                  123
-                ],
-                "value": 0.4319
-              },
-              {
-                "position": [
-                  0,
-                  205,
-                  52
-                ],
-                "value": 0.3737
-              },
-              {
-                "position": [
-                  1,
-                  184,
-                  16
-                ],
-                "value": 0.2619
-              },
-              {
-                "position": [
-                  0,
-                  76,
-                  55
-                ],
-                "value": 0.2796
-              },
-              {
-                "position": [
-                  1,
-                  216,
-                  223
-                ],
-                "value": 0.5347
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.7608,
-              "mean": 0.31029,
-              "median": 0.2987,
-              "min": 0.1374
-            }
+      }
+    },
+    "2019-03-05T07-55-53": {
+      "result.tiff": {
+        "image": {
+          "array_shape": [
+            2,
+            231,
+            264
+          ],
+          "basic_stats": {
+            "max": 0.4342,
+            "mean": 0.13081,
+            "median": 0.1354,
+            "min": 0.0871
           },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2019-02-13T07-48-39": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.7214,
-              "mean": 0.2737,
-              "median": 0.2407,
-              "min": 0.1077
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                37415,
-                29412,
-                22862,
-                14220,
-                9994,
-                4817,
-                2671,
-                577
-              ],
-              "edges": [
-                0.1077,
-                0.18441,
-                0.26112,
-                0.33784,
-                0.41455,
-                0.49126,
-                0.56798,
-                0.64469,
-                0.7214
-              ]
-            },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  185,
-                  27
-                ],
-                "value": 0.4617
-              },
-              {
-                "position": [
-                  1,
-                  123,
-                  151
-                ],
-                "value": 0.3923
-              },
-              {
-                "position": [
-                  1,
-                  224,
-                  69
-                ],
-                "value": 0.2594
-              },
-              {
-                "position": [
-                  1,
-                  90,
-                  181
-                ],
-                "value": 0.2804
-              },
-              {
-                "position": [
-                  1,
-                  218,
-                  19
-                ],
-                "value": 0.5852
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.715,
-              "mean": 0.2703,
-              "median": 0.2367,
-              "min": 0.1122
-            }
+          "counts": {
+            "infinite": 0,
+            "nan": 0
           },
-          "mask": {
-            "array_shape": [
-              231,
-              264
+          "dtype": "float32",
+          "histogram": {
+            "counts": [
+              52676,
+              68420,
+              795,
+              46,
+              16,
+              10,
+              3,
+              2
             ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
+            "edges": [
+              0.0871,
+              0.13049,
+              0.17388,
+              0.21726,
+              0.26065,
+              0.30404,
+              0.34742,
+              0.39081,
+              0.4342
             ]
-          }
-        }
-      },
-      "2019-02-18T07-48-36": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 1.448,
-              "mean": 0.12402,
-              "median": 0.1308,
-              "min": 0.082
+          },
+          "random_values": [
+            {
+              "position": [
+                1,
+                184,
+                233
+              ],
+              "value": 0.163
             },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                121922,
-                40,
-                3,
-                2,
+            {
+              "position": [
                 0,
-                0,
-                0,
-                1
+                201,
+                39
               ],
-              "edges": [
-                0.082,
-                0.25275,
-                0.4235,
-                0.59425,
-                0.765,
-                0.93575,
-                1.1065,
-                1.27725,
-                1.448
-              ]
+              "value": 0.1482
             },
-            "random_values": [
-              {
-                "position": [
-                  0,
-                  183,
-                  135
-                ],
-                "value": 0.1576
-              },
-              {
-                "position": [
-                  0,
-                  211,
-                  106
-                ],
-                "value": 0.1429
-              },
-              {
-                "position": [
-                  1,
-                  216,
-                  163
-                ],
-                "value": 0.1145
-              },
-              {
-                "position": [
-                  1,
-                  143,
-                  153
-                ],
-                "value": 0.119
-              },
-              {
-                "position": [
-                  1,
-                  181,
-                  250
-                ],
-                "value": 0.1915
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.2989,
-              "mean": 0.12384,
-              "median": 0.1305,
-              "min": 0.0828
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2019-02-23T07-49-38": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.6527,
-              "mean": 0.55209,
-              "median": 0.5585,
-              "min": 0.2837
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                71,
-                246,
-                817,
-                3661,
-                14587,
-                43939,
-                52555,
-                6092
+            {
+              "position": [
+                1,
+                204,
+                212
               ],
-              "edges": [
-                0.2837,
-                0.32982,
-                0.37595,
-                0.42208,
-                0.4682,
-                0.51433,
-                0.56045,
-                0.60658,
-                0.6527
-              ]
+              "value": 0.1198
             },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  142,
-                  230
-                ],
-                "value": 0.5421
-              },
-              {
-                "position": [
-                  1,
-                  60,
-                  234
-                ],
-                "value": 0.5073
-              },
-              {
-                "position": [
-                  1,
-                  224,
-                  101
-                ],
-                "value": 0.4403
-              },
-              {
-                "position": [
-                  1,
-                  124,
-                  14
-                ],
-                "value": 0.4509
-              },
-              {
-                "position": [
-                  1,
-                  87,
-                  153
-                ],
-                "value": 0.6013
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.6494,
-              "mean": 0.55261,
-              "median": 0.55875,
-              "min": 0.3275
-            }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
-          }
-        }
-      },
-      "2019-03-05T07-55-53": {
-        "result.tiff": {
-          "image": {
-            "array_shape": [
-              2,
-              231,
-              264
-            ],
-            "basic_stats": {
-              "max": 0.4342,
-              "mean": 0.13081,
-              "median": 0.1354,
-              "min": 0.0871
-            },
-            "counts": {
-              "infinite": 0,
-              "nan": 0
-            },
-            "dtype": "float32",
-            "histogram": {
-              "counts": [
-                52676,
-                68420,
-                795,
-                46,
-                16,
-                10,
-                3,
-                2
+            {
+              "position": [
+                1,
+                150,
+                86
               ],
-              "edges": [
-                0.0871,
-                0.13049,
-                0.17388,
-                0.21726,
-                0.26065,
-                0.30404,
-                0.34742,
-                0.39081,
-                0.4342
-              ]
+              "value": 0.1243
             },
-            "random_values": [
-              {
-                "position": [
-                  1,
-                  184,
-                  233
-                ],
-                "value": 0.163
-              },
-              {
-                "position": [
-                  0,
-                  201,
-                  39
-                ],
-                "value": 0.1482
-              },
-              {
-                "position": [
-                  1,
-                  204,
-                  212
-                ],
-                "value": 0.1198
-              },
-              {
-                "position": [
-                  1,
-                  150,
-                  86
-                ],
-                "value": 0.1243
-              },
-              {
-                "position": [
-                  1,
-                  167,
-                  116
-                ],
-                "value": 0.1911
-              }
-            ],
-            "subsample_basic_stats": {
-              "max": 0.2798,
-              "mean": 0.13068,
-              "median": 0.1353,
-              "min": 0.0889
+            {
+              "position": [
+                1,
+                167,
+                116
+              ],
+              "value": 0.1911
             }
-          },
-          "mask": {
-            "array_shape": [
-              231,
-              264
-            ],
-            "dtype": "uint8",
-            "values": [
-              {
-                "count": 60984,
-                "value": 255
-              }
-            ]
+          ],
+          "subsample_basic_stats": {
+            "max": 0.2798,
+            "mean": 0.13068,
+            "median": 0.1353,
+            "min": 0.0889
           }
+        },
+        "mask": {
+          "array_shape": [
+            231,
+            264
+          ],
+          "dtype": "uint8",
+          "values": [
+            {
+              "count": 60984,
+              "value": 255
+            }
+          ]
         }
       }
     }
