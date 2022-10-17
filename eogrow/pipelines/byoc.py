@@ -101,7 +101,7 @@ class IngestByocTilesPipeline(Pipeline):
     def _get_byoc_compliant_path(self, relative_path: str) -> str:
         """Transforms a project relative path to a bucket-name relative path that is required by BYOC."""
         absolute_path = fs.path.combine(self.config.storage.project_folder, relative_path)  # type: ignore[attr-defined]
-        return absolute_path.replace(f"s3://{self.bucket_name}", "")  # removes s3://<bucket-name>/
+        return absolute_path.replace(f"s3://{self.bucket_name}/", "")  # removes s3://<bucket-name>/
 
     def _prepare_tile(self, folder: str, tiff_paths: List[str]) -> Optional[ByocTile]:
         """Collects all required metainfo to create a BYOC tile for the given folder."""
