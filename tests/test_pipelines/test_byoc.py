@@ -51,7 +51,17 @@ def request_mock_setup(requests_mock):
     return requests_mock
 
 
-def run_byoc_pipeline(config_path, requests_mock):
+def run_byoc_pipeline(config_folder: str, config: str, preparation_config: str, requests_mock):
+    preparation_config_path = os.path.join(config_folder, CONFIG_SUBFOLDER, preparation_config)
+    export_pipeline = ExportMapsPipeline.from_path(preparation_config_path)
+
+    byoc_folder = export_pipeline.storage.get_folder(export_pipeline.config.output_folder_key)
+    export_pipeline.storage.filesystem.removetree(byoc_folder)
+
+    export_pipeline.run()
+
+    config_path = os.path.join(config_folder, CONFIG_SUBFOLDER, config)
+
     # mock tile cover geom
     def _get_tile_cover_geometry_mock(_: str) -> Geometry:
         return Geometry(Polygon(MOCK_COVER_GEOM), crs=CRS.WGS84)
@@ -74,10 +84,7 @@ def run_byoc_pipeline(config_path, requests_mock):
 @pytest.mark.parametrize("preparation_config, config", [("prepare_lulc_data.json", "ingest_lulc.json")])
 @pytest.mark.order(after=["test_rasterize.py::test_rasterize_pipeline_features"])
 def test_timeless_byoc(config_folder, preparation_config, config, requests_mock):
-    preparation_config_path = os.path.join(config_folder, CONFIG_SUBFOLDER, preparation_config)
-    ExportMapsPipeline.from_path(preparation_config_path).run()
-
-    pipeline, requests = run_byoc_pipeline(os.path.join(config_folder, CONFIG_SUBFOLDER, config), requests_mock)
+    pipeline, requests = run_byoc_pipeline(config_folder, config, preparation_config, requests_mock)
 
     auth_request = requests.pop(0)
     assert auth_request.url == "https://services.sentinel-hub.com/oauth/token"
@@ -102,10 +109,10 @@ def test_timeless_byoc(config_folder, preparation_config, config, requests_mock)
         assert content["sensingTime"] == pipeline.config.sensing_time.isoformat() + "Z"
 
 
-@pytest.mark.parametrize("preparation_config, config", [("prepare_lulc_data.json", "ingest_bands.json")])
+@pytest.mark.parametrize("preparation_config, config", [("prepare_bands_data.json", "ingest_bands.json")])
 @pytest.mark.order(after=["test_rasterize.py::test_rasterize_pipeline_features"])
 def test_temporal_byoc(config_folder, preparation_config, config, requests_mock):
-    pipeline, requests = run_byoc_pipeline(os.path.join(config_folder, CONFIG_SUBFOLDER, config), requests_mock)
+    pipeline, requests = run_byoc_pipeline(config_folder, config, preparation_config, requests_mock)
 
     auth_request = requests.pop(0)
     assert auth_request.url == "https://services.sentinel-hub.com/oauth/token"
