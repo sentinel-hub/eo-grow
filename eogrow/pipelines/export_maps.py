@@ -64,8 +64,8 @@ class ExportMapsPipeline(Pipeline):
         compress_temporally: bool = Field(
             False,
             description=(
-                "Instead of temporal features being split in a per-timestamp manner they are compressed in a single"
-                " TIFF file. The band order is the same as the one of `ExportToTiffTask`."
+                "Temporal features are by default exported as multiple TIFF files in a per-timestamp manner. This "
+                "parameter results in a single TIFF file with the same band order as the one of `ExportToTiffTask`."
             ),
         )
         skip_existing: Literal[False] = False
