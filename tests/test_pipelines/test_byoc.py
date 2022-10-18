@@ -3,6 +3,13 @@ Tests for BYOC ingestion pipeline
 
 This pipeline does not produce any data and is set to work on S3 only, so we need quite a bit of mocking to
 achieve meaningful tests.
+
+Mocks:
+- The pipeline has to be tricked into thinking it's on AWS during init so it doesn't raise an error.
+- The bucket_name is changed since it's not parsed correctly (because we're not on S3).
+- When reading the cover geometry the path is not filesystem relative (but a join of bucket name + bucket relative)
+    so we mock it to prevent `rasterio.open` to fail.
+- All request endpoints are mocked in the `requests_mock` fixture.
 """
 import os
 import time
@@ -44,29 +51,14 @@ def request_mock_setup(requests_mock):
     return requests_mock
 
 
-def _get_tile_cover_geometry_mock(_: str) -> Geometry:
-    return Geometry(Polygon(MOCK_COVER_GEOM), crs=CRS.WGS84)
+def run_byoc_pipeline(config_path, requests_mock):
+    # mock tile cover geom
+    def _get_tile_cover_geometry_mock(_: str) -> Geometry:
+        return Geometry(Polygon(MOCK_COVER_GEOM), crs=CRS.WGS84)
 
-
-@pytest.mark.parametrize("preparation_config, config", [("prepare_lulc_data.json", "ingest_lulc.json")])
-@pytest.mark.order(after=["test_rasterize.py::test_rasterize_pipeline_features"])
-def test_timeless_byoc(config_folder, preparation_config, config, requests_mock):
-    """Requires heavy mocking to get any testing done.
-
-    Mocks:
-    - The pipeline has to be tricked into thinking it's on AWS during init so it doesn't raise an error.
-    - The bucket_name is changed since it's not parsed correctly (because we're not on S3).
-    - When reading the cover geometry the path is not filesystem relative (but a join of bucket name + bucket relative)
-      so we mock it to prevent `rasterio.open` to fail.
-    - All request endpoints are mocked in the `requests_mock` fixture.
-    """
-    SentinelHubDownloadClient._CACHED_SESSIONS = {}
-    preparation_config_path = os.path.join(config_folder, CONFIG_SUBFOLDER, preparation_config)
-    ExportMapsPipeline.from_path(preparation_config_path).run()
-
-    # patch storage manager so it'll believe it's on aws, but only during init
+    # patch storage manager so it believes it's on aws, but only during init
     with mock.patch.object(StorageManager, "is_on_aws", lambda _: True):
-        config_path = os.path.join(config_folder, CONFIG_SUBFOLDER, config)
+        SentinelHubDownloadClient._CACHED_SESSIONS = {}
         pipeline = IngestByocTilesPipeline.from_path(config_path)
         pipeline.bucket_name = "mock-bucket"
 
@@ -76,26 +68,36 @@ def test_timeless_byoc(config_folder, preparation_config, config, requests_mock)
     # filter out all requests pertaining to logging of instance details
     relevant_requests = [req for req in requests_mock.request_history if "instance-identity" not in req.url]
 
-    auth_request = relevant_requests.pop(0)
+    return pipeline, relevant_requests
+
+
+@pytest.mark.parametrize("preparation_config, config", [("prepare_lulc_data.json", "ingest_lulc.json")])
+@pytest.mark.order(after=["test_rasterize.py::test_rasterize_pipeline_features"])
+def test_timeless_byoc(config_folder, preparation_config, config, requests_mock):
+    preparation_config_path = os.path.join(config_folder, CONFIG_SUBFOLDER, preparation_config)
+    ExportMapsPipeline.from_path(preparation_config_path).run()
+
+    pipeline, requests = run_byoc_pipeline(os.path.join(config_folder, CONFIG_SUBFOLDER, config), requests_mock)
+
+    auth_request = requests.pop(0)
     assert auth_request.url == "https://services.sentinel-hub.com/oauth/token"
 
-    creation_request = relevant_requests.pop(0)
+    creation_request = requests.pop(0)
     assert creation_request.url == "https://services.sentinel-hub.com/api/v1/byoc/collections"
     assert creation_request.method == "POST"
     assert creation_request.json()["name"] == pipeline.config.new_collection_name
     assert creation_request.json()["s3Bucket"] == "mock-bucket"
 
-    check_request = relevant_requests.pop(0)
+    check_request = requests.pop(0)
     assert check_request.url == "https://services.sentinel-hub.com/api/v1/byoc/collections/mock-collection/tiles"
     assert check_request.method == "GET"
 
-    for tile_request in relevant_requests:
+    for tile_request in requests:
         assert tile_request.url == "https://services.sentinel-hub.com/api/v1/byoc/collections/mock-collection/tiles"
         assert tile_request.method == "POST"
 
         content = tile_request.json()
         assert content["coverGeometry"]["coordinates"] == [MOCK_COVER_GEOM]
-        # it cannot strip the s3://<bucket-name> prefix since tests are local, so a full path is expected
         assert content["path"] == pipeline.config.storage.project_folder + "/maps/LULC_ID/UTM_32638"
         assert content["sensingTime"] == pipeline.config.sensing_time.isoformat() + "Z"
 
@@ -103,42 +105,18 @@ def test_timeless_byoc(config_folder, preparation_config, config, requests_mock)
 @pytest.mark.parametrize("preparation_config, config", [("prepare_lulc_data.json", "ingest_bands.json")])
 @pytest.mark.order(after=["test_rasterize.py::test_rasterize_pipeline_features"])
 def test_temporal_byoc(config_folder, preparation_config, config, requests_mock):
-    """Requires heavy mocking to get any testing done.
+    pipeline, requests = run_byoc_pipeline(os.path.join(config_folder, CONFIG_SUBFOLDER, config), requests_mock)
 
-    Mocks:
-    - The pipeline has to be tricked into thinking it's on AWS during init so it doesn't raise an error.
-    - The bucket_name is changed since it's not parsed correctly (because we're not on S3).
-    - When reading the cover geometry the path is not filesystem relative (but a join of bucket name + bucket relative)
-      so we mock it to prevent `rasterio.open` to fail.
-    - All request endpoints are mocked in the `requests_mock` fixture.
-    """
-    SentinelHubDownloadClient._CACHED_SESSIONS = {}
-
-    preparation_config_path = os.path.join(config_folder, CONFIG_SUBFOLDER, preparation_config)
-    ExportMapsPipeline.from_path(preparation_config_path).run()
-
-    # patch storage manager so it'll believe it's on aws, but only during init
-    with mock.patch.object(StorageManager, "is_on_aws", lambda _: True):
-        config_path = os.path.join(config_folder, CONFIG_SUBFOLDER, config)
-        pipeline = IngestByocTilesPipeline.from_path(config_path)
-        pipeline.bucket_name = "mock-bucket"
-
-    with mock.patch.object(pipeline, "_get_tile_cover_geometry", _get_tile_cover_geometry_mock):
-        pipeline.run()
-
-    # filter out all requests pertaining to logging of instance details
-    relevant_requests = [req for req in requests_mock.request_history if "instance-identity" not in req.url]
-
-    auth_request = relevant_requests.pop(0)
+    auth_request = requests.pop(0)
     assert auth_request.url == "https://services.sentinel-hub.com/oauth/token"
 
-    creation_request = relevant_requests.pop(0)
+    creation_request = requests.pop(0)
     assert creation_request.url == "https://services.sentinel-hub.com/api/v1/byoc/collections"
     assert creation_request.method == "POST"
     assert creation_request.json()["name"] == pipeline.config.new_collection_name
     assert creation_request.json()["s3Bucket"] == "mock-bucket"
 
-    check_request = relevant_requests.pop(0)
+    check_request = requests.pop(0)
     assert check_request.url == "https://services.sentinel-hub.com/api/v1/byoc/collections/mock-collection/tiles"
     assert check_request.method == "GET"
 
@@ -150,16 +128,17 @@ def test_temporal_byoc(config_folder, preparation_config, config, requests_mock)
         "2019-02-23T07:49:38Z",
         "2019-03-05T07:55:53Z",
     ]
-    for tile_request in relevant_requests:
+    for tile_request in requests:
         assert tile_request.url == "https://services.sentinel-hub.com/api/v1/byoc/collections/mock-collection/tiles"
         assert tile_request.method == "POST"
 
         content = tile_request.json()
         assert content["coverGeometry"]["coordinates"] == [MOCK_COVER_GEOM]
-        # it cannot strip the s3://<bucket-name> prefix since tests are local, so a full path is expected
+
         timestamp = content["sensingTime"]
         assert timestamp in timestamps
         timestamps.remove(timestamp)
+
         subfolder = timestamp.replace(":", "-").replace("Z", "")
         assert content["path"] == pipeline.config.storage.project_folder + f"/maps/BANDS-S2-L1C/UTM_32638/{subfolder}"
 
