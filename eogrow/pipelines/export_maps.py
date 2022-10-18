@@ -219,6 +219,7 @@ class ExportMapsPipeline(Pipeline):
         self, filesystem: FS, map_path: str, timestamp: List[dt.datetime], output_folder: str
     ) -> List[Tuple[str, Optional[dt.datetime]]]:
         """Splits the merged tiff into multiple tiffs, one per timestamp."""
+        filesystem.makedirs(output_folder, recreate=True)  # in case we use a temporary filesystem
 
         with filesystem.openbin(map_path) as file_handle:
             with rasterio.open(file_handle) as map_src:

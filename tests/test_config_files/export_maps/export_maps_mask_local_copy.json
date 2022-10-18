@@ -11,7 +11,6 @@
   "feature": ["mask", "CLM"],
   "map_dtype": "uint16",
   "band_indices": [0],
-  "compress_temporally": true,
   "force_local_copies": true,
   "workers": 1
 }
