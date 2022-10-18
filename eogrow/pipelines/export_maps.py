@@ -13,6 +13,7 @@ import rasterio
 from fs.base import FS
 from fs.tempfs import TempFS
 from pydantic import Field
+from tqdm.auto import tqdm
 
 from eolearn.core import EONode, EOPatch, EOTask, EOWorkflow, FeatureType, LoadTask, linearly_connect_tasks
 from eolearn.core.utils.fs import get_full_path
@@ -96,6 +97,8 @@ class ExportMapsPipeline(Pipeline):
 
         # TODO: This could be parallelized per-crs
         for crs, eopatch_list in crs_eopatch_dict.items():
+            LOGGER.info("Processing for UTM %d", crs.epsg)
+
             output_folder = fs.path.join(folder, f"UTM_{crs.epsg}")
             # manually make subfolder, otherwise things fail on S3 in later steps
             self.storage.filesystem.makedirs(output_folder, recreate=True)
@@ -111,6 +114,7 @@ class ExportMapsPipeline(Pipeline):
                 overwrite=True,
                 nodata=self.config.no_data_value,
                 dtype=self.config.map_dtype,
+                quiet=True,
             )
 
             output_paths: List[Tuple[str, Optional[dt.datetime]]]
@@ -122,13 +126,14 @@ class ExportMapsPipeline(Pipeline):
 
             if self.config.cogify:
                 resampling = "mode" if feature_type.is_discrete() else "bilinear"
-                for path, _ in output_paths:
+                for path, _ in tqdm(output_paths, desc="Cogifying output"):
                     cogify_inplace(
                         filesystem.getsyspath(path),
                         blocksize=1024,
                         nodata=self.config.no_data_value,
                         dtype=self.config.map_dtype,
                         resampling=resampling,
+                        quiet=True,
                     )
 
             self._finalize_output_files(filesystem, output_paths, output_folder)
@@ -225,11 +230,11 @@ class ExportMapsPipeline(Pipeline):
                 num_bands = map_src.count // len(timestamp)
 
         outputs: List[Tuple[str, Optional[dt.datetime]]] = []
-        for i, time in enumerate(timestamp):
+        for i, time in tqdm(enumerate(timestamp), desc="Spliting per timestamp", total=len(timestamp)):
             name = self.get_geotiff_name(f"full_merged_map_{time.strftime(TIMESTAMP_FORMAT)}")
             extraction_path = fs.path.join(output_folder, name)
             bands = range(i * num_bands, (i + 1) * num_bands)
-            extract_bands(filesystem.getsyspath(map_path), filesystem.getsyspath(extraction_path), bands)
+            extract_bands(filesystem.getsyspath(map_path), filesystem.getsyspath(extraction_path), bands, quiet=True)
             outputs.append((extraction_path, time))
 
         filesystem.remove(map_path)
@@ -240,7 +245,7 @@ class ExportMapsPipeline(Pipeline):
     ) -> None:
         """Renames (or transfers in case of temporal FS) the files to the expected output files."""
         map_name = self.config.map_name or f"{self.config.feature[1]}.tiff"
-        for map_path, timestamp in output_paths:
+        for map_path, timestamp in tqdm(output_paths, desc="Finalizing output files"):
             if timestamp is None:
                 output_map_path = fs.path.join(output_folder, map_name)
             else:

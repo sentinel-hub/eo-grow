@@ -24,6 +24,7 @@ def cogify_inplace(
     nodata: Optional[float] = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
     resampling: str = "mode",
+    quiet: bool = False,
 ) -> None:
     """Make the (geotiff) file a cog
     :param tiff_file: .tiff file to cogify
@@ -31,11 +32,21 @@ def cogify_inplace(
     :param nodata: value to be treated as nodata, default value is None
     :param dtype: output type of the in the resulting tiff, default is None
     :param resampling: The mode of resampling to use. Mode should be used for integers and bilinear for floats.
+    :param quiet: The process does not produce logs.
     """
     temp_file = NamedTemporaryFile()
     temp_file.close()
 
-    cogify(tiff_file, temp_file.name, blocksize, nodata=nodata, dtype=dtype, overwrite=True, resampling=resampling)
+    cogify(
+        tiff_file,
+        temp_file.name,
+        blocksize,
+        nodata=nodata,
+        dtype=dtype,
+        overwrite=True,
+        resampling=resampling,
+        quiet=quiet,
+    )
     shutil.move(temp_file.name, tiff_file)
 
 
@@ -47,6 +58,7 @@ def cogify(
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
     overwrite: bool = False,
     resampling: str = "mode",
+    quiet: bool = False,
 ) -> None:
     """Create a cloud optimized version of input file
 
@@ -57,6 +69,7 @@ def cogify(
     :param dtype: output type of the in the resulting tiff, default is None
     :param overwrite: If True overwrite the output file if it exists.
     :param resampling: The mode of resampling to use. Mode should be used for integers and bilinear for floats.
+    :param quiet: The process does not produce logs.
     """
     if input_file == output_file:
         raise OSError("Input file is the same as output file.")
@@ -70,10 +83,13 @@ def cogify(
     gdaladdo_options = f"-r {resampling} --config GDAL_TIFF_OVR_BLOCKSIZE {blocksize} 2 4 8 16 32"
 
     gdaltranslate_options = (
-        "-co TILED=YES -co COPY_SRC_OVERVIEWS=YES "
-        f"--config GDAL_TIFF_OVR_BLOCKSIZE {blocksize} -co BLOCKXSIZE={blocksize} "
+        f"-co TILED=YES --config GDAL_TIFF_OVR_BLOCKSIZE {blocksize} -co BLOCKXSIZE={blocksize} "
         f"-co BLOCKYSIZE={blocksize} -co COMPRESS=DEFLATE"
     )
+
+    if quiet:
+        gdaladdo_options += " -q"
+        gdaltranslate_options += " -q"
 
     if nodata is not None:
         gdaltranslate_options += f" -a_nodata {nodata}"
@@ -85,10 +101,8 @@ def cogify(
     temp_filename.close()
     shutil.copyfile(input_file, temp_filename.name)
 
-    LOGGER.info("cogifying %s", input_file)
     subprocess.check_call(f"gdaladdo {temp_filename.name} {gdaladdo_options}", shell=True)
     subprocess.check_call(f"gdal_translate {gdaltranslate_options} {temp_filename.name} {output_file}", shell=True)
-    LOGGER.info("cogifying done")
 
 
 def merge_tiffs(
@@ -98,6 +112,7 @@ def merge_tiffs(
     overwrite: bool = False,
     nodata: Optional[float] = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
+    quiet: bool = False,
 ) -> None:
     """Performs gdal_merge on a set of given geotiff images
 
@@ -105,6 +120,7 @@ def merge_tiffs(
     :param merged_filename: Filename of merged tiff image
     :param overwrite: If True overwrite the output (merged) file if it exists
     :param delete_input: If True input images will be deleted at the end
+    :param quiet: The process does not produce logs.
     """
     if os.path.exists(merged_filename):
         if overwrite:
@@ -114,26 +130,34 @@ def merge_tiffs(
 
     gdalmerge_options = "-co BIGTIFF=YES -co compress=LZW"
 
+    if quiet:
+        gdalmerge_options += " -q"
+
     if nodata is not None:
         gdalmerge_options += f' -init "{nodata}" -a_nodata "{nodata}"'
 
     if dtype is not None:
         gdalmerge_options += f" {GDAL_DTYPE_SETTINGS[dtype]}"
 
-    LOGGER.info("merging %d tiffs to %s", len(input_filename_list), merged_filename)
     subprocess.check_call(
         f"gdal_merge.py {gdalmerge_options} -o {merged_filename} {' '.join(input_filename_list)}", shell=True
     )
-    LOGGER.info("merging done")
 
 
-def extract_bands(input_file: str, output_file: str, bands: Sequence[int], overwrite: bool = False) -> None:
+def extract_bands(
+    input_file: str,
+    output_file: str,
+    bands: Sequence[int],
+    overwrite: bool = False,
+    quiet: bool = False,
+) -> None:
     """Extract bands from given input file
 
     :param input_file: File containing all bands
     :param output_file: Resulting file with extracted bands
     :param bands: Sequence of bands to extract. Indexation starts at 0.
     :param overwrite: If True overwrite the output file if it exists.
+    :param quiet: The process does not produce logs.
     """
     if not bands:
         raise ValueError("No bands were specified for extraction, undefined behaviour.")
@@ -149,6 +173,8 @@ def extract_bands(input_file: str, output_file: str, bands: Sequence[int], overw
 
     # gdal_translate starts indexation at 1
     translate_opts = "-co compress=LZW" + " ".join(f" -b {band + 1}" for band in bands)
+    if quiet:
+        translate_opts += " -q"
 
     temp_filename = NamedTemporaryFile()
     temp_filename.close()
