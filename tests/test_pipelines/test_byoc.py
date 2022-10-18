@@ -29,7 +29,7 @@ CONFIG_SUBFOLDER = "byoc"
 MOCK_COVER_GEOM = [[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]
 
 
-@pytest.fixture(name="requests_mock")
+@pytest.fixture(name="configured_requests_mock")
 def request_mock_setup(requests_mock):
     requests_mock.get(url="/latest/dynamic/instance-identity/document", response_list=[{}])  # logging
 
@@ -84,8 +84,8 @@ def run_byoc_pipeline(config_folder: str, config: str, preparation_config: str, 
 @pytest.mark.chain
 @pytest.mark.parametrize("preparation_config, config", [("prepare_lulc_data.json", "ingest_lulc.json")])
 @pytest.mark.order(after=["test_rasterize.py::test_rasterize_pipeline_features"])
-def test_timeless_byoc(config_folder, preparation_config, config, requests_mock):
-    pipeline, requests = run_byoc_pipeline(config_folder, config, preparation_config, requests_mock)
+def test_timeless_byoc(config_folder, preparation_config, config, configured_requests_mock):
+    pipeline, requests = run_byoc_pipeline(config_folder, config, preparation_config, configured_requests_mock)
 
     auth_request = requests.pop(0)
     assert auth_request.url == "https://services.sentinel-hub.com/oauth/token"
@@ -113,8 +113,8 @@ def test_timeless_byoc(config_folder, preparation_config, config, requests_mock)
 @pytest.mark.chain
 @pytest.mark.parametrize("preparation_config, config", [("prepare_bands_data.json", "ingest_bands.json")])
 @pytest.mark.order(after=["test_rasterize.py::test_rasterize_pipeline_features"])
-def test_temporal_byoc(config_folder, preparation_config, config, requests_mock):
-    pipeline, requests = run_byoc_pipeline(config_folder, config, preparation_config, requests_mock)
+def test_temporal_byoc(config_folder, preparation_config, config, configured_requests_mock):
+    pipeline, requests = run_byoc_pipeline(config_folder, config, preparation_config, configured_requests_mock)
 
     auth_request = requests.pop(0)
     assert auth_request.url == "https://services.sentinel-hub.com/oauth/token"
