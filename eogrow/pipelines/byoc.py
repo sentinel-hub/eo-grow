@@ -47,7 +47,8 @@ class IngestByocTilesPipeline(Pipeline):
             False,
             description=(
                 "If the BYOC is marked as temporal the pipeline will assume that the direct parent folder of a TIFF"
-                " contains the sensing time, i.e.  filesystem structure follows that used by `ExportMapsPipeline`."
+                " contains the sensing time, i.e. filesystem structure follows that used by `ExportMapsPipeline`."
+                " Example of such a path is `UTM_32638/2019-01-04T07-48-37/BANDS_S2_L1C.tiff`."
             ),
         )
         sensing_time: Optional[datetime.datetime] = Field(
