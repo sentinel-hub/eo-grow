@@ -26,9 +26,9 @@ from ..utils.validators import (
     optional_field_validator,
     parse_data_collection,
 )
+from .export_maps import TIMESTAMP_FORMAT
 
 LOGGER = logging.getLogger(__name__)
-TIMESTAMP_FORMAT = "%Y-%m-%dT%H-%M-%S"  # TODO: import from .export_maps once MRs are synced
 
 
 class IngestByocTilesPipeline(Pipeline):
