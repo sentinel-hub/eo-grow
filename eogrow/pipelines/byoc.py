@@ -60,7 +60,7 @@ class IngestByocTilesPipeline(Pipeline):
         if not self.storage.is_on_aws:
             raise ValueError("Can only ingest for projects based on S3 storage.")
         project_folder = self.storage.config.project_folder
-        self.bucket_name = project_folder.split("/")[2]
+        self.bucket_name = project_folder.replace("s3://", "").split("/")[0]
         self._cover_geometry_df: Optional[gpd.GeoDataFrame] = None
 
     def get_byoc_collection(self, byoc_client: SentinelHubBYOC) -> JsonDict:
@@ -101,7 +101,7 @@ class IngestByocTilesPipeline(Pipeline):
     def _get_byoc_compliant_path(self, relative_path: str) -> str:
         """Transforms a project relative path to a bucket-name relative path that is required by BYOC."""
         absolute_path = fs.path.combine(self.config.storage.project_folder, relative_path)  # type: ignore[attr-defined]
-        return absolute_path[6 + len(self.bucket_name) :]  # removes s3://<bucket-name>/
+        return absolute_path.replace(f"s3://{self.bucket_name}/", "")  # removes s3://<bucket-name>/
 
     def _prepare_tile(self, folder: str, tiff_paths: List[str]) -> Optional[ByocTile]:
         """Collects all required metainfo to create a BYOC tile for the given folder."""
