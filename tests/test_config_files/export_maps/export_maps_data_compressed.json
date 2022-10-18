@@ -6,12 +6,12 @@
       "maps": "maps/BANDS-S2-L1C"
     }
   },
-  "input_folder_key": "data_2019",
+  "input_folder_key": "data",
   "output_folder_key": "maps",
   "feature": ["data", "BANDS-S2-L1C"],
   "map_name": "result.tiff",
   "map_dtype": "float32",
-  "band_indices": [0, 1],
-  "cogify": true,
-  "workers": 1
+  "band_indices": [0],
+  "workers": 1,
+  "compress_temporally": true
 }

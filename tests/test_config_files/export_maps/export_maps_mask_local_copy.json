@@ -1,11 +1,17 @@
 {
   "pipeline": "eogrow.pipelines.export_maps.ExportMapsPipeline",
   "**global_config": "${config_path}/../global_config.json",
-  "input_folder_key": "data",
+  "storage": {
+    "structure": {
+      "maps": "maps/CLM"
+    }
+  },
+  "input_folder_key": "data_2019",
   "output_folder_key": "maps",
   "feature": ["mask", "CLM"],
   "map_dtype": "uint16",
   "band_indices": [0],
+  "compress_temporally": true,
   "force_local_copies": true,
   "workers": 1
 }
