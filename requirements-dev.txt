@@ -9,6 +9,7 @@ mypy
 pytest>=4.0.0
 pytest-cov
 pytest-order
+requests-mock
 twine
 types-mock
 types-requests
