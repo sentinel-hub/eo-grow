@@ -110,7 +110,6 @@ def test_timeless_byoc(config_folder, preparation_config, config, configured_req
         assert content["sensingTime"] == pipeline.config.sensing_time.isoformat() + "Z"
 
 
-@pytest.mark.chain
 @pytest.mark.parametrize("preparation_config, config", [("prepare_bands_data.json", "ingest_bands.json")])
 @pytest.mark.order(after=["test_rasterize.py::test_rasterize_pipeline_features"])
 def test_temporal_byoc(config_folder, preparation_config, config, configured_requests_mock):
