@@ -23,7 +23,6 @@ def cogify_inplace(
     blocksize: int = 2048,
     nodata: Optional[float] = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
-    resampling: str = "AVERAGE",
     quiet: bool = False,
 ) -> None:
     """Make the (geotiff) file a cog
@@ -31,7 +30,6 @@ def cogify_inplace(
     :param blocksize: block size of tiled COG
     :param nodata: value to be treated as nodata, default value is None
     :param dtype: output type of the in the resulting tiff, default is None
-    :param resampling: The mode of resampling to use. NEAREST should be used for integers and AVERAGE for floats.
     :param quiet: The process does not produce logs.
     """
     temp_file = NamedTemporaryFile()
@@ -44,7 +42,6 @@ def cogify_inplace(
         nodata=nodata,
         dtype=dtype,
         overwrite=True,
-        resampling=resampling,
         quiet=quiet,
     )
     shutil.move(temp_file.name, tiff_file)
@@ -57,7 +54,6 @@ def cogify(
     nodata: Optional[float] = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
     overwrite: bool = False,
-    resampling: str = "AVERAGE",
     quiet: bool = False,
 ) -> None:
     """Create a cloud optimized version of input file
@@ -68,7 +64,6 @@ def cogify(
     :param nodata: value to be treated as nodata, default value is None
     :param dtype: output type of the in the resulting tiff, default is None
     :param overwrite: If True overwrite the output file if it exists.
-    :param resampling: The mode of resampling to use. NEAREST should be used for integers and AVERAGE for floats.
     :param quiet: The process does not produce logs.
     """
     if input_file == output_file:
@@ -80,9 +75,12 @@ def cogify(
         else:
             raise OSError(f"{output_file} exists!")
 
+    resampling = "AVERAGE" if dtype == "float32" else "NEAREST"
+    predictor = 3 if dtype == "float32" else 2
+
     gdaltranslate_options = (
-        f"-of COG -co COMPRESS=DEFLATE -co BLOCKSIZE={blocksize} -co RESAMPLING={resampling} -co"
-        " OVERVIEWS=IGNORE_EXISTING"
+        f"-of COG -co COMPRESS=DEFLATE -co BLOCKSIZE={blocksize} -co RESAMPLING={resampling} "
+        f"-co OVERVIEWS=IGNORE_EXISTING -co PREDICTOR={predictor}"
     )
 
     if quiet:
