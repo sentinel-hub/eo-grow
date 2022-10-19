@@ -2,6 +2,7 @@
 Defines pipelines for ingesting and modifying BYOC collections.
 """
 import datetime
+import datetime as dt
 import logging
 from collections import defaultdict
 from typing import Dict, List, Optional, Tuple, cast
@@ -25,6 +26,7 @@ from ..utils.validators import (
     optional_field_validator,
     parse_data_collection,
 )
+from .export_maps import TIMESTAMP_FORMAT
 
 LOGGER = logging.getLogger(__name__)
 
@@ -34,18 +36,33 @@ class IngestByocTilesPipeline(Pipeline):
 
     class Schema(Pipeline.Schema):
         byoc_tile_folder_key: str
-        file_glob_pattern: str = Field("**/UTM_*/*.tiff", description="Pattern used to obtain the TIFF files to use")
+        file_glob_pattern: str = Field("**/*.tiff", description="Pattern used to obtain the TIFF files to use")
 
         new_collection_name: Optional[str] = Field(description="Used for defining a new BYOC collection.")
         existing_collection: Optional[DataCollection] = Field(description="Used when updating and reingesting.")
         _parse_byoc_collection = optional_field_validator("existing_collection", parse_data_collection, pre=True)
         _ensure_exclusion = ensure_exactly_one_defined("new_collection_name", "existing_collection")
 
-        sensing_time: datetime.datetime = Field(description="Sensing time (ISO format) added to BYOC tiles.")
+        is_temporal: bool = Field(
+            False,
+            description=(
+                "If the BYOC is marked as temporal the pipeline will assume that the direct parent folder of a TIFF"
+                " contains the sensing time, i.e. filesystem structure follows that used by `ExportMapsPipeline`."
+                " Example of such a path is `UTM_32638/2019-01-04T07-48-37/BANDS_S2_L1C.tiff`."
+            ),
+        )
+        sensing_time: Optional[datetime.datetime] = Field(
+            None, description="Sensing time (ISO format) added to BYOC tiles. Only used for timeless collections."
+        )
 
         @validator("sensing_time", pre=True)
-        def _parse_sensing_time(cls, value: str) -> datetime.datetime:
-            return datetime.datetime.fromisoformat(value)
+        def _parse_sensing_time(cls, value: Optional[str], values: Dict[str, object]) -> Optional[datetime.datetime]:
+            is_temporal = values["is_temporal"]
+            if is_temporal and value is None:
+                return None
+            if not is_temporal and value is not None:
+                return datetime.datetime.fromisoformat(value)
+            raise AssertionError("Sensing time should be set for timeless BYOC collections.")
 
         cover_geometry_folder_key: Optional[str] = Field(description="Folder for supplying a custom cover geometry.")
         cover_geometry: Optional[str] = Field(description="Specifies a geometry file describing the cover geometry.")
@@ -109,7 +126,14 @@ class IngestByocTilesPipeline(Pipeline):
         cover_geometry = self._get_tile_cover_geometry(some_tiff)
         if cover_geometry.geometry.is_empty:
             return None
-        return ByocTile(folder, cover_geometry=cover_geometry, sensing_time=self.config.sensing_time)
+
+        sensing_time = self.config.sensing_time
+        if self.config.is_temporal:
+            # assumes file-system structure is equal to that of ExportMapsPipeline
+            timestamp_folder = fs.path.split(folder)[1]
+            sensing_time = dt.datetime.strptime(timestamp_folder, TIMESTAMP_FORMAT)
+
+        return ByocTile(folder, cover_geometry=cover_geometry, sensing_time=sensing_time)
 
     def _get_tile_cover_geometry(self, tiff_path: str) -> Geometry:
         """Get geometry of the tile by intersecting the tiff geometry with the general cover geometry."""

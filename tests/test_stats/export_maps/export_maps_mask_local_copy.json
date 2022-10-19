@@ -1,54 +1,231 @@
 {
   "UTM_32638": {
-    "CLM.tiff": {
-      "image": {
-        "array_shape": [
-          6,
-          231,
-          264
-        ],
-        "dtype": "uint16",
-        "random_values": [
-          {
-            "position": [
-              3,
-              116,
-              215
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              183,
-              113
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 186408,
-            "value": 0
-          },
-          {
-            "count": 179496,
-            "value": 1
-          }
-        ]
-      },
-      "mask": {
-        "array_shape": [
-          231,
-          264
-        ],
-        "dtype": "uint8",
-        "values": [
-          {
-            "count": 60984,
-            "value": 255
-          }
-        ]
+    "2019-01-04T07-48-37": {
+      "CLM.tiff": {
+        "image": {
+          "array_shape": [
+            1,
+            231,
+            264
+          ],
+          "dtype": "uint16",
+          "values": [
+            {
+              "count": 60984,
+              "value": 0
+            }
+          ]
+        },
+        "mask": {
+          "array_shape": [
+            231,
+            264
+          ],
+          "dtype": "uint8",
+          "values": [
+            {
+              "count": 60984,
+              "value": 0
+            }
+          ]
+        }
+      }
+    },
+    "2019-01-24T07-48-39": {
+      "CLM.tiff": {
+        "image": {
+          "array_shape": [
+            1,
+            231,
+            264
+          ],
+          "dtype": "uint16",
+          "values": [
+            {
+              "count": 60984,
+              "value": 1
+            }
+          ]
+        },
+        "mask": {
+          "array_shape": [
+            231,
+            264
+          ],
+          "dtype": "uint8",
+          "values": [
+            {
+              "count": 60984,
+              "value": 255
+            }
+          ]
+        }
+      }
+    },
+    "2019-02-13T07-48-39": {
+      "CLM.tiff": {
+        "image": {
+          "array_shape": [
+            1,
+            231,
+            264
+          ],
+          "dtype": "uint16",
+          "random_values": [
+            {
+              "position": [
+                0,
+                195,
+                254
+              ],
+              "value": 0
+            },
+            {
+              "position": [
+                0,
+                58,
+                208
+              ],
+              "value": 1
+            }
+          ],
+          "values": [
+            {
+              "count": 3456,
+              "value": 0
+            },
+            {
+              "count": 57528,
+              "value": 1
+            }
+          ]
+        },
+        "mask": {
+          "array_shape": [
+            231,
+            264
+          ],
+          "dtype": "uint8",
+          "random_values": [
+            {
+              "position": [
+                195,
+                254
+              ],
+              "value": 0
+            },
+            {
+              "position": [
+                58,
+                208
+              ],
+              "value": 255
+            }
+          ],
+          "values": [
+            {
+              "count": 3456,
+              "value": 0
+            },
+            {
+              "count": 57528,
+              "value": 255
+            }
+          ]
+        }
+      }
+    },
+    "2019-02-18T07-48-36": {
+      "CLM.tiff": {
+        "image": {
+          "array_shape": [
+            1,
+            231,
+            264
+          ],
+          "dtype": "uint16",
+          "values": [
+            {
+              "count": 60984,
+              "value": 0
+            }
+          ]
+        },
+        "mask": {
+          "array_shape": [
+            231,
+            264
+          ],
+          "dtype": "uint8",
+          "values": [
+            {
+              "count": 60984,
+              "value": 0
+            }
+          ]
+        }
+      }
+    },
+    "2019-02-23T07-49-38": {
+      "CLM.tiff": {
+        "image": {
+          "array_shape": [
+            1,
+            231,
+            264
+          ],
+          "dtype": "uint16",
+          "values": [
+            {
+              "count": 60984,
+              "value": 1
+            }
+          ]
+        },
+        "mask": {
+          "array_shape": [
+            231,
+            264
+          ],
+          "dtype": "uint8",
+          "values": [
+            {
+              "count": 60984,
+              "value": 255
+            }
+          ]
+        }
+      }
+    },
+    "2019-03-05T07-55-53": {
+      "CLM.tiff": {
+        "image": {
+          "array_shape": [
+            1,
+            231,
+            264
+          ],
+          "dtype": "uint16",
+          "values": [
+            {
+              "count": 60984,
+              "value": 0
+            }
+          ]
+        },
+        "mask": {
+          "array_shape": [
+            231,
+            264
+          ],
+          "dtype": "uint8",
+          "values": [
+            {
+              "count": 60984,
+              "value": 0
+            }
+          ]
+        }
       }
     }
   }
