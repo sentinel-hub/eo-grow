@@ -46,14 +46,14 @@ class TestCogify:
         return filesystem.getsyspath("output.tif")
 
     @pytest.mark.parametrize("dtype", GDAL_DTYPE_SETTINGS)
-    @pytest.mark.parametrize("block", (1024, 64))
+    @pytest.mark.parametrize("block", (1024, 128))
     @pytest.mark.parametrize("nodata", (None, 0, 11))
     def test_cogify(self, input_path: str, output_path: str, nodata: Optional[float], dtype: str, block: int) -> None:
         cogify(input_path, output_path, nodata=nodata, dtype=dtype, blocksize=block, overwrite=True)
         self._test_output_file(output_path, nodata, dtype, block)
 
     @pytest.mark.parametrize("dtype", ("float32", "uint8"))
-    @pytest.mark.parametrize("block", (1024, 64))
+    @pytest.mark.parametrize("block", (1024, 128))
     @pytest.mark.parametrize("nodata", (None, 11))
     def test_cogify_inplace(self, input_path: str, nodata: Optional[float], dtype: str, block: int) -> None:
         cogify_inplace(input_path, nodata=nodata, dtype=dtype, blocksize=block)
