@@ -125,7 +125,7 @@ class ExportMapsPipeline(Pipeline):
                 output_paths = self._split_temporally(filesystem, map_path, timestamp, output_folder)
 
             if self.config.cogify:
-                resampling = "mode" if feature_type.is_discrete() else "bilinear"
+                resampling = "NEAREST" if feature_type.is_discrete() else "AVERAGE"
                 for path, _ in tqdm(output_paths, desc="Cogifying output"):
                     cogify_inplace(
                         filesystem.getsyspath(path),
