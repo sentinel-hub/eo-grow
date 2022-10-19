@@ -80,15 +80,12 @@ def cogify(
         else:
             raise OSError(f"{output_file} exists!")
 
-    gdaladdo_options = f"-r {resampling} --config GDAL_TIFF_OVR_BLOCKSIZE {blocksize} 2 4 8 16 32"
-
     gdaltranslate_options = (
-        f"-co TILED=YES --config GDAL_TIFF_OVR_BLOCKSIZE {blocksize} -co BLOCKXSIZE={blocksize} "
-        f"-co BLOCKYSIZE={blocksize} -co COMPRESS=DEFLATE"
+        f"-of COG -co COMPRESS=DEFLATE -co BLOCKSIZE={blocksize} -co RESAMPLING={resampling} -co"
+        " OVERVIEWS=IGNORE_EXISTING"
     )
 
     if quiet:
-        gdaladdo_options += " -q"
         gdaltranslate_options += " -q"
 
     if nodata is not None:
@@ -101,7 +98,6 @@ def cogify(
     temp_filename.close()
     shutil.copyfile(input_file, temp_filename.name)
 
-    subprocess.check_call(f"gdaladdo {temp_filename.name} {gdaladdo_options}", shell=True)
     subprocess.check_call(f"gdal_translate {gdaltranslate_options} {temp_filename.name} {output_file}", shell=True)
 
 
