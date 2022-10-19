@@ -286,7 +286,8 @@ class DownloadPipeline(BaseDownloadPipeline):
             bands_dtype=bands_dtype,
             config=self.sh_config,
             mosaicking_order=self.config.mosaicking_order,
-            aux_request_args=_get_aux_request_args(self.config.resampling_type),
+            downsampling=self.config.resampling_type,
+            upsampling=self.config.resampling_type,
             session_loader=session_loader,
         )
         return EONode(download_task)
@@ -321,7 +322,8 @@ class DownloadEvalscriptPipeline(BaseDownloadPipeline):
             max_threads=self.config.threads_per_worker,
             config=self.sh_config,
             mosaicking_order=self.config.mosaicking_order,
-            aux_request_args=_get_aux_request_args(self.config.resampling_type),
+            downsampling=self.config.resampling_type,
+            upsampling=self.config.resampling_type,
             session_loader=session_loader,
         )
         return EONode(download_task)
@@ -347,13 +349,8 @@ class DownloadTimelessPipeline(BaseDownloadPipeline):
             maxcc=self.config.maxcc,
             max_threads=self.config.threads_per_worker,
             config=self.sh_config,
-            aux_request_args=_get_aux_request_args(self.config.resampling_type),
+            downsampling=self.config.resampling_type,
+            upsampling=self.config.resampling_type,
             session_loader=session_loader,
         )
         return EONode(download_task)
-
-
-def _get_aux_request_args(resampling: Optional[ResamplingType]) -> Optional[dict]:
-    if resampling is not None:
-        return {"processing": {"downsampling": resampling.value, "upsampling": resampling.value}}
-    return None
