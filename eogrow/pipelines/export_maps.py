@@ -125,6 +125,7 @@ class ExportMapsPipeline(Pipeline):
                 output_paths = self._split_temporally(filesystem, map_path, timestamp, output_folder)
 
             if self.config.cogify:
+                LOGGER.info("Cogifying %d merged tiffs.", len(output_paths))
                 for path, _ in tqdm(output_paths, desc="Cogifying output"):
                     cogify_inplace(
                         filesystem.getsyspath(path),
@@ -134,16 +135,18 @@ class ExportMapsPipeline(Pipeline):
                         quiet=True,
                     )
 
+            LOGGER.info("Finalizing output files.")
             self._finalize_output_files(filesystem, output_paths, output_folder)
             if isinstance(filesystem, TempFS):
                 filesystem.close()
 
+            LOGGER.info("Remove per-eopatch tiffs for UTM %d.", crs.epsg)
             parallelize(
                 self.storage.filesystem.remove,
                 exported_tiff_paths,
                 workers=None,
                 multiprocess=False,
-                desc=f"Remove per-eopatch tiffs for UTM {crs.epsg}",
+                desc="Remove tiffs",
             )
 
         return successful, failed
@@ -228,6 +231,7 @@ class ExportMapsPipeline(Pipeline):
             with rasterio.open(file_handle) as map_src:
                 num_bands = map_src.count // len(timestamp)
 
+        LOGGER.info("Splitting merged tiff into per-timestamp tiff files.")
         outputs: List[Tuple[str, Optional[dt.datetime]]] = []
         for i, time in tqdm(enumerate(timestamp), desc="Spliting per timestamp", total=len(timestamp)):
             name = self.get_geotiff_name(f"full_merged_map_{time.strftime(TIMESTAMP_FORMAT)}")

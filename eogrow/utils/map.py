@@ -5,7 +5,6 @@ import logging
 import os
 import shutil
 import subprocess
-import warnings
 from tempfile import NamedTemporaryFile
 from typing import List, Literal, Optional, Sequence
 
@@ -78,18 +77,16 @@ def cogify(
 
     version = subprocess.check_output(("gdalinfo", "--version"), text=True).split(",")[0].replace("GDAL ", "")
     if version < "3.1.0":
-        warnings.warn(
-            f"The cogification process is configured for GDAL 3.1.0 and higher, but version {version} was detected, "
-            "which might result in issues.",
+        raise RuntimeError(
+            f"The cogification process is configured for GDAL 3.1.0 and higher, but version {version} was detected.",
             RuntimeWarning,
         )
 
     resampling = "AVERAGE" if dtype == "float32" else "NEAREST"
-    predictor = 3 if dtype == "float32" else 2
 
     gdaltranslate_options = (
         f"-of COG -co COMPRESS=DEFLATE -co BLOCKSIZE={blocksize} -co RESAMPLING={resampling} "
-        f"-co OVERVIEWS=IGNORE_EXISTING -co PREDICTOR={predictor}"
+        "-co OVERVIEWS=IGNORE_EXISTING -co PREDICTOR=YES"
     )
 
     if quiet:
