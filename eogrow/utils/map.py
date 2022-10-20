@@ -83,11 +83,10 @@ def cogify(
         )
 
     resampling = "AVERAGE" if dtype == "float32" else "NEAREST"
-    predictor = 3 if dtype == "float32" else 2
 
     gdaltranslate_options = (
         f"-of COG -co COMPRESS=DEFLATE -co BLOCKSIZE={blocksize} -co RESAMPLING={resampling} "
-        f"-co OVERVIEWS=IGNORE_EXISTING -co PREDICTOR={predictor}"
+        "-co OVERVIEWS=IGNORE_EXISTING -co PREDICTOR=YES"
     )
 
     if quiet:
