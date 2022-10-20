@@ -55,6 +55,10 @@ class ExportMapsPipeline(Pipeline):
         cogify: bool = Field(
             False, description="Whether exported GeoTIFFs will be converted into Cloud Optimized GeoTIFFs (COG)"
         )
+        cogification_resampling: Literal[
+            None, "NEAREST", "MODE", "AVERAGE", "BILINEAR", "CUBIC", "CUBICSPLINE", "LANCZOS"
+        ] = Field(None, description="Which resampling to use in the cogification process.")
+
         force_local_copies: bool = Field(
             False,
             description=(
@@ -133,6 +137,7 @@ class ExportMapsPipeline(Pipeline):
                         nodata=self.config.no_data_value,
                         dtype=self.config.map_dtype,
                         quiet=True,
+                        resampling=self.config.cogification_resampling,
                     )
 
             LOGGER.info("Finalizing output files.")
