@@ -89,8 +89,6 @@ def cogify(
             RuntimeWarning,
         )
 
-    resampling = "AVERAGE" if dtype == "float32" else "NEAREST"
-
     gdaltranslate_options = (
         f"-of COG -co COMPRESS=DEFLATE -co BLOCKSIZE={blocksize} -co RESAMPLING={resampling} "
         "-co OVERVIEWS=IGNORE_EXISTING -co PREDICTOR=YES"
