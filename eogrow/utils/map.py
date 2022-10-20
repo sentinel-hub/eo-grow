@@ -90,9 +90,11 @@ def cogify(
         )
 
     gdaltranslate_options = (
-        f"-of COG -co COMPRESS=DEFLATE -co BLOCKSIZE={blocksize} -co RESAMPLING={resampling} "
-        "-co OVERVIEWS=IGNORE_EXISTING -co PREDICTOR=YES"
+        f"-of COG -co COMPRESS=DEFLATE -co BLOCKSIZE={blocksize} -co OVERVIEWS=IGNORE_EXISTING -co PREDICTOR=YES"
     )
+
+    if resampling:
+        gdaltranslate_options += f" -co RESAMPLING={resampling}"
 
     if quiet:
         gdaltranslate_options += " -q"

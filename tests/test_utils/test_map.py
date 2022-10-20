@@ -52,7 +52,9 @@ class TestCogify:
         cogify(input_path, output_path, nodata=nodata, dtype=dtype, blocksize=block, overwrite=True)
         self._test_output_file(output_path, nodata, dtype, block)
 
-    @pytest.mark.parametrize("dtype, resampling", [("float32", "AVERAGE"), ("int16", "MODE"), ("float32", "BILINEAR")])
+    @pytest.mark.parametrize(
+        "dtype, resampling", [("float32", "AVERAGE"), ("int16", "MODE"), ("float32", "BILINEAR"), ("uint8", None)]
+    )
     def test_cogify_resampling(self, input_path: str, output_path: str, dtype: str, resampling) -> None:
         cogify(input_path, output_path, dtype=dtype, resampling=resampling, overwrite=True)
         self._test_output_file(output_path, None, dtype, 1024)
