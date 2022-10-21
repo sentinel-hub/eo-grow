@@ -388,6 +388,8 @@ class EOExecutionFilter(Filter):
         "rasterio",
         "numba",
         "fiona.ogrext",
+        "fiona.env",
+        "fiona._env",
     )
 
     def __init__(self, ignore_packages: Optional[Sequence[str]] = None, *args: Any, **kwargs: Any):
