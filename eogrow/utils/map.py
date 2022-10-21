@@ -122,26 +122,21 @@ def merge_tiffs(
     :param delete_input: If True input images will be deleted at the end
     :param quiet: The process does not produce logs.
     """
-    if os.path.exists(merged_filename):
-        if overwrite:
-            os.remove(merged_filename)
-        else:
-            raise OSError(f"{merged_filename} exists!")
+    gdalwarp_options = "-co BIGTIFF=YES -co compress=LZW -co TILED=YES"
 
-    gdalmerge_options = "-co BIGTIFF=YES -co compress=LZW"
-
+    if overwrite:
+        gdalwarp_options += " -overwrite"
     if quiet:
-        gdalmerge_options += " -q"
+        gdalwarp_options += " -q"
 
     if nodata is not None:
-        gdalmerge_options += f' -init "{nodata}" -a_nodata "{nodata}"'
+        gdalwarp_options += f' -dstnodata "{nodata}"'
 
     if dtype is not None:
-        gdalmerge_options += f" {GDAL_DTYPE_SETTINGS[dtype]}"
+        gdalwarp_options += f" {GDAL_DTYPE_SETTINGS[dtype]}"
 
-    subprocess.check_call(
-        f"gdal_merge.py {gdalmerge_options} -o {merged_filename} {' '.join(input_filename_list)}", shell=True
-    )
+    command = f"gdalwarp {gdalwarp_options} {' '.join(input_filename_list)} {merged_filename} "
+    subprocess.check_call(command, shell=True)
 
 
 def extract_bands(
