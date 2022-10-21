@@ -13,5 +13,6 @@
   "band_indices": [0],
   "compress_temporally": true,
   "cogify": true,
+  "cogification_resampling": "MODE",
   "workers": 1
 }
