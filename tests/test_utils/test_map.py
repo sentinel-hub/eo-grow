@@ -15,7 +15,14 @@ from eolearn.core import EOPatch, FeatureType
 from eolearn.io import ExportToTiffTask
 from sentinelhub import CRS, BBox
 
-from eogrow.utils.map import GDAL_DTYPE_SETTINGS, cogify, cogify_inplace, extract_bands, merge_tiffs
+from eogrow.utils.map import (
+    GDAL_DTYPE_SETTINGS,
+    CogifyResamplingOptions,
+    cogify,
+    cogify_inplace,
+    extract_bands,
+    merge_tiffs,
+)
 
 pytestmark = pytest.mark.fast
 
@@ -55,7 +62,9 @@ class TestCogify:
     @pytest.mark.parametrize(
         "dtype, resampling", [("float32", "AVERAGE"), ("int16", "MODE"), ("float32", "BILINEAR"), ("uint8", None)]
     )
-    def test_cogify_resampling(self, input_path: str, output_path: str, dtype: str, resampling) -> None:
+    def test_cogify_resampling(
+        self, input_path: str, output_path: str, dtype: str, resampling: CogifyResamplingOptions
+    ) -> None:
         cogify(input_path, output_path, dtype=dtype, resampling=resampling, overwrite=True)
         self._test_output_file(output_path, None, dtype, 1024)
 

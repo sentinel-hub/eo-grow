@@ -11,11 +11,29 @@ from typing import List, Literal, Optional, Sequence
 LOGGER = logging.getLogger(__name__)
 
 GDAL_DTYPE_SETTINGS = {
-    "uint8": "-ot Byte",
-    "uint16": "-ot UInt16",
-    "int16": "-ot Int16",
-    "float32": "-ot Float32",
+    "uint8": "Byte",
+    "uint16": "UInt16",
+    "int16": "Int16",
+    "float32": "Float32",
 }
+CogifyResamplingOptions = Literal[None, "NEAREST", "MODE", "AVERAGE", "BILINEAR", "CUBIC", "CUBICSPLINE", "LANCZOS"]
+WarpResamplingOptions = Literal[
+    None,
+    "near",
+    "bilinear",
+    "cubic",
+    "cubicspline",
+    "lanczos",
+    "average",
+    "rms",
+    "mode",
+    "max",
+    "min",
+    "med",
+    "q1",
+    "q3",
+    "sum",
+]
 
 
 def cogify_inplace(
@@ -23,7 +41,7 @@ def cogify_inplace(
     blocksize: int = 2048,
     nodata: Optional[float] = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
-    resampling: Literal[None, "NEAREST", "MODE", "AVERAGE", "BILINEAR", "CUBIC", "CUBICSPLINE", "LANCZOS"] = None,
+    resampling: CogifyResamplingOptions = None,
     quiet: bool = False,
 ) -> None:
     """Make the (geotiff) file a cog
@@ -58,7 +76,7 @@ def cogify(
     nodata: Optional[float] = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
     overwrite: bool = False,
-    resampling: Literal[None, "NEAREST", "MODE", "AVERAGE", "BILINEAR", "CUBIC", "CUBICSPLINE", "LANCZOS"] = None,
+    resampling: CogifyResamplingOptions = None,
     quiet: bool = False,
 ) -> None:
     """Create a cloud optimized version of input file
@@ -103,7 +121,7 @@ def cogify(
         gdaltranslate_options += f" -a_nodata {nodata}"
 
     if dtype is not None:
-        gdaltranslate_options += f" {GDAL_DTYPE_SETTINGS[dtype]}"
+        gdaltranslate_options += f" -ot {GDAL_DTYPE_SETTINGS[dtype]}"
 
     temp_filename = NamedTemporaryFile()
     temp_filename.close()
@@ -119,6 +137,7 @@ def merge_tiffs(
     overwrite: bool = False,
     nodata: Optional[float] = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
+    warp_resampling: WarpResamplingOptions = None,
     quiet: bool = False,
 ) -> None:
     """Performs gdal_merge on a set of given geotiff images
@@ -127,22 +146,27 @@ def merge_tiffs(
     :param merged_filename: Filename of merged tiff image
     :param overwrite: If True overwrite the output (merged) file if it exists
     :param delete_input: If True input images will be deleted at the end
+    :param warp_resampling: The resampling method used when warping, useful for pixel misalignment. Defaults to NEAREST.
     :param quiet: The process does not produce logs.
     """
     gdalwarp_options = "-co BIGTIFF=YES -co compress=LZW -co TILED=YES"
 
     if overwrite:
         gdalwarp_options += " -overwrite"
+
     if quiet:
         gdalwarp_options += " -q"
+
+    if warp_resampling:
+        gdalwarp_options += f" -r {warp_resampling}"
 
     if nodata is not None:
         gdalwarp_options += f' -dstnodata "{nodata}"'
 
     if dtype is not None:
-        gdalwarp_options += f" {GDAL_DTYPE_SETTINGS[dtype]}"
+        gdalwarp_options += f" -ot {GDAL_DTYPE_SETTINGS[dtype]}"
 
-    command = f"gdalwarp {gdalwarp_options} {' '.join(input_filename_list)} {merged_filename} "
+    command = f"gdalwarp {gdalwarp_options} {' '.join(input_filename_list)} {merged_filename}"
     subprocess.check_call(command, shell=True)
 
 
