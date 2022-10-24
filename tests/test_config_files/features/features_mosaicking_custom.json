@@ -9,7 +9,7 @@
     "valid_data_feature_name": "dataMask"
   },
   "ndis": {
-    "NDVI": [7, 3], 
+    "NDVI": [7, 3],
     "NDWI": [2, 7],
     "NDBI": [11, 7]
   },

@@ -1,6 +1,7 @@
 """
 Module with utilities for logging
 """
+import contextlib
 import json
 import logging
 import sys
@@ -263,10 +264,8 @@ class FilesystemHandler(FileHandler):
     def close(self) -> None:
         """Closes logging and closes the local file"""
         super().close()
-        try:
+        with contextlib.suppress(FilesystemClosed):
             self.local_file.close()
-        except FilesystemClosed:
-            pass
 
 
 class RegularBackupHandler(FilesystemHandler):
@@ -389,6 +388,8 @@ class EOExecutionFilter(Filter):
         "rasterio",
         "numba",
         "fiona.ogrext",
+        "fiona.env",
+        "fiona._env",
     )
 
     def __init__(self, ignore_packages: Optional[Sequence[str]] = None, *args: Any, **kwargs: Any):

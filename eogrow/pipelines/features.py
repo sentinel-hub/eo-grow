@@ -31,7 +31,7 @@ from ..tasks.features import (
 )
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.types import Feature, FeatureSpec, TimePeriod
-from ..utils.validators import dict_factory, field_validator, optional_field_validator, parse_dtype, parse_time_period
+from ..utils.validators import field_validator, optional_field_validator, parse_dtype, parse_time_period
 
 LOGGER = logging.getLogger(__name__)
 
@@ -63,7 +63,7 @@ class FeaturesPipeline(Pipeline):
         data_preparation: ValidityFiltering
 
         ndis: Dict[str, Tuple[int, int]] = Field(
-            default_factory=dict_factory,
+            default_factory=dict,
             description=(
                 "A dictionary of kind `{feature_name: (id1, id2)}` that specifies how to calculate the NDIs of bands "
                 "(with indices `id1` and `id2` in the bands feature) and save it under `feature_name`."

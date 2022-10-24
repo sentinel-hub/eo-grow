@@ -1,0 +1,14 @@
+{
+  "pipeline": "eogrow.pipelines.byoc.IngestByocTilesPipeline",
+  "**global_config": "${config_path}/../global_config.json",
+  "storage": {
+    "structure": {
+      "byoc": "maps/BANDS-S2-L1C"
+    }
+  },
+  "byoc_tile_folder_key": "byoc",
+  "new_collection_name": "whatever_temporal",
+  "is_temporal": true,
+  "cover_geometry_folder_key": "input_data",
+  "cover_geometry": "test_area.geojson"
+}

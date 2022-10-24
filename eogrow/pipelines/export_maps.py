@@ -1,6 +1,7 @@
 """
 Module implementing export_maps pipelines
 """
+import datetime as dt
 import itertools as it
 import logging
 from typing import Dict, List, Literal, Optional, Tuple
@@ -8,26 +9,29 @@ from typing import Dict, List, Literal, Optional, Tuple
 import fs
 import fs.copy
 import numpy as np
+import rasterio
+from fs.base import FS
 from fs.tempfs import TempFS
 from pydantic import Field
+from tqdm.auto import tqdm
 
-from eolearn.core import EONode, EOTask, EOWorkflow, FeatureType, LoadTask, linearly_connect_tasks
+from eolearn.core import EONode, EOPatch, EOTask, EOWorkflow, FeatureType, LoadTask, linearly_connect_tasks
 from eolearn.core.utils.fs import get_full_path
 from eolearn.core.utils.parallelize import parallelize
 from eolearn.features import LinearFunctionTask
 from eolearn.io import ExportToTiffTask
 
 from ..core.pipeline import Pipeline
-from ..utils.map import merge_maps
+from ..utils.map import CogifyResamplingOptions, WarpResamplingOptions, cogify_inplace, extract_bands, merge_tiffs
 from ..utils.types import Feature
 
 LOGGER = logging.getLogger(__name__)
 
+TIMESTAMP_FORMAT = "%Y-%m-%dT%H-%M-%S"
+
 
 class ExportMapsPipeline(Pipeline):
     """Pipeline to export a feature into a tiff map"""
-
-    _merge_map_function = staticmethod(merge_maps)
 
     class Schema(Pipeline.Schema):
         input_folder_key: str = Field(
@@ -47,10 +51,17 @@ class ExportMapsPipeline(Pipeline):
         band_indices: Optional[List[int]] = Field(
             description="A list of band indices to be exported for the export feature. Default is all bands"
         )
+        warp_resampling: WarpResamplingOptions = Field(
+            None, description="The resampling method used when warping, useful for pixel misalignment"
+        )
 
         cogify: bool = Field(
             False, description="Whether exported GeoTIFFs will be converted into Cloud Optimized GeoTIFFs (COG)"
         )
+        cogification_resampling: CogifyResamplingOptions = Field(
+            None, description="Which resampling to use in the cogification process."
+        )
+
         force_local_copies: bool = Field(
             False,
             description=(
@@ -58,21 +69,99 @@ class ExportMapsPipeline(Pipeline):
                 " With this parameter you force to always make copies."
             ),
         )
+        compress_temporally: bool = Field(
+            False,
+            description=(
+                "Temporal features are by default exported as multiple TIFF files in a per-timestamp manner. Enabling "
+                "this parameter results in a single TIFF with the same band order as the one of `ExportToTiffTask`."
+            ),
+        )
         skip_existing: Literal[False] = False
 
     config: Schema
 
     def run_procedure(self) -> Tuple[List[str], List[str]]:
-        """Procedure which downloads satellite data"""
+        """Extracts and merges the data from EOPatches into a TIFF file.
+
+        1. Extracts data from EOPatches via workflow into per-EOPatch tiffs.
+        2. For each UTM zone:
+            - Prepares tiffs for merging (transfers to local if needed).
+            - Merges the tiffs
+            - Performs temporal split of tiffs if needed (assumption that all eopatches share the same timestamp)
+            - Cogification is done if requested.
+            - The output files are finalized (renamed/transferred) and per-EOPatch tiffs are cleaned.
+
+        """
+
         successful, failed = super().run_procedure()
 
-        _, feature_name = self.config.feature
-        self.create_maps(feature_name, successful)
+        if not successful:
+            raise ValueError("Failed to extract tiff files from any of EOPatches.")
+
+        feature_type, _ = self.config.feature
+        folder = self.storage.get_folder(self.config.output_folder_key)
+        crs_eopatch_dict = self.eopatch_manager.split_by_utm(successful)
+
+        # TODO: This could be parallelized per-crs
+        for crs, eopatch_list in crs_eopatch_dict.items():
+            LOGGER.info("Processing for UTM %d", crs.epsg)
+
+            output_folder = fs.path.join(folder, f"UTM_{crs.epsg}")
+            # manually make subfolder, otherwise things fail on S3 in later steps
+            self.storage.filesystem.makedirs(output_folder, recreate=True)
+
+            merged_map_path = fs.path.join(output_folder, self.get_geotiff_name("full_merged_map"))
+            exported_tiff_paths = [fs.path.join(folder, self.get_geotiff_name(name)) for name in eopatch_list]
+
+            filesystem, geotiff_paths, map_path = self._prepare_files(exported_tiff_paths, merged_map_path)
+
+            LOGGER.info("Merging %d TIFF files.", len(geotiff_paths))
+            merge_tiffs(
+                list(map(filesystem.getsyspath, geotiff_paths)),
+                filesystem.getsyspath(map_path),
+                overwrite=True,
+                nodata=self.config.no_data_value,
+                dtype=self.config.map_dtype,
+                warp_resampling=self.config.warp_resampling,
+                quiet=True,
+            )
+
+            output_paths: List[Tuple[str, Optional[dt.datetime]]]
+            if feature_type.is_timeless() or self.config.compress_temporally:
+                output_paths = [(map_path, None)]
+            else:
+                timestamp = self._load_timestamp(eopatch_list[0])  # we assume all eopatches share the same timestamp
+                output_paths = self._split_temporally(filesystem, map_path, timestamp, output_folder)
+
+            if self.config.cogify:
+                LOGGER.info("Cogifying %d merged tiffs.", len(output_paths))
+                for path, _ in tqdm(output_paths, desc="Cogifying output"):
+                    cogify_inplace(
+                        filesystem.getsyspath(path),
+                        blocksize=1024,
+                        nodata=self.config.no_data_value,
+                        dtype=self.config.map_dtype,
+                        quiet=True,
+                        resampling=self.config.cogification_resampling,
+                    )
+
+            LOGGER.info("Finalizing output files.")
+            self._finalize_output_files(filesystem, output_paths, output_folder)
+            if isinstance(filesystem, TempFS):
+                filesystem.close()
+
+            LOGGER.info("Remove per-eopatch tiffs for UTM %d.", crs.epsg)
+            parallelize(
+                self.storage.filesystem.remove,
+                exported_tiff_paths,
+                workers=None,
+                multiprocess=False,
+                desc="Remove tiffs",
+            )
 
         return successful, failed
 
     def build_workflow(self) -> EOWorkflow:
-        """Method where workflow is constructed"""
         load_task = LoadTask(
             self.storage.get_folder(self.config.input_folder_key),
             filesystem=self.storage.filesystem,
@@ -84,11 +173,9 @@ class ExportMapsPipeline(Pipeline):
             rescale_task = LinearFunctionTask(self.config.feature, slope=self.config.scale_factor)
             task_list.append(rescale_task)
 
-        _, feature_name = self.config.feature
-        folder = fs.path.join(self.storage.get_folder(self.config.output_folder_key), feature_name)
         export_to_tiff_task = ExportToTiffTask(
             self.config.feature,
-            folder=folder,
+            folder=self.storage.get_folder(self.config.output_folder_key),
             filesystem=self.storage.filesystem,
             no_data_value=self.config.no_data_value,
             image_dtype=np.dtype(self.config.map_dtype),
@@ -97,76 +184,6 @@ class ExportMapsPipeline(Pipeline):
         task_list.append(export_to_tiff_task)
 
         return EOWorkflow(linearly_connect_tasks(*task_list))
-
-    def create_maps(self, feature_name: str, patch_names: List[str]) -> None:
-        """A method which creates a joined GeoTIFF maps from a list of exported GeoTIFFs"""
-        if not patch_names:
-            raise ValueError("Cannot create map with an empty list of EOPatch names")
-
-        folder = fs.path.join(self.storage.get_folder(self.config.output_folder_key), feature_name)
-
-        crs_eopatch_dict = self.eopatch_manager.split_by_utm(patch_names)
-
-        # TODO: This could be parallelized per-crs
-        for crs, eopatch_list in crs_eopatch_dict.items():
-            subfolder = f"UTM_{crs.epsg}"
-            map_name = self.config.map_name or f"{feature_name}.tiff"
-
-            # manually make subfolder, otherwise things fail on S3 in later steps
-            self.storage.filesystem.makedirs(fs.path.join(folder, subfolder), recreate=True)
-            self._create_single_map(folder, eopatch_list, subfolder, map_name)
-
-    def _create_single_map(self, folder: str, eopatch_list: List[str], subfolder: str, map_name: str) -> None:
-        """Creates a single map"""
-        make_local_copies = self.storage.is_on_aws() or self.config.force_local_copies
-
-        geotiff_names = [self.get_geotiff_name(name) for name in eopatch_list]
-        geotiff_paths = [fs.path.join(folder, name) for name in geotiff_names]
-        merged_map_path = fs.path.join(folder, subfolder, map_name)
-
-        if make_local_copies:
-            temp_fs = TempFS(identifier="_merge_maps_temp")
-
-            LOGGER.info("Copying tiffs to a temporary local folder %s", temp_fs.getsyspath("/"))
-            parallelize(
-                fs.copy.copy_file,
-                it.repeat(self.storage.filesystem),
-                geotiff_paths,
-                it.repeat(temp_fs),
-                geotiff_names,
-                workers=None,
-                multiprocess=False,
-                desc="Local copies",
-            )
-
-            sys_paths = [temp_fs.getsyspath(name) for name in geotiff_names]
-            sys_map_path = temp_fs.getsyspath(map_name)
-        else:
-            sys_paths = [self.storage.filesystem.getsyspath(path) for path in geotiff_paths]
-            sys_map_path = self.storage.filesystem.getsyspath(merged_map_path)
-
-        self._merge_map_function(
-            sys_paths,
-            sys_map_path,
-            nodata=self.config.no_data_value,
-            dtype=self.config.map_dtype,
-            cogify=self.config.cogify,
-            delete_input=False,
-        )
-
-        if make_local_copies:
-            fs.copy.copy_file(temp_fs, map_name, self.storage.filesystem, merged_map_path)
-            temp_fs.close()
-        LOGGER.info("Merged map is saved at %s", get_full_path(self.storage.filesystem, merged_map_path))
-
-        parallelize(
-            self.storage.filesystem.remove, geotiff_paths, workers=None, multiprocess=False, desc="Deleting temp tiffs"
-        )
-        LOGGER.info("Cleaned original temporary maps")
-
-    def get_geotiff_name(self, name: str) -> str:
-        """Creates a unique name of a geotiff image"""
-        return f"{name}_{self.__class__.__name__}_{self.pipeline_id}.tiff"
 
     def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, object]]]:
         exec_args = super().get_execution_arguments(workflow)
@@ -177,3 +194,79 @@ class ExportMapsPipeline(Pipeline):
                     single_exec_dict[node] = dict(filename=self.get_geotiff_name(name))
 
         return exec_args
+
+    def get_geotiff_name(self, name: str) -> str:
+        """Creates a unique name of a geotiff image"""
+        return f"{name}_{self.__class__.__name__}_{self.pipeline_id}.tiff"
+
+    def _prepare_files(self, geotiff_paths: List[str], output_file: str) -> Tuple[FS, List[str], str]:
+        """Returns system paths of geotiffs and output file that can be used to merge maps.
+
+        If required files are copied locally and a temporary filesystem object is returned.
+        """
+        make_local_copies = self.storage.is_on_aws() or self.config.force_local_copies
+
+        if not make_local_copies:
+            return self.storage.filesystem, geotiff_paths, output_file
+
+        temp_fs = TempFS(identifier="_merge_maps_temp")
+        temp_geotiff_paths = [fs.path.basename(path) for path in geotiff_paths]
+
+        LOGGER.info("Copying tiffs to a temporary local folder %s", temp_fs.getsyspath("/"))
+        parallelize(
+            fs.copy.copy_file,
+            it.repeat(self.storage.filesystem),
+            geotiff_paths,
+            it.repeat(temp_fs),
+            temp_geotiff_paths,
+            workers=None,
+            multiprocess=False,
+            desc="Making local copies",
+        )
+        temp_map_path = fs.path.basename(output_file)
+        return temp_fs, temp_geotiff_paths, temp_map_path
+
+    def _load_timestamp(self, eopatch_name: str) -> List[dt.datetime]:
+        path = fs.path.join(self.storage.get_folder(self.config.input_folder_key), eopatch_name)
+        patch = EOPatch.load(path, FeatureType.TIMESTAMP, filesystem=self.storage.filesystem)
+        return patch.timestamp
+
+    def _split_temporally(
+        self, filesystem: FS, map_path: str, timestamp: List[dt.datetime], output_folder: str
+    ) -> List[Tuple[str, Optional[dt.datetime]]]:
+        """Splits the merged tiff into multiple tiffs, one per timestamp."""
+        filesystem.makedirs(output_folder, recreate=True)  # in case we use a temporary filesystem
+
+        with filesystem.openbin(map_path) as file_handle:
+            with rasterio.open(file_handle) as map_src:
+                num_bands = map_src.count // len(timestamp)
+
+        LOGGER.info("Splitting merged tiff into per-timestamp tiff files.")
+        outputs: List[Tuple[str, Optional[dt.datetime]]] = []
+        for i, time in tqdm(enumerate(timestamp), desc="Spliting per timestamp", total=len(timestamp)):
+            name = self.get_geotiff_name(f"full_merged_map_{time.strftime(TIMESTAMP_FORMAT)}")
+            extraction_path = fs.path.join(output_folder, name)
+            bands = range(i * num_bands, (i + 1) * num_bands)
+            extract_bands(filesystem.getsyspath(map_path), filesystem.getsyspath(extraction_path), bands, quiet=True)
+            outputs.append((extraction_path, time))
+
+        filesystem.remove(map_path)
+        return outputs
+
+    def _finalize_output_files(
+        self, filesystem: FS, output_paths: List[Tuple[str, Optional[dt.datetime]]], output_folder: str
+    ) -> None:
+        """Renames (or transfers in case of temporal FS) the files to the expected output files."""
+        map_name = self.config.map_name or f"{self.config.feature[1]}.tiff"
+        for map_path, timestamp in tqdm(output_paths, desc="Finalizing output files"):
+            if timestamp is None:
+                output_map_path = fs.path.join(output_folder, map_name)
+            else:
+                timestamp_output_folder = fs.path.join(output_folder, timestamp.strftime(TIMESTAMP_FORMAT))
+                self.storage.filesystem.makedirs(timestamp_output_folder, recreate=True)
+                output_map_path = fs.path.join(timestamp_output_folder, map_name)
+
+            fs.copy.copy_file(filesystem, map_path, self.storage.filesystem, output_map_path)
+            filesystem.remove(map_path)
+
+        LOGGER.info("Merged maps are saved in %s", get_full_path(self.storage.filesystem, output_folder))

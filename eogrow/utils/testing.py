@@ -4,7 +4,7 @@ Module implementing utilities for unit testing pipeline results
 import functools
 import json
 import os
-from typing import Any, Callable, Dict, List, Optional, Tuple, cast
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, cast
 
 import fs
 import numpy as np
@@ -137,6 +137,7 @@ class ContentTester:
                 stats[feature_type_name] = [time.isoformat() for time in eopatch.timestamp]
 
             else:
+                feature_set = cast(Set[str], feature_set)
                 feature_stats_dict = {}
 
                 if feature_type.is_raster():

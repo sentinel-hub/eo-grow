@@ -24,7 +24,6 @@ from sklearn.preprocessing import LabelEncoder
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
-from ..utils.validators import dict_factory, list_factory
 
 LOGGER = logging.getLogger(__name__)
 
@@ -60,7 +59,7 @@ class BaseTrainingPipeline(Pipeline, metaclass=abc.ABCMeta):
         train_test_split: RandomTrainTestSplitSchema
 
         model_parameters: Dict[str, Any] = Field(
-            default_factory=dict_factory, description="Parameters to be provided to the model"
+            default_factory=dict, description="Parameters to be provided to the model"
         )
         model_filename: str
         patch_list: None = None
@@ -184,14 +183,14 @@ class ClassificationPreprocessSchema(BaseSchema):
     )
 
     filter_classes: List[int] = Field(
-        default_factory=list_factory,
+        default_factory=list,
         description=(
             "Specify IDs of classes that are going to be used for training. If empty, all the classes will be used."
         ),
     )
 
 
-class ClassificationTrainingPipeline(BaseTrainingPipeline, metaclass=abc.ABCMeta):
+class ClassificationTrainingPipeline(BaseTrainingPipeline):
     """A base pipeline for training an ML classifier. Uses LGBMClassifier by default."""
 
     class Schema(BaseTrainingPipeline.Schema):

@@ -19,7 +19,7 @@ class MappingTask(MapFeatureTask):
     def __init__(self, input_feature: Feature, output_feature: Feature, mapping_dict: dict):
         super().__init__(input_feature, output_feature, mapping_dict=mapping_dict)
 
-    def map_method(self, feature: np.ndarray, mapping_dict: dict) -> np.ndarray:
+    def map_method(self, feature: np.ndarray, mapping_dict: dict) -> np.ndarray:  # type: ignore[override]
         mapped_values = feature.copy()
         for map_from, map_to in mapping_dict.items():
             mapped_values[feature == map_from] = map_to
@@ -48,7 +48,7 @@ class ClassFilterTask(EOTask):
         """
         self.feature_name: Optional[str]
         self.new_feature_name: Optional[str]
-        self.feature_type, self.feature_name, self.new_feature_name = self.parse_renamed_feature(feature)
+        self.renamed_feature = self.parse_renamed_feature(feature)
         self.labels = labels
 
         if isinstance(morph_operation, MorphologicalOperations):
@@ -58,7 +58,8 @@ class ClassFilterTask(EOTask):
         self.struct_elem = struct_elem
 
     def execute(self, eopatch: EOPatch) -> EOPatch:
-        mask = eopatch[self.feature_type][self.feature_name].copy()
+        feature_type, feature_name, new_feature_name = self.renamed_feature
+        mask = eopatch[(feature_type, feature_name)].copy()
 
         for label in self.labels:
             label_mask = np.squeeze((mask == label), axis=-1)
@@ -66,5 +67,5 @@ class ClassFilterTask(EOTask):
             mask_mod = mask_mod[..., np.newaxis]
             mask[mask == label] = mask_mod[mask == label]
 
-        eopatch[self.feature_type][self.new_feature_name] = mask
+        eopatch[(feature_type, new_feature_name)] = mask
         return eopatch
