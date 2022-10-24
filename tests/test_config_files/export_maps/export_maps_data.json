@@ -13,5 +13,6 @@
   "map_dtype": "float32",
   "band_indices": [0, 1],
   "cogify": true,
+  "warp_resampling": "bilinear",
   "workers": 1
 }

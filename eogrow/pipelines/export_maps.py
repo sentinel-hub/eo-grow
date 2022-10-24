@@ -22,7 +22,7 @@ from eolearn.features import LinearFunctionTask
 from eolearn.io import ExportToTiffTask
 
 from ..core.pipeline import Pipeline
-from ..utils.map import cogify_inplace, extract_bands, merge_tiffs
+from ..utils.map import CogifyResamplingOptions, WarpResamplingOptions, cogify_inplace, extract_bands, merge_tiffs
 from ..utils.types import Feature
 
 LOGGER = logging.getLogger(__name__)
@@ -51,13 +51,16 @@ class ExportMapsPipeline(Pipeline):
         band_indices: Optional[List[int]] = Field(
             description="A list of band indices to be exported for the export feature. Default is all bands"
         )
+        warp_resampling: WarpResamplingOptions = Field(
+            None, description="The resampling method used when warping, useful for pixel misalignment"
+        )
 
         cogify: bool = Field(
             False, description="Whether exported GeoTIFFs will be converted into Cloud Optimized GeoTIFFs (COG)"
         )
-        cogification_resampling: Literal[
-            None, "NEAREST", "MODE", "AVERAGE", "BILINEAR", "CUBIC", "CUBICSPLINE", "LANCZOS"
-        ] = Field(None, description="Which resampling to use in the cogification process.")
+        cogification_resampling: CogifyResamplingOptions = Field(
+            None, description="Which resampling to use in the cogification process."
+        )
 
         force_local_copies: bool = Field(
             False,
@@ -112,12 +115,14 @@ class ExportMapsPipeline(Pipeline):
 
             filesystem, geotiff_paths, map_path = self._prepare_files(exported_tiff_paths, merged_map_path)
 
+            LOGGER.info("Merging %d TIFF files.", len(geotiff_paths))
             merge_tiffs(
                 list(map(filesystem.getsyspath, geotiff_paths)),
                 filesystem.getsyspath(map_path),
                 overwrite=True,
                 nodata=self.config.no_data_value,
                 dtype=self.config.map_dtype,
+                warp_resampling=self.config.warp_resampling,
                 quiet=True,
             )
 
