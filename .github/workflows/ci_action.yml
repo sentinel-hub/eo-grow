@@ -29,8 +29,7 @@ jobs:
           architecture: x64
 
       - name: Prepare pre-commit validators
-        run: |
-          pip install pre-commit
+        run: pip install pre-commit
 
       - name: Check code compliance with pre-commit validators
         run: pre-commit run --all-files
@@ -50,12 +49,10 @@ jobs:
           architecture: x64
 
       - name: Install packages
-        run: |
-          pip install -e .[DEV]
+        run: pip install -e .[DEV]
 
       - name: Run mypy
-        run: |
-          mypy eogrow
+        run: mypy eogrow
 
   test-on-github:
     runs-on: ubuntu-latest

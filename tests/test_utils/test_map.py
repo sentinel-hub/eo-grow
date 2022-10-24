@@ -24,7 +24,7 @@ from eogrow.utils.map import (
     merge_tiffs,
 )
 
-pytestmark = pytest.mark.fast
+# pytestmark = pytest.mark.fast  # tests on github work for PRs and push actions but fail for schedule
 
 
 def make_geotiff(data: np.ndarray, bbox: BBox, filesystem: FS, *, folder: str = ".", name: str):
