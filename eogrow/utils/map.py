@@ -109,7 +109,6 @@ def cogify(
 
     gdaltranslate_options = (
         f"-of COG -co COMPRESS=DEFLATE -co BLOCKSIZE={blocksize} -co OVERVIEWS=IGNORE_EXISTING -co PREDICTOR=YES"
-        " --config GDAL_CACHEMAX 1000 -wm 1000 -multi"
     )
 
     if resampling:
@@ -150,7 +149,7 @@ def merge_tiffs(
     :param warp_resampling: The resampling method used when warping, useful for pixel misalignment. Defaults to NEAREST.
     :param quiet: The process does not produce logs.
     """
-    gdalwarp_options = "-co BIGTIFF=YES -co compress=LZW -co TILED=YES"
+    gdalwarp_options = "-co BIGTIFF=YES -co compress=LZW -co TILED=YES --config GDAL_CACHEMAX 1000 -wm 1000 -multi"
 
     if overwrite:
         gdalwarp_options += " -overwrite"
