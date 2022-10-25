@@ -109,6 +109,7 @@ def cogify(
 
     gdaltranslate_options = (
         f"-of COG -co COMPRESS=DEFLATE -co BLOCKSIZE={blocksize} -co OVERVIEWS=IGNORE_EXISTING -co PREDICTOR=YES"
+        " --config GDAL_CACHEMAX 1000 -wm 1000 -multi"
     )
 
     if resampling:

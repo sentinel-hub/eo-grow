@@ -123,8 +123,10 @@ class ExportMapsPipeline(Pipeline):
                 nodata=self.config.no_data_value,
                 dtype=self.config.map_dtype,
                 warp_resampling=self.config.warp_resampling,
-                quiet=True,
             )
+
+            LOGGER.info("Remove local per-eopatch tiffs after merge.", crs.epsg)
+            parallelize(filesystem.remove, geotiff_paths, workers=None, multiprocess=False, desc="Remove tiffs")
 
             output_paths: List[Tuple[str, Optional[dt.datetime]]]
             if feature_type.is_timeless() or self.config.compress_temporally:
