@@ -182,6 +182,7 @@ class ExportMapsPipeline(Pipeline):
             no_data_value=self.config.no_data_value,
             image_dtype=np.dtype(self.config.map_dtype),
             band_indices=self.config.band_indices,
+            compress="LZW",
         )
         task_list.append(export_to_tiff_task)
 
@@ -199,7 +200,10 @@ class ExportMapsPipeline(Pipeline):
 
     def get_geotiff_name(self, name: str) -> str:
         """Creates a unique name of a geotiff image"""
-        return f"{name}_{self.__class__.__name__}_{self.pipeline_id}.tiff"
+        return f"{name}_{self._get_map_name()}.tiff"
+
+    def _get_map_name(self) -> str:
+        return self.config.map_name or f"{self.config.feature[1]}.tiff"
 
     def _prepare_files(self, geotiff_paths: List[str], output_file: str) -> Tuple[FS, List[str], str]:
         """Returns system paths of geotiffs and output file that can be used to merge maps.
@@ -259,14 +263,13 @@ class ExportMapsPipeline(Pipeline):
         self, filesystem: FS, output_paths: List[Tuple[str, Optional[dt.datetime]]], output_folder: str
     ) -> None:
         """Renames (or transfers in case of temporal FS) the files to the expected output files."""
-        map_name = self.config.map_name or f"{self.config.feature[1]}.tiff"
         for map_path, timestamp in tqdm(output_paths, desc="Finalizing output files"):
             if timestamp is None:
-                output_map_path = fs.path.join(output_folder, map_name)
+                output_map_path = fs.path.join(output_folder, self._get_map_name())
             else:
                 timestamp_output_folder = fs.path.join(output_folder, timestamp.strftime(TIMESTAMP_FORMAT))
                 self.storage.filesystem.makedirs(timestamp_output_folder, recreate=True)
-                output_map_path = fs.path.join(timestamp_output_folder, map_name)
+                output_map_path = fs.path.join(timestamp_output_folder, self._get_map_name())
 
             fs.copy.copy_file(filesystem, map_path, self.storage.filesystem, output_map_path)
             filesystem.remove(map_path)
