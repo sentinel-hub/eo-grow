@@ -125,7 +125,7 @@ class ExportMapsPipeline(Pipeline):
                 warp_resampling=self.config.warp_resampling,
             )
 
-            LOGGER.info("Remove local per-eopatch tiffs after merge.", crs.epsg)
+            LOGGER.info("Remove local per-eopatch tiffs after merge.")
             parallelize(filesystem.remove, geotiff_paths, workers=None, multiprocess=False, desc="Remove tiffs")
 
             output_paths: List[Tuple[str, Optional[dt.datetime]]]
