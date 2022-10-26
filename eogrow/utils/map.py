@@ -150,7 +150,7 @@ def merge_tiffs(
     :param warp_resampling: The resampling method used when warping, useful for pixel misalignment. Defaults to NEAREST.
     :param quiet: The process does not produce logs.
     """
-    gdalwarp_options = "-co BIGTIFF=YES -co compress=LZW -co TILED=YES --config GDAL_CACHEMAX 1000 -wm 1000 -multi"
+    gdalwarp_options = "-co BIGTIFF=YES -co compress=LZW -co TILED=YES"
 
     if overwrite:
         gdalwarp_options += " -overwrite"
