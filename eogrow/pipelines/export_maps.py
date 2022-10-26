@@ -20,6 +20,7 @@ from eolearn.core.utils.fs import get_full_path
 from eolearn.core.utils.parallelize import parallelize
 from eolearn.features import LinearFunctionTask
 from eolearn.io import ExportToTiffTask
+from sentinelhub import CRS, MimeType
 
 from ..core.pipeline import Pipeline
 from ..utils.map import CogifyResamplingOptions, WarpResamplingOptions, cogify_inplace, extract_bands, merge_tiffs
@@ -44,7 +45,7 @@ class ExportMapsPipeline(Pipeline):
         )
 
         feature: Feature
-        map_name: Optional[str] = Field(regex=r".+\.tiff?\b")  # noqa
+        map_name: Optional[str] = Field(regex=r".+\." + MimeType.TIFF.extension + r"?\b")  # noqa
         map_dtype: Literal["int8", "int16", "uint8", "uint16", "float32"]
         no_data_value: int = Field(0, description="No data value to be passed to GeoTIFFs")
         scale_factor: Optional[float] = Field(description="Feature will be multiplied by this value at export")
@@ -79,6 +80,7 @@ class ExportMapsPipeline(Pipeline):
         skip_existing: Literal[False] = False
 
     config: Schema
+    MERGED_MAP_NAME = "merged"
 
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         """Extracts and merges the data from EOPatches into a TIFF file.
@@ -102,7 +104,6 @@ class ExportMapsPipeline(Pipeline):
         folder = self.storage.get_folder(self.config.output_folder_key)
         crs_eopatch_dict = self.eopatch_manager.split_by_utm(successful)
 
-        # TODO: This could be parallelized per-crs
         for crs, eopatch_list in crs_eopatch_dict.items():
             LOGGER.info("Processing for UTM %d", crs.epsg)
 
@@ -110,7 +111,7 @@ class ExportMapsPipeline(Pipeline):
             # manually make subfolder, otherwise things fail on S3 in later steps
             self.storage.filesystem.makedirs(output_folder, recreate=True)
 
-            merged_map_path = fs.path.join(output_folder, self.get_geotiff_name("full_merged_map"))
+            merged_map_path = fs.path.join(output_folder, self.get_geotiff_name(self.MERGED_MAP_NAME, crs=crs))
             exported_tiff_paths = [fs.path.join(folder, self.get_geotiff_name(name)) for name in eopatch_list]
 
             filesystem, geotiff_paths, map_path = self._prepare_files(exported_tiff_paths, merged_map_path)
@@ -123,15 +124,17 @@ class ExportMapsPipeline(Pipeline):
                 nodata=self.config.no_data_value,
                 dtype=self.config.map_dtype,
                 warp_resampling=self.config.warp_resampling,
-                quiet=True,
             )
+
+            LOGGER.info("Remove local per-eopatch tiffs after merge.")
+            parallelize(filesystem.remove, geotiff_paths, workers=None, multiprocess=False, desc="Remove tiffs")
 
             output_paths: List[Tuple[str, Optional[dt.datetime]]]
             if feature_type.is_timeless() or self.config.compress_temporally:
                 output_paths = [(map_path, None)]
             else:
                 timestamp = self._load_timestamp(eopatch_list[0])  # we assume all eopatches share the same timestamp
-                output_paths = self._split_temporally(filesystem, map_path, timestamp, output_folder)
+                output_paths = self._split_temporally(filesystem, map_path, timestamp, output_folder, crs)
 
             if self.config.cogify:
                 LOGGER.info("Cogifying %d merged tiffs.", len(output_paths))
@@ -150,14 +153,15 @@ class ExportMapsPipeline(Pipeline):
             if isinstance(filesystem, TempFS):
                 filesystem.close()
 
-            LOGGER.info("Remove per-eopatch tiffs for UTM %d.", crs.epsg)
-            parallelize(
-                self.storage.filesystem.remove,
-                exported_tiff_paths,
-                workers=None,
-                multiprocess=False,
-                desc="Remove tiffs",
-            )
+                # for non-tempfs runs this is already done right after merging
+                LOGGER.info("Remove per-eopatch tiffs for UTM %d from storage.", crs.epsg)
+                parallelize(
+                    self.storage.filesystem.remove,
+                    exported_tiff_paths,
+                    workers=None,
+                    multiprocess=False,
+                    desc="Remove tiffs",
+                )
 
         return successful, failed
 
@@ -180,6 +184,7 @@ class ExportMapsPipeline(Pipeline):
             no_data_value=self.config.no_data_value,
             image_dtype=np.dtype(self.config.map_dtype),
             band_indices=self.config.band_indices,
+            compress="LZW",
         )
         task_list.append(export_to_tiff_task)
 
@@ -195,9 +200,18 @@ class ExportMapsPipeline(Pipeline):
 
         return exec_args
 
-    def get_geotiff_name(self, name: str) -> str:
-        """Creates a unique name of a geotiff image"""
-        return f"{name}_{self.__class__.__name__}_{self.pipeline_id}.tiff"
+    def get_geotiff_name(self, name: str, crs: Optional[CRS] = None, time: Optional[dt.datetime] = None) -> str:
+        """Creates a name of a geotiff image"""
+        base = f"{self._get_map_name(with_extension=False)}_{name}"
+        if crs is not None:
+            base += f"_UTM_{crs.epsg}"
+        if time is not None:
+            base += f"_{time.strftime(TIMESTAMP_FORMAT)}"
+        return f"{base}.{MimeType.TIFF.extension}"
+
+    def _get_map_name(self, with_extension: bool = True) -> str:
+        name = self.config.map_name or f"{self.config.feature[1]}.{MimeType.TIFF.extension}"
+        return name if with_extension else name.replace(f".{MimeType.TIFF.extension}", "")
 
     def _prepare_files(self, geotiff_paths: List[str], output_file: str) -> Tuple[FS, List[str], str]:
         """Returns system paths of geotiffs and output file that can be used to merge maps.
@@ -232,7 +246,7 @@ class ExportMapsPipeline(Pipeline):
         return patch.timestamp
 
     def _split_temporally(
-        self, filesystem: FS, map_path: str, timestamp: List[dt.datetime], output_folder: str
+        self, filesystem: FS, map_path: str, timestamp: List[dt.datetime], output_folder: str, crs: CRS
     ) -> List[Tuple[str, Optional[dt.datetime]]]:
         """Splits the merged tiff into multiple tiffs, one per timestamp."""
         filesystem.makedirs(output_folder, recreate=True)  # in case we use a temporary filesystem
@@ -244,7 +258,7 @@ class ExportMapsPipeline(Pipeline):
         LOGGER.info("Splitting merged tiff into per-timestamp tiff files.")
         outputs: List[Tuple[str, Optional[dt.datetime]]] = []
         for i, time in tqdm(enumerate(timestamp), desc="Spliting per timestamp", total=len(timestamp)):
-            name = self.get_geotiff_name(f"full_merged_map_{time.strftime(TIMESTAMP_FORMAT)}")
+            name = self.get_geotiff_name(self.MERGED_MAP_NAME, crs, time)
             extraction_path = fs.path.join(output_folder, name)
             bands = range(i * num_bands, (i + 1) * num_bands)
             extract_bands(filesystem.getsyspath(map_path), filesystem.getsyspath(extraction_path), bands, quiet=True)
@@ -257,14 +271,13 @@ class ExportMapsPipeline(Pipeline):
         self, filesystem: FS, output_paths: List[Tuple[str, Optional[dt.datetime]]], output_folder: str
     ) -> None:
         """Renames (or transfers in case of temporal FS) the files to the expected output files."""
-        map_name = self.config.map_name or f"{self.config.feature[1]}.tiff"
         for map_path, timestamp in tqdm(output_paths, desc="Finalizing output files"):
             if timestamp is None:
-                output_map_path = fs.path.join(output_folder, map_name)
+                output_map_path = fs.path.join(output_folder, self._get_map_name())
             else:
                 timestamp_output_folder = fs.path.join(output_folder, timestamp.strftime(TIMESTAMP_FORMAT))
                 self.storage.filesystem.makedirs(timestamp_output_folder, recreate=True)
-                output_map_path = fs.path.join(timestamp_output_folder, map_name)
+                output_map_path = fs.path.join(timestamp_output_folder, self._get_map_name())
 
             fs.copy.copy_file(filesystem, map_path, self.storage.filesystem, output_map_path)
             filesystem.remove(map_path)

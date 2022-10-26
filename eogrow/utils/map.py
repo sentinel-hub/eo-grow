@@ -66,6 +66,7 @@ def cogify_inplace(
         resampling=resampling,
         quiet=quiet,
     )
+    # Note: by moving the file we also remove the one at temp_file.name
     shutil.move(temp_file.name, tiff_file)
 
 
@@ -202,8 +203,4 @@ def extract_bands(
     if quiet:
         translate_opts += " -q"
 
-    temp_filename = NamedTemporaryFile()
-    temp_filename.close()
-    shutil.copyfile(input_file, temp_filename.name)
-
-    subprocess.check_call(f"gdal_translate {translate_opts} {temp_filename.name} {output_file}", shell=True)
+    subprocess.check_call(f"gdal_translate {translate_opts} {input_file} {output_file}", shell=True)
