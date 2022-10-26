@@ -203,4 +203,5 @@ def extract_bands(
     if quiet:
         translate_opts += " -q"
 
-    subprocess.check_call(f"gdal_translate {translate_opts} {input_file} {output_file}", shell=True)
+    command = f"gdal_translate {translate_opts} {input_file} {output_file}"
+    subprocess.check_call(command, shell=True)

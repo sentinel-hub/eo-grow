@@ -10,7 +10,6 @@ from typing import Dict, List, Literal, Optional, Tuple
 import fs
 import fs.copy
 import numpy as np
-import rasterio
 from fs.base import FS
 from fs.tempfs import TempFS
 from pydantic import Field
@@ -124,15 +123,21 @@ class ExportMapsPipeline(Pipeline):
                 geotiffs_per_time[None] = geotiff_paths
             else:
                 LOGGER.info("Splitting TIFF files temporally.")
-                timestamp = self._load_timestamp(eopatch_list[0])  # we assume all eopatches share the same timestamp
-                split_tiffs = [
-                    self._split_temporally(filesystem, tiff_path, timestamp, output_folder, crs)
+                num_bands, timestamp = self._load_bands_and_timestamp(eopatch_list[0])  # assume eopatches share these
+                filesystem.makedirs(output_folder, recreate=True)  # in case we use a temporary filesystem
+
+                temporal_split_jobs = [
+                    self._prepare_split_jobs(filesystem, tiff_path, num_bands, timestamp, output_folder, crs)
                     for tiff_path in geotiff_paths
                 ]
 
-                for split in split_tiffs:
-                    for path, time in split:
-                        geotiffs_per_time[time].append(path)
+                parallelize(self._execute_split_jobs, temporal_split_jobs, workers=None)
+
+                for split_jobs in temporal_split_jobs:
+                    for job in split_jobs:
+                        geotiffs_per_time[job["time"]].append(job["output_path"])
+                for path in geotiff_paths:
+                    filesystem.remove(path)
 
             LOGGER.info("Merging TIFF files.")
             output_paths = {time: self.get_geotiff_name(self.MERGED_MAP_NAME, crs, time) for time in geotiffs_per_time}
@@ -236,33 +241,40 @@ class ExportMapsPipeline(Pipeline):
         )
         return temp_fs, temp_geotiff_paths
 
-    def _load_timestamp(self, eopatch_name: str) -> List[dt.datetime]:
+    def _load_bands_and_timestamp(self, eopatch_name: str) -> Tuple[int, List[dt.datetime]]:
+        """Loads an eopatch to get information about number of bands and the timestamp."""
         path = fs.path.join(self.storage.get_folder(self.config.input_folder_key), eopatch_name)
-        patch = EOPatch.load(path, FeatureType.TIMESTAMP, filesystem=self.storage.filesystem)
-        return patch.timestamp
+        patch = EOPatch.load(path, (FeatureType.TIMESTAMP, self.config.feature), filesystem=self.storage.filesystem)
+        if self.config.band_indices is not None:
+            return len(self.config.band_indices), patch.timestamp
+        return patch[self.config.feature].shape[-1], patch.timestamp
 
-    def _split_temporally(
-        self, filesystem: FS, tiff_path: str, timestamp: List[dt.datetime], output_folder: str, crs: CRS
-    ) -> List[Tuple[str, dt.datetime]]:
-        """Splits the merged tiff into multiple tiffs, one per timestamp."""
-        # TODO: output_folder no longer needed here
-        filesystem.makedirs(output_folder, recreate=True)  # in case we use a temporary filesystem
+    def _prepare_split_jobs(
+        self, filesystem: FS, tiff_path: str, num_bands: int, timestamp: List[dt.datetime], output_folder: str, crs: CRS
+    ) -> List[dict]:
+        """Prepares the specifics of the extraction, which requires difficult-to-pickle components."""
         tiff_name = fs.path.basename(tiff_path).replace(f".{MimeType.TIFF.extension}", "")
 
-        with filesystem.openbin(tiff_path) as file_handle:
-            with rasterio.open(file_handle) as map_src:
-                num_bands = map_src.count // len(timestamp)
-
-        outputs: List[Tuple[str, dt.datetime]] = []
+        jobs = []
         for i, time in enumerate(timestamp):
-            name = self.get_geotiff_name(tiff_name, crs, time)
-            extraction_path = fs.path.join(output_folder, name)
-            bands = range(i * num_bands, (i + 1) * num_bands)
-            extract_bands(filesystem.getsyspath(tiff_path), filesystem.getsyspath(extraction_path), bands, quiet=True)
-            outputs.append((extraction_path, time))
+            extraction_path = fs.path.join(output_folder, self.get_geotiff_name(tiff_name, crs, time))
+            jobs.append(
+                dict(
+                    time=time,
+                    bands=range(i * num_bands, (i + 1) * num_bands),
+                    output_path=extraction_path,
+                    sys_output_path=filesystem.getsyspath(extraction_path),
+                    sys_input_path=filesystem.getsyspath(tiff_path),
+                )
+            )
 
-        filesystem.remove(tiff_path)
-        return outputs
+        return jobs
+
+    @staticmethod
+    def _execute_split_jobs(jobs: List[dict]) -> None:
+        """Executes all the jobes for a specific tiff. This prevents parallel processes fighting over IO to a tiff."""
+        for job in jobs:
+            extract_bands(job["sys_input_path"], job["sys_output_path"], job["bands"], overwrite=True, quiet=True)
 
     @staticmethod
     def _combine_geotiffs(
