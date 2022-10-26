@@ -17,7 +17,7 @@ from pydantic import Field
 from tqdm.auto import tqdm
 
 from eolearn.core import EONode, EOPatch, EOTask, EOWorkflow, FeatureType, LoadTask, linearly_connect_tasks
-from eolearn.core.utils.fs import get_full_path
+from eolearn.core.utils.fs import get_full_path, pickle_fs, unpickle_fs
 from eolearn.core.utils.parallelize import parallelize
 from eolearn.features import LinearFunctionTask
 from eolearn.io import ExportToTiffTask
@@ -79,6 +79,9 @@ class ExportMapsPipeline(Pipeline):
             ),
         )
         skip_existing: Literal[False] = False
+        merge_workers: Optional[int] = Field(
+            description="How many workers to use to parallelize (over the temporal dimension) merging."
+        )
 
     config: Schema
     MERGED_MAP_NAME = "merged"
@@ -132,30 +135,15 @@ class ExportMapsPipeline(Pipeline):
                         geotiffs_per_time[time].append(path)
 
             LOGGER.info("Merging TIFF files.")
-            output_paths = []
-            for map_time, tiff_paths in geotiffs_per_time.items():
-                merged_map_path = self.get_geotiff_name(self.MERGED_MAP_NAME, time=map_time, crs=crs)
-                output_paths.append((merged_map_path, map_time))
-                merge_tiffs(
-                    list(map(filesystem.getsyspath, tiff_paths)),
-                    filesystem.getsyspath(merged_map_path),
-                    overwrite=True,
-                    nodata=self.config.no_data_value,
-                    dtype=self.config.map_dtype,
-                    warp_resampling=self.config.warp_resampling,
-                    quiet=True,
-                )
-                parallelize(filesystem.remove, tiff_paths, workers=None, multiprocess=False, desc="Remove tiffs")
-
-                if self.config.cogify:
-                    cogify_inplace(
-                        filesystem.getsyspath(merged_map_path),
-                        blocksize=1024,
-                        nodata=self.config.no_data_value,
-                        dtype=self.config.map_dtype,
-                        quiet=True,
-                        resampling=self.config.cogification_resampling,
-                    )
+            output_paths = {time: self.get_geotiff_name(self.MERGED_MAP_NAME, crs, time) for time in geotiffs_per_time}
+            parallelize(
+                self._combine_geotiffs,
+                it.repeat(self.config),
+                it.repeat(pickle_fs(filesystem)),
+                geotiffs_per_time.values(),
+                output_paths.values(),
+                workers=self.config.merge_workers,
+            )
 
             LOGGER.info("Finalizing output files.")
             self._finalize_output_files(filesystem, output_paths, output_folder)
@@ -276,11 +264,39 @@ class ExportMapsPipeline(Pipeline):
         filesystem.remove(tiff_path)
         return outputs
 
+    @staticmethod
+    def _combine_geotiffs(
+        config: Schema, pickled_filesystem: bytes, tiff_paths: List[str], merged_map_path: str
+    ) -> None:
+        """Merges tiffs and cogifies them if needed. Also removes the pre-merge tiffs."""
+        filesystem = unpickle_fs(pickled_filesystem)
+        merge_tiffs(
+            list(map(filesystem.getsyspath, tiff_paths)),
+            filesystem.getsyspath(merged_map_path),
+            overwrite=True,
+            nodata=config.no_data_value,
+            dtype=config.map_dtype,
+            warp_resampling=config.warp_resampling,
+            quiet=True,
+        )
+        for tiff_path in tiff_paths:
+            filesystem.remove(tiff_path)
+
+        if config.cogify:
+            cogify_inplace(
+                filesystem.getsyspath(merged_map_path),
+                blocksize=1024,
+                nodata=config.no_data_value,
+                dtype=config.map_dtype,
+                quiet=True,
+                resampling=config.cogification_resampling,
+            )
+
     def _finalize_output_files(
-        self, filesystem: FS, output_paths: List[Tuple[str, Optional[dt.datetime]]], output_folder: str
+        self, filesystem: FS, output_paths: Dict[Optional[dt.datetime], str], output_folder: str
     ) -> None:
         """Renames (or transfers in case of temporal FS) the files to the expected output files."""
-        for map_path, timestamp in tqdm(output_paths, desc="Finalizing output files"):
+        for timestamp, map_path in tqdm(output_paths.items(), desc="Finalizing output files"):
             if timestamp is None:
                 output_map_path = fs.path.join(output_folder, self._get_map_name())
             else:
