@@ -20,7 +20,7 @@ from eolearn.core.utils.fs import get_full_path
 from eolearn.core.utils.parallelize import parallelize
 from eolearn.features import LinearFunctionTask
 from eolearn.io import ExportToTiffTask
-from sentinelhub import CRS
+from sentinelhub import CRS, MimeType
 
 from ..core.pipeline import Pipeline
 from ..utils.map import CogifyResamplingOptions, WarpResamplingOptions, cogify_inplace, extract_bands, merge_tiffs
@@ -45,7 +45,7 @@ class ExportMapsPipeline(Pipeline):
         )
 
         feature: Feature
-        map_name: Optional[str] = Field(regex=r".+\.tiff?\b")  # noqa
+        map_name: Optional[str] = Field(regex=r".+\." + MimeType.TIFF.extension + r"?\b")  # noqa
         map_dtype: Literal["int8", "int16", "uint8", "uint16", "float32"]
         no_data_value: int = Field(0, description="No data value to be passed to GeoTIFFs")
         scale_factor: Optional[float] = Field(description="Feature will be multiplied by this value at export")
@@ -80,6 +80,7 @@ class ExportMapsPipeline(Pipeline):
         skip_existing: Literal[False] = False
 
     config: Schema
+    MERGED_MAP_NAME = "merged"
 
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         """Extracts and merges the data from EOPatches into a TIFF file.
@@ -110,7 +111,7 @@ class ExportMapsPipeline(Pipeline):
             # manually make subfolder, otherwise things fail on S3 in later steps
             self.storage.filesystem.makedirs(output_folder, recreate=True)
 
-            merged_map_path = fs.path.join(output_folder, self.get_geotiff_name("merged", crs=crs))
+            merged_map_path = fs.path.join(output_folder, self.get_geotiff_name(self.MERGED_MAP_NAME, crs=crs))
             exported_tiff_paths = [fs.path.join(folder, self.get_geotiff_name(name)) for name in eopatch_list]
 
             filesystem, geotiff_paths, map_path = self._prepare_files(exported_tiff_paths, merged_map_path)
@@ -206,11 +207,11 @@ class ExportMapsPipeline(Pipeline):
             base += f"_UTM_{crs.epsg}"
         if time is not None:
             base += f"_{time.strftime(TIMESTAMP_FORMAT)}"
-        return f"{base}.tiff"
+        return f"{base}.{MimeType.TIFF.extension}"
 
     def _get_map_name(self, with_extension: bool = True) -> str:
-        name = self.config.map_name or f"{self.config.feature[1]}.tiff"
-        return name if with_extension else name.replace(".tiff", "")
+        name = self.config.map_name or f"{self.config.feature[1]}.{MimeType.TIFF.extension}"
+        return name if with_extension else name.replace(f".{MimeType.TIFF.extension}", "")
 
     def _prepare_files(self, geotiff_paths: List[str], output_file: str) -> Tuple[FS, List[str], str]:
         """Returns system paths of geotiffs and output file that can be used to merge maps.
@@ -257,7 +258,7 @@ class ExportMapsPipeline(Pipeline):
         LOGGER.info("Splitting merged tiff into per-timestamp tiff files.")
         outputs: List[Tuple[str, Optional[dt.datetime]]] = []
         for i, time in tqdm(enumerate(timestamp), desc="Spliting per timestamp", total=len(timestamp)):
-            name = self.get_geotiff_name("merged", crs, time)
+            name = self.get_geotiff_name(self.MERGED_MAP_NAME, crs, time)
             extraction_path = fs.path.join(output_folder, name)
             bands = range(i * num_bands, (i + 1) * num_bands)
             extract_bands(filesystem.getsyspath(map_path), filesystem.getsyspath(extraction_path), bands, quiet=True)
