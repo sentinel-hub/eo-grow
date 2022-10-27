@@ -117,3 +117,15 @@ def test_custom_grid_eopatch_manager(storage):
 
     eopatch_names = eopatch_manager.get_eopatch_filenames()
     assert eopatch_names == ["patch0", "patch1"]
+
+
+@pytest.fixture(name="large_area_manager")
+def large_area_manager_fixture(config_folder, config, storage):
+    filename = os.path.join(config_folder, "other", "large_area_global_config.json")
+    area_config = interpret_config_from_path(filename)
+    area_manager = UtmZoneAreaManager.from_raw_config(area_config, storage)
+    return EOPatchManager.from_raw_config(config["eopatch"], area_manager)
+
+
+def test_large_area(large_area_manager):
+    large_area_manager.get_eopatch_filenames()
