@@ -269,7 +269,7 @@ class ExportMapsPipeline(Pipeline):
     def _execute_split_jobs(jobs: List[dict]) -> None:
         """Executes all the jobs for a specific tiff. This prevents parallel processes fighting over IO to a tiff."""
         for job in jobs:
-            extract_bands(job["sys_input_path"], job["sys_output_path"], job["bands"], overwrite=True, quiet=True)
+            extract_bands(job["sys_input_path"], job["sys_output_path"], job["bands"])
 
     @staticmethod
     def _combine_geotiffs(
@@ -278,13 +278,11 @@ class ExportMapsPipeline(Pipeline):
         """Merges tiffs and cogifies them if needed. Also removes the pre-merge tiffs."""
         filesystem = unpickle_fs(pickled_filesystem)
         merge_tiffs(
-            list(map(filesystem.getsyspath, tiff_paths)),
+            map(filesystem.getsyspath, tiff_paths),
             filesystem.getsyspath(merged_map_path),
-            overwrite=True,
             nodata=config.no_data_value,
             dtype=config.map_dtype,
             warp_resampling=config.warp_resampling,
-            quiet=True,
         )
         for tiff_path in tiff_paths:
             filesystem.remove(tiff_path)
@@ -295,7 +293,6 @@ class ExportMapsPipeline(Pipeline):
                 blocksize=1024,
                 nodata=config.no_data_value,
                 dtype=config.map_dtype,
-                quiet=True,
                 resampling=config.cogification_resampling,
             )
 
