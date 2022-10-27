@@ -124,11 +124,7 @@ def cogify(
     if dtype is not None:
         gdaltranslate_options += f" -ot {GDAL_DTYPE_SETTINGS[dtype]}"
 
-    temp_filename = NamedTemporaryFile()
-    temp_filename.close()
-    shutil.copyfile(input_file, temp_filename.name)
-
-    subprocess.check_call(f"gdal_translate {gdaltranslate_options} {temp_filename.name} {output_file}", shell=True)
+    subprocess.check_call(f"gdal_translate {gdaltranslate_options} {input_file} {output_file}", shell=True)
 
 
 def merge_tiffs(
