@@ -47,7 +47,7 @@ class ExportMapsPipeline(Pipeline):
         feature: Feature
         map_name: Optional[str] = Field(regex=r".+\." + MimeType.TIFF.extension + r"?\b")  # noqa
         map_dtype: Literal["int8", "int16", "uint8", "uint16", "float32"]
-        no_data_value: int = Field(0, description="No data value to be passed to GeoTIFFs")
+        no_data_value: Optional[float] = Field(description="No data value to be passed to GeoTIFFs")
         scale_factor: Optional[float] = Field(description="Feature will be multiplied by this value at export")
         band_indices: Optional[List[int]] = Field(
             description="A list of band indices to be exported for the export feature. Default is all bands"
