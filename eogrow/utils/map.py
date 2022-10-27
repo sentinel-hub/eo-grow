@@ -199,7 +199,8 @@ def extract_bands(
             raise OSError(f"{output_file} already exists. Set `overwrite` to true if it should be overwritten.")
 
     # gdal_translate starts indexation at 1
-    translate_opts = "-co compress=LZW" + " ".join(f" -b {band + 1}" for band in bands)
+    # translate_opts = "-co compress=LZW" + " ".join(f" -b {band + 1}" for band in bands)
+    translate_opts = " ".join(f" -b {band + 1}" for band in bands)
     if quiet:
         translate_opts += " -q"
 

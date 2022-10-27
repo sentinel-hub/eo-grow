@@ -186,7 +186,7 @@ class ExportMapsPipeline(Pipeline):
             no_data_value=self.config.no_data_value,
             image_dtype=np.dtype(self.config.map_dtype),
             band_indices=self.config.band_indices,
-            compress="LZW",
+            # compress="LZW",
         )
         task_list.append(export_to_tiff_task)
 
