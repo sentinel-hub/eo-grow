@@ -93,7 +93,7 @@ class ExportMapsPipeline(Pipeline):
     def __init__(self, config: Schema, raw_config: Optional[RawConfig] = None):
         super().__init__(config, raw_config)
 
-        self.map_filename = self.config.map_name or f"{self.config.feature[1]}.{MimeType.TIFF.extension}"
+        self.map_name = self.config.map_name or f"{self.config.feature[1]}.{MimeType.TIFF.extension}"
 
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         """Extracts and merges the data from EOPatches into a TIFF file.
@@ -124,7 +124,9 @@ class ExportMapsPipeline(Pipeline):
             # manually make subfolder, otherwise things fail on S3 in later steps
             self.storage.filesystem.makedirs(output_folder, recreate=True)
 
-            exported_tiff_paths = [fs.path.join(folder, self.get_geotiff_name(name)) for name in eopatch_list]
+            exported_tiff_paths = [
+                fs.path.join(folder, get_tiff_name(self.map_name, eopatch_name)) for eopatch_name in eopatch_list
+            ]
             filesystem, geotiff_paths = self._prepare_files(exported_tiff_paths)
 
             if feature_type.is_timeless() or self.config.compress_temporally:
@@ -135,7 +137,9 @@ class ExportMapsPipeline(Pipeline):
                 )
 
             LOGGER.info("Merging TIFF files.")
-            output_paths = {time: self.get_geotiff_name(self.MERGED_MAP_NAME, crs, time) for time in geotiffs_per_time}
+            output_paths = {
+                time: get_tiff_name(self.map_name, self.MERGED_MAP_NAME, crs, time) for time in geotiffs_per_time
+            }
             parallelize(
                 self._combine_geotiffs,
                 it.repeat(self.config),
@@ -180,20 +184,10 @@ class ExportMapsPipeline(Pipeline):
         nodes = workflow.get_nodes()
         for node in nodes:
             if isinstance(node.task, ExportToTiffTask):
-                for name, single_exec_dict in zip(self.patch_list, exec_args):
-                    single_exec_dict[node] = dict(filename=self.get_geotiff_name(name))
+                for patch_name, single_exec_dict in zip(self.patch_list, exec_args):
+                    single_exec_dict[node] = dict(filename=get_tiff_name(self.map_name, patch_name))
 
         return exec_args
-
-    def get_geotiff_name(self, name: str, crs: Optional[CRS] = None, time: Optional[dt.datetime] = None) -> str:
-        """Creates a name of a geotiff image"""
-        map_name = self.map_filename.replace(f".{MimeType.TIFF.extension}", "")
-        base = f"{map_name}_{name}"
-        if crs is not None:
-            base += f"_UTM_{crs.epsg}"
-        if time is not None:
-            base += f"_{time.strftime(TIMESTAMP_FORMAT)}"
-        return f"{base}.{MimeType.TIFF.extension}"
 
     def _prepare_files(self, geotiff_paths: List[str]) -> Tuple[FS, List[str]]:
         """Returns system paths of geotiffs and output file that can be used to merge maps.
@@ -217,7 +211,6 @@ class ExportMapsPipeline(Pipeline):
             temp_geotiff_paths,
             workers=None,
             multiprocess=False,
-            desc="Making local copies",
         )
         return temp_fs, temp_geotiff_paths
 
@@ -259,7 +252,7 @@ class ExportMapsPipeline(Pipeline):
 
         jobs = []
         for i, time in enumerate(timestamp):
-            extraction_path = fs.path.join(output_folder, self.get_geotiff_name(tiff_name, crs, time))
+            extraction_path = fs.path.join(output_folder, get_tiff_name(self.map_name, tiff_name, crs, time))
             jobs.append(
                 dict(
                     time=time,
@@ -309,7 +302,7 @@ class ExportMapsPipeline(Pipeline):
     def _finalize_output(
         self,
         filesystem: FS,
-        output_paths: Dict[Optional[dt.datetime], str],
+        merged_maps_paths: Dict[Optional[dt.datetime], str],
         output_folder: str,
         exported_tiff_paths: List[str],
     ) -> None:
@@ -317,15 +310,15 @@ class ExportMapsPipeline(Pipeline):
 
         If a temporal filesystem was used, the exported tiffs are cleaned from the storage and the filesystem closed.
         """
-        for timestamp, map_path in tqdm(output_paths.items(), desc="Finalizing output files"):
+        for timestamp, map_path in tqdm(merged_maps_paths.items()):
             if timestamp is None:
-                output_map_path = fs.path.join(output_folder, self.map_filename)
+                output_path = fs.path.join(output_folder, self.map_name)
             else:
-                timestamp_output_folder = fs.path.join(output_folder, timestamp.strftime(TIMESTAMP_FORMAT))
-                self.storage.filesystem.makedirs(timestamp_output_folder, recreate=True)
-                output_map_path = fs.path.join(timestamp_output_folder, self.map_filename)
+                time_output_folder = fs.path.join(output_folder, timestamp.strftime(TIMESTAMP_FORMAT))
+                self.storage.filesystem.makedirs(time_output_folder, recreate=True)
+                output_path = fs.path.join(time_output_folder, self.map_name)
 
-            fs.copy.copy_file(filesystem, map_path, self.storage.filesystem, output_map_path)
+            fs.copy.copy_file(filesystem, map_path, self.storage.filesystem, output_path)
             filesystem.remove(map_path)
 
         LOGGER.info("Merged maps are saved in %s", get_full_path(self.storage.filesystem, output_folder))
@@ -335,10 +328,15 @@ class ExportMapsPipeline(Pipeline):
 
             # for non-tempfs runs this is already done right after merging
             LOGGER.info("Remove per-eopatch tiffs from storage.")
-            parallelize(
-                self.storage.filesystem.remove,
-                exported_tiff_paths,
-                workers=None,
-                multiprocess=False,
-                desc="Remove tiffs",
-            )
+            parallelize(self.storage.filesystem.remove, exported_tiff_paths, workers=None, multiprocess=False)
+
+
+def get_tiff_name(map_name: str, name: str, crs: Optional[CRS] = None, time: Optional[dt.datetime] = None) -> str:
+    """Creates a name of a geotiff image"""
+    map_name = map_name.replace(f".{MimeType.TIFF.extension}", "")
+    base = f"{map_name}_{name}"
+    if crs is not None:
+        base += f"_UTM_{crs.epsg}"
+    if time is not None:
+        base += f"_{time.strftime(TIMESTAMP_FORMAT)}"
+    return f"{base}.{MimeType.TIFF.extension}"
