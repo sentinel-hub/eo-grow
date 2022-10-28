@@ -5,8 +5,9 @@ import datetime as dt
 import itertools as it
 import logging
 from collections import defaultdict
+from dataclasses import dataclass
 from functools import partial
-from typing import Dict, List, Literal, Optional, Tuple
+from typing import Dict, Iterable, List, Literal, Optional, Tuple
 
 import fs
 import fs.copy
@@ -121,35 +122,36 @@ class ExportMapsPipeline(Pipeline):
         for crs, eopatch_list in crs_eopatch_dict.items():
             LOGGER.info("Processing UTM %d", crs.epsg)
 
-            crs_output_folder = fs.path.join(output_folder, f"UTM_{crs.epsg}")
-            self.storage.filesystem.makedirs(crs_output_folder, recreate=True)
-
             exported_tiff_paths = [
                 fs.path.join(output_folder, get_tiff_name(self.map_name, patch_name)) for patch_name in eopatch_list
             ]
             filesystem, geotiff_paths = self._prepare_files(exported_tiff_paths)
 
-            if feature_type.is_timeless() or self.config.compress_temporally:
-                geotiffs_per_time: Dict[Optional[dt.datetime], List[str]] = {None: geotiff_paths}
-            else:
-                geotiffs_per_time = self._split_patches_temporally(
-                    crs, eopatch_list, crs_output_folder, filesystem, geotiff_paths
-                )
+            crs_output_folder = fs.path.join(output_folder, f"UTM_{crs.epsg}")
+            filesystem.makedirs(crs_output_folder, recreate=True)
 
-            tiffs_to_merge = geotiffs_per_time.values()
-            merged_maps = {
-                time: get_tiff_name(self.map_name, self.MERGED_MAP_NAME, crs, time) for time in geotiffs_per_time
-            }
+            if feature_type.is_timeless() or self.config.compress_temporally:
+                merged_map_name = get_tiff_name(self.map_name, self.MERGED_MAP_NAME, crs)
+                combine_tiffs_jobs = [CombineTiffsJob(geotiff_paths, merged_map_name, time=None)]
+            else:
+                time_to_tiffs_map = self._split_patches_temporally(
+                    filesystem, crs_output_folder, geotiff_paths, some_eopatch=eopatch_list[0], crs=crs
+                )
+                map_name_maker = partial(get_tiff_name, self.map_name, self.MERGED_MAP_NAME, crs)
+
+                combine_tiffs_jobs = [
+                    CombineTiffsJob(tiffs, map_name_maker(time), time) for time, tiffs in time_to_tiffs_map.items()
+                ]
 
             LOGGER.info("Merging TIFF files.")
             parallelize(
                 partial(self._combine_geotiffs, self.config, pickle_fs(filesystem)),
-                tiffs_to_merge,
-                merged_maps.values(),
+                combine_tiffs_jobs,
                 workers=self.config.merge_workers,
             )
 
             LOGGER.info("Finalizing output.")
+            merged_maps = {job.time: job.output_path for job in combine_tiffs_jobs}
             self._finalize_output(filesystem, merged_maps, crs_output_folder, exported_tiff_paths)
 
         return successful, failed
@@ -215,25 +217,38 @@ class ExportMapsPipeline(Pipeline):
         return temp_fs, temp_geotiff_paths
 
     def _split_patches_temporally(
-        self, crs: CRS, eopatch_list: List[str], output_folder: str, filesystem: FS, geotiff_paths: List[str]
+        self, filesystem: FS, output_folder: str, geotiff_paths: List[str], some_eopatch: str, crs: CRS
     ) -> Dict[Optional[dt.datetime], List[str]]:
-        geotiffs_per_time: Dict[Optional[dt.datetime], List[str]] = defaultdict(list)
+        """Splits input patches into multiple tiffs according to the temporal dimension.
+
+        Here the jobs are grouped together per-inputfile, in later parts jobs are grouped per-time.
+        Due to this jobs are created per-input, but we also take note of per-time grouping, which the function returns.
+        """
         LOGGER.info("Splitting TIFF files temporally.")
-        num_bands, timestamp = self._load_bands_and_timestamp(eopatch_list[0])  # assume eopatches share these
-        filesystem.makedirs(output_folder, recreate=True)  # in case we use a temporary filesystem
+        num_bands, timestamp = self._load_bands_and_timestamp(some_eopatch)  # assume eopatches share these
 
-        temporal_split_jobs = [
-            self._prepare_split_jobs(filesystem, tiff_path, num_bands, timestamp, output_folder, crs)
-            for tiff_path in geotiff_paths
-        ]
+        def get_extraction_path(input_path: str, time: dt.datetime) -> str:
+            """Ensures that after extraction the files have a time-suffix."""
+            tiff_name = _strip_tiff_extension(fs.path.basename(input_path))
+            return fs.path.join(output_folder, get_tiff_name(self.map_name, tiff_name, crs, time))
 
-        parallelize(self._execute_split_jobs, temporal_split_jobs, workers=None)
-        for path in geotiff_paths:
-            filesystem.remove(path)
+        geotiffs_per_time: Dict[Optional[dt.datetime], List[str]] = defaultdict(list)
+        grouped_split_jobs = []  # these are grouped per input file to avoid IO blocking of processes
+        for tiff_path in geotiff_paths:
+            tiff_sys_path = filesystem.getsyspath(tiff_path)
 
-        for split_jobs in temporal_split_jobs:
-            for job in split_jobs:
-                geotiffs_per_time[job["time"]].append(job["output_path"])
+            jobs = []
+            for i, time in enumerate(timestamp):
+                extraction_path = get_extraction_path(tiff_path, time)
+                bands = range(i * num_bands, (i + 1) * num_bands)
+                jobs.append(SplitTiffsJob(tiff_sys_path, bands, filesystem.getsyspath(extraction_path)))
+
+                geotiffs_per_time[time].append(extraction_path)
+
+            grouped_split_jobs.append(jobs)
+
+        parallelize(self._execute_split_jobs, grouped_split_jobs, workers=None)
+        parallelize(filesystem.remove, geotiff_paths, workers=None, multiprocess=False)
 
         return geotiffs_per_time
 
@@ -245,52 +260,29 @@ class ExportMapsPipeline(Pipeline):
             return len(self.config.band_indices), patch.timestamp
         return patch[self.config.feature].shape[-1], patch.timestamp
 
-    def _prepare_split_jobs(
-        self, filesystem: FS, tiff_path: str, num_bands: int, timestamp: List[dt.datetime], output_folder: str, crs: CRS
-    ) -> List[dict]:
-        """Prepares the specifics of the extraction, which requires difficult-to-pickle components."""
-        tiff_name = fs.path.basename(tiff_path).replace(f".{MimeType.TIFF.extension}", "")
-
-        jobs = []
-        for i, time in enumerate(timestamp):
-            extraction_path = fs.path.join(output_folder, get_tiff_name(self.map_name, tiff_name, crs, time))
-            jobs.append(
-                dict(
-                    time=time,
-                    bands=range(i * num_bands, (i + 1) * num_bands),
-                    output_path=extraction_path,
-                    sys_output_path=filesystem.getsyspath(extraction_path),
-                    sys_input_path=filesystem.getsyspath(tiff_path),
-                )
-            )
-
-        return jobs
-
     @staticmethod
-    def _execute_split_jobs(jobs: List[dict]) -> None:
+    def _execute_split_jobs(jobs: List["SplitTiffsJob"]) -> None:
         """Executes all the jobs for a specific tiff. This prevents parallel processes fighting over IO to a tiff."""
         for job in jobs:
-            extract_bands(job["sys_input_path"], job["sys_output_path"], job["bands"])
+            extract_bands(job.input_path, job.output_path, job.bands)
 
     @staticmethod
-    def _combine_geotiffs(
-        config: Schema, pickled_filesystem: bytes, tiff_paths: List[str], merged_map_path: str
-    ) -> None:
+    def _combine_geotiffs(config: Schema, pickled_filesystem: bytes, job: "CombineTiffsJob") -> None:
         """Merges tiffs and cogifies them if needed. Also removes the pre-merge tiffs."""
         filesystem = unpickle_fs(pickled_filesystem)
         merge_tiffs(
-            map(filesystem.getsyspath, tiff_paths),
-            filesystem.getsyspath(merged_map_path),
+            map(filesystem.getsyspath, job.input_paths),
+            filesystem.getsyspath(job.output_path),
             nodata=config.no_data_value,
             dtype=config.map_dtype,
             warp_resampling=config.warp_resampling,
         )
-        for tiff_path in tiff_paths:
+        for tiff_path in job.input_paths:
             filesystem.remove(tiff_path)
 
         if config.cogify:
             cogify_inplace(
-                filesystem.getsyspath(merged_map_path),
+                filesystem.getsyspath(job.output_path),
                 blocksize=1024,
                 nodata=config.no_data_value,
                 dtype=config.map_dtype,
@@ -308,6 +300,7 @@ class ExportMapsPipeline(Pipeline):
 
         If a temporal filesystem was used, the exported tiffs are cleaned from the storage and the filesystem closed.
         """
+        self.storage.filesystem.makedirs(output_folder, recreate=True)
         for timestamp, map_path in tqdm(merged_maps_paths.items()):
             if timestamp is None:
                 output_path = fs.path.join(output_folder, self.map_name)
@@ -329,13 +322,31 @@ class ExportMapsPipeline(Pipeline):
             parallelize(self.storage.filesystem.remove, exported_tiff_paths, workers=None, multiprocess=False)
 
 
-def _strip_tiff_extensions(path: str) -> str:
+@dataclass
+class SplitTiffsJob:
+    """Describes which bands of input path to extract to the output path."""
+
+    input_path: str
+    bands: Iterable[int]
+    output_path: str
+
+
+@dataclass
+class CombineTiffsJob:
+    """Describes which tiffs to merge, what the output path is, and the time the merged tiff represents."""
+
+    input_paths: Iterable[str]
+    output_path: str
+    time: Optional[dt.datetime]
+
+
+def _strip_tiff_extension(path: str) -> str:
     return path.replace(f".{MimeType.TIFF.extension}", "")
 
 
 def get_tiff_name(map_name: str, name: str, crs: Optional[CRS] = None, time: Optional[dt.datetime] = None) -> str:
     """Creates a name of a geotiff image"""
-    base = f"{_strip_tiff_extensions(map_name)}_{name}"
+    base = f"{_strip_tiff_extension(map_name)}_{name}"
     if crs is not None:
         base += f"_UTM_{crs.epsg}"
     if time is not None:
