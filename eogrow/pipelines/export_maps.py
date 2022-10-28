@@ -191,7 +191,7 @@ class ExportMapsPipeline(Pipeline):
         return exec_args
 
     def _prepare_files(self, geotiff_paths: List[str]) -> Tuple[FS, List[str]]:
-        """Returns system paths of geotiffs and output file that can be used to merge maps.
+        """Returns a filesystem and appropriate paths to the geotiffs to use in the pipeline.
 
         If required files are copied locally and a temporary filesystem object is returned.
         """
@@ -218,10 +218,13 @@ class ExportMapsPipeline(Pipeline):
     def _split_patches_temporally(
         self, filesystem: FS, output_folder: str, geotiff_paths: List[str], some_eopatch: str, crs: CRS
     ) -> Dict[Optional[dt.datetime], List[str]]:
-        """Splits input patches into multiple tiffs according to the temporal dimension.
+        """Splits multi-temporal tiffs into separate tiffs according to the temporal dimensions.
 
-        Here the jobs are grouped together per-inputfile, in later parts jobs are grouped per-time.
-        Due to this jobs are created per-input, but we also take note of per-time grouping, which the function returns.
+        The jobs for splitting tiffs are grouped together per input file. This ensures that two processes don't try
+        to use GDAL on the same input file (avoiding IO blocks).
+
+        Because the rest of the pipeline groups parallelization jobs per time, the function returns `time_to_tiffs_map`
+        that groups output tiffs of the same timestamp.
         """
         LOGGER.info("Splitting TIFF files temporally.")
         num_bands, timestamps = self._extract_num_bands_and_timestamps(some_eopatch)  # assume eopatches share these
@@ -231,7 +234,7 @@ class ExportMapsPipeline(Pipeline):
             tiff_name = _strip_tiff_extension(fs.path.basename(input_path))
             return fs.path.join(output_folder, get_tiff_name(self.map_name, tiff_name, crs, time))
 
-        geotiffs_per_time: Dict[Optional[dt.datetime], List[str]] = defaultdict(list)
+        time_to_tiffs_map: Dict[Optional[dt.datetime], List[str]] = defaultdict(list)
         grouped_split_jobs = []  # these are grouped per input file to avoid IO blocking of processes
         for tiff_path in geotiff_paths:
             tiff_sys_path = filesystem.getsyspath(tiff_path)
@@ -242,14 +245,14 @@ class ExportMapsPipeline(Pipeline):
                 bands = range(i * num_bands, (i + 1) * num_bands)
                 jobs.append(SplitTiffsJob(tiff_sys_path, bands, filesystem.getsyspath(extraction_path)))
 
-                geotiffs_per_time[time].append(extraction_path)
+                time_to_tiffs_map[time].append(extraction_path)
 
             grouped_split_jobs.append(jobs)
 
         parallelize(self._execute_split_jobs, grouped_split_jobs, workers=None)
         parallelize(filesystem.remove, geotiff_paths, workers=None, multiprocess=False)
 
-        return geotiffs_per_time
+        return time_to_tiffs_map
 
     def _extract_num_bands_and_timestamps(self, eopatch_name: str) -> Tuple[int, List[dt.datetime]]:
         """Loads an eopatch to get information about number of bands and the timestamps."""
