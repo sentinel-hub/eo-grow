@@ -117,3 +117,13 @@ def test_custom_grid_eopatch_manager(storage):
 
     eopatch_names = eopatch_manager.get_eopatch_filenames()
     assert eopatch_names == ["patch0", "patch1"]
+
+
+def test_multi_crs_area(config_folder, config, storage):
+    """Ensures that the eopatch manager works when the area spans multiple CRS zones."""
+    filename = os.path.join(config_folder, "other", "large_area_global_config.json")
+    area_config = interpret_config_from_path(filename)
+    area_manager = UtmZoneAreaManager.from_raw_config(area_config, storage)
+    patch_manager = EOPatchManager.from_raw_config(config["eopatch"], area_manager)
+    patch_manager.get_eopatch_filenames()
+    patch_manager.get_bboxes()
