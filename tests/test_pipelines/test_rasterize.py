@@ -58,7 +58,7 @@ def add_vector_data(pipeline):
         "bareland": 9,
     }
     vector_data = os.path.join(pipeline.storage.get_input_data_folder(full_path=True), "test_area_lulc.geojson")
-    vector_data = gpd.read_file(vector_data, encoding="utf-8")
+    vector_data = gpd.read_file(vector_data, encoding="utf-8", engine="pyogrio")
 
     vector_data["LULC_ID"] = vector_data["LULC"].apply(lambda lulc_name: LULC_MAP[lulc_name])
     vector_data["LULC_POLYGON_ID"] = vector_data.index + 1

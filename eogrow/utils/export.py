@@ -67,5 +67,6 @@ def export_grid_stats(
                 driver="GPKG",
                 encoding="utf-8",
                 layer=f"Stats for EPSG:{gdf.crs.to_epsg()}",
+                engine="pyogrio",
             )
     LOGGER.info("Saved stats to %s", path)
