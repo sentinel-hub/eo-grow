@@ -223,7 +223,7 @@ class AreaManager(EOGrowObject):
                     driver="GPKG",
                     encoding="utf-8",
                     layer=f"Grid EPSG:{crs_grid.crs.to_epsg()}",
-                    engine="fiona",
+                    engine="pyogrio",
                 )
 
     def _construct_file_path(self, *, prefix: str, suffix: str = "gpkg", ignore_region_filter: bool = False) -> str:
