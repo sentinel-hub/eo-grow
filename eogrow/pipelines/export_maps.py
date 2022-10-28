@@ -74,10 +74,10 @@ class ExportMapsPipeline(Pipeline):
                 " With this parameter you force to always make copies."
             ),
         )
-        compress_temporally: bool = Field(
-            False,
+        split_per_timestamp: bool = Field(
+            True,
             description=(
-                "Temporal features are by default exported as multiple TIFF files in a per-timestamp manner. Enabling "
+                "Temporal features are by default exported as multiple TIFF files in a per-timestamp manner. Disabling "
                 "this parameter results in a single TIFF with the same band order as the one of `ExportToTiffTask`."
             ),
         )
@@ -103,7 +103,7 @@ class ExportMapsPipeline(Pipeline):
         1. Extracts data from EOPatches via workflow into per-EOPatch tiffs.
         2. For each UTM zone:
             - Prepares tiffs for merging (transfers to local if needed).
-            - Performs temporal split of tiffs if needed (assumption that all eopatches share the same timestamp)
+            - Performs temporal split of tiffs if needed (assumption that all eopatches share the same timestamps)
             - Merges the tiffs
             - Cogification is done if requested.
             - The output files are finalized (renamed/transferred) and per-EOPatch tiffs are cleaned.
@@ -130,7 +130,7 @@ class ExportMapsPipeline(Pipeline):
             crs_output_folder = fs.path.join(output_folder, f"UTM_{crs.epsg}")
             filesystem.makedirs(crs_output_folder, recreate=True)
 
-            if feature_type.is_timeless() or self.config.compress_temporally:
+            if feature_type.is_timeless() or not self.config.split_per_timestamp:
                 merged_map_name = get_tiff_name(self.map_name, self.MERGED_MAP_NAME, crs)
                 combine_tiffs_jobs = [CombineTiffsJob(geotiff_paths, merged_map_name, time=None)]
             else:
@@ -224,7 +224,7 @@ class ExportMapsPipeline(Pipeline):
         Due to this jobs are created per-input, but we also take note of per-time grouping, which the function returns.
         """
         LOGGER.info("Splitting TIFF files temporally.")
-        num_bands, timestamp = self._load_bands_and_timestamp(some_eopatch)  # assume eopatches share these
+        num_bands, timestamps = self._extract_num_bands_and_timestamps(some_eopatch)  # assume eopatches share these
 
         def get_extraction_path(input_path: str, time: dt.datetime) -> str:
             """Ensures that after extraction the files have a time-suffix."""
@@ -237,7 +237,7 @@ class ExportMapsPipeline(Pipeline):
             tiff_sys_path = filesystem.getsyspath(tiff_path)
 
             jobs = []
-            for i, time in enumerate(timestamp):
+            for i, time in enumerate(timestamps):
                 extraction_path = get_extraction_path(tiff_path, time)
                 bands = range(i * num_bands, (i + 1) * num_bands)
                 jobs.append(SplitTiffsJob(tiff_sys_path, bands, filesystem.getsyspath(extraction_path)))
@@ -251,8 +251,8 @@ class ExportMapsPipeline(Pipeline):
 
         return geotiffs_per_time
 
-    def _load_bands_and_timestamp(self, eopatch_name: str) -> Tuple[int, List[dt.datetime]]:
-        """Loads an eopatch to get information about number of bands and the timestamp."""
+    def _extract_num_bands_and_timestamps(self, eopatch_name: str) -> Tuple[int, List[dt.datetime]]:
+        """Loads an eopatch to get information about number of bands and the timestamps."""
         path = fs.path.join(self.storage.get_folder(self.config.input_folder_key), eopatch_name)
         patch = EOPatch.load(path, (FeatureType.TIMESTAMP, self.config.feature), filesystem=self.storage.filesystem)
         if self.config.band_indices is not None:
