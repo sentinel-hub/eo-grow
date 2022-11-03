@@ -335,7 +335,11 @@ class SplitTiffsJob:
 
 @dataclass
 class CombineTiffsJob:
-    """Describes which tiffs to merge, what the output path is, and the time the merged tiff represents."""
+    """Describes which tiffs to merge, what the output path is, and the time the merged tiff represents.
+
+    The time is relevant in order to correctly place the finalized tiff. If left out then the tiffs are either
+    timeless or not split temporally.
+    """
 
     input_paths: Iterable[str]
     output_path: str
