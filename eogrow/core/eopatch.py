@@ -60,7 +60,7 @@ class EOPatchManager(EOGrowObject):
         """
         bbox_grid = self._area_manager.get_grid(add_bbox_column=True)
 
-        bbox_df: DataFrame = pandas.concat(bbox_grid, ignore_index=True)
+        bbox_df: DataFrame = pandas.concat([gdf.drop(columns="geometry") for gdf in bbox_grid], ignore_index=True)
 
         prepared_name_to_id_map = self.generate_names(bbox_df)
         prepared_name_to_bbox_map = dict(zip(prepared_name_to_id_map, bbox_df["BBOX"]))
