@@ -13,5 +13,5 @@
   "map_dtype": "float32",
   "band_indices": [0],
   "workers": 1,
-  "compress_temporally": true
+  "split_per_timestamp": false
 }
