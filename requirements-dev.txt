@@ -5,7 +5,7 @@ ipdb
 jupyter
 mock
 moto
-mypy
+mypy>=0.990
 pytest>=4.0.0
 pytest-cov
 pytest-order
