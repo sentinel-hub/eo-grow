@@ -90,7 +90,8 @@ def get_package_versions() -> Dict[str, str]:
         return 'extra == "DEV"' not in req and 'extra == "DOCS"' not in req
 
     try:
-        requirements = [Requirement(req).name for req in importlib.metadata.requires("eo-grow") if is_base(req)]
+        eogrow_reqs = importlib.metadata.requires("eo-grow") or []
+        requirements = [Requirement(req).name for req in eogrow_reqs if is_base(req)]
         return {pkg: importlib.metadata.version(pkg) for pkg in ["eo-grow", *requirements]}
 
     except BaseException as ex:
