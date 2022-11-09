@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import importlib
 import inspect
+import re
 from typing import TYPE_CHECKING, Any, Dict, Type
 
 from packaging.requirements import Requirement
@@ -87,7 +88,7 @@ def get_package_versions() -> Dict[str, str]:
 
     def is_base(req: str) -> bool:
         """Filters out packages needed only for development or documentation"""
-        return 'extra == "DEV"' not in req and 'extra == "DOCS"' not in req
+        return re.search(r"extra == .(DEV|dev|DOCS|docs).", req) is None
 
     try:
         eogrow_reqs = importlib.metadata.requires("eo-grow") or []
