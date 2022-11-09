@@ -1,13 +1,13 @@
 boto3
-codecov
+deepdiff
 fs_s3fs
 ipdb
 jupyter
 mock
 moto
 mypy>=0.990
+pre-commit
 pytest>=4.0.0
-pytest-cov
 pytest-order
 requests-mock
 twine
