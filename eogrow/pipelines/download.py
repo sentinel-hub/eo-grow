@@ -79,7 +79,6 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
             description="Storage manager key pointing to the path where downloaded EOPatches will be saved."
         )
 
-        compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
         threads_per_worker: Optional[int] = Field(
             description=(
                 "Maximum number of parallel threads used during download by each worker. If set to None it will use "
@@ -150,7 +149,7 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
                 self.storage.get_folder(self.config.output_folder_key),
                 filesystem=self.storage.filesystem,
                 features=self._get_output_features(),
-                compress_level=self.config.compress_level,
+                compress_level=1,
                 overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
             ),
             inputs=[postprocessing_node or download_node],

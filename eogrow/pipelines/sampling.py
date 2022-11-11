@@ -41,7 +41,6 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
                 "saved as FEATURES_SAMPLED."
             )
         )
-        compress_level: int = Field(1, description="Level of compression used in saving eopatches")
 
     config: Schema
 
@@ -72,7 +71,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
             self.storage.get_folder(self.config.output_folder_key),
             filesystem=self.storage.filesystem,
             features=self._get_output_features(),
-            compress_level=self.config.compress_level,
+            compress_level=1,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
         )
 

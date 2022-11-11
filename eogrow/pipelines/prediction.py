@@ -47,7 +47,6 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         model_folder_key: str = Field(
             description="The storage manager key pointing to the folder of the model used in the prediction pipeline."
         )
-        compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
 
         @root_validator
         def validate_prediction_mask(cls, values: RawSchemaDict) -> RawSchemaDict:
@@ -129,7 +128,7 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
             filesystem=self.storage.filesystem,
             features=self._get_output_features(),
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
-            compress_level=self.config.compress_level,
+            compress_level=1,
         )
 
         return EONode(save_task, inputs=[previous_node])

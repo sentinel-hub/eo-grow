@@ -22,7 +22,6 @@ class MappingPipeline(Pipeline):
         output_feature: str = Field(description="Name of the output mask_timeless feature")
 
         mapping_dictionary: Dict[int, int] = Field(description="Mapping dictionary of the input-to-output classes")
-        compress_level: int = Field(1, description="Level of compression used in saving eopatches")
 
     config: Schema
 
@@ -50,7 +49,7 @@ class MappingPipeline(Pipeline):
             filesystem=self.storage.filesystem,
             features=output_features,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
-            compress_level=self.config.compress_level,
+            compress_level=1,
         )
 
         return EOWorkflow(linearly_connect_tasks(load_task, mapping_task, save_task))
