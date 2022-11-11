@@ -74,11 +74,11 @@ class ExportMapsPipeline(Pipeline):
                 " With this parameter you force to always make copies."
             ),
         )
-        temporary_files_suffix: str = Field(
+        interim_results_suffix: str = Field(
             "",
             description=(
-                "Added as a suffix to names of partially complete files in order to avoid clashes from multiple"
-                " clusters working on similar maps (e.g. exporting same map for different timestamps)."
+                "Has no effect on end results. Adds a suffix to names of temporary files in order to avoid clashes"
+                " from pipelines working in parallel on same maps (e.g. exporting same map for different timestamps)."
             ),
         )
         split_per_timestamp: bool = Field(
@@ -103,7 +103,7 @@ class ExportMapsPipeline(Pipeline):
         super().__init__(config, raw_config)
 
         self.map_name = self.config.map_name or f"{self.config.feature[1]}.{MimeType.TIFF.extension}"
-        self.get_tiff_name = partial(get_tiff_name, self.map_name, suffix=self.config.temporary_files_suffix)
+        self.get_tiff_name = partial(get_tiff_name, self.map_name, suffix=self.config.interim_results_suffix)
 
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         """Extracts and merges the data from EOPatches into a TIFF file.
