@@ -14,6 +14,7 @@ def config_folder_fixture(config_folder, stats_folder):
     return create_folder_dict(config_folder, stats_folder, "testing")
 
 
+@pytest.mark.chain
 @pytest.mark.parametrize(
     "experiment_name",
     [

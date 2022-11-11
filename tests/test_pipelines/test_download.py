@@ -13,12 +13,11 @@ def config_folder_fixture(config_folder, stats_folder):
 
 
 @pytest.mark.chain
-@pytest.mark.order(before=["test_download_pipeline", "test_download_step_of_chain"])
+@pytest.mark.order(before=["test_download_pipeline"])
 def test_preparation(storage):
     """Cleans the test project folder"""
 
 
-@pytest.mark.order(before="test_download_step_of_chain")
 @pytest.mark.parametrize(
     "experiment_name",
     [
@@ -30,15 +29,10 @@ def test_preparation(storage):
         "download_custom",
         "download_q3",
         "download_dem",
+        pytest.param("download_l1c_yearly", marks=pytest.mark.chain),
     ],
 )
 def test_download_pipeline(experiment_name, folders):
-    run_and_test_pipeline(experiment_name, **folders)
-
-
-@pytest.mark.chain
-@pytest.mark.parametrize("experiment_name", ["download_l1c_yearly"])
-def test_download_step_of_chain(experiment_name, folders):
     run_and_test_pipeline(experiment_name, **folders)
 
 
