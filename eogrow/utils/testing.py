@@ -374,7 +374,7 @@ def generate_tiff_file(
     tiff_bbox: BBox,
     width: int,
     height: int,
-    num_bands: Optional[int] = None,
+    num_bands: int,
     dtype: type,
     seed: int = 42,
 ) -> None:
