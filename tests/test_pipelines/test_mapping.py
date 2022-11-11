@@ -12,6 +12,6 @@ def config_folder_fixture(config_folder, stats_folder):
 
 
 @pytest.mark.order(after=["test_prediction.py::test_prediction_pipeline"])
-@pytest.mark.parametrize("experiment_name", ["mapping_ref", pytest.param("mapping_pred", marks=pytest.mark.chain)])
+@pytest.mark.parametrize("experiment_name", ["mapping_pred", pytest.param("mapping_ref", marks=pytest.mark.chain)])
 def test_mapping_pipeline_on_reference_data(experiment_name, folders):
     run_and_test_pipeline(experiment_name, **folders)
