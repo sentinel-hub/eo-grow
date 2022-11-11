@@ -4,8 +4,9 @@ from tempfile import NamedTemporaryFile
 import pytest
 
 from eogrow.core.area import CustomGridAreaManager, UtmZoneAreaManager
+from eogrow.core.area.batch import BatchAreaManager
 from eogrow.core.config import interpret_config_from_dict, interpret_config_from_path
-from eogrow.core.eopatch import CustomGridEOPatchManager, EOPatchManager
+from eogrow.core.eopatch import BatchTileManager, CustomGridEOPatchManager, EOPatchManager
 
 pytestmark = pytest.mark.fast
 
@@ -127,3 +128,12 @@ def test_multi_crs_area(config_folder, config, storage):
     patch_manager = EOPatchManager.from_raw_config(config["eopatch"], area_manager)
     patch_manager.get_eopatch_filenames()
     patch_manager.get_bboxes()
+
+
+def test_compatibility_check(config_folder, config, storage):
+    filename = os.path.join(config_folder, "other", "batch_area_config.json")
+    batch_config = interpret_config_from_path(filename)
+    area_manager = BatchAreaManager.from_raw_config(batch_config, storage)
+    with pytest.raises(ValueError):
+        EOPatchManager.from_raw_config(config["eopatch"], area_manager)
+    BatchTileManager.from_raw_config(config["eopatch"], area_manager)
