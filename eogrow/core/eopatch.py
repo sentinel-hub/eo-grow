@@ -37,7 +37,7 @@ class EOPatchManager(EOGrowObject):
 
         # temporary, until area manager and eopatch manager are merged into a single manager
         if isinstance(area_manager, BatchAreaManager) and not isinstance(self, BatchTileManager):
-            raise ValueError("To use `BatchAreaManager` you should use `BatchTileManager` eopatch manager.")
+            raise ValueError("To use `BatchAreaManager` you should use the `BatchTileManager` eopatch manager.")
 
         self._name_to_id_map: Optional[bidict] = None
         self._name_to_bbox_map: Optional[dict] = None
