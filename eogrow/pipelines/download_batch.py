@@ -162,6 +162,9 @@ class BatchDownloadPipeline(Pipeline):
 
         processed = self._get_tile_names_from_results(results, BatchTileStatus.PROCESSED)
         failed = self._get_tile_names_from_results(results, BatchTileStatus.FAILED)
+        log_msg = f"Successfully downloaded {len(processed)} tiles"
+        log_msg += f", but {len(failed)} tiles failed." if failed else "."
+        LOGGER.info(log_msg)
         return processed, failed
 
     def _create_or_collect_batch_request(self) -> BatchRequest:

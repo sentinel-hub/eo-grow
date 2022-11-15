@@ -63,11 +63,10 @@ def prepare_batch_files(
         filesystem.writetext(fs.path.combine(folder, "userdata.json"), json.dumps(userdata))
 
 
-@pytest.mark.chain
 @pytest.mark.parametrize(
     "experiment_name",
     [
-        "batch_to_eopatch",
+        pytest.param("batch_to_eopatch", marks=pytest.mark.chain),
         "batch_to_eopatch_no_userdata",
     ],
 )

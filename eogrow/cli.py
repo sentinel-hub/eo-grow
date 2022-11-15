@@ -10,7 +10,7 @@ from typing import Optional, Tuple
 import click
 
 from .core.config import collect_configs_from_path, decode_config_list, encode_config_list, interpret_config_from_dict
-from .core.schemas import build_minimal_template, build_schema_template
+from .core.schemas import build_schema_template
 from .pipelines.testing import TestPipeline
 from .utils.general import jsonify
 from .utils.meta import collect_schema, import_object, load_pipeline_class
@@ -180,7 +180,7 @@ class EOGrowCli:
     @click.option(
         "--template-format",
         "template_format",
-        type=click.Choice(["minimal", "open-api", "full"], case_sensitive=False),
+        type=click.Choice(["minimal", "open-api"], case_sensitive=False),
         help="Specifies which template format to use. The default is `minimal`",
         default="minimal",
     )
@@ -223,10 +223,8 @@ class EOGrowCli:
 
         if template_format == "open-api":
             template = schema.schema()
-        elif template_format == "full":
-            template = build_schema_template(schema)
         else:
-            template = build_minimal_template(
+            template = build_schema_template(
                 schema,
                 pipeline_import_path=import_path,
                 required_only=required_only,

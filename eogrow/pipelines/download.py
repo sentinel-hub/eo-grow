@@ -174,7 +174,7 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
         for index, bbox in enumerate(bbox_list):
             exec_args[index][download_node] = {"bbox": bbox}
             if hasattr(self.config, "time_period"):
-                exec_args[index][download_node]["time_interval"] = self.config.time_period  # type: ignore[attr-defined]
+                exec_args[index][download_node]["time_interval"] = self.config.time_period
 
         return exec_args
 

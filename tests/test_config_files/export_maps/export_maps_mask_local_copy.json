@@ -10,6 +10,7 @@
   "output_folder_key": "maps",
   "feature": ["mask", "CLM"],
   "map_dtype": "uint16",
+  "no_data_value": 0,
   "band_indices": [0],
   "force_local_copies": true,
   "workers": 1

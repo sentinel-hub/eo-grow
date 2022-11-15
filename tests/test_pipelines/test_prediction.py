@@ -12,13 +12,14 @@ def config_folder_fixture(config_folder, stats_folder):
 
 
 @pytest.mark.order(after="test_training.py::test_training_pipeline_random_split")
-@pytest.mark.parametrize("experiment_name", ["prediction", "prediction_dtype", "prediction_with_encoder"])
+@pytest.mark.parametrize(
+    "experiment_name",
+    [
+        "prediction",
+        "prediction_dtype",
+        "prediction_with_encoder",
+        pytest.param("prediction_chain", marks=pytest.mark.chain),
+    ],
+)
 def test_prediction_pipeline(experiment_name, folders):
-    run_and_test_pipeline(experiment_name, **folders)
-
-
-@pytest.mark.chain
-@pytest.mark.order(after="test_training.py::test_training_pipeline_random_split")
-@pytest.mark.parametrize("experiment_name", ["prediction_chain"])
-def test_prediction_chain(experiment_name, folders):
     run_and_test_pipeline(experiment_name, **folders)

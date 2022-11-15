@@ -1,7 +1,7 @@
 {
   "pipeline": "eogrow.pipelines.mapping.MappingPipeline",
   "**global_config": "${config_path}/../global_config.json",
-  "input_folder_key": "predictions",
+  "input_folder_key": "predictions_to_map",
   "output_folder_key": "temp",
   "input_feature": "PREDICTION_LABELS",
   "output_feature": "PREDICTION_LABELS_MAPPED",
