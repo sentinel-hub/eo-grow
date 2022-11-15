@@ -68,7 +68,7 @@ class AreaManager(EOGrowObject):
         """
         filename = fs.path.join(self.storage.get_input_data_folder(), self.config.area_filename)
         with LocalFile(filename, mode="r", filesystem=self.storage.filesystem) as local_file:
-            area_df = gpd.read_file(local_file.path, engine="pyogrio")
+            area_df = gpd.read_file(local_file.path, engine=self.storage.config.geopandas_backend)
 
         if self.has_region_filter() and not ignore_region_filter:
             area_df = area_df[area_df[self.config.region_column_name].isin(self.config.region_names)]
@@ -174,7 +174,7 @@ class AreaManager(EOGrowObject):
         LOGGER.info("Loading cached area geometry from %s", filename)
 
         with LocalFile(filename, mode="r", filesystem=self.storage.filesystem) as local_file:
-            area_gdf = gpd.read_file(local_file.path, engine="pyogrio")
+            area_gdf = gpd.read_file(local_file.path, engine=self.storage.config.geopandas_backend)
 
         return Geometry(area_gdf.geometry[0], CRS(area_gdf.crs))
 
@@ -185,7 +185,9 @@ class AreaManager(EOGrowObject):
         area_gdf = gpd.GeoDataFrame(geometry=[area_geometry.geometry], crs=area_geometry.crs.pyproj_crs())
 
         with LocalFile(filename, mode="w", filesystem=self.storage.filesystem) as local_file:
-            area_gdf.to_file(local_file.path, driver="GPKG", encoding="utf-8", engine="pyogrio")
+            area_gdf.to_file(
+                local_file.path, driver="GPKG", encoding="utf-8", engine=self.storage.config.geopandas_backend
+            )
 
     def _create_and_save_grid(self, grid_filename: str, ignore_region_filter: bool) -> List[gpd.GeoDataFrame]:
         """Defines a new grid and saves it."""
@@ -208,7 +210,9 @@ class AreaManager(EOGrowObject):
         grid = []
         with LocalFile(filename, mode="r", filesystem=self.storage.filesystem) as local_file:
             for crs_layer in fiona.listlayers(local_file.path):
-                grid.append(gpd.read_file(local_file.path, layer=crs_layer, engine="pyogrio"))
+                grid.append(
+                    gpd.read_file(local_file.path, layer=crs_layer, engine=self.storage.config.geopandas_backend)
+                )
 
         return grid
 
@@ -223,7 +227,7 @@ class AreaManager(EOGrowObject):
                     driver="GPKG",
                     encoding="utf-8",
                     layer=f"Grid EPSG:{crs_grid.crs.to_epsg()}",
-                    engine="pyogrio",
+                    engine=self.storage.config.geopandas_backend,
                 )
 
     def _construct_file_path(self, *, prefix: str, suffix: str = "gpkg", ignore_region_filter: bool = False) -> str:

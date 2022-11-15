@@ -134,11 +134,12 @@ class RasterizePipeline(Pipeline):
     def run_dataset_preprocessing(self, filename: str, preprocess_config: Preprocessing) -> None:
         """Loads datasets, applies preprocessing steps and saves them to a cache folder"""
         LOGGER.info("Preprocessing dataset %s", filename)
+        gpd_engine = self.storage.config.geopandas_backend
 
         file_path = fs.path.combine(self.storage.get_input_data_folder(), filename)
         with LocalFile(file_path, mode="r", filesystem=self.storage.filesystem) as local_file:
             dataset_layers = [
-                gpd.read_file(local_file.path, layer=layer, encoding="utf-8", engine="pyogrio")
+                gpd.read_file(local_file.path, layer=layer, encoding="utf-8", engine=gpd_engine)
                 for layer in fiona.listlayers(local_file.path)
             ]
 
@@ -148,7 +149,7 @@ class RasterizePipeline(Pipeline):
 
         dataset_path = self._get_dataset_path(filename)
         with LocalFile(dataset_path, mode="w", filesystem=self.storage.filesystem) as local_file:
-            dataset_gdf.to_file(local_file.path, encoding="utf-8", driver="GPKG", engine="pyogrio")
+            dataset_gdf.to_file(local_file.path, encoding="utf-8", driver="GPKG", engine=gpd_engine)
 
     def build_workflow(self) -> EOWorkflow:
         """Creates workflow that is divided into the following sub-parts:

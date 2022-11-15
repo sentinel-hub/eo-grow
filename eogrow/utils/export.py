@@ -2,7 +2,7 @@
 Utilities for exporting data
 """
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 import geopandas as gpd
 import numpy as np
@@ -21,6 +21,7 @@ def export_grid_stats(
     path: str,
     filesystem: Optional[FS] = None,
     names: Optional[List[str]] = None,
+    geopandas_backend: Literal["fiona", "pyogrio"] = "fiona",
 ) -> None:
     """Exports stats per each bounding box (i.e. EOPatch) into a Geopackage file
 
@@ -67,6 +68,6 @@ def export_grid_stats(
                 driver="GPKG",
                 encoding="utf-8",
                 layer=f"Stats for EPSG:{gdf.crs.to_epsg()}",
-                engine="pyogrio",
+                engine=geopandas_backend,
             )
     LOGGER.info("Saved stats to %s", path)
