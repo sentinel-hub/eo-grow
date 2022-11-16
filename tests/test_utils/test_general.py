@@ -2,6 +2,7 @@
 Tests for general utilities
 """
 import datetime as dt
+import enum
 import json
 
 import numpy as np
@@ -10,26 +11,25 @@ import pytest
 from eolearn.core import FeatureType
 from sentinelhub import CRS, BBox, DataCollection
 
-from eogrow.utils.enum import BaseEOGrowEnum
 from eogrow.utils.general import convert_bbox_coords_to_int, convert_to_int, jsonify, large_list_repr, reduce_to_coprime
 
 pytestmark = pytest.mark.fast
 
 
-class MyEnum(BaseEOGrowEnum):
-    NO_DATA = "no data", 0, "#ffffff"
+class MyEnum(enum.Enum):
+    NO_DATA = "no data"
 
 
 ORIGINAL_CONFIG = {
     "feature_types": (FeatureType.DATA, FeatureType.BBOX),
-    "multi_value_enum": MyEnum.NO_DATA,
+    "enum": MyEnum.NO_DATA,
     "timestamp": dt.datetime(year=2021, month=9, day=30),
     "collection_set": {DataCollection.SENTINEL2_L1C},
     "collection_def": DataCollection.SENTINEL2_L1C.value,
 }
 SERIALIZED_CONFIG = {
     "feature_types": ["data", "bbox"],
-    "multi_value_enum": "no data",
+    "enum": "no data",
     "timestamp": "2021-09-30T00:00:00",
     "collection_set": ["SENTINEL2_L1C"],
     "collection_def": "SENTINEL2_L1C",
