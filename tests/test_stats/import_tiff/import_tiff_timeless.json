@@ -1,0 +1,190 @@
+{
+  "eopatch-id-0-col-0-row-0": {
+    "bbox": "BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS('32638'))",
+    "mask_timeless": {
+      "ImportedTimelessData": {
+        "array_shape": [
+          605,
+          1320,
+          1
+        ],
+        "basic_stats": {
+          "max": 9999,
+          "mean": 4997.66466,
+          "median": 4994.0,
+          "min": 0
+        },
+        "counts": {
+          "infinite": 0,
+          "nan": 0
+        },
+        "dtype": "uint16",
+        "histogram": {
+          "counts": [
+            99852,
+            99988,
+            99697,
+            100165,
+            99810,
+            99588,
+            99682,
+            99818
+          ],
+          "edges": [
+            0.0,
+            1249.875,
+            2499.75,
+            3749.625,
+            4999.5,
+            6249.375,
+            7499.25,
+            8749.125,
+            9999.0
+          ]
+        },
+        "random_values": [
+          {
+            "position": [
+              462,
+              579,
+              0
+            ],
+            "value": 6367
+          },
+          {
+            "position": [
+              313,
+              1077,
+              0
+            ],
+            "value": 5110
+          },
+          {
+            "position": [
+              551,
+              1307,
+              0
+            ],
+            "value": 2697
+          },
+          {
+            "position": [
+              327,
+              1211,
+              0
+            ],
+            "value": 3078
+          },
+          {
+            "position": [
+              384,
+              1244,
+              0
+            ],
+            "value": 8502
+          }
+        ],
+        "subsample_basic_stats": {
+          "max": 9999,
+          "mean": 4984.97891,
+          "median": 4960.0,
+          "min": 0
+        }
+      }
+    }
+  },
+  "eopatch-id-1-col-0-row-1": {
+    "bbox": "BBox(((729480.0, 4391145.0), (732120.0, 4392355.0)), crs=CRS('32638'))",
+    "mask_timeless": {
+      "ImportedTimelessData": {
+        "array_shape": [
+          605,
+          1320,
+          1
+        ],
+        "basic_stats": {
+          "max": 9999,
+          "mean": 950.32857,
+          "median": 100.0,
+          "min": 0
+        },
+        "counts": {
+          "infinite": 0,
+          "nan": 0
+        },
+        "dtype": "uint16",
+        "histogram": {
+          "counts": [
+            677226,
+            17444,
+            17287,
+            17301,
+            17404,
+            17367,
+            17256,
+            17315
+          ],
+          "edges": [
+            0.0,
+            1249.875,
+            2499.75,
+            3749.625,
+            4999.5,
+            6249.375,
+            7499.25,
+            8749.125,
+            9999.0
+          ]
+        },
+        "random_values": [
+          {
+            "position": [
+              595,
+              251,
+              0
+            ],
+            "value": 6367
+          },
+          {
+            "position": [
+              575,
+              103,
+              0
+            ],
+            "value": 5110
+          },
+          {
+            "position": [
+              582,
+              1254,
+              0
+            ],
+            "value": 2697
+          },
+          {
+            "position": [
+              546,
+              639,
+              0
+            ],
+            "value": 3078
+          },
+          {
+            "position": [
+              569,
+              969,
+              0
+            ],
+            "value": 8502
+          }
+        ],
+        "subsample_basic_stats": {
+          "max": 9999,
+          "mean": 941.26241,
+          "median": 100.0,
+          "min": 0
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "pipeline": "eogrow.pipelines.import_tiff.ImportTiffPipeline",
+  "**global_config": "${config_path}/../global_config.json",
+  "tiff_folder_key": "input_data",
+  "output_folder_key": "temp",
+  "output_feature": ["mask_timeless", "ImportedTimelessData"],
+  "input_filename": "import_test.tiff",
+  "use_vsi": false,
+  "dtype": "uint16",
+  "no_data_value": 100
+}

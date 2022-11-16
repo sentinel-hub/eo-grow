@@ -1,5 +1,6 @@
 tests/test_project/*
 !tests/test_project/input-data/
+tests/test_project/input-data/import_test.tiff
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

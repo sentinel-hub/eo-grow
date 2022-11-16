@@ -1,0 +1,8 @@
+{
+  "pipeline": "eogrow.pipelines.import_tiff.ImportTiffPipeline",
+  "**global_config": "${config_path}/../global_config.json",
+  "tiff_folder_key": "input_data",
+  "output_folder_key": "temp",
+  "output_feature": ["data", "ImportedData"],
+  "input_filename": "import_test.tiff"
+}
