@@ -30,8 +30,8 @@ def config_folder_fixture(config_folder, stats_folder):
 )
 def test_import_tiff_pipeline(folders, experiment_name):
     # Can't use utility testing due to custom pipeline
-    config_filename = os.path.join(folders["config_folder"], experiment_name + ".json")
-    stat_path = os.path.join(folders["stats_folder"], experiment_name + ".json")
+    config_filename = os.path.join(folders["config_folder"], f"{experiment_name}.json")
+    stat_path = os.path.join(folders["stats_folder"], f"{experiment_name}.json")
 
     pipeline = ImportTiffPipeline.from_raw_config(interpret_config_from_path(config_filename))
 

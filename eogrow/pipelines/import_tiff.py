@@ -18,7 +18,7 @@ from ..utils.validators import optional_field_validator, parse_dtype
 
 
 class ResizeSchema(BaseSchema):
-    """Uses resolution instead of new_size or scale_factors."""
+    """How to resize the tiff data after adding it to EOPatches."""
 
     parameters: Tuple[ResizeParam, Tuple[float, float]] = Field(
         description=(
@@ -40,12 +40,12 @@ class ResizeSchema(BaseSchema):
 
 class ImportTiffPipeline(Pipeline):
     class Schema(Pipeline.Schema):
-        output_folder_key: str
-        tiff_folder_key: str = "input_data"
-        input_filename: str
-        output_feature: Feature
+        output_folder_key: str = Field(description="The storage manager key of the output folder.")
+        tiff_folder_key: str = Field(description="The storage manager key of the folder containing the tiff to import.")
+        input_filename: str = Field(description="Name of tiff file to import.")
+        output_feature: Feature = Field(description="Feature containing the imported tiff information.")
         no_data_value: float = Field(
-            np.nan, description="Value assigned to undefined pixels, e.g. outside of given input image"
+            np.nan, description="Value assigned to undefined pixels, e.g. outside of given input image."
         )
         dtype: Optional[np.dtype] = Field(description="Custom dtype for the imported feature.")
         _parse_dtype = optional_field_validator("dtype", parse_dtype, pre=True)
