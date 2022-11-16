@@ -7,7 +7,6 @@ from enum import Enum
 from typing import Tuple, Union
 
 import numpy as np
-from aenum import MultiValueEnum
 
 from sentinelhub import BBox, DataCollection
 from sentinelhub.data_collections import DataCollectionDefinition
@@ -25,9 +24,6 @@ def jsonify(param: object) -> Union[str, list]:
         return DataCollection(param).name
     if isinstance(param, DataCollection):
         return param.name
-
-    if isinstance(param, MultiValueEnum):
-        return param.values[0]
 
     if isinstance(param, Enum):
         return param.value
