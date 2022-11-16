@@ -92,7 +92,6 @@ class EOPatchManager(EOGrowObject):
         """Checks if the given name (could be entire file path) is the name of an EOPatch
 
         :param name: A name or a file path of a folder which could be one of EOPatches
-        :type name: str
         """
         return os.path.basename(name) in self.name_to_id_map
 
