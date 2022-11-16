@@ -74,6 +74,13 @@ class ExportMapsPipeline(Pipeline):
                 " With this parameter you force to always make copies."
             ),
         )
+        interim_results_suffix: str = Field(
+            "",
+            description=(
+                "Has no effect on end results. Adds a suffix to names of temporary files in order to avoid clashes"
+                " from pipelines working in parallel on same maps (e.g. exporting same map for different timestamps)."
+            ),
+        )
         split_per_timestamp: bool = Field(
             True,
             description=(
@@ -96,6 +103,7 @@ class ExportMapsPipeline(Pipeline):
         super().__init__(config, raw_config)
 
         self.map_name = self.config.map_name or f"{self.config.feature[1]}.{MimeType.TIFF.extension}"
+        self.get_tiff_name = partial(get_tiff_name, self.map_name, suffix=self.config.interim_results_suffix)
 
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         """Extracts and merges the data from EOPatches into a TIFF file.
@@ -123,7 +131,7 @@ class ExportMapsPipeline(Pipeline):
             LOGGER.info("Processing UTM %d", crs.epsg)
 
             exported_tiff_paths = [
-                fs.path.join(output_folder, get_tiff_name(self.map_name, patch_name)) for patch_name in eopatch_list
+                fs.path.join(output_folder, self.get_tiff_name(patch_name)) for patch_name in eopatch_list
             ]
             filesystem, geotiff_paths = self._prepare_files(exported_tiff_paths)
 
@@ -131,13 +139,13 @@ class ExportMapsPipeline(Pipeline):
             filesystem.makedirs(crs_output_folder, recreate=True)
 
             if feature_type.is_timeless() or not self.config.split_per_timestamp:
-                merged_map_name = get_tiff_name(self.map_name, self.MERGED_MAP_NAME, crs)
+                merged_map_name = self.get_tiff_name(self.MERGED_MAP_NAME, crs)
                 combine_tiffs_jobs = [CombineTiffsJob(geotiff_paths, merged_map_name, time=None)]
             else:
                 time_to_tiffs_map = self._split_patches_temporally(
                     filesystem, crs_output_folder, geotiff_paths, some_eopatch=eopatch_list[0], crs=crs
                 )
-                map_name_maker = partial(get_tiff_name, self.map_name, self.MERGED_MAP_NAME, crs)
+                map_name_maker = partial(self.get_tiff_name, self.MERGED_MAP_NAME, crs)
 
                 combine_tiffs_jobs = [
                     CombineTiffsJob(tiffs, map_name_maker(time), time) for time, tiffs in time_to_tiffs_map.items()
@@ -186,7 +194,7 @@ class ExportMapsPipeline(Pipeline):
         for node in nodes:
             if isinstance(node.task, ExportToTiffTask):
                 for patch_name, single_exec_dict in zip(self.patch_list, exec_args):
-                    single_exec_dict[node] = dict(filename=get_tiff_name(self.map_name, patch_name))
+                    single_exec_dict[node] = dict(filename=self.get_tiff_name(patch_name))
 
         return exec_args
 
@@ -232,7 +240,7 @@ class ExportMapsPipeline(Pipeline):
         def get_extraction_path(input_path: str, time: dt.datetime) -> str:
             """Ensures that after extraction the files have a time-suffix."""
             tiff_name = _strip_tiff_extension(fs.path.basename(input_path))
-            return fs.path.join(output_folder, get_tiff_name(self.map_name, tiff_name, crs, time))
+            return fs.path.join(output_folder, self.get_tiff_name(tiff_name, crs, time))
 
         time_to_tiffs_map: Dict[Optional[dt.datetime], List[str]] = defaultdict(list)
         grouped_split_jobs = []  # these are grouped per input file to avoid IO blocking of processes
@@ -350,11 +358,15 @@ def _strip_tiff_extension(path: str) -> str:
     return path.replace(f".{MimeType.TIFF.extension}", "")
 
 
-def get_tiff_name(map_name: str, name: str, crs: Optional[CRS] = None, time: Optional[dt.datetime] = None) -> str:
+def get_tiff_name(
+    map_name: str, name: str, crs: Optional[CRS] = None, time: Optional[dt.datetime] = None, suffix: str = ""
+) -> str:
     """Creates a name of a geotiff image"""
     base = f"{_strip_tiff_extension(map_name)}_{name}"
     if crs is not None:
         base += f"_UTM_{crs.epsg}"
     if time is not None:
         base += f"_{time.strftime(TIMESTAMP_FORMAT)}"
+    if suffix:
+        base += f"_{suffix}"
     return f"{base}.{MimeType.TIFF.extension}"

@@ -25,8 +25,8 @@
     "structure": {
       "data": "data",
       "batch_data": "batch-data",
-      "data_2019": "data-2019",  // these two are custom for testing features pipelines
-      "data_custom_range": "data-custom-range",  // these two are custom for testing features pipelines
+      "data_2019": "data-2019",
+      "data_custom_range": "data-custom-range",
       "data_sampled": "data-sampled",
       "features": "features",
       "features_sampled": "features-sampled",
@@ -34,8 +34,8 @@
       "reference": "reference",
       "models": "models",
       "predictions": "predictions",
+      "predictions_to_map": "predictions_to_map",
       "maps": "maps",
-      "production_maps": "production-maps",
       "temp": "temp" // used by all pipelines whose results do not matter afterwards
     }
   }

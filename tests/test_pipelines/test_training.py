@@ -16,11 +16,10 @@ def config_folder_fixture(config_folder, stats_folder):
     return create_folder_dict(config_folder, stats_folder, "training")
 
 
-@pytest.mark.chain
 @pytest.mark.order(after="test_merge_samples.py::test_merge_samples_pipeline")
 @pytest.mark.parametrize(
     "experiment_name, num_classes",
-    [("lgbm_training_no_filter", 6), ("lgbm_training_label_filter", 3)],
+    [pytest.param("lgbm_training_no_filter", 6, marks=pytest.mark.chain), ("lgbm_training_label_filter", 3)],
 )
 def test_training_pipeline_random_split(folders, experiment_name, num_classes):
     config_path = os.path.join(folders["config_folder"], experiment_name + ".json")
