@@ -156,7 +156,7 @@ class IngestByocTilesPipeline(Pipeline):
             folder_path = self.storage.get_folder(self.config.cover_geometry_folder_key)
             file_path = fs.path.join(folder_path, self.config.cover_geometry)
             with self.storage.filesystem.openbin(file_path, "r") as file_handle:
-                self._cover_geometry_df = gpd.read_file(file_handle)
+                self._cover_geometry_df = gpd.read_file(file_handle, engine=self.storage.config.geopandas_backend)
 
         return self._cover_geometry_df.to_crs(crs.pyproj_crs()).unary_union
 

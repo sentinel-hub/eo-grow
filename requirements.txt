@@ -15,6 +15,7 @@ lightgbm>=3.0.0
 numpy
 pandas
 pydantic>=1.8.0
+pyogrio
 python-rapidjson
 rasterio
 ray[default]

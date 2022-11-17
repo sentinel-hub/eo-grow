@@ -1,7 +1,7 @@
 """
 This module handles everything regarding storage of the data
 """
-from typing import Dict, Optional
+from typing import Dict, Literal, Optional
 
 import fs
 from fs.base import FS
@@ -41,6 +41,9 @@ class StorageManager(EOGrowObject):
         structure: Dict[str, str] = Field(
             default_factory=dict,
             description="A flat key: value store mapping each key to a path in the project.",
+        )
+        geopandas_backend: Literal["fiona", "pyogrio"] = Field(
+            "fiona", description="Which backend is used for IO operations when using geopandas."
         )
 
         class Config(ManagerSchema.Config):
