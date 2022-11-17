@@ -16,7 +16,6 @@ def get_instance_info() -> dict:
     https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-identity-documents.html
 
     :return: A dictionary with information
-    :rtype: dict
     """
     try:
         response = requests.get(INSTANCE_INFO_URL, timeout=INSTANCE_REQUEST_TIMEOUT)

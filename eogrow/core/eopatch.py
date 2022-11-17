@@ -35,6 +35,10 @@ class EOPatchManager(EOGrowObject):
 
         self._area_manager = area_manager
 
+        # temporary, until area manager and eopatch manager are merged into a single manager
+        if isinstance(area_manager, BatchAreaManager) and not isinstance(self, BatchTileManager):
+            raise ValueError("To use `BatchAreaManager` you should use the `BatchTileManager` eopatch manager.")
+
         self._name_to_id_map: Optional[bidict] = None
         self._name_to_bbox_map: Optional[dict] = None
 
@@ -60,7 +64,7 @@ class EOPatchManager(EOGrowObject):
         """
         bbox_grid = self._area_manager.get_grid(add_bbox_column=True)
 
-        bbox_df: DataFrame = pandas.concat(bbox_grid, ignore_index=True)
+        bbox_df: DataFrame = pandas.concat([gdf.drop(columns="geometry") for gdf in bbox_grid], ignore_index=True)
 
         prepared_name_to_id_map = self.generate_names(bbox_df)
         prepared_name_to_bbox_map = dict(zip(prepared_name_to_id_map, bbox_df["BBOX"]))
@@ -88,7 +92,6 @@ class EOPatchManager(EOGrowObject):
         """Checks if the given name (could be entire file path) is the name of an EOPatch
 
         :param name: A name or a file path of a folder which could be one of EOPatches
-        :type name: str
         """
         return os.path.basename(name) in self.name_to_id_map
 

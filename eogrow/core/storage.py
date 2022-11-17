@@ -1,8 +1,7 @@
 """
 This module handles everything regarding storage of the data
 """
-from io import StringIO
-from typing import Dict, List, Optional
+from typing import Dict, Literal, Optional
 
 import fs
 from fs.base import FS
@@ -43,6 +42,9 @@ class StorageManager(EOGrowObject):
             default_factory=dict,
             description="A flat key: value store mapping each key to a path in the project.",
         )
+        geopandas_backend: Literal["fiona", "pyogrio"] = Field(
+            "fiona", description="Which backend is used for IO operations when using geopandas."
+        )
 
         class Config(ManagerSchema.Config):
             case_sensitive = True
@@ -71,7 +73,7 @@ class StorageManager(EOGrowObject):
         return sh_config
 
     def _prepare_filesystem(self) -> FS:
-        """Prepares the main instance of filesystem object which contains all additional configuration parameters."""
+        """Prepares a filesystem object with the configuration parameters."""
         fs_kwargs: Dict[str, str] = {}
         if is_s3_path(self.config.project_folder) and self.config.aws_acl:
             fs_kwargs["acl"] = self.config.aws_acl
@@ -79,7 +81,7 @@ class StorageManager(EOGrowObject):
         return get_filesystem(self.config.project_folder, create=True, config=self.sh_config, **fs_kwargs)
 
     def get_folder(self, key: str, full_path: bool = False) -> str:
-        """Returns the path  associated with a key in the structure config."""
+        """Returns the path associated with the given key in the structure config."""
         folder_path = self.config.structure[key]
         self.filesystem.makedirs(folder_path, recreate=True)
 
@@ -88,9 +90,7 @@ class StorageManager(EOGrowObject):
         return folder_path
 
     def get_logs_folder(self, full_path: bool = False) -> str:
-        """Method for obtaining the logs folder. Will store logs to the current folder.
-        Temporary solution until the logging to AWS is handled properly
-        """
+        """Method for obtaining the logs folder."""
         return self.get_folder("logs", full_path=full_path)
 
     def get_cache_folder(self, full_path: bool = False) -> str:
@@ -102,30 +102,5 @@ class StorageManager(EOGrowObject):
         return self.get_folder("input_data", full_path=full_path)
 
     def is_on_aws(self) -> bool:
-        """Returns True if the project_folder is on S3, False  otherwise."""
+        """Returns True if the project_folder is on S3, False otherwise."""
         return is_s3_path(self.config.project_folder)
-
-    def show_folder_structure(
-        self, show_files: bool = False, return_str: bool = False, exclude: Optional[List[str]] = None
-    ) -> Optional[str]:
-        """Shows how folder structure looks like at the moment. It will show all folders except EOPatch folders and
-        EOExecution report folders
-
-        :param show_files: If  `True` it will show also files inside the folders. Note that the number of files may be
-            huge. By default, this is set to `False`.
-        :param return_str: If `True` it will return folder structure as a string. If `False` it will just print the
-            visualization to stdout.
-        :param exclude: A list of grep folder paths  to exclude from the structure return.
-            Defaults to ['eopatch*', 'eoexecution-report*']
-        :return: Depending on return_str it will either return a string or None
-        """
-        if exclude is None:
-            exclude = ["eopatch*", "eoexecution-report*"]
-
-        file_filter = None if show_files else [""]
-        io_object = StringIO() if return_str else None
-        self.filesystem.tree(max_levels=10, with_color=True, exclude=exclude, filter=file_filter, file=io_object)
-        if io_object:
-            io_object.seek(0)
-            return io_object.getvalue()
-        return None

@@ -8,14 +8,13 @@ from typing import Iterable, Optional
 import fs
 import numpy as np
 import pytest
-import rasterio
 from fs.base import FS
 
 from sentinelhub import BBox
 
 from eogrow.core.config import interpret_config_from_path
 from eogrow.pipelines.batch_to_eopatch import BatchToEOPatchPipeline
-from eogrow.utils.testing import ContentTester, check_pipeline_logs, create_folder_dict
+from eogrow.utils.testing import ContentTester, check_pipeline_logs, create_folder_dict, generate_tiff_file
 
 
 @pytest.fixture(scope="session", name="folders")
@@ -35,25 +34,16 @@ def prepare_batch_files(
     add_userdata: bool,
     timestamp_shuffle_seed: Optional[int] = None,
 ) -> None:
-    transform = rasterio.transform.from_bounds(*tiff_bbox, width=width, height=height)
     filesystem.makedirs(folder, recreate=True)
-
-    generator = np.random.default_rng(42)
-    for filename in filenames:
-        with filesystem.openbin(fs.path.combine(folder, filename), "w") as file_handle:
-            with rasterio.open(
-                file_handle,
-                "w",
-                driver="GTiff",
-                width=width,
-                height=height,
-                count=num_timestamps,
-                dtype=dtype,
-                nodata=0,
-                transform=transform,
-                crs=tiff_bbox.crs.ogc_string(),
-            ) as dst:
-                dst.write(10000 * generator.random((num_timestamps, height, width)))
+    generate_tiff_file(
+        filesystem,
+        (os.path.join(folder, file) for file in filenames),
+        tiff_bbox=tiff_bbox,
+        width=width,
+        height=height,
+        num_bands=num_timestamps,
+        dtype=dtype,
+    )
 
     if add_userdata:
         timestamp = [f"2020-11-{i}T01:23:45Z" for i in range(1, num_timestamps + 1)]
@@ -63,11 +53,10 @@ def prepare_batch_files(
         filesystem.writetext(fs.path.combine(folder, "userdata.json"), json.dumps(userdata))
 
 
-@pytest.mark.chain
 @pytest.mark.parametrize(
     "experiment_name",
     [
-        "batch_to_eopatch",
+        pytest.param("batch_to_eopatch", marks=pytest.mark.chain),
         "batch_to_eopatch_no_userdata",
     ],
 )

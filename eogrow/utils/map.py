@@ -6,7 +6,7 @@ import os
 import shutil
 import subprocess
 from tempfile import NamedTemporaryFile
-from typing import List, Literal, Optional, Sequence
+from typing import Iterable, Literal, Optional
 
 LOGGER = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ def cogify_inplace(
     nodata: Optional[float] = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
     resampling: CogifyResamplingOptions = None,
-    quiet: bool = False,
+    quiet: bool = True,
 ) -> None:
     """Make the (geotiff) file a cog
     :param tiff_file: .tiff file to cogify
@@ -66,6 +66,7 @@ def cogify_inplace(
         resampling=resampling,
         quiet=quiet,
     )
+    # Note: by moving the file we also remove the one at temp_file.name
     shutil.move(temp_file.name, tiff_file)
 
 
@@ -75,9 +76,9 @@ def cogify(
     blocksize: int = 1024,
     nodata: Optional[float] = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
-    overwrite: bool = False,
+    overwrite: bool = True,
     resampling: CogifyResamplingOptions = None,
-    quiet: bool = False,
+    quiet: bool = True,
 ) -> None:
     """Create a cloud optimized version of input file
 
@@ -123,26 +124,22 @@ def cogify(
     if dtype is not None:
         gdaltranslate_options += f" -ot {GDAL_DTYPE_SETTINGS[dtype]}"
 
-    temp_filename = NamedTemporaryFile()
-    temp_filename.close()
-    shutil.copyfile(input_file, temp_filename.name)
-
-    subprocess.check_call(f"gdal_translate {gdaltranslate_options} {temp_filename.name} {output_file}", shell=True)
+    subprocess.check_call(f"gdal_translate {gdaltranslate_options} {input_file} {output_file}", shell=True)
 
 
 def merge_tiffs(
-    input_filename_list: List[str],
+    input_filenames: Iterable[str],
     merged_filename: str,
     *,
-    overwrite: bool = False,
+    overwrite: bool = True,
     nodata: Optional[float] = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
     warp_resampling: WarpResamplingOptions = None,
-    quiet: bool = False,
+    quiet: bool = True,
 ) -> None:
     """Performs gdal_merge on a set of given geotiff images
 
-    :param input_filename_list: A list of input tiff image filenames
+    :param input_filenames: A sequence of input tiff image filenames
     :param merged_filename: Filename of merged tiff image
     :param overwrite: If True overwrite the output (merged) file if it exists
     :param delete_input: If True input images will be deleted at the end
@@ -166,16 +163,17 @@ def merge_tiffs(
     if dtype is not None:
         gdalwarp_options += f" -ot {GDAL_DTYPE_SETTINGS[dtype]}"
 
-    command = f"gdalwarp {gdalwarp_options} {' '.join(input_filename_list)} {merged_filename}"
+    command = f"gdalwarp {gdalwarp_options} {' '.join(input_filenames)} {merged_filename}"
     subprocess.check_call(command, shell=True)
 
 
 def extract_bands(
     input_file: str,
     output_file: str,
-    bands: Sequence[int],
-    overwrite: bool = False,
-    quiet: bool = False,
+    bands: Iterable[int],
+    overwrite: bool = True,
+    compress: bool = False,
+    quiet: bool = True,
 ) -> None:
     """Extract bands from given input file
 
@@ -198,12 +196,11 @@ def extract_bands(
             raise OSError(f"{output_file} already exists. Set `overwrite` to true if it should be overwritten.")
 
     # gdal_translate starts indexation at 1
-    translate_opts = "-co compress=LZW" + " ".join(f" -b {band + 1}" for band in bands)
+    translate_opts = " ".join(f" -b {band + 1}" for band in bands)
     if quiet:
         translate_opts += " -q"
+    if compress:
+        translate_opts += " -co compress=LZW"
 
-    temp_filename = NamedTemporaryFile()
-    temp_filename.close()
-    shutil.copyfile(input_file, temp_filename.name)
-
-    subprocess.check_call(f"gdal_translate {translate_opts} {temp_filename.name} {output_file}", shell=True)
+    command = f"gdal_translate {translate_opts} {input_file} {output_file}"
+    subprocess.check_call(command, shell=True)

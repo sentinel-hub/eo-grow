@@ -4,7 +4,7 @@ Module implementing utilities for unit testing pipeline results
 import functools
 import json
 import os
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, cast
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, cast
 
 import fs
 import numpy as np
@@ -15,6 +15,7 @@ from deepdiff import DeepDiff
 from fs.base import FS
 
 from eolearn.core import EOPatch, FeatureType
+from sentinelhub import BBox
 
 from ..core.config import collect_configs_from_path, interpret_config_from_dict
 from ..core.pipeline import Pipeline
@@ -364,3 +365,38 @@ def create_folder_dict(config_folder: str, stats_folder: str, subfolder: Optiona
         "config_folder": os.path.join(config_folder, subfolder) if subfolder else config_folder,
         "stats_folder": os.path.join(stats_folder, subfolder) if subfolder else config_folder,
     }
+
+
+def generate_tiff_file(
+    filesystem: FS,
+    file_paths: Iterable[str],
+    *,
+    tiff_bbox: BBox,
+    width: int,
+    height: int,
+    num_bands: int,
+    dtype: type,
+    seed: int = 42,
+) -> None:
+    """Generates tiff files containing random data."""
+    transform = rasterio.transform.from_bounds(*tiff_bbox, width=width, height=height)
+
+    generator = np.random.default_rng(seed)
+    shape = (num_bands, height, width) if num_bands is not None else (height, width)
+
+    for path in file_paths:
+        with filesystem.openbin(path, "w") as file_handle:
+            with rasterio.open(
+                file_handle,
+                "w",
+                driver="GTiff",
+                width=width,
+                height=height,
+                count=num_bands,
+                dtype=dtype,
+                nodata=0,
+                transform=transform,
+                crs=tiff_bbox.crs.ogc_string(),
+            ) as dst:
+                data = 10000 * generator.random(shape)
+                dst.write(data)

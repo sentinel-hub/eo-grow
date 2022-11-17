@@ -5,7 +5,10 @@ from __future__ import annotations
 
 import importlib
 import inspect
+import re
 from typing import TYPE_CHECKING, Any, Dict, Type
+
+from packaging.requirements import Requirement
 
 if TYPE_CHECKING:
     from ..core.pipeline import Pipeline
@@ -80,19 +83,17 @@ def get_os_import_path(import_path: str) -> str:
 def get_package_versions() -> Dict[str, str]:
     """A utility function that provides dependency package versions
 
-    At the moment it is and experimental utility. Everything is under try-catch in case something goes wrong
-
     :return: A dictionary with versions
     """
+
+    def is_base(req: str) -> bool:
+        """Filters out packages needed only for development or documentation"""
+        return re.search(r"extra == .(DEV|dev|DOCS|docs).", req) is None
+
     try:
-        import pkg_resources
-
-        dependency_packages = ["eo-grow"] + [
-            requirement.name
-            for requirement in pkg_resources.working_set.by_key["eo-grow"].requires()  # type: ignore[attr-defined]
-        ]
-
-        return {name: pkg_resources.get_distribution(name).version for name in dependency_packages}
+        eogrow_reqs = importlib.metadata.requires("eo-grow") or []
+        requirements = [Requirement(req).name for req in eogrow_reqs if is_base(req)]
+        return {pkg: importlib.metadata.version(pkg) for pkg in ["eo-grow", *requirements]}
 
     except BaseException as ex:
         return {"error": repr(ex)}

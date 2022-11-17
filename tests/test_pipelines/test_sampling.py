@@ -14,14 +14,13 @@ def config_folder_fixture(config_folder, stats_folder):
 @pytest.mark.order(after="test_rasterize.py::test_rasterize_pipeline")
 @pytest.mark.parametrize(
     "experiment_name",
-    ["sampling_fraction", "sampling_block_number", "sampling_block_fraction", "sampling_grid"],
+    [
+        "sampling_fraction",
+        "sampling_block_number",
+        "sampling_block_fraction",
+        "sampling_grid",
+        pytest.param("sampling_chain", marks=pytest.mark.chain),
+    ],
 )
 def test_sampling_pipeline(experiment_name, folders):
-    run_and_test_pipeline(experiment_name, **folders)
-
-
-@pytest.mark.chain
-@pytest.mark.order(after="test_rasterize.py::test_rasterize_pipeline")
-@pytest.mark.parametrize("experiment_name", ["sampling_chain"])
-def test_sampling_chain(experiment_name, folders):
     run_and_test_pipeline(experiment_name, **folders)

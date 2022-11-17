@@ -1,6 +1,7 @@
 """
 Module containing utilities for working with filesystems
 """
+import abc
 import os
 from typing import Any, Dict, Optional, TypeVar
 
@@ -18,7 +19,7 @@ from sentinelhub import SHConfig
 Self = TypeVar("Self", bound="BaseLocalObject")
 
 
-class BaseLocalObject:
+class BaseLocalObject(metaclass=abc.ABCMeta):
     """An abstraction for working with a local version of remote objects.
 
     If object's original location is remote (e.g. on S3) then this will ensure working with a local copy. If object's
@@ -83,8 +84,7 @@ class BaseLocalObject:
 
     def __exit__(self, *_: Any, **__: Any) -> None:
         """This allows the class to be used as a context manager. In case an error is raised this will by default
-        still delete the object from local folder. In case you don't want that, initialize `LocalFile` with
-        `auto_clean=False`.
+        still delete the object from local folder.
         """
         self.close()
 
@@ -129,13 +129,13 @@ class BaseLocalObject:
             self._remote_filesystem.makedirs(remote_dirs, recreate=True)
             self._remote_location_ensured = True
 
+    @abc.abstractmethod
     def _copy_to_local(self) -> None:
         """Copy from remote to local location"""
-        raise NotImplementedError
 
+    @abc.abstractmethod
     def _copy_to_remote(self) -> None:
         """Copy from local to remote location"""
-        raise NotImplementedError
 
 
 class LocalFile(BaseLocalObject):

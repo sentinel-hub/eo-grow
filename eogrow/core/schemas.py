@@ -5,7 +5,7 @@ For each pipeline a separate schema has to be defined which inherits from Pipeli
 as an internal class of the implemented pipeline class
 """
 from inspect import isclass
-from typing import Dict, List, Optional, Type
+from typing import List, Optional, Type
 
 from pydantic import BaseModel, Field
 from pydantic.fields import ModelField
@@ -64,78 +64,7 @@ class PipelineSchema(BaseSchema):
     )
 
 
-def build_schema_template(schema: Type[BaseModel]) -> dict:
-    """From a given schema class it creates a template of a config file. It does that by modifying
-    OpenAPI-style schema.
-    """
-    openapi_schema = schema.schema()
-
-    template_mapping: dict = {}
-    model_schemas = openapi_schema.get("definitions", {})
-    for name, model_schema in model_schemas.items():
-        model_template = _process_model_schema(model_schema, template_mapping)
-        template_mapping[name] = model_template
-
-    return _process_model_schema(openapi_schema, template_mapping)
-
-
-def _process_model_schema(openapi_schema: dict, template_mapping: Dict[str, dict]) -> dict:
-    """Processes schema for a single model into a template"""
-    template = _get_basic_template(openapi_schema)
-
-    params = openapi_schema.get("properties", {})
-    required_params = set(openapi_schema.get("required", []))
-
-    for param_name, param_schema in params.items():
-        param_template = _get_basic_template(param_schema)
-
-        if param_name in required_params:
-            param_template["#required"] = True
-
-        referred_model_name = _get_referred_model_name(param_schema)
-        if referred_model_name:
-            # In case param_template and referred_model have some parameters in common the following prioritizes the
-            # ones from param_template
-            for model_param_name, model_param_value in template_mapping[referred_model_name].items():
-                if model_param_name not in param_template:
-                    param_template[model_param_name] = model_param_value
-
-        template[param_name] = param_template
-
-    return template
-
-
-_SUPPORTED_OPENAPI_FIELDS = {"title", "properties", "required", "definitions", "$ref", "allOf"}
-
-
-def _get_basic_template(openapi_schema: dict) -> dict:
-    """For an OpenAPI parameter schema it prepares a template with basic fields"""
-    template = {}
-    for key, value in openapi_schema.items():  # get metadata fields
-        if key in _SUPPORTED_OPENAPI_FIELDS or (key == "type" and value == "object"):
-            continue
-
-        template[f"#{key}"] = value
-
-    return template
-
-
-def _get_referred_model_name(openapi_schema: dict) -> Optional[str]:
-    """In a parameter schema it finds a reference to another model schema. If it doesn't exist it returns None"""
-    referred_path = openapi_schema.get("$ref")
-    if not referred_path:
-        schema_items = openapi_schema.get("items", {})  # items can be a list
-        referred_path = schema_items.get("$ref") if isinstance(schema_items, dict) else None
-
-    if not referred_path and "allOf" in openapi_schema:
-        referred_path = openapi_schema["allOf"][0].get("$ref")
-
-    if referred_path:
-        return referred_path.rsplit("/", 1)[-1]
-    return referred_path
-
-
-def build_minimal_template(
+def build_schema_template(
     schema: Type[BaseModel],
     required_only: bool = False,
     pipeline_import_path: Optional[str] = None,
@@ -155,14 +84,14 @@ def build_minimal_template(
         elif isclass(field.type_) and issubclass(field.type_, BaseModel):
             # Contains a subschema in the nesting
             if isclass(field.outer_type_) and issubclass(field.outer_type_, BaseModel):
-                template[name] = build_minimal_template(field.type_, **rec_flags)
+                template[name] = build_schema_template(field.type_, **rec_flags)
                 if description:
                     template[name]["<< description >>"] = description
             else:
                 template[name] = {
                     "<< type >>": repr(field._type_display()),
                     "<< nested schema >>": str(field.type_),
-                    "<< sub-template >>": build_minimal_template(field.type_, **rec_flags),
+                    "<< sub-template >>": build_schema_template(field.type_, **rec_flags),
                 }
         else:
             template[name] = _field_description(field, description)

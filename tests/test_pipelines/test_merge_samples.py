@@ -12,7 +12,7 @@ def config_folder_fixture(config_folder, stats_folder):
 
 
 @pytest.mark.chain
-@pytest.mark.order(after="test_features.py::test_features_pipeline_in_chain")
+@pytest.mark.order(after="test_features.py::test_features_pipeline")
 @pytest.mark.parametrize(
     "experiment_name, reset_folder",
     [("merge_features_samples", True), ("merge_reference_samples", False)],
