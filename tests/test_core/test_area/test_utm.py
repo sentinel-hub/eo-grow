@@ -46,13 +46,13 @@ def test_area_shape_simplification(storage, config, simplification_factor, point
 def test_bbox_split(storage, config, large_area_config):
     for area_config, expected_zone_num, expected_bbox_num in [
         (config["area"], 1, 2),
-        (large_area_config, 61, 311),
+        (large_area_config, 71, 368),
     ]:
         area_manager = UtmZoneAreaManager.from_raw_config(area_config, storage)
 
-        start_time = time.time()
+        start_time = time.perf_counter()
         grid = area_manager.get_grid(add_bbox_column=True)
-        splitting_time = time.time() - start_time
+        splitting_time = time.perf_counter() - start_time
 
         _check_area_grid(
             grid,
@@ -62,9 +62,9 @@ def test_bbox_split(storage, config, large_area_config):
             expected_columns=["index_n", "index_x", "index_y", "total_num", "geometry", "BBOX"],
         )
 
-        start_time = time.time()
+        start_time = time.perf_counter()
         grid = area_manager.get_grid()
-        assert time.time() - start_time < max(splitting_time / 2, 1)  # Checking if data is kept in the class
+        assert time.perf_counter() - start_time < max(splitting_time / 2, 1)  # Checking if data is kept in the class
 
         _check_area_grid(
             grid,

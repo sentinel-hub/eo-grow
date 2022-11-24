@@ -25,14 +25,6 @@ def special_eopatch_manager_fixture(storage, config_folder):
     return EOPatchManager.from_raw_config(config["eopatch"], area_manager)
 
 
-@pytest.fixture(name="filtered_eopatch_manager")
-def filtered_eopatch_manager_fixture(storage, config_folder):
-    path = os.path.join(config_folder, "other", "eopatch_global_config_filtered.json")
-    config = interpret_config_from_path(path)
-    area_manager = UtmZoneAreaManager.from_raw_config(config["area"], storage)
-    return EOPatchManager.from_raw_config(config["eopatch"], area_manager)
-
-
 @pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_eopatch_filenames(eopatch_manager):
     assert eopatch_manager.get_eopatch_filenames()[0] == "eopatch-id-0-col-0-row-0"
@@ -56,7 +48,7 @@ def test_eopatch_filenames(eopatch_manager):
 def test_eopatch_naming(special_eopatch_manager):
     eopatch_names = special_eopatch_manager.get_eopatch_filenames()
 
-    assert len(eopatch_names) == 536
+    assert len(eopatch_names) == 616
 
     assert eopatch_names[0] == "eopatch-id-000-col-0-row-11"
     assert eopatch_names[45] == "eopatch-id-045-col-3-row-14"
@@ -65,18 +57,7 @@ def test_eopatch_naming(special_eopatch_manager):
     assert special_eopatch_manager.get_eopatch_filenames(id_list=[615])[0] == "eopatch-id-615-col-26-row-18"
 
     with pytest.raises(KeyError):
-        special_eopatch_manager.get_eopatch_filenames(id_list=[600])
-
-
-def test_eopatch_filtered_naming(filtered_eopatch_manager):
-    eopatch_names = filtered_eopatch_manager.get_eopatch_filenames()
-    assert eopatch_names == ["eopatch-id-000-col-0-row-11", "eopatch-id-001-col-0-row-12"]
-
-    filtered_names = filtered_eopatch_manager.get_eopatch_filenames(id_list=[1])
-    assert filtered_names == ["eopatch-id-001-col-0-row-12"]
-
-    with pytest.raises(KeyError):
-        filtered_eopatch_manager.get_eopatch_filenames(id_list=[600])
+        special_eopatch_manager.get_eopatch_filenames(id_list=[620])
 
 
 def test_saving_loading(eopatch_manager):
