@@ -250,7 +250,7 @@ class BatchAreaManager(AreaManager):
 
     def _filter_grid_with_area(self, grid: List[GeoDataFrame]) -> List[GeoDataFrame]:
         """Removes those (sub)tiles in the grid that don't intersect with the area of interest."""
-        area_geometry = self.get_area_geometry(ignore_region_filter=True)
+        area_geometry = self.get_area_geometry()
 
         filtered_grid = []
         for gdf in grid:
