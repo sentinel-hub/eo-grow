@@ -1,5 +1,4 @@
 import os
-import time
 
 import pytest
 from geopandas import GeoDataFrame
@@ -15,8 +14,9 @@ pytestmark = pytest.mark.fast
 
 @pytest.fixture(scope="session", name="large_area_config")
 def large_area_config_fixture(config_folder):
+    """We use the "area": ... mapping so that it is of the same form as `config`."""
     filename = os.path.join(config_folder, "other", "large_area_global_config.json")
-    return interpret_config_from_path(filename)
+    return {"area": interpret_config_from_path(filename)}
 
 
 def test_area_shape(storage, config):
@@ -42,40 +42,31 @@ def test_area_shape_simplification(storage, config, simplification_factor, point
     assert count_points(geometry.geometry) == point_count
 
 
-# No idea how to use @pytest.mark.parametrize over config, large_area_config
-def test_bbox_split(storage, config, large_area_config):
-    for area_config, expected_zone_num, expected_bbox_num in [
-        (config["area"], 1, 2),
-        (large_area_config, 71, 368),
-    ]:
-        area_manager = UtmZoneAreaManager.from_raw_config(area_config, storage)
+@pytest.mark.parametrize(
+    "full_config, expected_zone_num, expected_bbox_num",
+    [
+        (pytest.lazy_fixture("config"), 1, 2),
+        (pytest.lazy_fixture("large_area_config"), 71, 368),
+    ],
+)
+@pytest.mark.parametrize("add_bbox_column", [True, False])
+def test_bbox_split(storage, full_config, expected_zone_num, expected_bbox_num, add_bbox_column):
+    area_manager = UtmZoneAreaManager.from_raw_config(full_config["area"], storage)
 
-        start_time = time.perf_counter()
-        grid = area_manager.get_grid(add_bbox_column=True)
-        splitting_time = time.perf_counter() - start_time
+    grid = area_manager.get_grid(add_bbox_column=add_bbox_column)
+    expected_columns = ["index_n", "index_x", "index_y", "total_num", "geometry"]
+    if add_bbox_column:
+        expected_columns.append("BBOX")
 
-        _check_area_grid(
-            grid,
-            expected_zone_num,
-            expected_bbox_num,
-            check_bboxes=True,
-            expected_columns=["index_n", "index_x", "index_y", "total_num", "geometry", "BBOX"],
-        )
+    _check_area_grid(
+        grid,
+        expected_zone_num,
+        expected_bbox_num,
+        check_bboxes=add_bbox_column,
+        expected_columns=expected_columns,
+    )
 
-        start_time = time.perf_counter()
-        grid = area_manager.get_grid()
-        end_time = time.perf_counter()
-        assert end_time - start_time < max(splitting_time / 2, 1)  # Checking if data is kept in the class
-
-        _check_area_grid(
-            grid,
-            expected_zone_num,
-            expected_bbox_num,
-            check_bboxes=False,
-            expected_columns=["index_n", "index_x", "index_y", "total_num", "geometry"],
-        )
-
-        area_manager.cache_grid()
+    area_manager.cache_grid()  # test that caching goes through
 
 
 def _check_area_grid(grid, expected_zone_num, expected_bbox_num, check_bboxes, expected_columns):
