@@ -1,7 +1,9 @@
 import os
 
+import mock
 import pytest
 from geopandas import GeoDataFrame
+from geopandas.testing import assert_geodataframe_equal
 
 from sentinelhub import BBox, Geometry
 
@@ -67,6 +69,21 @@ def test_bbox_split(storage, full_config, expected_zone_num, expected_bbox_num, 
     )
 
     area_manager.cache_grid()  # test that caching goes through
+
+
+def test_get_grid_caching(storage, config):
+    """Tests that subsequent calls use the cached version of the grid. NOTE: implementation specific test!"""
+    area_manager = UtmZoneAreaManager.from_raw_config(config["area"], storage)
+
+    grid1 = area_manager.get_grid()
+    # the second call should not create a new split
+    with mock.patch.object(UtmZoneAreaManager, "_create_and_save_grid") as creation_mock:
+        grid2 = area_manager.get_grid()
+        creation_mock.assert_not_called()
+
+    for gdf1, gdf2 in zip(grid1, grid2):
+        # could potentially fail if the loaded grid doesn't have the same order :/
+        assert_geodataframe_equal(gdf1, gdf2, check_index_type=False, check_dtype=False)
 
 
 def _check_area_grid(grid, expected_zone_num, expected_bbox_num, check_bboxes, expected_columns):
