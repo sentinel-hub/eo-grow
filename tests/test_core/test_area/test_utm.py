@@ -77,7 +77,7 @@ def test_get_grid_caching(storage, config):
 
     grid1 = area_manager.get_grid()
     # the second call should not create a new split
-    with mock.patch.object(UtmZoneAreaManager, "_create_and_save_grid") as creation_mock:
+    with mock.patch.object(UtmZoneAreaManager, "_create_new_split") as creation_mock:
         grid2 = area_manager.get_grid()
         creation_mock.assert_not_called()
 
