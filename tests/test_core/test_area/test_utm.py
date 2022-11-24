@@ -64,7 +64,8 @@ def test_bbox_split(storage, config, large_area_config):
 
         start_time = time.perf_counter()
         grid = area_manager.get_grid()
-        assert time.perf_counter() - start_time < max(splitting_time / 2, 1)  # Checking if data is kept in the class
+        end_time = time.perf_counter()
+        assert end_time - start_time < max(splitting_time / 2, 1)  # Checking if data is kept in the class
 
         _check_area_grid(
             grid,
