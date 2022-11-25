@@ -42,7 +42,6 @@ def test_eopatch_filenames(eopatch_manager):
         for name in eopatch_list:
             assert isinstance(name, str)
             assert os.path.basename(name).startswith("eopatch-id")
-            assert eopatch_manager.is_eopatch_name(name)
 
 
 def test_eopatch_naming(special_eopatch_manager):
