@@ -88,13 +88,6 @@ class EOPatchManager(EOGrowObject):
             for _, row in bbox_dataframe.iterrows()
         )
 
-    def is_eopatch_name(self, name: str) -> bool:
-        """Checks if the given name (could be entire file path) is the name of an EOPatch
-
-        :param name: A name or a file path of a folder which could be one of EOPatches
-        """
-        return os.path.basename(name) in self.name_to_id_map
-
     def get_eopatch_filenames(
         self, folder: Optional[str] = None, id_list: Optional[List[int]] = None, filter_existing: bool = True
     ) -> List[str]:
