@@ -76,11 +76,6 @@ class CustomGridAreaManager(AreaManager):
 
         return grid
 
-    @staticmethod
-    def has_region_filter(*_: Any, **__: Any) -> bool:
-        """Doesn't support filtering by a region"""
-        return False
-
     def _construct_file_path(self, *, prefix: str, suffix: str = "gpkg", **_: Any) -> str:
         """Provides a file path of a cached file"""
         input_filename = self.config.grid_filename.rsplit(".", 1)[0]

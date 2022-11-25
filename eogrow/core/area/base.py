@@ -41,10 +41,6 @@ class AreaManager(EOGrowObject):
                 "splitting."
             ),
         )
-        region_column_name: Optional[str] = Field(description="Name of the column in area file which contains regions.")
-        region_names: Optional[List[str]] = Field(
-            description="A list of regions which will be used. By default all regions are used."
-        )
 
     config: Schema
 
@@ -57,71 +53,60 @@ class AreaManager(EOGrowObject):
 
         self.storage = storage
 
-    def get_area_dataframe(self, *, ignore_region_filter: bool = False) -> gpd.GeoDataFrame:
+    def get_area_dataframe(self) -> gpd.GeoDataFrame:
         """Provides a GeoDataFrame with the AOI, which can be split over multiple sub-areas, each in a separate row.
 
         Current implementation is intentionally working without a LocalFile abstraction in order to be able to read
         formats consisting of multiple files (e.g. Shapefile or Geodatabase)
 
-        :param ignore_region_filter: If `True` it will not filter by given region config parameters
         :return: A GeoDataFrame containing the unmodified area shape
         """
         filename = fs.path.join(self.storage.get_input_data_folder(), self.config.area_filename)
         with LocalFile(filename, mode="r", filesystem=self.storage.filesystem) as local_file:
-            area_df = gpd.read_file(local_file.path, engine=self.storage.config.geopandas_backend)
+            return gpd.read_file(local_file.path, engine=self.storage.config.geopandas_backend)
 
-        if self.has_region_filter() and not ignore_region_filter:
-            area_df = area_df[area_df[self.config.region_column_name].isin(self.config.region_names)]
-
-        return area_df
-
-    def get_area_geometry(self, *, ignore_region_filter: bool = False) -> Geometry:
-        """Provides a single geometry object of entire AOI
-
-        :param ignore_region_filter: If `True` it will not filter by given region config parameters
-        """
-        area_filename = self._construct_file_path(prefix="area", ignore_region_filter=ignore_region_filter)
+    def get_area_geometry(self) -> Geometry:
+        """Provides a single geometry object of entire AOI"""
+        area_filename = self._construct_file_path(prefix="area")
 
         if self.storage.filesystem.exists(area_filename):
             return self._load_area_geometry(area_filename)
 
-        area_df = self.get_area_dataframe(ignore_region_filter=ignore_region_filter)
+        area_df = self.get_area_dataframe()
         area_geometry = self._process_area_geometry(area_df)
 
         self._save_area_geometry(area_geometry, area_filename)
         return area_geometry
 
-    def get_grid(self, *, add_bbox_column: bool = False, ignore_region_filter: bool = False) -> List[gpd.GeoDataFrame]:
+    def get_grid(self, *, add_bbox_column: bool = False) -> List[gpd.GeoDataFrame]:
         """Provides a grid of bounding boxes which divide the AOI
 
         :param add_bbox_column: If `True` a new column with BBox objects will be added.
-        :param ignore_region_filter: If `True` it will not filter by given region config parameters.
         :return: A list of GeoDataFrames containing bounding box geometries and their info. Bounding boxes are divided
             into GeoDataFrames per CRS.
         """
-        grid_filename = self._construct_file_path(prefix="grid", ignore_region_filter=ignore_region_filter)
+        grid_filename = self._construct_file_path(prefix="grid")
 
         if self.storage.filesystem.exists(grid_filename):
             grid = self._load_grid(grid_filename)
         else:
-            grid = self._create_and_save_grid(grid_filename, ignore_region_filter)
+            grid = self._create_and_save_grid(grid_filename)
 
         if add_bbox_column:
             self._add_bbox_column(grid)
 
         return grid
 
-    def cache_grid(self, grid: Optional[List[gpd.GeoDataFrame]] = None, ignore_region_filter: bool = False) -> None:
+    def cache_grid(self, grid: Optional[List[gpd.GeoDataFrame]] = None) -> None:
         """Checks if grid is cached in the storage. If it is not, it will create and cache it.
 
         :param grid: If provided, this grid will be cached. Otherwise, it will generate a new grid.
-        :param ignore_region_filter: If `True` it will not filter by given region config parameters.
         """
-        grid_filename = self._construct_file_path(prefix="grid", ignore_region_filter=ignore_region_filter)
+        grid_filename = self._construct_file_path(prefix="grid")
 
         if not self.storage.filesystem.exists(grid_filename):
             if grid is None:
-                self._create_and_save_grid(grid_filename, ignore_region_filter)
+                self._create_and_save_grid(grid_filename)
             else:
                 self._save_grid(grid, grid_filename)
 
@@ -142,10 +127,6 @@ class AreaManager(EOGrowObject):
         Every area manager should implement its own process of transformation and define which target area managers it
         supports."""
         raise NotImplementedError
-
-    def has_region_filter(self) -> bool:
-        """Checks region filter is set in the configuration"""
-        return self.config.region_column_name is not None and self.config.region_names is not None
 
     def _process_area_geometry(self, area_df: gpd.GeoDataFrame) -> Geometry:
         """A method that joins area dataframe into a single geometry and applies preprocessing operations on it.
@@ -189,16 +170,10 @@ class AreaManager(EOGrowObject):
                 local_file.path, driver="GPKG", encoding="utf-8", engine=self.storage.config.geopandas_backend
             )
 
-    def _create_and_save_grid(self, grid_filename: str, ignore_region_filter: bool) -> List[gpd.GeoDataFrame]:
+    def _create_and_save_grid(self, grid_filename: str) -> List[gpd.GeoDataFrame]:
         """Defines a new grid and saves it."""
-        if self.has_region_filter() and not ignore_region_filter:
-            full_grid = self.get_grid(ignore_region_filter=True)
-            filtered_area_geometry = self.get_area_geometry(ignore_region_filter=False)
-
-            grid = self._filter_grid(full_grid, filtered_area_geometry)
-        else:
-            area_geometry = self.get_area_geometry(ignore_region_filter=ignore_region_filter)
-            grid = self._create_new_split(area_geometry)
+        area_geometry = self.get_area_geometry()
+        grid = self._create_new_split(area_geometry)
 
         self._save_grid(grid, grid_filename)
         return grid
@@ -230,7 +205,7 @@ class AreaManager(EOGrowObject):
                     engine=self.storage.config.geopandas_backend,
                 )
 
-    def _construct_file_path(self, *, prefix: str, suffix: str = "gpkg", ignore_region_filter: bool = False) -> str:
+    def _construct_file_path(self, *, prefix: str, suffix: str = "gpkg") -> str:
         """Provides a file path of a cached file"""
         input_filename = self.config.area_filename.rsplit(".", 1)[0]
         input_filename = fs.path.basename(input_filename)
@@ -242,10 +217,6 @@ class AreaManager(EOGrowObject):
             self.config.area_buffer,
             self.config.area_simplification_factor,
         ]
-
-        if self.has_region_filter() and not ignore_region_filter:
-            filename_params.append(self.config.region_column_name)
-            filename_params.extend(self.config.region_names or [])
 
         if prefix == "grid":
             filename_params.extend(self._get_grid_filename_params())
@@ -290,19 +261,6 @@ class AreaManager(EOGrowObject):
                 )
             )
         return dataframe_grid
-
-    @staticmethod
-    def _filter_grid(grid: List[gpd.GeoDataFrame], geometry: Geometry) -> List[gpd.GeoDataFrame]:
-        """Filters grid by keeping only tiles that intersect with the given geometry"""
-        filtered_grid = []
-        for dataframe in grid:
-            projected_shape = geometry.transform(dataframe.crs).geometry
-            filtered_dataframe = dataframe[dataframe.geometry.intersects(projected_shape)].copy()
-
-            if len(filtered_dataframe.index) > 0:
-                filtered_grid.append(filtered_dataframe)
-
-        return filtered_grid
 
     @staticmethod
     def _add_bbox_column(grid: List[gpd.GeoDataFrame]) -> None:
