@@ -54,9 +54,6 @@ class AreaManager(EOGrowObject):
     def get_area_dataframe(self) -> gpd.GeoDataFrame:
         """Provides a GeoDataFrame with the AOI, which can be split over multiple sub-areas, each in a separate row.
 
-        Current implementation is intentionally working without a LocalFile abstraction in order to be able to read
-        formats consisting of multiple files (e.g. Shapefile or Geodatabase)
-
         :return: A GeoDataFrame containing the unmodified area shape
         """
         filename = fs.path.join(self.storage.get_input_data_folder(), self.config.area_filename)
