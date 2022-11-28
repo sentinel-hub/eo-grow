@@ -1,6 +1,3 @@
-"""
-Testing basic pipeline functionalities
-"""
 import logging
 import os
 

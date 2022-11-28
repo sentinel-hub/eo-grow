@@ -1,6 +1,4 @@
-"""
-A pipeline to construct features for training/prediction
-"""
+"""Implements a pipeline to construct features for training/prediction."""
 import logging
 from typing import Dict, List, Optional, Tuple
 

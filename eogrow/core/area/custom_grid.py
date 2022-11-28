@@ -1,6 +1,4 @@
-"""
-For working with pre-defined grids
-"""
+"""Area manager implementation for custom grids."""
 import logging
 from typing import Any, List
 

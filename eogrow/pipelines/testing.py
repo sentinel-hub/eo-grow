@@ -1,6 +1,4 @@
-"""
-Pipelines for testing
-"""
+"""Implements pipelines used for data preparation in testing."""
 import logging
 from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
 

@@ -1,6 +1,4 @@
-"""
-Module implementing pipelines for downloading data
-"""
+"""Implements different customizeable pipelines for downloading data."""
 import abc
 import datetime as dt
 import logging
