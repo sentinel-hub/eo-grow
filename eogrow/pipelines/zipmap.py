@@ -1,8 +1,8 @@
 import logging
 from collections import defaultdict
-from typing import Any, DefaultDict, Dict, List, Set
+from typing import Any, DefaultDict, Dict, List, Optional, Set
 
-from pydantic import Field
+from pydantic import Field, validator
 
 from eolearn.core import (
     EONode,
@@ -42,9 +42,24 @@ class ZipMapPipeline(Pipeline):
         zipmap_import_path: str = Field(
             description="Import path of the callable with which to process the loaded features."
         )
-        zipmap_kwargs: Dict[str, Any] = Field(
+        params: Dict[str, Any] = Field(
             default_factory=dict, description="Any keyword arguments to be passed to the zipmap function."
         )
+        params_model: Optional[str] = Field(
+            description=(
+                "Optional import path for the pydantic model class, with which to parse and validate the parameters for"
+                " the callable. The model will be used to parse the params and then unpacked back into a dictionary, "
+                " which is passed to the callable as `**params`."
+            )
+        )
+
+        @validator("params")
+        def parse_params(cls, v, values):  # type: ignore[no-untyped-def]
+            """Parse the parameters according to model, but returning as a dictionary to allow `**kwargs` passing."""
+            if values["params_model"]:
+                params_model: BaseSchema = import_object(values["params_model"])
+                return params_model.parse_obj(v).dict()
+            return v
 
         output_folder_key: str = Field(
             description="The storage manager key pointing to the output folder for the algorithm pipeline."
