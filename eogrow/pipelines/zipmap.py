@@ -42,9 +42,6 @@ class ZipMapPipeline(Pipeline):
         zipmap_import_path: str = Field(
             description="Import path of the callable with which to process the loaded features."
         )
-        params: Dict[str, Any] = Field(
-            default_factory=dict, description="Any keyword arguments to be passed to the zipmap function."
-        )
         params_model: Optional[str] = Field(
             description=(
                 "Optional import path for the pydantic model class, with which to parse and validate the parameters for"
@@ -52,11 +49,14 @@ class ZipMapPipeline(Pipeline):
                 " which is passed to the callable as `**params`."
             )
         )
+        params: Dict[str, Any] = Field(
+            default_factory=dict, description="Any keyword arguments to be passed to the zipmap function."
+        )
 
         @validator("params")
         def parse_params(cls, v, values):  # type: ignore[no-untyped-def]
             """Parse the parameters according to model, but returning as a dictionary to allow `**kwargs` passing."""
-            if values["params_model"]:
+            if values.get("params_model"):
                 params_model: BaseSchema = import_object(values["params_model"])
                 return params_model.parse_obj(v).dict()
             return v
@@ -108,7 +108,7 @@ class ZipMapPipeline(Pipeline):
 
         zipmap = import_object(self.config.zipmap_import_path)
         input_features = [input_schema.feature for input_schema in self.config.input_features]
-        zipmap_task = ZipFeatureTask(input_features, self.config.output_feature, zipmap, **self.config.zipmap_kwargs)
+        zipmap_task = ZipFeatureTask(input_features, self.config.output_feature, zipmap, **self.config.params)
 
         return EONode(zipmap_task, inputs=[previous_node])
 
