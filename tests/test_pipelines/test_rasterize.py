@@ -1,6 +1,3 @@
-"""
-Testing rasterization pipeline
-"""
 import os
 
 import geopandas as gpd

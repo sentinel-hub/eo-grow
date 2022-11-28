@@ -1,6 +1,4 @@
-"""
-Download pipeline that works with Sentinel Hub batch service
-"""
+"""Download pipeline that works with Sentinel Hub batch service."""
 import logging
 from typing import Any, DefaultDict, Dict, List, Literal, Optional, Tuple
 

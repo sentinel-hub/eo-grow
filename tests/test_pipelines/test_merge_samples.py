@@ -1,6 +1,3 @@
-"""
-Testing merging pipeline
-"""
 import pytest
 
 from eogrow.utils.testing import create_folder_dict, run_and_test_pipeline

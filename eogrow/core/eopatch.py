@@ -1,6 +1,4 @@
-"""
-Module for handling EOPatch naming conventions
-"""
+"""Module for EOPatchManager that handles EOPatch naming conventions."""
 import json
 import os
 import warnings

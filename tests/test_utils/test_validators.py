@@ -1,6 +1,3 @@
-"""
-Tests for validator utilities
-"""
 import datetime as dt
 from contextlib import nullcontext
 from typing import Optional, Union

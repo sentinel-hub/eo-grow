@@ -1,6 +1,4 @@
-"""
-Area managers for Sentinel Hub batch grids
-"""
+"""Area manager implementation for Sentinel Hub batch grids."""
 import contextlib
 import warnings
 from typing import Any, List, Tuple, cast

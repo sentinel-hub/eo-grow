@@ -1,6 +1,4 @@
-"""
-Pipelines that transform data
-"""
+"""Implements a simple pipeline for mapping data according to a dictionary."""
 import warnings
 from typing import Dict, List, Optional
 

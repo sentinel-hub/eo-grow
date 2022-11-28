@@ -1,6 +1,3 @@
-"""
-Tests of grid utilities
-"""
 import random
 
 import pytest

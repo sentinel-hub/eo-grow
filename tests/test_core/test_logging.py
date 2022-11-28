@@ -1,6 +1,3 @@
-"""
-Tests for logging module
-"""
 import functools
 
 import boto3

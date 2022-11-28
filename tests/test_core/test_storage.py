@@ -1,5 +1,3 @@
-""" A module for testing StorageManager class
-"""
 import os
 from typing import Optional
 

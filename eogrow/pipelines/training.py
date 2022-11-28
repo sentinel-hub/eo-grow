@@ -1,6 +1,5 @@
-"""
-Module implementing pipelines for training an ML classifier
-"""
+"""Implements a base training pipeline and a LGBM specialized classification and regression model training pipelines."""
+
 import abc
 import logging
 from typing import Any, Dict, List, Literal, Optional, Tuple

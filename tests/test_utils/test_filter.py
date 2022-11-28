@@ -1,6 +1,3 @@
-"""
-Tests for fs_utils module
-"""
 import datetime
 from itertools import chain, combinations
 

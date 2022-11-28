@@ -1,6 +1,3 @@
-"""
-Testing batch-to-eopatch pipeline
-"""
 import json
 import os
 from typing import Iterable, Optional

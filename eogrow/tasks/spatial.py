@@ -1,6 +1,4 @@
-"""
-Tasks for spatial operations on EOPatches
-"""
+"""Tasks for spatial operations on EOPatches, used in grid-switching."""
 from typing import Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np

@@ -1,6 +1,4 @@
-"""
-A pipeline module for rasterizing vector datasets.
-"""
+"""Implements a pipeline for rasterizing vector datasets."""
 import logging
 import os
 import uuid

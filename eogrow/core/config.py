@@ -1,6 +1,4 @@
-"""
-Module implementing management of configurations
-"""
+"""Implements functions that transform raw dictionaries/JSON files according to the config language of eo-grow."""
 import base64
 import copy
 import json
