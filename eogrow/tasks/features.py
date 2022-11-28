@@ -1,6 +1,4 @@
-"""
-Definition of tasks needed for calculating features
-"""
+"""Implements tasks needed for calculating features in FeaturesPipeline."""
 import abc
 from datetime import date, datetime, time, timedelta
 from typing import List, Optional, Sequence, Tuple, Union

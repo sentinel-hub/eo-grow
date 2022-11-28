@@ -1,6 +1,3 @@
-"""
-Tests for general utilities
-"""
 import datetime as dt
 import enum
 import json

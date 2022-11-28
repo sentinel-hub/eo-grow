@@ -1,6 +1,3 @@
-"""
-Testing training pipelines
-"""
 import os
 
 import joblib

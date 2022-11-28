@@ -1,6 +1,4 @@
-"""
-Implements tasks for testing purposes
-"""
+"""Tasks used to generate test data."""
 import datetime as dt
 from typing import Optional, Tuple, Union
 

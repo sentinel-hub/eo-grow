@@ -1,6 +1,3 @@
-"""
-Testing batch-to-eopatch pipeline
-"""
 import os
 
 import numpy as np

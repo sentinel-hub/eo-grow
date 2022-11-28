@@ -1,6 +1,4 @@
-"""
-Module implementing sampling pipelines
-"""
+"""Implements different pipelines for sampling from data."""
 import abc
 from typing import Any, Dict, List, Optional, Tuple, Union
 

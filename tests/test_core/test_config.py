@@ -1,5 +1,3 @@
-""" A module for testing eogrow.config
-"""
 import json
 import os
 

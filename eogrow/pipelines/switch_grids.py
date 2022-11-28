@@ -1,6 +1,4 @@
-"""
-Pipelines for testing
-"""
+"""Implements a pipeline that allows switching between two AreaManagers."""
 import logging
 from typing import Any, Dict, List, Literal, Optional, Tuple
 

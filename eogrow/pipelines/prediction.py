@@ -1,6 +1,4 @@
-"""
-Module implementing prediction pipeline
-"""
+"""Implements a base prediction pipeline and a LGBM specialized classification and regression pipelines."""
 import abc
 from typing import List, Optional, Tuple
 

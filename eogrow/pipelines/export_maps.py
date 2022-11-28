@@ -1,6 +1,4 @@
-"""
-Module implementing export_maps pipelines
-"""
+"""Implements a pipeline for exporting data to TIFF files, can be used to prepare BYOC tiles."""
 import datetime as dt
 import itertools as it
 import logging

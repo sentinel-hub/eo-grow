@@ -1,6 +1,3 @@
-"""
-Tests for ray utilities
-"""
 import pytest
 import ray
 

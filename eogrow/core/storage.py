@@ -1,6 +1,4 @@
-"""
-This module handles everything regarding storage of the data
-"""
+"""Implementation of the StorageManager class for handling project storage."""
 from typing import Dict, Literal, Optional
 
 import fs

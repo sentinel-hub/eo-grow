@@ -1,6 +1,3 @@
-"""
-Tests for schemas module
-"""
 import pytest
 
 from eogrow.core.area import UtmZoneAreaManager

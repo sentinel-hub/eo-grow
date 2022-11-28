@@ -1,6 +1,4 @@
-"""
-Tasks used to transform Sentinel Hub Batch results into EOPatches
-"""
+"""Tasks used to transform Sentinel Hub Batch results into EOPatches."""
 import concurrent.futures
 import json
 from typing import List, Optional

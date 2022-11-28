@@ -1,6 +1,4 @@
-"""
-Task definitions for prediction
-"""
+"""Defines task needed in prediction pipelines."""
 import abc
 from typing import Any, Callable, List, Optional, Tuple, Union, cast
 

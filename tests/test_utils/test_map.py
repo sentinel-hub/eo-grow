@@ -1,6 +1,3 @@
-"""
-Tests for utils.map module
-"""
 from typing import List, Optional
 
 import numpy as np
