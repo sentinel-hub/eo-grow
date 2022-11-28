@@ -96,7 +96,7 @@ jobs:
         run: |
           pytest -m "fast"
 
-      - name: Run fast and chain integration tests
+      - name: Run fast and chain integration tests, create code coverage
         if: ${{ matrix.full_test_suite }}
         run: |
           sentinelhub.config \
