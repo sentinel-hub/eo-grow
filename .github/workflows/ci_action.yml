@@ -102,8 +102,20 @@ jobs:
           sentinelhub.config \
             --sh_client_id "${{ secrets.SH_CLIENT_ID }}" \
             --sh_client_secret "${{ secrets.SH_CLIENT_SECRET }}"
-          pytest -m "fast"
-          pytest -m "chain"
+          pytest -m "fast or chain" --cov --cov-report=term --cov-report=xml
+
+      - name: Run reduced tests
+        if: ${{ !matrix.full_test_suite }}
+        run: |
+          pytest -m "not sh_integration"
+
+      - name: Upload code coverage
+        if: ${{ matrix.full_test_suite }}
+        uses: codecov/codecov-action@v3
+        with:
+          files: coverage.xml
+          fail_ci_if_error: true
+          verbose: false
 
   mirror-to-gitlab:
     if: github.event_name == 'push'
