@@ -1,0 +1,14 @@
+{
+  "pipeline": "eogrow.pipelines.zipmap.ZipMapPipeline",
+  "**global_config": "${config_path}/../global_config.json",
+  "input_features": [
+    {
+      "feature": ["mask_timeless", "LULC_ID"],
+      "folder_key": "reference"
+    }
+  ],
+  "zipmap_import_path": "eogrow.utils.zipmap.map_values",
+  "zipmap_kwargs": {"mapping": {"1": 2, "3": 5}, "default": 0, "dtype": "uint16"},
+  "output_folder_key": "temp",
+  "output_feature": ["mask_timeless", "LULC_ID_MAPPED"]
+}

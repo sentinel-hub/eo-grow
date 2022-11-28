@@ -10,7 +10,7 @@ def map_values(
     *,
     mapping: Dict[int, int],
     default: Optional[int] = None,
-    dtype: Union[None, np.dtype, type] = None
+    dtype: Union[None, str, np.dtype, type] = None
 ) -> np.ndarray:
     """Maps all values from `array` according to a dictionary. A default value can be given, which is assigned to
     values without a corresponding key in the mapping dictionary.
