@@ -1,6 +1,4 @@
-"""
-Module implementing merge samples
-"""
+"""Implements a pipeline for merging sampled features into numpy arrays fit for training models."""
 import logging
 from typing import List, Literal, Optional, Tuple, cast
 

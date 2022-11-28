@@ -1,6 +1,4 @@
-"""
-A base AreaManager implementation
-"""
+"""Implementation of the base AreaManager."""
 import logging
 from collections import defaultdict
 from typing import Any, List, Optional

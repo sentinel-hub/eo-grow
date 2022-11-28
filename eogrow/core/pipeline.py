@@ -1,6 +1,4 @@
-"""
-Module where base Pipeline class is implemented
-"""
+"""Implementation of the base Pipeline class."""
 import datetime as dt
 import logging
 import time

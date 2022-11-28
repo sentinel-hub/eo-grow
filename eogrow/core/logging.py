@@ -1,6 +1,4 @@
-"""
-Module with utilities for logging
-"""
+"""Implementation of LoggingManager and different handlers used for logging."""
 import contextlib
 import json
 import logging

@@ -1,6 +1,4 @@
-"""
-Common tasks shared between pipelines
-"""
+"""Common tasks shared between pipelines."""
 from typing import Callable, List, Optional, Union
 
 import numpy as np
@@ -28,9 +26,7 @@ class MappingTask(MapFeatureTask):
 
 
 class ClassFilterTask(EOTask):
-    """
-    Run class specific morphological operation.
-    """
+    """Run class specific morphological operation."""
 
     def __init__(
         self,

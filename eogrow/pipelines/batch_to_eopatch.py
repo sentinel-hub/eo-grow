@@ -1,6 +1,4 @@
-"""
-Conversion of batch results to EOPatches
-"""
+"""Pipeline for conversion of batch results to EOPatches."""
 from typing import Any, Dict, List, Optional
 
 import numpy as np

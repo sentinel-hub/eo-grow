@@ -1,6 +1,4 @@
-"""
-Area managers working with UTM CRS
-"""
+"""Area manager implementation for automated UTM CRS grids."""
 import logging
 from typing import Any, List, Tuple, cast
 

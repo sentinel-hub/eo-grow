@@ -1,6 +1,3 @@
-"""
-Tests for grid switching
-"""
 import os
 import shutil
 

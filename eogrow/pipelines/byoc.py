@@ -1,6 +1,4 @@
-"""
-Defines pipelines for ingesting and modifying BYOC collections.
-"""
+"""Defines pipelines for ingesting and modifying BYOC collections."""
 import datetime
 import datetime as dt
 import logging
