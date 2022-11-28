@@ -16,6 +16,7 @@ def map_values(
     values without a corresponding key in the mapping dictionary.
 
     Vectorizing the `.get` method is faster, but difficult to do with a default (and also loses speed advantage)."""
+    int_mapping = {int(k): v for k, v in mapping.items()}
     if default is not None:
-        return np.array([mapping.get(x, default) for x in array.ravel()], dtype=dtype).reshape(array.shape)
-    return np.vectorize(mapping.get)(array).astype(dtype)
+        return np.array([int_mapping.get(x, default) for x in array.ravel()], dtype=dtype).reshape(array.shape)
+    return np.vectorize(int_mapping.get)(array).astype(dtype)
