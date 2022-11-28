@@ -1,12 +1,15 @@
 """
 Pipelines that transform data
 """
-from typing import Dict, List
+import warnings
+from typing import Dict, List, Optional
 
 from pydantic import Field
 
 from eolearn.core import EOWorkflow, FeatureType, LoadTask, OverwritePermission, SaveTask, linearly_connect_tasks
+from eolearn.core.exceptions import EODeprecationWarning
 
+from ..core.config import RawConfig
 from ..core.pipeline import Pipeline
 from ..tasks.common import MappingTask
 from ..utils.types import FeatureSpec
@@ -25,6 +28,13 @@ class MappingPipeline(Pipeline):
         compress_level: int = Field(1, description="Level of compression used in saving eopatches")
 
     config: Schema
+
+    def __init__(self, config: Schema, raw_config: Optional[RawConfig] = None):
+        warnings.warn(
+            "MappingPipeline is subsumed by the new ZipMapPipeline and will be removed in the future.",
+            EODeprecationWarning,
+        )
+        super().__init__(config, raw_config)
 
     def build_workflow(self) -> EOWorkflow:
         """Method for constructing the workflow"""
