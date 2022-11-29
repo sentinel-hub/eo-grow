@@ -51,15 +51,6 @@ class AreaManager(EOGrowObject):
 
         self.storage = storage
 
-    def get_area_dataframe(self) -> gpd.GeoDataFrame:
-        """Provides a GeoDataFrame with the AOI, which can be split over multiple sub-areas, each in a separate row.
-
-        :return: A GeoDataFrame containing the unmodified area shape
-        """
-        filename = fs.path.join(self.storage.get_input_data_folder(), self.config.area_filename)
-        with LocalFile(filename, mode="r", filesystem=self.storage.filesystem) as local_file:
-            return gpd.read_file(local_file.path, engine=self.storage.config.geopandas_backend)
-
     def get_area_geometry(self) -> Geometry:
         """Provides a single geometry object of entire AOI"""
         area_filename = self._construct_file_path(prefix="area")
@@ -67,7 +58,10 @@ class AreaManager(EOGrowObject):
         if self.storage.filesystem.exists(area_filename):
             return self._load_area_geometry(area_filename)
 
-        area_df = self.get_area_dataframe()
+        aoi_filename = fs.path.join(self.storage.get_input_data_folder(), self.config.area_filename)
+        with LocalFile(aoi_filename, mode="r", filesystem=self.storage.filesystem) as local_file:
+            area_df = gpd.read_file(local_file.path, engine=self.storage.config.geopandas_backend)
+
         area_geometry = self._process_area_geometry(area_df)
 
         self._save_area_geometry(area_geometry, area_filename)

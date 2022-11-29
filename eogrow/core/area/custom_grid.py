@@ -32,14 +32,6 @@ class CustomGridAreaManager(AreaManager):
     # TODO: The AreaManager needs to be reworked until this is no longer an issue
     config: Schema  # type: ignore[assignment]
 
-    def get_area_dataframe(self, *, crs: CRS = CRS.WGS84, **_: Any) -> gpd.GeoDataFrame:
-        """Provides a single dataframe that defines an AOI
-
-        :param crs: A CRS of the dataframe
-        """
-        grid = self.get_grid()
-        return concat_gdf(grid, reproject_crs=crs)
-
     def get_area_geometry(self, *, crs: CRS = CRS.WGS84, **_: Any) -> Geometry:
         """Provides AOI geometry by joining grid geometries
 
@@ -50,7 +42,7 @@ class CustomGridAreaManager(AreaManager):
         if self.storage.filesystem.exists(area_filename):
             return self._load_area_geometry(area_filename)
 
-        area_df = self.get_area_dataframe(crs=crs)
+        area_df = concat_gdf(self.get_grid(), reproject_crs=crs)
 
         LOGGER.info("Calculating a unary union of the geometries")
         area_shape = shapely.ops.unary_union(area_df.geometry)

@@ -45,7 +45,6 @@ class TestPipeline(Pipeline):
         else:
             LOGGER.info("Project folder %s does not exist", self.storage.config.project_folder)
 
-        self.area_manager.get_area_dataframe()
         self.area_manager.get_area_geometry()
         grid = self.area_manager.get_grid()
         num_patches = sum([len(df.index) for df in grid])

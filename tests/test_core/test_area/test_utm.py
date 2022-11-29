@@ -24,11 +24,6 @@ def large_area_config_fixture(config_folder):
 def test_area_shape(storage, config):
     area_manager = UtmZoneAreaManager.from_raw_config(config["area"], storage)
 
-    area_dataframe = area_manager.get_area_dataframe()
-
-    assert isinstance(area_dataframe, GeoDataFrame)
-    assert len(area_dataframe.index) == 3
-
     geometry = area_manager.get_area_geometry()
     assert isinstance(geometry, Geometry)
 
