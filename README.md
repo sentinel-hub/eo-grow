@@ -5,6 +5,7 @@
 [![License](https://img.shields.io/pypi/l/eo-grow.svg)](https://github.com/sentinel-hub/eo-grow/blob/master/LICENSE)
 [![Overall downloads](http://pepy.tech/badge/eo-grow)](https://pepy.tech/project/eo-grow)
 [![Last month downloads](https://pepy.tech/badge/eo-grow/month)](https://pepy.tech/project/eo-grow)
+[![Code coverage](https://codecov.io/gh/sentinel-hub/eo-grow/branch/main/graph/badge.svg)](https://codecov.io/gh/sentinel-hub/eo-grow)
 
 # eo-grow
 **Earth observation framework for scaled-up processing in Python.**
