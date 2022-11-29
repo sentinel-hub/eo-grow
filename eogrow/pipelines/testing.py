@@ -48,8 +48,8 @@ class TestPipeline(Pipeline):
         self.area_manager.get_area_dataframe()
         self.area_manager.get_area_geometry()
         grid = self.area_manager.get_grid()
-        grid_size = self.area_manager.get_grid_size()
-        LOGGER.info("Grid has %d EOPatches and is split over %d CRS zones", grid_size, len(grid))
+        num_patches = sum([len(df.index) for df in grid])
+        LOGGER.info("Grid has %d EOPatches and is split over %d CRS zones", num_patches, len(grid))
 
         eopatches = self.eopatch_manager.get_eopatch_filenames()
         LOGGER.info("The first EOPatch has a name %s", eopatches[0])

@@ -60,4 +60,5 @@ def test_grid_caching(storage, batch_config):
     assert len(grid) == 1
     assert_geodataframe_equal(grid[0], gdf, check_index_type=False)
 
-    assert manager.get_grid_size() == 2
+    num_patches = sum([len(df.index) for df in grid])
+    assert num_patches == 2

@@ -1,7 +1,7 @@
 """Implementation of the base AreaManager."""
 import logging
 from collections import defaultdict
-from typing import Any, List, Optional
+from typing import List, Optional
 
 import fiona
 import fs
@@ -104,15 +104,6 @@ class AreaManager(EOGrowObject):
                 self._create_and_save_grid(grid_filename)
             else:
                 self._save_grid(grid, grid_filename)
-
-    def get_grid_size(self, **kwargs: Any) -> int:
-        """Calculates the number of elements of the grid
-
-        :param kwargs: Parameters that are propagated to `get_grid` method
-        :return: The number of bounding boxes in the grid
-        """
-        grid = self.get_grid(**kwargs)
-        return sum([len(df.index) for df in grid])
 
     def transform_grid(self, target_area_manager: "AreaManager") -> List[GridTransformation]:
         """This method is used to define how a grid, defined by this area manager, will be transformed into a grid,
