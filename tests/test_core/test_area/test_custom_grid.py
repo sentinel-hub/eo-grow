@@ -24,9 +24,6 @@ def test_custom_grid_area_manager(storage):
     assert len(gdf.index) == 2
     assert gdf.BBOX.values[0] == BBox((729480.0, 4390045.0, 732120.0, 4391255.0), CRS.UTM_38N)
 
-    area_gdf = manager.get_area_dataframe(crs=CRS.UTM_38N)
-    assert area_gdf.equals(gdf.drop(columns=["BBOX"]))
-
     geometry = manager.get_area_geometry(crs=CRS.UTM_38N)
     assert geometry == Geometry(
         "POLYGON ((729480 4391145, 729480 4391255, 729480 4392355, 732120 4392355, 732120 4391255, 732120 4391145, "
