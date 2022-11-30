@@ -23,11 +23,6 @@ def large_area_config_fixture(config_folder):
 def test_area_shape(storage, batch_config):
     manager = BatchAreaManager.from_raw_config(batch_config, storage)
 
-    area_dataframe = manager.get_area_dataframe()
-
-    assert isinstance(area_dataframe, GeoDataFrame)
-    assert len(area_dataframe.index) == 6
-
     geometry = manager.get_area_geometry()
     assert isinstance(geometry, Geometry)
 
@@ -60,4 +55,5 @@ def test_grid_caching(storage, batch_config):
     assert len(grid) == 1
     assert_geodataframe_equal(grid[0], gdf, check_index_type=False)
 
-    assert manager.get_grid_size() == 2
+    num_patches = sum([len(df.index) for df in grid])
+    assert num_patches == 2
