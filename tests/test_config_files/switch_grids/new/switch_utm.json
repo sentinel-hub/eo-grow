@@ -1,0 +1,34 @@
+[
+  {
+    "**create_dummy_data": "${config_path}/dummy_data_utm.json"
+  },
+  {
+    "**common_config": "${config_path}/global_config.json",
+    "area": {
+      "manager": "eogrow.core.area.UtmZoneAreaManager",
+      "area_filename": "test_area.geojson",
+      "area_buffer": 0.01,
+      "patch_size_x": 3600,
+      "patch_size_y": 3000,
+      "patch_buffer_x": 120,
+      "patch_buffer_y": 50,
+      "offset_x": 100,
+      "offset_y": 20
+    },
+    "eopatch": {
+      "manager": "eogrow.core.eopatch.EOPatchManager"
+    },
+    "split_x": 2,
+    "split_y": 1,
+    "features": [
+      ["data", "BANDS"],
+      ["mask", "dataMask"],
+      ["mask_timeless", "REF"],
+      ["label", "LABELS"]
+    ],
+    "input_folder_key": "input_folder",
+    "eopatch_output_folder_key": "output_folder",
+    "subsplit_grid_filename": "new_grid.gpkg",
+    "grid_output_folder_key": "temp"
+  }
+]

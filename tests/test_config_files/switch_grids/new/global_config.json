@@ -1,0 +1,18 @@
+{
+  "pipeline": "eogrow.pipelines.split_grid.SplitGridPipeline",
+  "logging": {
+    "manager": "eogrow.core.logging.LoggingManager",
+    "save_logs": true,
+    "show_logs": true,
+    "capture_warnings": false
+  },
+  "storage": {
+    "manager": "eogrow.core.storage.StorageManager",
+    "project_folder": "${config_path}/../../../test_project",
+    "structure": {
+      "input_folder": "input-grid-folder",
+      "output_folder": "output-grid-folder",
+      "temp": "temp"
+    }
+  }
+}

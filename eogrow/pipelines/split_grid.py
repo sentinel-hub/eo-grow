@@ -99,7 +99,7 @@ class SplitGridPipeline(Pipeline):
 
         area_config = self.area_manager.config
         if isinstance(area_config, UtmZoneAreaManager.Schema):
-            return area_config.patch_buffer_x * 10, area_config.patch_buffer_y * 10
+            return area_config.patch_buffer_x, area_config.patch_buffer_y
         if isinstance(area_config, BatchAreaManager.Schema):
             res = area_config.resolution
             return area_config.tile_buffer_x * res, area_config.tile_buffer_y * res
