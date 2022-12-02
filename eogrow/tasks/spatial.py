@@ -122,7 +122,7 @@ class SpatialJoinTask(EOTask):
             if feature_type.is_spatial():
                 feature = cast(Feature, feature)  # bbox and timestamp are discarded with above check
                 if feature_type.is_raster():
-                    bboxes: List[BBox] = [patch.bbox for patch in eopatches if feature in patch]  # type: ignore[misc]
+                    bboxes: List[BBox] = [patch.bbox for patch in eopatches if feature in patch]
                     joined_data = self._join_spatial_rasters(data, bboxes, bbox, self.no_data_map[feature])
                 else:
                     joined_data = self._join_vector_data(data, self.unique_columns_map.get(feature))
