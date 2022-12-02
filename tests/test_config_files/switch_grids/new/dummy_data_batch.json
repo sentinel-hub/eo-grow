@@ -23,11 +23,11 @@
       "max_value": 1
     },
     {
-      "feature": ["mask", "dataMask"],
-      "shape": [2, 1014, 1006, 1],
-      "dtype": "uint8",
-      "min_value": 4,
-      "max_value": 6
+      "feature": ["data", "IGNORED_BANDS"],
+      "shape": [2, 1014, 1006, 3],
+      "dtype": "float32",
+      "min_value": -1,
+      "max_value": 1
     },
     {
       "feature": ["mask_timeless", "REF"],
@@ -35,18 +35,6 @@
       "dtype": "bool",
       "min_value": 0,
       "max_value": 1
-    },
-    {
-      "feature": ["label", "LABELS"],
-      "shape": [2, 15],
-      "dtype": "int16",
-      "min_value": -2,
-      "max_value": 5
-    },
-    {
-      "feature": ["scalar", "IGNORE"],
-      "shape": [2, 5],
-      "dtype": "float"
     }
   ],
   "timestamp_feature": {

@@ -21,7 +21,6 @@
     "split_x": 2,
     "split_y": 1,
     "features": [
-      ["data", "BANDS"],
       ["mask", "dataMask"],
       ["mask_timeless", "REF"],
       ["label", "LABELS"]

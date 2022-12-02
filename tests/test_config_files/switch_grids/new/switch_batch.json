@@ -19,9 +19,7 @@
     "split_y": 5,
     "features": [
       ["data", "BANDS"],
-      ["mask", "dataMask"],
-      ["mask_timeless", "REF"],
-      ["label", "LABELS"]
+      ["mask_timeless", "REF"]
     ],
     "input_folder_key": "input_folder",
     "eopatch_output_folder_key": "output_folder",

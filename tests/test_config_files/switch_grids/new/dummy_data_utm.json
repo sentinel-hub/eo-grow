@@ -19,13 +19,6 @@
   "seed": 42,
   "raster_features": [
     {
-      "feature": ["data", "BANDS"],
-      "shape": [2, 160, 192, 3],
-      "dtype": "float32",
-      "min_value": -1,
-      "max_value": 1
-    },
-    {
       "feature": ["mask", "dataMask"],
       "shape": [2, 160, 192, 1],
       "dtype": "uint8",
@@ -33,24 +26,18 @@
       "max_value": 6
     },
     {
+      "feature": ["label", "LABELS"],
+      "shape": [2, 15],
+      "dtype": "int16",
+      "min_value": -2,
+      "max_value": 5
+    },
+    {
       "feature": ["mask_timeless", "REF"],
       "shape": [160, 192, 2],
       "dtype": "bool",
       "min_value": 0,
       "max_value": 1
-    },
-    {
-      "feature": ["label", "LABELS"],
-      "shape": [2, 15],
-      "dtype": "int16",
-      "min_value": -2,
-      "max_value": 5,
-      "same_for_all": true
-    },
-    {
-      "feature": ["scalar", "IGNORE"],
-      "shape": [2, 5],
-      "dtype": "float"
     }
   ],
   "timestamp_feature": {

@@ -98,140 +98,6 @@
         }
       }
     },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              8
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              3
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              0,
-              2
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 2,
-            "value": -1
-          },
-          {
-            "count": 6,
-            "value": 0
-          },
-          {
-            "count": 1,
-            "value": 1
-          },
-          {
-            "count": 3,
-            "value": 2
-          },
-          {
-            "count": 9,
-            "value": 3
-          },
-          {
-            "count": 3,
-            "value": 4
-          },
-          {
-            "count": 3,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              130,
-              53,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              166,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              32,
-              464,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72205,
-            "value": 4
-          },
-          {
-            "count": 71998,
-            "value": 5
-          },
-          {
-            "count": 72365,
-            "value": 6
-          }
-        ]
-      }
-    },
     "mask_timeless": {
       "REF": {
         "array_shape": [
@@ -271,8 +137,8 @@
       }
     },
     "timestamp": [
-      "2022-02-24T00:40:21",
-      "2022-02-26T00:20:44"
+      "2022-02-07T23:12:14",
+      "2022-02-22T15:12:32"
     ]
   },
   "28PBB_2_6_0_1": {
@@ -374,140 +240,6 @@
         }
       }
     },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              8
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              3
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              0,
-              2
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 2,
-            "value": -1
-          },
-          {
-            "count": 6,
-            "value": 0
-          },
-          {
-            "count": 1,
-            "value": 1
-          },
-          {
-            "count": 3,
-            "value": 2
-          },
-          {
-            "count": 9,
-            "value": 3
-          },
-          {
-            "count": 3,
-            "value": 4
-          },
-          {
-            "count": 3,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              131,
-              260,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              18,
-              205,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              31,
-              233,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 71875,
-            "value": 4
-          },
-          {
-            "count": 72189,
-            "value": 5
-          },
-          {
-            "count": 72504,
-            "value": 6
-          }
-        ]
-      }
-    },
     "mask_timeless": {
       "REF": {
         "array_shape": [
@@ -547,8 +279,8 @@
       }
     },
     "timestamp": [
-      "2022-02-24T00:40:21",
-      "2022-02-26T00:20:44"
+      "2022-02-07T23:12:14",
+      "2022-02-22T15:12:32"
     ]
   },
   "28PBB_2_6_0_2": {
@@ -650,140 +382,6 @@
         }
       }
     },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              8
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              3
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              0,
-              2
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 2,
-            "value": -1
-          },
-          {
-            "count": 6,
-            "value": 0
-          },
-          {
-            "count": 1,
-            "value": 1
-          },
-          {
-            "count": 3,
-            "value": 2
-          },
-          {
-            "count": 9,
-            "value": 3
-          },
-          {
-            "count": 3,
-            "value": 4
-          },
-          {
-            "count": 3,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              132,
-              120,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              329,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              32,
-              84,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72037,
-            "value": 4
-          },
-          {
-            "count": 72238,
-            "value": 5
-          },
-          {
-            "count": 72293,
-            "value": 6
-          }
-        ]
-      }
-    },
     "mask_timeless": {
       "REF": {
         "array_shape": [
@@ -823,8 +421,8 @@
       }
     },
     "timestamp": [
-      "2022-02-24T00:40:21",
-      "2022-02-26T00:20:44"
+      "2022-02-07T23:12:14",
+      "2022-02-22T15:12:32"
     ]
   },
   "28PBB_2_6_0_3": {
@@ -926,140 +524,6 @@
         }
       }
     },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              8
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              3
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              0,
-              2
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 2,
-            "value": -1
-          },
-          {
-            "count": 6,
-            "value": 0
-          },
-          {
-            "count": 1,
-            "value": 1
-          },
-          {
-            "count": 3,
-            "value": 2
-          },
-          {
-            "count": 9,
-            "value": 3
-          },
-          {
-            "count": 3,
-            "value": 4
-          },
-          {
-            "count": 3,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              132,
-              272,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              358,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              31,
-              388,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 71956,
-            "value": 4
-          },
-          {
-            "count": 72506,
-            "value": 5
-          },
-          {
-            "count": 72106,
-            "value": 6
-          }
-        ]
-      }
-    },
     "mask_timeless": {
       "REF": {
         "array_shape": [
@@ -1099,8 +563,8 @@
       }
     },
     "timestamp": [
-      "2022-02-24T00:40:21",
-      "2022-02-26T00:20:44"
+      "2022-02-07T23:12:14",
+      "2022-02-22T15:12:32"
     ]
   },
   "28PBB_2_6_0_4": {
@@ -1202,140 +666,6 @@
         }
       }
     },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              8
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              3
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              0,
-              2
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 2,
-            "value": -1
-          },
-          {
-            "count": 6,
-            "value": 0
-          },
-          {
-            "count": 1,
-            "value": 1
-          },
-          {
-            "count": 3,
-            "value": 2
-          },
-          {
-            "count": 9,
-            "value": 3
-          },
-          {
-            "count": 3,
-            "value": 4
-          },
-          {
-            "count": 3,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              131,
-              348,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              49,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              32,
-              487,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72293,
-            "value": 4
-          },
-          {
-            "count": 72546,
-            "value": 5
-          },
-          {
-            "count": 71729,
-            "value": 6
-          }
-        ]
-      }
-    },
     "mask_timeless": {
       "REF": {
         "array_shape": [
@@ -1375,8 +705,8 @@
       }
     },
     "timestamp": [
-      "2022-02-24T00:40:21",
-      "2022-02-26T00:20:44"
+      "2022-02-07T23:12:14",
+      "2022-02-22T15:12:32"
     ]
   },
   "28PBB_2_6_1_0": {
@@ -1478,140 +808,6 @@
         }
       }
     },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              8
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              3
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              0,
-              2
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 2,
-            "value": -1
-          },
-          {
-            "count": 6,
-            "value": 0
-          },
-          {
-            "count": 1,
-            "value": 1
-          },
-          {
-            "count": 3,
-            "value": 2
-          },
-          {
-            "count": 9,
-            "value": 3
-          },
-          {
-            "count": 3,
-            "value": 4
-          },
-          {
-            "count": 3,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              131,
-              299,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              398,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              31,
-              221,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 71946,
-            "value": 4
-          },
-          {
-            "count": 71897,
-            "value": 5
-          },
-          {
-            "count": 72725,
-            "value": 6
-          }
-        ]
-      }
-    },
     "mask_timeless": {
       "REF": {
         "array_shape": [
@@ -1651,8 +847,8 @@
       }
     },
     "timestamp": [
-      "2022-02-24T00:40:21",
-      "2022-02-26T00:20:44"
+      "2022-02-07T23:12:14",
+      "2022-02-22T15:12:32"
     ]
   },
   "28PBB_2_6_1_1": {
@@ -1754,140 +950,6 @@
         }
       }
     },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              8
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              3
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              0,
-              2
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 2,
-            "value": -1
-          },
-          {
-            "count": 6,
-            "value": 0
-          },
-          {
-            "count": 1,
-            "value": 1
-          },
-          {
-            "count": 3,
-            "value": 2
-          },
-          {
-            "count": 9,
-            "value": 3
-          },
-          {
-            "count": 3,
-            "value": 4
-          },
-          {
-            "count": 3,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              132,
-              170,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              351,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              32,
-              251,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72062,
-            "value": 4
-          },
-          {
-            "count": 72332,
-            "value": 5
-          },
-          {
-            "count": 72174,
-            "value": 6
-          }
-        ]
-      }
-    },
     "mask_timeless": {
       "REF": {
         "array_shape": [
@@ -1927,8 +989,8 @@
       }
     },
     "timestamp": [
-      "2022-02-24T00:40:21",
-      "2022-02-26T00:20:44"
+      "2022-02-07T23:12:14",
+      "2022-02-22T15:12:32"
     ]
   },
   "28PBB_2_6_1_2": {
@@ -2030,140 +1092,6 @@
         }
       }
     },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              8
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              3
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              0,
-              2
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 2,
-            "value": -1
-          },
-          {
-            "count": 6,
-            "value": 0
-          },
-          {
-            "count": 1,
-            "value": 1
-          },
-          {
-            "count": 3,
-            "value": 2
-          },
-          {
-            "count": 9,
-            "value": 3
-          },
-          {
-            "count": 3,
-            "value": 4
-          },
-          {
-            "count": 3,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              132,
-              209,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              314,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              32,
-              242,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72170,
-            "value": 4
-          },
-          {
-            "count": 72001,
-            "value": 5
-          },
-          {
-            "count": 72397,
-            "value": 6
-          }
-        ]
-      }
-    },
     "mask_timeless": {
       "REF": {
         "array_shape": [
@@ -2203,8 +1131,8 @@
       }
     },
     "timestamp": [
-      "2022-02-24T00:40:21",
-      "2022-02-26T00:20:44"
+      "2022-02-07T23:12:14",
+      "2022-02-22T15:12:32"
     ]
   },
   "28PBB_2_6_1_3": {
@@ -2306,140 +1234,6 @@
         }
       }
     },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              8
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              3
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              0,
-              2
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 2,
-            "value": -1
-          },
-          {
-            "count": 6,
-            "value": 0
-          },
-          {
-            "count": 1,
-            "value": 1
-          },
-          {
-            "count": 3,
-            "value": 2
-          },
-          {
-            "count": 9,
-            "value": 3
-          },
-          {
-            "count": 3,
-            "value": 4
-          },
-          {
-            "count": 3,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              132,
-              77,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              338,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              31,
-              478,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72100,
-            "value": 4
-          },
-          {
-            "count": 72099,
-            "value": 5
-          },
-          {
-            "count": 72369,
-            "value": 6
-          }
-        ]
-      }
-    },
     "mask_timeless": {
       "REF": {
         "array_shape": [
@@ -2479,8 +1273,8 @@
       }
     },
     "timestamp": [
-      "2022-02-24T00:40:21",
-      "2022-02-26T00:20:44"
+      "2022-02-07T23:12:14",
+      "2022-02-22T15:12:32"
     ]
   },
   "28PBB_2_6_1_4": {
@@ -2582,140 +1376,6 @@
         }
       }
     },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              8
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              3
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              0,
-              2
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 2,
-            "value": -1
-          },
-          {
-            "count": 6,
-            "value": 0
-          },
-          {
-            "count": 1,
-            "value": 1
-          },
-          {
-            "count": 3,
-            "value": 2
-          },
-          {
-            "count": 9,
-            "value": 3
-          },
-          {
-            "count": 3,
-            "value": 4
-          },
-          {
-            "count": 3,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              131,
-              342,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              16,
-              463,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              32,
-              425,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 71905,
-            "value": 4
-          },
-          {
-            "count": 72355,
-            "value": 5
-          },
-          {
-            "count": 72308,
-            "value": 6
-          }
-        ]
-      }
-    },
     "mask_timeless": {
       "REF": {
         "array_shape": [
@@ -2755,8 +1415,8 @@
       }
     },
     "timestamp": [
-      "2022-02-24T00:40:21",
-      "2022-02-26T00:20:44"
+      "2022-02-07T23:12:14",
+      "2022-02-22T15:12:32"
     ]
   },
   "28PBB_2_7_0_0": {
@@ -2770,10 +1430,10 @@
           3
         ],
         "basic_stats": {
-          "max": 1.0,
-          "mean": -0.00011,
-          "median": -0.00201,
-          "min": -1.0
+          "max": 0.99999,
+          "mean": 0.00106,
+          "median": 0.00173,
+          "min": -0.99999
         },
         "counts": {
           "infinite": 0,
@@ -2782,214 +1442,80 @@
         "dtype": "float32",
         "histogram": {
           "counts": [
-            81408,
-            80957,
-            81513,
-            81643,
-            80296,
-            80963,
-            81886,
-            81038
+            81378,
+            80594,
+            81067,
+            81223,
+            81244,
+            81508,
+            80980,
+            81710
           ],
           "edges": [
-            -1.0,
+            -0.99999,
             -0.75,
             -0.5,
             -0.25,
-            0.0,
+            -0.0,
             0.25,
             0.5,
             0.75,
-            1.0
+            0.99999
           ]
         },
         "random_values": [
           {
             "position": [
-              0,
-              41,
-              200,
-              0
-            ],
-            "value": 0.2736
-          },
-          {
-            "position": [
-              0,
-              133,
-              65,
+              1,
+              61,
+              375,
               2
             ],
-            "value": 0.02043
-          },
-          {
-            "position": [
-              0,
-              86,
-              101,
-              0
-            ],
-            "value": -0.4588
+            "value": 0.27385
           },
           {
             "position": [
               1,
-              19,
-              48,
-              0
+              10,
+              340,
+              2
             ],
-            "value": -0.38299
+            "value": 0.0235
+          },
+          {
+            "position": [
+              0,
+              127,
+              490,
+              2
+            ],
+            "value": -0.45744
           },
           {
             "position": [
               1,
-              159,
-              458,
-              2
+              164,
+              188,
+              0
             ],
-            "value": 0.70012
+            "value": -0.3813
+          },
+          {
+            "position": [
+              0,
+              30,
+              322,
+              0
+            ],
+            "value": 0.7015
           }
         ],
         "subsample_basic_stats": {
-          "max": 1.0,
-          "mean": -0.00324,
-          "median": -0.00139,
-          "min": -0.99982
+          "max": 0.99995,
+          "mean": 0.00229,
+          "median": 0.00193,
+          "min": -0.99997
         }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              0,
-              11
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              14
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              7
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              4
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 8,
-            "value": -2
-          },
-          {
-            "count": 8,
-            "value": -1
-          },
-          {
-            "count": 2,
-            "value": 0
-          },
-          {
-            "count": 5,
-            "value": 1
-          },
-          {
-            "count": 1,
-            "value": 2
-          },
-          {
-            "count": 3,
-            "value": 3
-          },
-          {
-            "count": 1,
-            "value": 4
-          },
-          {
-            "count": 2,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              132,
-              186,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              394,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              32,
-              26,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72346,
-            "value": 4
-          },
-          {
-            "count": 72351,
-            "value": 5
-          },
-          {
-            "count": 71871,
-            "value": 6
-          }
-        ]
       }
     },
     "mask_timeless": {
@@ -3004,7 +1530,7 @@
           {
             "position": [
               109,
-              164,
+              253,
               1
             ],
             "value": false
@@ -3012,7 +1538,7 @@
           {
             "position": [
               57,
-              259,
+              392,
               0
             ],
             "value": true
@@ -3020,19 +1546,19 @@
         ],
         "values": [
           {
-            "count": 108207,
+            "count": 108398,
             "value": false
           },
           {
-            "count": 108361,
+            "count": 108170,
             "value": true
           }
         ]
       }
     },
     "timestamp": [
-      "2022-02-10T02:25:18",
-      "2022-02-18T23:02:53"
+      "2022-02-07T09:39:24",
+      "2022-02-23T06:08:25"
     ]
   },
   "28PBB_2_7_0_1": {
@@ -3047,9 +1573,9 @@
         ],
         "basic_stats": {
           "max": 1.0,
-          "mean": -5e-05,
-          "median": -0.00076,
-          "min": -1.0
+          "mean": 0.00051,
+          "median": 0.0003,
+          "min": -0.99999
         },
         "counts": {
           "infinite": 0,
@@ -3058,21 +1584,21 @@
         "dtype": "float32",
         "histogram": {
           "counts": [
-            81150,
-            81319,
-            81165,
-            81455,
-            81063,
-            81219,
-            81169,
-            81164
+            80842,
+            81218,
+            81354,
+            81350,
+            81223,
+            81143,
+            81423,
+            81151
           ],
           "edges": [
-            -1.0,
-            -0.75,
-            -0.5,
+            -0.99999,
+            -0.74999,
+            -0.49999,
             -0.25,
-            -0.0,
+            0.0,
             0.25,
             0.5,
             0.75,
@@ -3083,189 +1609,55 @@
           {
             "position": [
               0,
-              109,
+              30,
+              482,
+              1
+            ],
+            "value": 0.27289
+          },
+          {
+            "position": [
+              0,
+              160,
+              500,
+              0
+            ],
+            "value": 0.02264
+          },
+          {
+            "position": [
+              0,
+              129,
               490,
-              2
+              1
             ],
-            "value": 0.27177
-          },
-          {
-            "position": [
-              0,
-              78,
-              89,
-              2
-            ],
-            "value": 0.0214
-          },
-          {
-            "position": [
-              0,
-              203,
-              86,
-              2
-            ],
-            "value": -0.45915
+            "value": -0.45815
           },
           {
             "position": [
               1,
-              102,
-              8,
+              212,
+              185,
               0
             ],
-            "value": -0.3826
+            "value": -0.38208
           },
           {
             "position": [
-              0,
-              172,
-              470,
-              0
+              1,
+              103,
+              46,
+              2
             ],
-            "value": 0.69982
+            "value": 0.69959
           }
         ],
         "subsample_basic_stats": {
-          "max": 0.99995,
-          "mean": 0.0057,
-          "median": 0.0074,
-          "min": -0.99996
+          "max": 0.99992,
+          "mean": -0.00208,
+          "median": -0.00114,
+          "min": -0.99997
         }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              0,
-              11
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              14
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              7
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              4
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 8,
-            "value": -2
-          },
-          {
-            "count": 8,
-            "value": -1
-          },
-          {
-            "count": 2,
-            "value": 0
-          },
-          {
-            "count": 5,
-            "value": 1
-          },
-          {
-            "count": 1,
-            "value": 2
-          },
-          {
-            "count": 3,
-            "value": 3
-          },
-          {
-            "count": 1,
-            "value": 4
-          },
-          {
-            "count": 2,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              131,
-              124,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              136,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              32,
-              187,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72212,
-            "value": 4
-          },
-          {
-            "count": 72096,
-            "value": 5
-          },
-          {
-            "count": 72260,
-            "value": 6
-          }
-        ]
       }
     },
     "mask_timeless": {
@@ -3279,8 +1671,8 @@
         "random_values": [
           {
             "position": [
-              108,
-              431,
+              109,
+              200,
               1
             ],
             "value": false
@@ -3288,27 +1680,27 @@
           {
             "position": [
               57,
-              421,
-              0
+              300,
+              1
             ],
             "value": true
           }
         ],
         "values": [
           {
-            "count": 108568,
+            "count": 108087,
             "value": false
           },
           {
-            "count": 108000,
+            "count": 108481,
             "value": true
           }
         ]
       }
     },
     "timestamp": [
-      "2022-02-10T02:25:18",
-      "2022-02-18T23:02:53"
+      "2022-02-07T09:39:24",
+      "2022-02-23T06:08:25"
     ]
   },
   "28PBB_2_7_0_2": {
@@ -3322,9 +1714,9 @@
           3
         ],
         "basic_stats": {
-          "max": 0.99999,
-          "mean": 0.00088,
-          "median": 0.0013,
+          "max": 1.0,
+          "mean": -4e-05,
+          "median": 0.00041,
           "min": -1.0
         },
         "counts": {
@@ -3334,14 +1726,156 @@
         "dtype": "float32",
         "histogram": {
           "counts": [
-            81207,
-            80852,
-            80960,
-            81384,
-            81397,
-            81419,
-            81227,
-            81258
+            81378,
+            80812,
+            81223,
+            81299,
+            81687,
+            81182,
+            80849,
+            81274
+          ],
+          "edges": [
+            -1.0,
+            -0.75,
+            -0.5,
+            -0.25,
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        },
+        "random_values": [
+          {
+            "position": [
+              1,
+              155,
+              500,
+              2
+            ],
+            "value": 0.27195
+          },
+          {
+            "position": [
+              1,
+              23,
+              43,
+              2
+            ],
+            "value": 0.02238
+          },
+          {
+            "position": [
+              0,
+              77,
+              32,
+              1
+            ],
+            "value": -0.45887
+          },
+          {
+            "position": [
+              1,
+              26,
+              133,
+              2
+            ],
+            "value": -0.38254
+          },
+          {
+            "position": [
+              0,
+              82,
+              481,
+              1
+            ],
+            "value": 0.70001
+          }
+        ],
+        "subsample_basic_stats": {
+          "max": 0.99994,
+          "mean": -0.00125,
+          "median": 0.00098,
+          "min": -1.0
+        }
+      }
+    },
+    "mask_timeless": {
+      "REF": {
+        "array_shape": [
+          214,
+          506,
+          2
+        ],
+        "dtype": "bool",
+        "random_values": [
+          {
+            "position": [
+              109,
+              122,
+              0
+            ],
+            "value": false
+          },
+          {
+            "position": [
+              57,
+              438,
+              1
+            ],
+            "value": true
+          }
+        ],
+        "values": [
+          {
+            "count": 108388,
+            "value": false
+          },
+          {
+            "count": 108180,
+            "value": true
+          }
+        ]
+      }
+    },
+    "timestamp": [
+      "2022-02-07T09:39:24",
+      "2022-02-23T06:08:25"
+    ]
+  },
+  "28PBB_2_7_0_3": {
+    "bbox": "BBox(((219970.0, 1625930.0), (225030.0, 1628070.0)), crs=CRS('32628'))",
+    "data": {
+      "BANDS": {
+        "array_shape": [
+          2,
+          214,
+          506,
+          3
+        ],
+        "basic_stats": {
+          "max": 0.99999,
+          "mean": -0.00102,
+          "median": -0.00254,
+          "min": -1.0
+        },
+        "counts": {
+          "infinite": 0,
+          "nan": 0
+        },
+        "dtype": "float32",
+        "histogram": {
+          "counts": [
+            81404,
+            81428,
+            81409,
+            81400,
+            80758,
+            80899,
+            81412,
+            80994
           ],
           "edges": [
             -1.0,
@@ -3358,466 +1892,56 @@
         "random_values": [
           {
             "position": [
-              1,
-              15,
-              257,
-              1
-            ],
-            "value": 0.27393
-          },
-          {
-            "position": [
-              1,
-              182,
-              199,
-              1
-            ],
-            "value": 0.0238
-          },
-          {
-            "position": [
-              1,
-              107,
-              394,
-              1
-            ],
-            "value": -0.45701
-          },
-          {
-            "position": [
-              1,
-              82,
-              344,
-              1
-            ],
-            "value": -0.38097
-          },
-          {
-            "position": [
               0,
-              171,
-              464,
-              1
-            ],
-            "value": 0.70148
-          }
-        ],
-        "subsample_basic_stats": {
-          "max": 0.99996,
-          "mean": 0.00116,
-          "median": 0.0013,
-          "min": -0.99998
-        }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              0,
-              11
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              14
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              7
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              4
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 8,
-            "value": -2
-          },
-          {
-            "count": 8,
-            "value": -1
-          },
-          {
-            "count": 2,
-            "value": 0
-          },
-          {
-            "count": 5,
-            "value": 1
-          },
-          {
-            "count": 1,
-            "value": 2
-          },
-          {
-            "count": 3,
-            "value": 3
-          },
-          {
-            "count": 1,
-            "value": 4
-          },
-          {
-            "count": 2,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              132,
               207,
+              41,
               0
             ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              336,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              31,
-              470,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72500,
-            "value": 4
-          },
-          {
-            "count": 71866,
-            "value": 5
-          },
-          {
-            "count": 72202,
-            "value": 6
-          }
-        ]
-      }
-    },
-    "mask_timeless": {
-      "REF": {
-        "array_shape": [
-          214,
-          506,
-          2
-        ],
-        "dtype": "bool",
-        "random_values": [
-          {
-            "position": [
-              109,
-              30,
-              1
-            ],
-            "value": false
-          },
-          {
-            "position": [
-              57,
-              377,
-              1
-            ],
-            "value": true
-          }
-        ],
-        "values": [
-          {
-            "count": 108571,
-            "value": false
-          },
-          {
-            "count": 107997,
-            "value": true
-          }
-        ]
-      }
-    },
-    "timestamp": [
-      "2022-02-10T02:25:18",
-      "2022-02-18T23:02:53"
-    ]
-  },
-  "28PBB_2_7_0_3": {
-    "bbox": "BBox(((219970.0, 1625930.0), (225030.0, 1628070.0)), crs=CRS('32628'))",
-    "data": {
-      "BANDS": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          3
-        ],
-        "basic_stats": {
-          "max": 1.0,
-          "mean": 0.00027,
-          "median": 0.00025,
-          "min": -1.0
-        },
-        "counts": {
-          "infinite": 0,
-          "nan": 0
-        },
-        "dtype": "float32",
-        "histogram": {
-          "counts": [
-            81276,
-            81109,
-            81200,
-            81175,
-            81056,
-            81257,
-            81249,
-            81382
-          ],
-          "edges": [
-            -1.0,
-            -0.75,
-            -0.5,
-            -0.25,
-            -0.0,
-            0.25,
-            0.5,
-            0.75,
-            1.0
-          ]
-        },
-        "random_values": [
-          {
-            "position": [
-              0,
-              164,
-              240,
-              2
-            ],
-            "value": 0.27345
-          },
-          {
-            "position": [
-              0,
-              38,
-              179,
-              2
-            ],
-            "value": 0.02208
-          },
-          {
-            "position": [
-              0,
-              23,
-              335,
-              2
-            ],
-            "value": -0.45889
-          },
-          {
-            "position": [
-              0,
-              188,
-              466,
-              0
-            ],
-            "value": -0.38322
+            "value": 0.27135
           },
           {
             "position": [
               1,
-              96,
-              12,
-              2
+              67,
+              6,
+              1
             ],
-            "value": 0.70072
+            "value": 0.02011
+          },
+          {
+            "position": [
+              0,
+              197,
+              335,
+              1
+            ],
+            "value": -0.46032
+          },
+          {
+            "position": [
+              1,
+              36,
+              178,
+              0
+            ],
+            "value": -0.38447
+          },
+          {
+            "position": [
+              0,
+              91,
+              259,
+              1
+            ],
+            "value": 0.69958
           }
         ],
         "subsample_basic_stats": {
-          "max": 1.0,
-          "mean": 0.0047,
-          "median": 0.00987,
-          "min": -1.0
+          "max": 0.99997,
+          "mean": 0.00376,
+          "median": 0.00257,
+          "min": -0.99999
         }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              0,
-              11
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              14
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              7
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              4
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 8,
-            "value": -2
-          },
-          {
-            "count": 8,
-            "value": -1
-          },
-          {
-            "count": 2,
-            "value": 0
-          },
-          {
-            "count": 5,
-            "value": 1
-          },
-          {
-            "count": 1,
-            "value": 2
-          },
-          {
-            "count": 3,
-            "value": 3
-          },
-          {
-            "count": 1,
-            "value": 4
-          },
-          {
-            "count": 2,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              131,
-              402,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              264,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              32,
-              50,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72124,
-            "value": 4
-          },
-          {
-            "count": 72060,
-            "value": 5
-          },
-          {
-            "count": 72384,
-            "value": 6
-          }
-        ]
       }
     },
     "mask_timeless": {
@@ -3832,15 +1956,15 @@
           {
             "position": [
               109,
-              309,
-              0
+              262,
+              1
             ],
             "value": false
           },
           {
             "position": [
               57,
-              184,
+              252,
               0
             ],
             "value": true
@@ -3848,19 +1972,19 @@
         ],
         "values": [
           {
-            "count": 108436,
+            "count": 108055,
             "value": false
           },
           {
-            "count": 108132,
+            "count": 108513,
             "value": true
           }
         ]
       }
     },
     "timestamp": [
-      "2022-02-10T02:25:18",
-      "2022-02-18T23:02:53"
+      "2022-02-07T09:39:24",
+      "2022-02-23T06:08:25"
     ]
   },
   "28PBB_2_7_0_4": {
@@ -3875,8 +1999,8 @@
         ],
         "basic_stats": {
           "max": 1.0,
-          "mean": 0.00011,
-          "median": 0.00026,
+          "mean": -0.00107,
+          "median": -0.00102,
           "min": -1.0
         },
         "counts": {
@@ -3886,14 +2010,14 @@
         "dtype": "float32",
         "histogram": {
           "counts": [
-            81477,
-            80899,
-            80969,
-            81422,
-            81098,
-            81372,
-            81133,
-            81334
+            81579,
+            81605,
+            80915,
+            81067,
+            80954,
+            81534,
+            80994,
+            81056
           ],
           "edges": [
             -1.0,
@@ -3910,190 +2034,56 @@
         "random_values": [
           {
             "position": [
-              1,
-              38,
+              0,
+              120,
+              402,
+              0
+            ],
+            "value": 0.27257
+          },
+          {
+            "position": [
+              0,
+              158,
               192,
               1
             ],
-            "value": 0.27343
-          },
-          {
-            "position": [
-              1,
-              202,
-              208,
-              1
-            ],
-            "value": 0.02302
+            "value": 0.02145
           },
           {
             "position": [
               0,
-              187,
-              490,
+              189,
+              10,
               2
             ],
-            "value": -0.4586
+            "value": -0.46099
           },
           {
             "position": [
-              1,
-              169,
-              74,
-              2
+              0,
+              183,
+              364,
+              0
             ],
-            "value": -0.38249
+            "value": -0.38556
           },
           {
             "position": [
-              1,
-              114,
-              417,
-              1
+              0,
+              171,
+              131,
+              0
             ],
-            "value": 0.70072
+            "value": 0.69925
           }
         ],
         "subsample_basic_stats": {
-          "max": 0.99998,
-          "mean": -0.00363,
-          "median": -0.00464,
-          "min": -0.99995
+          "max": 0.99997,
+          "mean": 0.00135,
+          "median": 0.00464,
+          "min": -0.99992
         }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              0,
-              11
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              14
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              7
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              4
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 8,
-            "value": -2
-          },
-          {
-            "count": 8,
-            "value": -1
-          },
-          {
-            "count": 2,
-            "value": 0
-          },
-          {
-            "count": 5,
-            "value": 1
-          },
-          {
-            "count": 1,
-            "value": 2
-          },
-          {
-            "count": 3,
-            "value": 3
-          },
-          {
-            "count": 1,
-            "value": 4
-          },
-          {
-            "count": 2,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              130,
-              346,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              132,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              32,
-              360,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72557,
-            "value": 4
-          },
-          {
-            "count": 71930,
-            "value": 5
-          },
-          {
-            "count": 72081,
-            "value": 6
-          }
-        ]
       }
     },
     "mask_timeless": {
@@ -4108,35 +2098,35 @@
           {
             "position": [
               109,
-              215,
-              1
+              311,
+              0
             ],
             "value": false
           },
           {
             "position": [
               57,
-              421,
-              1
+              265,
+              0
             ],
             "value": true
           }
         ],
         "values": [
           {
-            "count": 108207,
+            "count": 108214,
             "value": false
           },
           {
-            "count": 108361,
+            "count": 108354,
             "value": true
           }
         ]
       }
     },
     "timestamp": [
-      "2022-02-10T02:25:18",
-      "2022-02-18T23:02:53"
+      "2022-02-07T09:39:24",
+      "2022-02-23T06:08:25"
     ]
   },
   "28PBB_2_7_1_0": {
@@ -4151,8 +2141,8 @@
         ],
         "basic_stats": {
           "max": 1.0,
-          "mean": 0.00036,
-          "median": 0.0002,
+          "mean": 0.00024,
+          "median": -0.0003,
           "min": -1.0
         },
         "counts": {
@@ -4162,14 +2152,14 @@
         "dtype": "float32",
         "histogram": {
           "counts": [
-            81204,
-            80702,
-            81432,
-            81454,
-            81251,
-            81079,
-            81337,
-            81245
+            81214,
+            81068,
+            81516,
+            81156,
+            81161,
+            80993,
+            81407,
+            81189
           ],
           "edges": [
             -1.0,
@@ -4186,190 +2176,56 @@
         "random_values": [
           {
             "position": [
-              0,
-              130,
-              291,
-              2
-            ],
-            "value": 0.27239
-          },
-          {
-            "position": [
               1,
-              33,
-              35,
+              113,
+              387,
               2
             ],
-            "value": 0.02219
+            "value": 0.27253
           },
           {
             "position": [
               0,
-              5,
-              483,
-              1
+              62,
+              129,
+              2
             ],
-            "value": -0.45703
+            "value": 0.02218
           },
           {
             "position": [
               1,
-              34,
-              253,
-              1
+              191,
+              64,
+              0
             ],
-            "value": -0.38093
+            "value": -0.45785
           },
           {
             "position": [
               1,
-              59,
-              270,
-              1
+              11,
+              424,
+              0
             ],
-            "value": 0.70046
+            "value": -0.38206
+          },
+          {
+            "position": [
+              0,
+              212,
+              168,
+              0
+            ],
+            "value": 0.70056
           }
         ],
         "subsample_basic_stats": {
-          "max": 0.99999,
-          "mean": 0.00179,
-          "median": 0.00523,
+          "max": 0.99991,
+          "mean": -0.00059,
+          "median": -0.0042,
           "min": -1.0
         }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              0,
-              11
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              14
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              7
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              4
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 8,
-            "value": -2
-          },
-          {
-            "count": 8,
-            "value": -1
-          },
-          {
-            "count": 2,
-            "value": 0
-          },
-          {
-            "count": 5,
-            "value": 1
-          },
-          {
-            "count": 1,
-            "value": 2
-          },
-          {
-            "count": 3,
-            "value": 3
-          },
-          {
-            "count": 1,
-            "value": 4
-          },
-          {
-            "count": 2,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              131,
-              347,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              174,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              32,
-              346,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 71876,
-            "value": 4
-          },
-          {
-            "count": 72519,
-            "value": 5
-          },
-          {
-            "count": 72173,
-            "value": 6
-          }
-        ]
       }
     },
     "mask_timeless": {
@@ -4384,35 +2240,35 @@
           {
             "position": [
               109,
-              176,
-              0
+              67,
+              1
             ],
             "value": false
           },
           {
             "position": [
               57,
-              303,
-              1
+              382,
+              0
             ],
             "value": true
           }
         ],
         "values": [
           {
-            "count": 108244,
+            "count": 108166,
             "value": false
           },
           {
-            "count": 108324,
+            "count": 108402,
             "value": true
           }
         ]
       }
     },
     "timestamp": [
-      "2022-02-10T02:25:18",
-      "2022-02-18T23:02:53"
+      "2022-02-07T09:39:24",
+      "2022-02-23T06:08:25"
     ]
   },
   "28PBB_2_7_1_1": {
@@ -4427,8 +2283,8 @@
         ],
         "basic_stats": {
           "max": 1.0,
-          "mean": 0.00083,
-          "median": 0.00058,
+          "mean": 0.00078,
+          "median": 0.00125,
           "min": -1.0
         },
         "counts": {
@@ -4438,21 +2294,21 @@
         "dtype": "float32",
         "histogram": {
           "counts": [
-            80559,
-            81221,
-            81336,
-            81550,
-            81383,
-            81247,
-            81260,
-            81148
+            80864,
+            81295,
+            80679,
+            81576,
+            81665,
+            81198,
+            81021,
+            81406
           ],
           "edges": [
             -1.0,
             -0.75,
             -0.5,
             -0.25,
-            -0.0,
+            0.0,
             0.25,
             0.5,
             0.75,
@@ -4462,190 +2318,56 @@
         "random_values": [
           {
             "position": [
-              1,
-              151,
-              355,
-              1
-            ],
-            "value": 0.27244
-          },
-          {
-            "position": [
               0,
-              128,
-              357,
-              2
-            ],
-            "value": 0.02241
-          },
-          {
-            "position": [
-              1,
-              74,
-              91,
+              157,
+              310,
               0
             ],
-            "value": -0.45652
+            "value": 0.27303
           },
           {
             "position": [
               0,
-              97,
-              246,
-              1
+              42,
+              60,
+              0
             ],
-            "value": -0.38053
+            "value": 0.02317
           },
           {
             "position": [
               1,
-              71,
-              223,
+              108,
+              3,
               1
             ],
-            "value": 0.70035
+            "value": -0.45767
+          },
+          {
+            "position": [
+              1,
+              201,
+              38,
+              2
+            ],
+            "value": -0.38162
+          },
+          {
+            "position": [
+              0,
+              71,
+              354,
+              2
+            ],
+            "value": 0.70088
           }
         ],
         "subsample_basic_stats": {
-          "max": 0.99999,
-          "mean": 0.00561,
-          "median": 0.00558,
+          "max": 0.99997,
+          "mean": -0.00053,
+          "median": -0.00068,
           "min": -0.99999
         }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              0,
-              11
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              14
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              7
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              4
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 8,
-            "value": -2
-          },
-          {
-            "count": 8,
-            "value": -1
-          },
-          {
-            "count": 2,
-            "value": 0
-          },
-          {
-            "count": 5,
-            "value": 1
-          },
-          {
-            "count": 1,
-            "value": 2
-          },
-          {
-            "count": 3,
-            "value": 3
-          },
-          {
-            "count": 1,
-            "value": 4
-          },
-          {
-            "count": 2,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              132,
-              173,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              384,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              32,
-              51,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72473,
-            "value": 4
-          },
-          {
-            "count": 71997,
-            "value": 5
-          },
-          {
-            "count": 72098,
-            "value": 6
-          }
-        ]
       }
     },
     "mask_timeless": {
@@ -4660,7 +2382,7 @@
           {
             "position": [
               109,
-              172,
+              129,
               1
             ],
             "value": false
@@ -4668,27 +2390,27 @@
           {
             "position": [
               57,
-              374,
-              1
+              338,
+              0
             ],
             "value": true
           }
         ],
         "values": [
           {
-            "count": 108157,
+            "count": 108499,
             "value": false
           },
           {
-            "count": 108411,
+            "count": 108069,
             "value": true
           }
         ]
       }
     },
     "timestamp": [
-      "2022-02-10T02:25:18",
-      "2022-02-18T23:02:53"
+      "2022-02-07T09:39:24",
+      "2022-02-23T06:08:25"
     ]
   },
   "28PBB_2_7_1_2": {
@@ -4703,9 +2425,9 @@
         ],
         "basic_stats": {
           "max": 1.0,
-          "mean": 0.00062,
-          "median": 0.00131,
-          "min": -1.0
+          "mean": -0.00118,
+          "median": -0.00276,
+          "min": -0.99999
         },
         "counts": {
           "infinite": 0,
@@ -4714,21 +2436,21 @@
         "dtype": "float32",
         "histogram": {
           "counts": [
-            80924,
-            81213,
-            81038,
-            81201,
-            81500,
-            81302,
-            81385,
-            81141
+            80920,
+            81696,
+            81394,
+            81793,
+            81255,
+            80958,
+            80686,
+            81002
           ],
           "edges": [
-            -1.0,
-            -0.75,
-            -0.5,
+            -0.99999,
+            -0.74999,
+            -0.49999,
             -0.25,
-            -0.0,
+            0.0,
             0.25,
             0.5,
             0.75,
@@ -4739,189 +2461,55 @@
           {
             "position": [
               1,
-              205,
-              117,
-              0
-            ],
-            "value": 0.27285
-          },
-          {
-            "position": [
-              0,
-              62,
               19,
+              412,
               2
             ],
-            "value": 0.02318
+            "value": 0.26976
           },
           {
             "position": [
               0,
-              16,
-              299,
-              1
+              39,
+              455,
+              2
             ],
-            "value": -0.45807
-          },
-          {
-            "position": [
-              0,
-              11,
-              425,
-              1
-            ],
-            "value": -0.38236
+            "value": 0.01939
           },
           {
             "position": [
               1,
-              95,
-              297,
-              2
+              169,
+              356,
+              1
             ],
-            "value": 0.69979
+            "value": -0.4595
+          },
+          {
+            "position": [
+              0,
+              47,
+              107,
+              0
+            ],
+            "value": -0.38354
+          },
+          {
+            "position": [
+              0,
+              66,
+              157,
+              1
+            ],
+            "value": 0.69975
           }
         ],
         "subsample_basic_stats": {
-          "max": 0.99998,
-          "mean": 0.00057,
-          "median": 0.00152,
-          "min": -1.0
+          "max": 0.99999,
+          "mean": -0.0013,
+          "median": -0.00533,
+          "min": -0.99998
         }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              0,
-              11
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              14
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              7
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              4
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 8,
-            "value": -2
-          },
-          {
-            "count": 8,
-            "value": -1
-          },
-          {
-            "count": 2,
-            "value": 0
-          },
-          {
-            "count": 5,
-            "value": 1
-          },
-          {
-            "count": 1,
-            "value": 2
-          },
-          {
-            "count": 3,
-            "value": 3
-          },
-          {
-            "count": 1,
-            "value": 4
-          },
-          {
-            "count": 2,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              130,
-              427,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              18,
-              6,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              31,
-              498,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72516,
-            "value": 4
-          },
-          {
-            "count": 72076,
-            "value": 5
-          },
-          {
-            "count": 71976,
-            "value": 6
-          }
-        ]
       }
     },
     "mask_timeless": {
@@ -4935,8 +2523,8 @@
         "random_values": [
           {
             "position": [
-              108,
-              483,
+              109,
+              339,
               0
             ],
             "value": false
@@ -4944,7 +2532,7 @@
           {
             "position": [
               57,
-              461,
+              227,
               0
             ],
             "value": true
@@ -4952,19 +2540,19 @@
         ],
         "values": [
           {
-            "count": 108106,
+            "count": 108387,
             "value": false
           },
           {
-            "count": 108462,
+            "count": 108181,
             "value": true
           }
         ]
       }
     },
     "timestamp": [
-      "2022-02-10T02:25:18",
-      "2022-02-18T23:02:53"
+      "2022-02-07T09:39:24",
+      "2022-02-23T06:08:25"
     ]
   },
   "28PBB_2_7_1_3": {
@@ -4979,8 +2567,8 @@
         ],
         "basic_stats": {
           "max": 1.0,
-          "mean": -0.00088,
-          "median": -0.00231,
+          "mean": -0.0002,
+          "median": 3e-05,
           "min": -1.0
         },
         "counts": {
@@ -4990,14 +2578,14 @@
         "dtype": "float32",
         "histogram": {
           "counts": [
-            81349,
-            81262,
-            81205,
-            81762,
-            81696,
-            80577,
-            80517,
-            81336
+            80909,
+            81698,
+            81468,
+            80768,
+            81114,
+            81470,
+            81380,
+            80897
           ],
           "edges": [
             -1.0,
@@ -5015,189 +2603,55 @@
           {
             "position": [
               1,
-              160,
-              422,
+              207,
+              99,
               1
             ],
-            "value": 0.2694
+            "value": 0.27335
           },
           {
             "position": [
-              1,
-              30,
-              227,
+              0,
+              88,
+              127,
               2
             ],
-            "value": 0.01998
+            "value": 0.02233
           },
           {
             "position": [
-              1,
-              66,
-              430,
+              0,
+              124,
+              72,
               0
             ],
-            "value": -0.45896
+            "value": -0.45931
           },
           {
             "position": [
-              1,
-              152,
-              217,
-              2
+              0,
+              26,
+              363,
+              1
             ],
-            "value": -0.38345
+            "value": -0.38367
           },
           {
             "position": [
-              1,
-              164,
-              4,
+              0,
+              162,
+              228,
               2
             ],
-            "value": 0.69989
+            "value": 0.69911
           }
         ],
         "subsample_basic_stats": {
-          "max": 1.0,
-          "mean": -0.00295,
-          "median": -0.00189,
-          "min": -0.99996
+          "max": 0.99996,
+          "mean": 0.00329,
+          "median": 0.00617,
+          "min": -1.0
         }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              0,
-              11
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              14
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              7
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              4
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 8,
-            "value": -2
-          },
-          {
-            "count": 8,
-            "value": -1
-          },
-          {
-            "count": 2,
-            "value": 0
-          },
-          {
-            "count": 5,
-            "value": 1
-          },
-          {
-            "count": 1,
-            "value": 2
-          },
-          {
-            "count": 3,
-            "value": 3
-          },
-          {
-            "count": 1,
-            "value": 4
-          },
-          {
-            "count": 2,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              132,
-              117,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              401,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              31,
-              482,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72231,
-            "value": 4
-          },
-          {
-            "count": 71930,
-            "value": 5
-          },
-          {
-            "count": 72407,
-            "value": 6
-          }
-        ]
       }
     },
     "mask_timeless": {
@@ -5212,7 +2666,7 @@
           {
             "position": [
               109,
-              75,
+              9,
               1
             ],
             "value": false
@@ -5220,7 +2674,7 @@
           {
             "position": [
               57,
-              386,
+              488,
               0
             ],
             "value": true
@@ -5228,19 +2682,19 @@
         ],
         "values": [
           {
-            "count": 108521,
+            "count": 107795,
             "value": false
           },
           {
-            "count": 108047,
+            "count": 108773,
             "value": true
           }
         ]
       }
     },
     "timestamp": [
-      "2022-02-10T02:25:18",
-      "2022-02-18T23:02:53"
+      "2022-02-07T09:39:24",
+      "2022-02-23T06:08:25"
     ]
   },
   "28PBB_2_7_1_4": {
@@ -5255,8 +2709,8 @@
         ],
         "basic_stats": {
           "max": 1.0,
-          "mean": -0.00077,
-          "median": -0.00137,
+          "mean": -0.00055,
+          "median": -0.00039,
           "min": -1.0
         },
         "counts": {
@@ -5266,21 +2720,21 @@
         "dtype": "float32",
         "histogram": {
           "counts": [
-            81373,
-            81520,
-            81072,
-            81311,
-            81057,
-            81057,
-            81079,
-            81235
+            81217,
+            81719,
+            80812,
+            81231,
+            81006,
+            81606,
+            81080,
+            81033
           ],
           "edges": [
             -1.0,
             -0.75,
             -0.5,
             -0.25,
-            -0.0,
+            0.0,
             0.25,
             0.5,
             0.75,
@@ -5290,190 +2744,56 @@
         "random_values": [
           {
             "position": [
-              0,
-              132,
-              381,
-              0
+              1,
+              182,
+              162,
+              2
             ],
-            "value": 0.27208
+            "value": 0.27312
+          },
+          {
+            "position": [
+              0,
+              141,
+              204,
+              1
+            ],
+            "value": 0.02157
           },
           {
             "position": [
               1,
-              42,
-              104,
-              1
+              162,
+              143,
+              2
             ],
-            "value": 0.02126
-          },
-          {
-            "position": [
-              0,
-              33,
-              25,
-              0
-            ],
-            "value": -0.4601
+            "value": -0.46018
           },
           {
             "position": [
               1,
-              99,
-              505,
-              0
+              177,
+              85,
+              2
             ],
-            "value": -0.38363
+            "value": -0.38365
           },
           {
             "position": [
-              0,
-              126,
-              69,
-              1
+              1,
+              15,
+              271,
+              0
             ],
-            "value": 0.69922
+            "value": 0.69923
           }
         ],
         "subsample_basic_stats": {
-          "max": 0.99994,
-          "mean": 0.00138,
-          "median": 0.00049,
-          "min": -0.99997
+          "max": 0.99986,
+          "mean": 0.00141,
+          "median": 0.00266,
+          "min": -0.99999
         }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              0,
-              11
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              14
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              7
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              4
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 8,
-            "value": -2
-          },
-          {
-            "count": 8,
-            "value": -1
-          },
-          {
-            "count": 2,
-            "value": 0
-          },
-          {
-            "count": 5,
-            "value": 1
-          },
-          {
-            "count": 1,
-            "value": 2
-          },
-          {
-            "count": 3,
-            "value": 3
-          },
-          {
-            "count": 1,
-            "value": 4
-          },
-          {
-            "count": 2,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              131,
-              270,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              140,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              32,
-              7,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72056,
-            "value": 4
-          },
-          {
-            "count": 72293,
-            "value": 5
-          },
-          {
-            "count": 72219,
-            "value": 6
-          }
-        ]
       }
     },
     "mask_timeless": {
@@ -5488,15 +2808,15 @@
           {
             "position": [
               109,
-              245,
-              1
+              113,
+              0
             ],
             "value": false
           },
           {
             "position": [
               57,
-              295,
+              258,
               1
             ],
             "value": true
@@ -5504,19 +2824,19 @@
         ],
         "values": [
           {
-            "count": 108504,
+            "count": 108334,
             "value": false
           },
           {
-            "count": 108064,
+            "count": 108234,
             "value": true
           }
         ]
       }
     },
     "timestamp": [
-      "2022-02-10T02:25:18",
-      "2022-02-18T23:02:53"
+      "2022-02-07T09:39:24",
+      "2022-02-23T06:08:25"
     ]
   },
   "28PBB_3_6_0_0": {
@@ -5531,8 +2851,8 @@
         ],
         "basic_stats": {
           "max": 1.0,
-          "mean": -0.00026,
-          "median": 8e-05,
+          "mean": 0.00066,
+          "median": 0.00083,
           "min": -0.99999
         },
         "counts": {
@@ -5542,20 +2862,20 @@
         "dtype": "float32",
         "histogram": {
           "counts": [
-            81275,
-            81153,
-            81331,
-            81063,
-            81143,
-            81363,
-            81296,
-            81080
+            81049,
+            80983,
+            81418,
+            81105,
+            81435,
+            80888,
+            81534,
+            81292
           ],
           "edges": [
             -0.99999,
             -0.74999,
-            -0.49999,
-            -0.24999,
+            -0.5,
+            -0.25,
             0.0,
             0.25,
             0.5,
@@ -5567,189 +2887,55 @@
           {
             "position": [
               1,
-              71,
-              295,
+              168,
+              266,
+              0
+            ],
+            "value": 0.27218
+          },
+          {
+            "position": [
+              0,
+              40,
+              462,
               1
             ],
-            "value": 0.27224
+            "value": 0.02315
           },
           {
             "position": [
               1,
-              204,
-              221,
-              0
-            ],
-            "value": 0.0223
-          },
-          {
-            "position": [
-              0,
-              15,
-              407,
-              0
-            ],
-            "value": -0.45913
-          },
-          {
-            "position": [
-              0,
-              43,
-              155,
+              18,
+              337,
               2
             ],
-            "value": -0.38384
+            "value": -0.45756
           },
           {
             "position": [
               0,
-              164,
-              201,
-              1
+              3,
+              227,
+              0
             ],
-            "value": 0.70004
+            "value": -0.38166
+          },
+          {
+            "position": [
+              0,
+              77,
+              394,
+              2
+            ],
+            "value": 0.7002
           }
         ],
         "subsample_basic_stats": {
-          "max": 0.99992,
-          "mean": -0.00147,
-          "median": -0.0008,
+          "max": 1.0,
+          "mean": -0.00383,
+          "median": 0.00011,
           "min": -0.99996
         }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              10
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              1,
-              13
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              0,
-              12
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              9
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 5,
-            "value": -1
-          },
-          {
-            "count": 3,
-            "value": 0
-          },
-          {
-            "count": 2,
-            "value": 1
-          },
-          {
-            "count": 4,
-            "value": 2
-          },
-          {
-            "count": 3,
-            "value": 3
-          },
-          {
-            "count": 6,
-            "value": 4
-          },
-          {
-            "count": 4,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              131,
-              381,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              351,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              32,
-              61,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72274,
-            "value": 4
-          },
-          {
-            "count": 72006,
-            "value": 5
-          },
-          {
-            "count": 72288,
-            "value": 6
-          }
-        ]
       }
     },
     "mask_timeless": {
@@ -5764,35 +2950,35 @@
           {
             "position": [
               109,
-              207,
-              0
+              255,
+              1
             ],
             "value": false
           },
           {
             "position": [
-              58,
-              56,
-              0
+              57,
+              327,
+              1
             ],
             "value": true
           }
         ],
         "values": [
           {
-            "count": 108350,
+            "count": 108584,
             "value": false
           },
           {
-            "count": 108218,
+            "count": 107984,
             "value": true
           }
         ]
       }
     },
     "timestamp": [
-      "2022-02-16T09:03:16",
-      "2022-02-21T13:03:34"
+      "2022-02-10T02:25:18",
+      "2022-02-18T23:02:53"
     ]
   },
   "28PBB_3_6_0_1": {
@@ -5807,8 +2993,8 @@
         ],
         "basic_stats": {
           "max": 1.0,
-          "mean": 0.00014,
-          "median": 0.00025,
+          "mean": -0.00025,
+          "median": -0.00048,
           "min": -1.0
         },
         "counts": {
@@ -5818,21 +3004,21 @@
         "dtype": "float32",
         "histogram": {
           "counts": [
-            81342,
-            81546,
-            81156,
-            80724,
-            80697,
-            81207,
-            81814,
-            81218
+            81066,
+            81455,
+            81122,
+            81357,
+            81259,
+            81167,
+            81226,
+            81052
           ],
           "edges": [
             -1.0,
             -0.75,
             -0.5,
             -0.25,
-            -0.0,
+            0.0,
             0.25,
             0.5,
             0.75,
@@ -5842,190 +3028,56 @@
         "random_values": [
           {
             "position": [
-              0,
-              16,
-              371,
+              1,
+              202,
+              235,
               0
             ],
-            "value": 0.27486
+            "value": 0.27153
           },
           {
             "position": [
-              1,
-              84,
-              388,
-              2
+              0,
+              44,
+              121,
+              0
             ],
-            "value": 0.02276
+            "value": 0.02144
           },
           {
             "position": [
               1,
-              127,
-              450,
+              19,
+              311,
               1
             ],
-            "value": -0.45999
-          },
-          {
-            "position": [
-              0,
-              51,
-              359,
-              0
-            ],
-            "value": -0.38377
+            "value": -0.45889
           },
           {
             "position": [
               1,
-              15,
-              267,
+              39,
+              168,
+              2
+            ],
+            "value": -0.38329
+          },
+          {
+            "position": [
+              1,
+              46,
+              194,
               0
             ],
-            "value": 0.70101
+            "value": 0.70031
           }
         ],
         "subsample_basic_stats": {
-          "max": 0.99998,
-          "mean": -0.00184,
-          "median": -0.00422,
-          "min": -0.99999
+          "max": 0.99996,
+          "mean": -0.00023,
+          "median": 0.00245,
+          "min": -0.99996
         }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              10
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              1,
-              13
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              0,
-              12
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              9
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 5,
-            "value": -1
-          },
-          {
-            "count": 3,
-            "value": 0
-          },
-          {
-            "count": 2,
-            "value": 1
-          },
-          {
-            "count": 4,
-            "value": 2
-          },
-          {
-            "count": 3,
-            "value": 3
-          },
-          {
-            "count": 6,
-            "value": 4
-          },
-          {
-            "count": 4,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              131,
-              10,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              166,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              32,
-              317,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72245,
-            "value": 4
-          },
-          {
-            "count": 72183,
-            "value": 5
-          },
-          {
-            "count": 72140,
-            "value": 6
-          }
-        ]
       }
     },
     "mask_timeless": {
@@ -6040,7 +3092,7 @@
           {
             "position": [
               109,
-              357,
+              113,
               1
             ],
             "value": false
@@ -6048,27 +3100,27 @@
           {
             "position": [
               57,
-              283,
-              0
+              334,
+              1
             ],
             "value": true
           }
         ],
         "values": [
           {
-            "count": 108454,
+            "count": 108042,
             "value": false
           },
           {
-            "count": 108114,
+            "count": 108526,
             "value": true
           }
         ]
       }
     },
     "timestamp": [
-      "2022-02-16T09:03:16",
-      "2022-02-21T13:03:34"
+      "2022-02-10T02:25:18",
+      "2022-02-18T23:02:53"
     ]
   },
   "28PBB_3_6_0_2": {
@@ -6083,9 +3135,9 @@
         ],
         "basic_stats": {
           "max": 1.0,
-          "mean": -0.00148,
-          "median": -0.0017,
-          "min": -0.99999
+          "mean": 0.00054,
+          "median": 0.00028,
+          "min": -1.0
         },
         "counts": {
           "infinite": 0,
@@ -6094,18 +3146,18 @@
         "dtype": "float32",
         "histogram": {
           "counts": [
-            81533,
-            81698,
-            81265,
-            80911,
-            80861,
-            81751,
-            80969,
-            80716
+            80850,
+            81364,
+            81179,
+            81372,
+            81043,
+            81141,
+            81593,
+            81162
           ],
           "edges": [
-            -0.99999,
-            -0.74999,
+            -1.0,
+            -0.75,
             -0.5,
             -0.25,
             0.0,
@@ -6119,189 +3171,55 @@
           {
             "position": [
               1,
-              190,
-              399,
+              82,
+              191,
               1
             ],
-            "value": 0.27123
-          },
-          {
-            "position": [
-              1,
-              53,
-              7,
-              1
-            ],
-            "value": 0.01998
-          },
-          {
-            "position": [
-              1,
-              168,
-              114,
-              1
-            ],
-            "value": -0.46185
-          },
-          {
-            "position": [
-              1,
-              75,
-              150,
-              0
-            ],
-            "value": -0.38597
+            "value": 0.27325
           },
           {
             "position": [
               0,
-              179,
-              130,
+              209,
+              499,
+              2
+            ],
+            "value": 0.0224
+          },
+          {
+            "position": [
+              0,
+              195,
+              431,
+              1
+            ],
+            "value": -0.45846
+          },
+          {
+            "position": [
+              0,
+              56,
+              165,
               0
             ],
-            "value": 0.69863
+            "value": -0.38214
+          },
+          {
+            "position": [
+              1,
+              163,
+              328,
+              2
+            ],
+            "value": 0.70042
           }
         ],
         "subsample_basic_stats": {
-          "max": 0.99996,
-          "mean": -0.0031,
-          "median": -0.00431,
-          "min": -0.99999
+          "max": 0.99999,
+          "mean": -0.00233,
+          "median": 0.00039,
+          "min": -0.99991
         }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              10
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              1,
-              13
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              0,
-              12
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              9
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 5,
-            "value": -1
-          },
-          {
-            "count": 3,
-            "value": 0
-          },
-          {
-            "count": 2,
-            "value": 1
-          },
-          {
-            "count": 4,
-            "value": 2
-          },
-          {
-            "count": 3,
-            "value": 3
-          },
-          {
-            "count": 6,
-            "value": 4
-          },
-          {
-            "count": 4,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              131,
-              273,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              204,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              32,
-              50,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72469,
-            "value": 4
-          },
-          {
-            "count": 72228,
-            "value": 5
-          },
-          {
-            "count": 71871,
-            "value": 6
-          }
-        ]
       }
     },
     "mask_timeless": {
@@ -6316,7 +3234,7 @@
           {
             "position": [
               109,
-              346,
+              418,
               0
             ],
             "value": false
@@ -6324,27 +3242,27 @@
           {
             "position": [
               57,
-              262,
-              1
+              297,
+              0
             ],
             "value": true
           }
         ],
         "values": [
           {
-            "count": 108612,
+            "count": 108077,
             "value": false
           },
           {
-            "count": 107956,
+            "count": 108491,
             "value": true
           }
         ]
       }
     },
     "timestamp": [
-      "2022-02-16T09:03:16",
-      "2022-02-21T13:03:34"
+      "2022-02-10T02:25:18",
+      "2022-02-18T23:02:53"
     ]
   },
   "28PBB_3_6_0_3": {
@@ -6359,9 +3277,9 @@
         ],
         "basic_stats": {
           "max": 1.0,
-          "mean": 0.00112,
-          "median": 0.00207,
-          "min": -1.0
+          "mean": 0.00039,
+          "median": -0.00041,
+          "min": -0.99999
         },
         "counts": {
           "infinite": 0,
@@ -6370,21 +3288,21 @@
         "dtype": "float32",
         "histogram": {
           "counts": [
-            81286,
-            81027,
-            80970,
-            80900,
-            80914,
-            81469,
-            81858,
-            81280
+            81102,
+            81202,
+            81425,
+            81266,
+            80773,
+            81136,
+            81396,
+            81404
           ],
           "edges": [
-            -1.0,
-            -0.75,
+            -0.99999,
+            -0.74999,
             -0.5,
             -0.25,
-            -0.0,
+            0.0,
             0.25,
             0.5,
             0.75,
@@ -6394,190 +3312,56 @@
         "random_values": [
           {
             "position": [
-              0,
-              6,
-              97,
+              1,
+              143,
+              465,
               2
             ],
-            "value": 0.27564
+            "value": 0.27372
           },
           {
             "position": [
               1,
-              174,
-              84,
+              168,
+              211,
               2
             ],
-            "value": 0.02418
+            "value": 0.02193
           },
           {
             "position": [
               1,
-              27,
-              24,
+              155,
+              294,
+              2
+            ],
+            "value": -0.45873
+          },
+          {
+            "position": [
+              1,
+              146,
+              144,
               1
             ],
-            "value": -0.45826
+            "value": -0.38277
           },
           {
             "position": [
               0,
-              125,
-              498,
-              0
+              207,
+              176,
+              2
             ],
-            "value": -0.38203
-          },
-          {
-            "position": [
-              1,
-              164,
-              319,
-              0
-            ],
-            "value": 0.70107
+            "value": 0.70102
           }
         ],
         "subsample_basic_stats": {
-          "max": 0.99999,
-          "mean": 0.00071,
-          "median": 0.00135,
-          "min": -0.99987
+          "max": 1.0,
+          "mean": 0.00556,
+          "median": 0.0057,
+          "min": -0.99999
         }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              10
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              1,
-              13
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              0,
-              12
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              9
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 5,
-            "value": -1
-          },
-          {
-            "count": 3,
-            "value": 0
-          },
-          {
-            "count": 2,
-            "value": 1
-          },
-          {
-            "count": 4,
-            "value": 2
-          },
-          {
-            "count": 3,
-            "value": 3
-          },
-          {
-            "count": 6,
-            "value": 4
-          },
-          {
-            "count": 4,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              132,
-              187,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              415,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              31,
-              401,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72500,
-            "value": 4
-          },
-          {
-            "count": 72097,
-            "value": 5
-          },
-          {
-            "count": 71971,
-            "value": 6
-          }
-        ]
       }
     },
     "mask_timeless": {
@@ -6592,15 +3376,15 @@
           {
             "position": [
               109,
-              271,
-              0
+              42,
+              1
             ],
             "value": false
           },
           {
             "position": [
-              57,
-              310,
+              58,
+              51,
               1
             ],
             "value": true
@@ -6608,19 +3392,19 @@
         ],
         "values": [
           {
-            "count": 108702,
+            "count": 108355,
             "value": false
           },
           {
-            "count": 107866,
+            "count": 108213,
             "value": true
           }
         ]
       }
     },
     "timestamp": [
-      "2022-02-16T09:03:16",
-      "2022-02-21T13:03:34"
+      "2022-02-10T02:25:18",
+      "2022-02-18T23:02:53"
     ]
   },
   "28PBB_3_6_0_4": {
@@ -6635,8 +3419,8 @@
         ],
         "basic_stats": {
           "max": 1.0,
-          "mean": -0.00037,
-          "median": -0.00124,
+          "mean": 0.00051,
+          "median": 0.00126,
           "min": -1.0
         },
         "counts": {
@@ -6646,14 +3430,14 @@
         "dtype": "float32",
         "histogram": {
           "counts": [
-            81554,
-            81017,
-            81163,
-            81506,
-            81166,
-            80948,
-            80982,
-            81368
+            81309,
+            81282,
+            81025,
+            80826,
+            80817,
+            81701,
+            81293,
+            81451
           ],
           "edges": [
             -1.0,
@@ -6670,190 +3454,56 @@
         "random_values": [
           {
             "position": [
-              0,
-              76,
-              449,
-              2
-            ],
-            "value": 0.27184
-          },
-          {
-            "position": [
-              0,
-              135,
-              94,
-              2
-            ],
-            "value": 0.02082
-          },
-          {
-            "position": [
-              0,
-              44,
-              169,
+              1,
+              182,
+              396,
               1
             ],
-            "value": -0.45988
+            "value": 0.27499
           },
           {
             "position": [
               0,
-              185,
-              177,
-              0
+              91,
+              220,
+              1
             ],
-            "value": -0.38374
+            "value": 0.02335
           },
           {
             "position": [
               0,
-              47,
-              234,
-              0
+              110,
+              291,
+              2
             ],
-            "value": 0.70089
+            "value": -0.4594
+          },
+          {
+            "position": [
+              0,
+              181,
+              220,
+              2
+            ],
+            "value": -0.38332
+          },
+          {
+            "position": [
+              0,
+              183,
+              440,
+              2
+            ],
+            "value": 0.70137
           }
         ],
         "subsample_basic_stats": {
           "max": 0.99998,
-          "mean": 0.00057,
-          "median": 0.00225,
-          "min": -0.99995
+          "mean": -0.0012,
+          "median": 0.00094,
+          "min": -0.99999
         }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              10
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              1,
-              13
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              0,
-              12
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              9
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 5,
-            "value": -1
-          },
-          {
-            "count": 3,
-            "value": 0
-          },
-          {
-            "count": 2,
-            "value": 1
-          },
-          {
-            "count": 4,
-            "value": 2
-          },
-          {
-            "count": 3,
-            "value": 3
-          },
-          {
-            "count": 6,
-            "value": 4
-          },
-          {
-            "count": 4,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              132,
-              140,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              37,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              32,
-              147,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72355,
-            "value": 4
-          },
-          {
-            "count": 71873,
-            "value": 5
-          },
-          {
-            "count": 72340,
-            "value": 6
-          }
-        ]
       }
     },
     "mask_timeless": {
@@ -6868,7 +3518,7 @@
           {
             "position": [
               109,
-              248,
+              79,
               1
             ],
             "value": false
@@ -6876,7 +3526,7 @@
           {
             "position": [
               57,
-              305,
+              442,
               0
             ],
             "value": true
@@ -6884,19 +3534,19 @@
         ],
         "values": [
           {
-            "count": 108832,
+            "count": 108683,
             "value": false
           },
           {
-            "count": 107736,
+            "count": 107885,
             "value": true
           }
         ]
       }
     },
     "timestamp": [
-      "2022-02-16T09:03:16",
-      "2022-02-21T13:03:34"
+      "2022-02-10T02:25:18",
+      "2022-02-18T23:02:53"
     ]
   },
   "28PBB_3_6_1_0": {
@@ -6911,8 +3561,8 @@
         ],
         "basic_stats": {
           "max": 1.0,
-          "mean": -0.00091,
-          "median": -0.00189,
+          "mean": 0.00076,
+          "median": 0.001,
           "min": -1.0
         },
         "counts": {
@@ -6922,14 +3572,14 @@
         "dtype": "float32",
         "histogram": {
           "counts": [
-            81274,
-            81386,
-            81361,
-            81477,
-            81106,
-            80594,
-            81273,
-            81233
+            80955,
+            80962,
+            81130,
+            81466,
+            81577,
+            80900,
+            81445,
+            81269
           ],
           "edges": [
             -1.0,
@@ -6947,189 +3597,55 @@
           {
             "position": [
               0,
-              158,
-              467,
+              204,
+              291,
               1
             ],
-            "value": 0.27075
-          },
-          {
-            "position": [
-              1,
-              22,
-              347,
-              0
-            ],
-            "value": 0.01993
+            "value": 0.27263
           },
           {
             "position": [
               0,
-              170,
-              386,
-              0
-            ],
-            "value": -0.45951
-          },
-          {
-            "position": [
-              0,
-              113,
-              36,
-              1
-            ],
-            "value": -0.38419
-          },
-          {
-            "position": [
-              1,
-              150,
-              317,
+              91,
+              504,
               2
             ],
-            "value": 0.70025
+            "value": 0.02287
+          },
+          {
+            "position": [
+              0,
+              34,
+              367,
+              2
+            ],
+            "value": -0.45697
+          },
+          {
+            "position": [
+              1,
+              7,
+              99,
+              0
+            ],
+            "value": -0.38045
+          },
+          {
+            "position": [
+              1,
+              63,
+              354,
+              1
+            ],
+            "value": 0.70078
           }
         ],
         "subsample_basic_stats": {
-          "max": 0.99998,
-          "mean": 0.00136,
-          "median": 0.00212,
-          "min": -0.99999
+          "max": 0.99995,
+          "mean": 0.00357,
+          "median": 0.0079,
+          "min": -0.99998
         }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              10
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              1,
-              13
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              0,
-              12
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              9
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 5,
-            "value": -1
-          },
-          {
-            "count": 3,
-            "value": 0
-          },
-          {
-            "count": 2,
-            "value": 1
-          },
-          {
-            "count": 4,
-            "value": 2
-          },
-          {
-            "count": 3,
-            "value": 3
-          },
-          {
-            "count": 6,
-            "value": 4
-          },
-          {
-            "count": 4,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              131,
-              342,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              332,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              31,
-              364,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 71964,
-            "value": 4
-          },
-          {
-            "count": 72166,
-            "value": 5
-          },
-          {
-            "count": 72438,
-            "value": 6
-          }
-        ]
       }
     },
     "mask_timeless": {
@@ -7144,35 +3660,35 @@
           {
             "position": [
               109,
-              297,
-              1
+              256,
+              0
             ],
             "value": false
           },
           {
             "position": [
               57,
-              290,
-              1
+              504,
+              0
             ],
             "value": true
           }
         ],
         "values": [
           {
-            "count": 108518,
+            "count": 108486,
             "value": false
           },
           {
-            "count": 108050,
+            "count": 108082,
             "value": true
           }
         ]
       }
     },
     "timestamp": [
-      "2022-02-16T09:03:16",
-      "2022-02-21T13:03:34"
+      "2022-02-10T02:25:18",
+      "2022-02-18T23:02:53"
     ]
   },
   "28PBB_3_6_1_1": {
@@ -7186,285 +3702,9 @@
           3
         ],
         "basic_stats": {
-          "max": 0.99999,
-          "mean": 0.00045,
-          "median": 0.00042,
-          "min": -0.99999
-        },
-        "counts": {
-          "infinite": 0,
-          "nan": 0
-        },
-        "dtype": "float32",
-        "histogram": {
-          "counts": [
-            81153,
-            81227,
-            80976,
-            81357,
-            81225,
-            80941,
-            81434,
-            81391
-          ],
-          "edges": [
-            -0.99999,
-            -0.74999,
-            -0.49999,
-            -0.25,
-            0.0,
-            0.25,
-            0.5,
-            0.75,
-            0.99999
-          ]
-        },
-        "random_values": [
-          {
-            "position": [
-              1,
-              130,
-              167,
-              1
-            ],
-            "value": 0.27296
-          },
-          {
-            "position": [
-              1,
-              165,
-              282,
-              0
-            ],
-            "value": 0.02238
-          },
-          {
-            "position": [
-              1,
-              134,
-              406,
-              0
-            ],
-            "value": -0.45905
-          },
-          {
-            "position": [
-              0,
-              133,
-              302,
-              1
-            ],
-            "value": -0.38262
-          },
-          {
-            "position": [
-              1,
-              207,
-              394,
-              1
-            ],
-            "value": 0.70123
-          }
-        ],
-        "subsample_basic_stats": {
-          "max": 0.99995,
-          "mean": -0.0023,
-          "median": -0.00287,
-          "min": -0.99999
-        }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              10
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              1,
-              13
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              0,
-              12
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              9
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 5,
-            "value": -1
-          },
-          {
-            "count": 3,
-            "value": 0
-          },
-          {
-            "count": 2,
-            "value": 1
-          },
-          {
-            "count": 4,
-            "value": 2
-          },
-          {
-            "count": 3,
-            "value": 3
-          },
-          {
-            "count": 6,
-            "value": 4
-          },
-          {
-            "count": 4,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              130,
-              476,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              311,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              32,
-              452,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 71903,
-            "value": 4
-          },
-          {
-            "count": 72233,
-            "value": 5
-          },
-          {
-            "count": 72432,
-            "value": 6
-          }
-        ]
-      }
-    },
-    "mask_timeless": {
-      "REF": {
-        "array_shape": [
-          214,
-          506,
-          2
-        ],
-        "dtype": "bool",
-        "random_values": [
-          {
-            "position": [
-              108,
-              414,
-              0
-            ],
-            "value": false
-          },
-          {
-            "position": [
-              58,
-              162,
-              0
-            ],
-            "value": true
-          }
-        ],
-        "values": [
-          {
-            "count": 108209,
-            "value": false
-          },
-          {
-            "count": 108359,
-            "value": true
-          }
-        ]
-      }
-    },
-    "timestamp": [
-      "2022-02-16T09:03:16",
-      "2022-02-21T13:03:34"
-    ]
-  },
-  "28PBB_3_6_1_2": {
-    "bbox": "BBox(((234970.0, 1633930.0), (240030.0, 1636070.0)), crs=CRS('32628'))",
-    "data": {
-      "BANDS": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          3
-        ],
-        "basic_stats": {
-          "max": 0.99999,
-          "mean": 0.00084,
-          "median": 0.00151,
+          "max": 1.0,
+          "mean": -0.00131,
+          "median": -0.00393,
           "min": -1.0
         },
         "counts": {
@@ -7474,214 +3714,80 @@
         "dtype": "float32",
         "histogram": {
           "counts": [
-            81013,
-            80720,
-            81635,
-            80953,
-            81354,
-            81580,
-            80872,
-            81577
+            81503,
+            80987,
+            81689,
+            81999,
+            80758,
+            80630,
+            80929,
+            81209
           ],
           "edges": [
             -1.0,
             -0.75,
             -0.5,
             -0.25,
-            -1e-05,
-            0.24999,
-            0.49999,
-            0.74999,
-            0.99999
+            -0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
           ]
         },
         "random_values": [
           {
             "position": [
-              0,
-              204,
-              34,
-              2
+              1,
+              127,
+              43,
+              1
             ],
-            "value": 0.27348
-          },
-          {
-            "position": [
-              0,
-              140,
-              119,
-              2
-            ],
-            "value": 0.02384
+            "value": 0.27019
           },
           {
             "position": [
               1,
-              66,
-              416,
+              167,
+              435,
               2
             ],
-            "value": -0.45699
+            "value": 0.01851
           },
           {
             "position": [
               0,
-              91,
-              202,
+              60,
+              308,
+              1
+            ],
+            "value": -0.45946
+          },
+          {
+            "position": [
+              0,
+              121,
+              392,
               2
             ],
-            "value": -0.3819
+            "value": -0.38317
           },
           {
             "position": [
               1,
-              172,
-              128,
+              136,
+              374,
               2
             ],
-            "value": 0.70142
+            "value": 0.69986
           }
         ],
         "subsample_basic_stats": {
-          "max": 0.99999,
-          "mean": 0.00118,
-          "median": 0.00098,
+          "max": 0.99997,
+          "mean": -0.00269,
+          "median": -0.00629,
           "min": -0.99998
         }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              10
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              1,
-              13
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              0,
-              12
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              9
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 5,
-            "value": -1
-          },
-          {
-            "count": 3,
-            "value": 0
-          },
-          {
-            "count": 2,
-            "value": 1
-          },
-          {
-            "count": 4,
-            "value": 2
-          },
-          {
-            "count": 3,
-            "value": 3
-          },
-          {
-            "count": 6,
-            "value": 4
-          },
-          {
-            "count": 4,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              131,
-              236,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              82,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              32,
-              341,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72412,
-            "value": 4
-          },
-          {
-            "count": 72242,
-            "value": 5
-          },
-          {
-            "count": 71914,
-            "value": 6
-          }
-        ]
       }
     },
     "mask_timeless": {
@@ -7696,15 +3802,15 @@
           {
             "position": [
               109,
-              183,
-              1
+              127,
+              0
             ],
             "value": false
           },
           {
             "position": [
               57,
-              416,
+              455,
               1
             ],
             "value": true
@@ -7712,19 +3818,161 @@
         ],
         "values": [
           {
-            "count": 107796,
+            "count": 108176,
             "value": false
           },
           {
-            "count": 108772,
+            "count": 108392,
             "value": true
           }
         ]
       }
     },
     "timestamp": [
-      "2022-02-16T09:03:16",
-      "2022-02-21T13:03:34"
+      "2022-02-10T02:25:18",
+      "2022-02-18T23:02:53"
+    ]
+  },
+  "28PBB_3_6_1_2": {
+    "bbox": "BBox(((234970.0, 1633930.0), (240030.0, 1636070.0)), crs=CRS('32628'))",
+    "data": {
+      "BANDS": {
+        "array_shape": [
+          2,
+          214,
+          506,
+          3
+        ],
+        "basic_stats": {
+          "max": 1.0,
+          "mean": -0.00076,
+          "median": -0.00067,
+          "min": -1.0
+        },
+        "counts": {
+          "infinite": 0,
+          "nan": 0
+        },
+        "dtype": "float32",
+        "histogram": {
+          "counts": [
+            81446,
+            81178,
+            81375,
+            81080,
+            81538,
+            81042,
+            81026,
+            81019
+          ],
+          "edges": [
+            -1.0,
+            -0.75,
+            -0.5,
+            -0.25,
+            -0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        },
+        "random_values": [
+          {
+            "position": [
+              1,
+              6,
+              294,
+              0
+            ],
+            "value": 0.27135
+          },
+          {
+            "position": [
+              0,
+              105,
+              73,
+              2
+            ],
+            "value": 0.02166
+          },
+          {
+            "position": [
+              1,
+              56,
+              408,
+              1
+            ],
+            "value": -0.45917
+          },
+          {
+            "position": [
+              0,
+              65,
+              180,
+              0
+            ],
+            "value": -0.38308
+          },
+          {
+            "position": [
+              0,
+              8,
+              353,
+              0
+            ],
+            "value": 0.70005
+          }
+        ],
+        "subsample_basic_stats": {
+          "max": 0.99998,
+          "mean": 0.00148,
+          "median": 0.00248,
+          "min": -0.99991
+        }
+      }
+    },
+    "mask_timeless": {
+      "REF": {
+        "array_shape": [
+          214,
+          506,
+          2
+        ],
+        "dtype": "bool",
+        "random_values": [
+          {
+            "position": [
+              109,
+              72,
+              1
+            ],
+            "value": false
+          },
+          {
+            "position": [
+              57,
+              456,
+              0
+            ],
+            "value": true
+          }
+        ],
+        "values": [
+          {
+            "count": 108374,
+            "value": false
+          },
+          {
+            "count": 108194,
+            "value": true
+          }
+        ]
+      }
+    },
+    "timestamp": [
+      "2022-02-10T02:25:18",
+      "2022-02-18T23:02:53"
     ]
   },
   "28PBB_3_6_1_3": {
@@ -7739,8 +3987,8 @@
         ],
         "basic_stats": {
           "max": 1.0,
-          "mean": 0.00075,
-          "median": 0.00077,
+          "mean": 0.00048,
+          "median": 0.00069,
           "min": -1.0
         },
         "counts": {
@@ -7750,21 +3998,21 @@
         "dtype": "float32",
         "histogram": {
           "counts": [
-            80838,
-            81070,
-            81271,
-            81402,
-            81327,
-            81156,
-            81572,
-            81068
+            80970,
+            81201,
+            81233,
+            81198,
+            81285,
+            81396,
+            81115,
+            81306
           ],
           "edges": [
             -1.0,
             -0.75,
             -0.5,
             -0.25,
-            0.0,
+            -0.0,
             0.25,
             0.5,
             0.75,
@@ -7775,189 +4023,55 @@
           {
             "position": [
               1,
-              36,
-              12,
+              186,
+              295,
               0
             ],
-            "value": 0.27317
+            "value": 0.27352
           },
           {
             "position": [
               1,
-              1,
-              325,
-              0
+              88,
+              163,
+              1
             ],
-            "value": 0.02249
+            "value": 0.0224
           },
           {
             "position": [
               0,
-              31,
-              451,
-              2
+              135,
+              465,
+              0
             ],
-            "value": -0.45697
+            "value": -0.45838
           },
           {
             "position": [
               1,
               9,
-              59,
-              1
+              346,
+              2
             ],
-            "value": -0.38101
+            "value": -0.38224
           },
           {
             "position": [
               0,
-              104,
-              156,
-              2
+              75,
+              166,
+              1
             ],
-            "value": 0.70068
+            "value": 0.70033
           }
         ],
         "subsample_basic_stats": {
-          "max": 0.99997,
-          "mean": -0.00327,
-          "median": -0.00294,
-          "min": -0.99995
+          "max": 0.99998,
+          "mean": 0.0013,
+          "median": 0.00227,
+          "min": -0.99996
         }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              10
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              1,
-              13
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              0,
-              12
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              9
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 5,
-            "value": -1
-          },
-          {
-            "count": 3,
-            "value": 0
-          },
-          {
-            "count": 2,
-            "value": 1
-          },
-          {
-            "count": 4,
-            "value": 2
-          },
-          {
-            "count": 3,
-            "value": 3
-          },
-          {
-            "count": 6,
-            "value": 4
-          },
-          {
-            "count": 4,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              130,
-              475,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              327,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              32,
-              154,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72246,
-            "value": 4
-          },
-          {
-            "count": 72039,
-            "value": 5
-          },
-          {
-            "count": 72283,
-            "value": 6
-          }
-        ]
       }
     },
     "mask_timeless": {
@@ -7972,7 +4086,7 @@
           {
             "position": [
               109,
-              332,
+              283,
               1
             ],
             "value": false
@@ -7980,27 +4094,27 @@
           {
             "position": [
               57,
-              231,
-              1
+              295,
+              0
             ],
             "value": true
           }
         ],
         "values": [
           {
-            "count": 108004,
+            "count": 108055,
             "value": false
           },
           {
-            "count": 108564,
+            "count": 108513,
             "value": true
           }
         ]
       }
     },
     "timestamp": [
-      "2022-02-16T09:03:16",
-      "2022-02-21T13:03:34"
+      "2022-02-10T02:25:18",
+      "2022-02-18T23:02:53"
     ]
   },
   "28PBB_3_6_1_4": {
@@ -8015,8 +4129,8 @@
         ],
         "basic_stats": {
           "max": 1.0,
-          "mean": -0.00041,
-          "median": -0.00016,
+          "mean": -0.00045,
+          "median": -0.00068,
           "min": -1.0
         },
         "counts": {
@@ -8026,21 +4140,21 @@
         "dtype": "float32",
         "histogram": {
           "counts": [
-            81058,
-            81344,
-            81492,
-            81019,
-            81631,
-            81307,
-            80532,
-            81321
+            81360,
+            81116,
+            81737,
+            80851,
+            81102,
+            81266,
+            81158,
+            81114
           ],
           "edges": [
             -1.0,
             -0.75,
             -0.5,
             -0.25,
-            0.0,
+            -0.0,
             0.25,
             0.5,
             0.75,
@@ -8051,189 +4165,55 @@
           {
             "position": [
               0,
-              144,
-              157,
+              137,
+              289,
               0
             ],
-            "value": 0.27145
+            "value": 0.27231
           },
           {
             "position": [
               0,
-              200,
-              415,
-              1
+              194,
+              281,
+              2
             ],
-            "value": 0.02192
+            "value": 0.02159
+          },
+          {
+            "position": [
+              1,
+              100,
+              135,
+              2
+            ],
+            "value": -0.45987
           },
           {
             "position": [
               0,
-              212,
-              268,
-              1
-            ],
-            "value": -0.45848
-          },
-          {
-            "position": [
-              1,
-              200,
-              15,
+              43,
+              318,
               0
             ],
-            "value": -0.38363
+            "value": -0.38349
           },
           {
             "position": [
-              1,
-              22,
-              129,
-              1
+              0,
+              115,
+              47,
+              0
             ],
-            "value": 0.69983
+            "value": 0.7004
           }
         ],
         "subsample_basic_stats": {
-          "max": 0.99999,
-          "mean": 0.0016,
-          "median": 0.00306,
-          "min": -0.99997
+          "max": 0.99997,
+          "mean": 0.00113,
+          "median": 0.0006,
+          "min": -0.99999
         }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              10
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              1,
-              13
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              0,
-              12
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              9
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 5,
-            "value": -1
-          },
-          {
-            "count": 3,
-            "value": 0
-          },
-          {
-            "count": 2,
-            "value": 1
-          },
-          {
-            "count": 4,
-            "value": 2
-          },
-          {
-            "count": 3,
-            "value": 3
-          },
-          {
-            "count": 6,
-            "value": 4
-          },
-          {
-            "count": 4,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          214,
-          506,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              132,
-              140,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              17,
-              370,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              31,
-              415,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 72174,
-            "value": 4
-          },
-          {
-            "count": 72069,
-            "value": 5
-          },
-          {
-            "count": 72325,
-            "value": 6
-          }
-        ]
       }
     },
     "mask_timeless": {
@@ -8248,7 +4228,7 @@
           {
             "position": [
               109,
-              34,
+              85,
               1
             ],
             "value": false
@@ -8256,27 +4236,27 @@
           {
             "position": [
               57,
-              436,
-              0
+              496,
+              1
             ],
             "value": true
           }
         ],
         "values": [
           {
-            "count": 108343,
+            "count": 108091,
             "value": false
           },
           {
-            "count": 108225,
+            "count": 108477,
             "value": true
           }
         ]
       }
     },
     "timestamp": [
-      "2022-02-16T09:03:16",
-      "2022-02-21T13:03:34"
+      "2022-02-10T02:25:18",
+      "2022-02-18T23:02:53"
     ]
   }
 }

@@ -1,103 +1,6 @@
 {
   "eopatch-id-0-col-0-row-0_0_0": {
     "bbox": "BBox(((727180.0, 4388970.0), (729220.0, 4392070.0)), crs=CRS('32638'))",
-    "data": {
-      "BANDS": {
-        "array_shape": [
-          2,
-          160,
-          102,
-          3
-        ],
-        "basic_stats": {
-          "max": 1.0,
-          "mean": -0.00318,
-          "median": -0.00443,
-          "min": -0.99998
-        },
-        "counts": {
-          "infinite": 0,
-          "nan": 0
-        },
-        "dtype": "float32",
-        "histogram": {
-          "counts": [
-            12396,
-            12163,
-            12268,
-            12386,
-            12176,
-            12289,
-            12134,
-            12108
-          ],
-          "edges": [
-            -0.99998,
-            -0.74998,
-            -0.49998,
-            -0.24999,
-            1e-05,
-            0.25001,
-            0.5,
-            0.75,
-            1.0
-          ]
-        },
-        "random_values": [
-          {
-            "position": [
-              0,
-              84,
-              61,
-              1
-            ],
-            "value": 0.27027
-          },
-          {
-            "position": [
-              0,
-              90,
-              63,
-              2
-            ],
-            "value": 0.01749
-          },
-          {
-            "position": [
-              1,
-              139,
-              54,
-              2
-            ],
-            "value": -0.46256
-          },
-          {
-            "position": [
-              0,
-              153,
-              71,
-              0
-            ],
-            "value": -0.38825
-          },
-          {
-            "position": [
-              0,
-              27,
-              30,
-              2
-            ],
-            "value": 0.69651
-          }
-        ],
-        "subsample_basic_stats": {
-          "max": 0.99964,
-          "mean": 0.00479,
-          "median": 0.00451,
-          "min": -0.99968
-        }
-      }
-    },
     "label": {
       "LABELS": {
         "array_shape": [
@@ -109,42 +12,42 @@
           {
             "position": [
               1,
-              8
+              10
             ],
             "value": 2
           },
           {
             "position": [
               1,
-              3
+              0
             ],
             "value": 3
           },
           {
             "position": [
-              0,
-              2
+              1,
+              6
             ],
             "value": -1
           },
           {
             "position": [
-              1,
-              1
+              0,
+              7
             ],
             "value": 0
           },
           {
             "position": [
               0,
-              6
+              13
             ],
             "value": 1
           }
         ],
         "values": [
           {
-            "count": 3,
+            "count": 1,
             "value": -2
           },
           {
@@ -152,19 +55,19 @@
             "value": -1
           },
           {
-            "count": 6,
+            "count": 3,
             "value": 0
           },
           {
-            "count": 1,
+            "count": 3,
             "value": 1
           },
           {
-            "count": 3,
+            "count": 6,
             "value": 2
           },
           {
-            "count": 9,
+            "count": 4,
             "value": 3
           },
           {
@@ -172,7 +75,7 @@
             "value": 4
           },
           {
-            "count": 3,
+            "count": 8,
             "value": 5
           }
         ]
@@ -191,8 +94,8 @@
           {
             "position": [
               0,
-              99,
-              87,
+              97,
+              60,
               0
             ],
             "value": 6
@@ -200,8 +103,8 @@
           {
             "position": [
               0,
-              12,
-              55,
+              14,
+              3,
               0
             ],
             "value": 4
@@ -209,8 +112,8 @@
           {
             "position": [
               0,
-              24,
-              56,
+              25,
+              41,
               0
             ],
             "value": 5
@@ -218,15 +121,15 @@
         ],
         "values": [
           {
-            "count": 10936,
+            "count": 10907,
             "value": 4
           },
           {
-            "count": 10840,
+            "count": 10893,
             "value": 5
           },
           {
-            "count": 10864,
+            "count": 10840,
             "value": 6
           }
         ]
@@ -271,109 +174,12 @@
       }
     },
     "timestamp": [
-      "2022-02-24T00:40:21",
-      "2022-02-26T00:20:44"
+      "2022-02-07T23:12:14",
+      "2022-02-22T15:12:32"
     ]
   },
   "eopatch-id-0-col-0-row-0_1_0": {
     "bbox": "BBox(((728980.0, 4388970.0), (731020.0, 4392070.0)), crs=CRS('32638'))",
-    "data": {
-      "BANDS": {
-        "array_shape": [
-          2,
-          160,
-          102,
-          3
-        ],
-        "basic_stats": {
-          "max": 0.99999,
-          "mean": -0.00256,
-          "median": -0.00098,
-          "min": -0.99999
-        },
-        "counts": {
-          "infinite": 0,
-          "nan": 0
-        },
-        "dtype": "float32",
-        "histogram": {
-          "counts": [
-            12376,
-            12441,
-            12082,
-            12114,
-            12291,
-            12315,
-            12123,
-            12178
-          ],
-          "edges": [
-            -0.99999,
-            -0.74999,
-            -0.49999,
-            -0.24999,
-            0.0,
-            0.25,
-            0.5,
-            0.75,
-            0.99999
-          ]
-        },
-        "random_values": [
-          {
-            "position": [
-              1,
-              32,
-              39,
-              1
-            ],
-            "value": 0.27233
-          },
-          {
-            "position": [
-              1,
-              81,
-              32,
-              2
-            ],
-            "value": 0.02171
-          },
-          {
-            "position": [
-              1,
-              75,
-              33,
-              0
-            ],
-            "value": -0.46711
-          },
-          {
-            "position": [
-              0,
-              116,
-              33,
-              2
-            ],
-            "value": -0.38855
-          },
-          {
-            "position": [
-              0,
-              155,
-              75,
-              0
-            ],
-            "value": 0.69875
-          }
-        ],
-        "subsample_basic_stats": {
-          "max": 0.99999,
-          "mean": -0.00999,
-          "median": -0.00593,
-          "min": -0.99998
-        }
-      }
-    },
     "label": {
       "LABELS": {
         "array_shape": [
@@ -385,42 +191,42 @@
           {
             "position": [
               1,
-              8
+              10
             ],
             "value": 2
           },
           {
             "position": [
               1,
-              3
+              0
             ],
             "value": 3
           },
           {
             "position": [
-              0,
-              2
+              1,
+              6
             ],
             "value": -1
           },
           {
             "position": [
-              1,
-              1
+              0,
+              7
             ],
             "value": 0
           },
           {
             "position": [
               0,
-              6
+              13
             ],
             "value": 1
           }
         ],
         "values": [
           {
-            "count": 3,
+            "count": 1,
             "value": -2
           },
           {
@@ -428,19 +234,19 @@
             "value": -1
           },
           {
-            "count": 6,
+            "count": 3,
             "value": 0
           },
           {
-            "count": 1,
+            "count": 3,
             "value": 1
           },
           {
-            "count": 3,
+            "count": 6,
             "value": 2
           },
           {
-            "count": 9,
+            "count": 4,
             "value": 3
           },
           {
@@ -448,7 +254,7 @@
             "value": 4
           },
           {
-            "count": 3,
+            "count": 8,
             "value": 5
           }
         ]
@@ -467,8 +273,8 @@
           {
             "position": [
               0,
-              97,
-              94,
+              98,
+              76,
               0
             ],
             "value": 6
@@ -476,8 +282,8 @@
           {
             "position": [
               0,
-              12,
-              41,
+              14,
+              1,
               0
             ],
             "value": 4
@@ -485,8 +291,8 @@
           {
             "position": [
               0,
-              25,
-              37,
+              24,
+              43,
               0
             ],
             "value": 5
@@ -494,15 +300,15 @@
         ],
         "values": [
           {
-            "count": 10870,
+            "count": 10911,
             "value": 4
           },
           {
-            "count": 10860,
+            "count": 10882,
             "value": 5
           },
           {
-            "count": 10910,
+            "count": 10847,
             "value": 6
           }
         ]
@@ -547,109 +353,12 @@
       }
     },
     "timestamp": [
-      "2022-02-24T00:40:21",
-      "2022-02-26T00:20:44"
+      "2022-02-07T23:12:14",
+      "2022-02-22T15:12:32"
     ]
   },
   "eopatch-id-1-col-0-row-1_0_0": {
     "bbox": "BBox(((727180.0, 4391970.0), (729220.0, 4395070.0)), crs=CRS('32638'))",
-    "data": {
-      "BANDS": {
-        "array_shape": [
-          2,
-          160,
-          102,
-          3
-        ],
-        "basic_stats": {
-          "max": 0.99999,
-          "mean": -0.00219,
-          "median": -0.00452,
-          "min": -1.0
-        },
-        "counts": {
-          "infinite": 0,
-          "nan": 0
-        },
-        "dtype": "float32",
-        "histogram": {
-          "counts": [
-            12337,
-            12216,
-            12334,
-            12302,
-            12124,
-            12173,
-            12136,
-            12298
-          ],
-          "edges": [
-            -1.0,
-            -0.75,
-            -0.5,
-            -0.25,
-            -1e-05,
-            0.24999,
-            0.49999,
-            0.74999,
-            0.99999
-          ]
-        },
-        "random_values": [
-          {
-            "position": [
-              0,
-              91,
-              86,
-              2
-            ],
-            "value": 0.2717
-          },
-          {
-            "position": [
-              1,
-              147,
-              96,
-              2
-            ],
-            "value": 0.01794
-          },
-          {
-            "position": [
-              1,
-              33,
-              58,
-              0
-            ],
-            "value": -0.46286
-          },
-          {
-            "position": [
-              0,
-              57,
-              57,
-              1
-            ],
-            "value": -0.38888
-          },
-          {
-            "position": [
-              1,
-              86,
-              39,
-              1
-            ],
-            "value": 0.7032
-          }
-        ],
-        "subsample_basic_stats": {
-          "max": 0.99963,
-          "mean": -0.00587,
-          "median": -0.00065,
-          "min": -1.0
-        }
-      }
-    },
     "label": {
       "LABELS": {
         "array_shape": [
@@ -661,54 +370,54 @@
           {
             "position": [
               1,
-              8
+              6
             ],
             "value": 2
-          },
-          {
-            "position": [
-              1,
-              3
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              0,
-              2
-            ],
-            "value": -1
           },
           {
             "position": [
               1,
               1
             ],
+            "value": 3
+          },
+          {
+            "position": [
+              1,
+              7
+            ],
+            "value": -1
+          },
+          {
+            "position": [
+              1,
+              9
+            ],
             "value": 0
           },
           {
             "position": [
-              0,
-              6
+              1,
+              4
             ],
             "value": 1
           }
         ],
         "values": [
           {
-            "count": 3,
+            "count": 4,
             "value": -2
           },
           {
-            "count": 2,
+            "count": 5,
             "value": -1
           },
           {
-            "count": 6,
+            "count": 2,
             "value": 0
           },
           {
-            "count": 1,
+            "count": 5,
             "value": 1
           },
           {
@@ -716,15 +425,15 @@
             "value": 2
           },
           {
-            "count": 9,
+            "count": 3,
             "value": 3
           },
           {
-            "count": 3,
+            "count": 2,
             "value": 4
           },
           {
-            "count": 3,
+            "count": 6,
             "value": 5
           }
         ]
@@ -743,8 +452,8 @@
           {
             "position": [
               0,
-              98,
-              69,
+              96,
+              82,
               0
             ],
             "value": 6
@@ -752,8 +461,8 @@
           {
             "position": [
               0,
-              12,
-              53,
+              11,
+              84,
               0
             ],
             "value": 4
@@ -761,8 +470,8 @@
           {
             "position": [
               0,
-              24,
-              79,
+              25,
+              26,
               0
             ],
             "value": 5
@@ -770,15 +479,15 @@
         ],
         "values": [
           {
-            "count": 10839,
+            "count": 10838,
             "value": 4
           },
           {
-            "count": 10832,
+            "count": 10901,
             "value": 5
           },
           {
-            "count": 10969,
+            "count": 10901,
             "value": 6
           }
         ]
@@ -796,15 +505,15 @@
           {
             "position": [
               81,
-              98,
+              73,
               1
             ],
             "value": false
           },
           {
             "position": [
-              42,
-              93,
+              43,
+              31,
               0
             ],
             "value": true
@@ -812,120 +521,23 @@
         ],
         "values": [
           {
-            "count": 16366,
+            "count": 16304,
             "value": false
           },
           {
-            "count": 16274,
+            "count": 16336,
             "value": true
           }
         ]
       }
     },
     "timestamp": [
-      "2022-02-24T00:40:21",
-      "2022-02-26T00:20:44"
+      "2022-02-07T23:12:14",
+      "2022-02-22T15:12:32"
     ]
   },
   "eopatch-id-1-col-0-row-1_1_0": {
     "bbox": "BBox(((728980.0, 4391970.0), (731020.0, 4395070.0)), crs=CRS('32638'))",
-    "data": {
-      "BANDS": {
-        "array_shape": [
-          2,
-          160,
-          102,
-          3
-        ],
-        "basic_stats": {
-          "max": 1.0,
-          "mean": -0.00091,
-          "median": -0.0039,
-          "min": -0.99998
-        },
-        "counts": {
-          "infinite": 0,
-          "nan": 0
-        },
-        "dtype": "float32",
-        "histogram": {
-          "counts": [
-            12291,
-            12249,
-            12192,
-            12423,
-            12088,
-            12257,
-            12107,
-            12313
-          ],
-          "edges": [
-            -0.99998,
-            -0.74998,
-            -0.49998,
-            -0.24999,
-            1e-05,
-            0.25001,
-            0.50001,
-            0.75,
-            1.0
-          ]
-        },
-        "random_values": [
-          {
-            "position": [
-              1,
-              95,
-              43,
-              2
-            ],
-            "value": 0.27318
-          },
-          {
-            "position": [
-              1,
-              13,
-              63,
-              1
-            ],
-            "value": 0.01873
-          },
-          {
-            "position": [
-              0,
-              120,
-              5,
-              1
-            ],
-            "value": -0.4611
-          },
-          {
-            "position": [
-              1,
-              77,
-              70,
-              2
-            ],
-            "value": -0.38481
-          },
-          {
-            "position": [
-              1,
-              64,
-              59,
-              0
-            ],
-            "value": 0.70238
-          }
-        ],
-        "subsample_basic_stats": {
-          "max": 0.99995,
-          "mean": -0.00497,
-          "median": -0.00933,
-          "min": -0.99992
-        }
-      }
-    },
     "label": {
       "LABELS": {
         "array_shape": [
@@ -937,54 +549,54 @@
           {
             "position": [
               1,
-              8
+              6
             ],
             "value": 2
-          },
-          {
-            "position": [
-              1,
-              3
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              0,
-              2
-            ],
-            "value": -1
           },
           {
             "position": [
               1,
               1
             ],
+            "value": 3
+          },
+          {
+            "position": [
+              1,
+              7
+            ],
+            "value": -1
+          },
+          {
+            "position": [
+              1,
+              9
+            ],
             "value": 0
           },
           {
             "position": [
-              0,
-              6
+              1,
+              4
             ],
             "value": 1
           }
         ],
         "values": [
           {
-            "count": 3,
+            "count": 4,
             "value": -2
           },
           {
-            "count": 2,
+            "count": 5,
             "value": -1
           },
           {
-            "count": 6,
+            "count": 2,
             "value": 0
           },
           {
-            "count": 1,
+            "count": 5,
             "value": 1
           },
           {
@@ -992,15 +604,15 @@
             "value": 2
           },
           {
-            "count": 9,
+            "count": 3,
             "value": 3
           },
           {
-            "count": 3,
+            "count": 2,
             "value": 4
           },
           {
-            "count": 3,
+            "count": 6,
             "value": 5
           }
         ]
@@ -1019,8 +631,8 @@
           {
             "position": [
               0,
-              100,
-              6,
+              96,
+              17,
               0
             ],
             "value": 6
@@ -1029,7 +641,7 @@
             "position": [
               0,
               12,
-              70,
+              96,
               0
             ],
             "value": 4
@@ -1037,8 +649,8 @@
           {
             "position": [
               0,
-              24,
-              82,
+              25,
+              28,
               0
             ],
             "value": 5
@@ -1046,15 +658,15 @@
         ],
         "values": [
           {
-            "count": 11011,
+            "count": 10989,
             "value": 4
           },
           {
-            "count": 10783,
+            "count": 10792,
             "value": 5
           },
           {
-            "count": 10846,
+            "count": 10859,
             "value": 6
           }
         ]
@@ -1072,7 +684,7 @@
           {
             "position": [
               81,
-              33,
+              15,
               1
             ],
             "value": false
@@ -1080,128 +692,31 @@
           {
             "position": [
               43,
-              65,
-              0
+              57,
+              1
             ],
             "value": true
           }
         ],
         "values": [
           {
-            "count": 16227,
+            "count": 16260,
             "value": false
           },
           {
-            "count": 16413,
+            "count": 16380,
             "value": true
           }
         ]
       }
     },
     "timestamp": [
-      "2022-02-24T00:40:21",
-      "2022-02-26T00:20:44"
+      "2022-02-07T23:12:14",
+      "2022-02-22T15:12:32"
     ]
   },
   "eopatch-id-2-col-1-row-0_0_0": {
     "bbox": "BBox(((730780.0, 4388970.0), (732820.0, 4392070.0)), crs=CRS('32638'))",
-    "data": {
-      "BANDS": {
-        "array_shape": [
-          2,
-          160,
-          102,
-          3
-        ],
-        "basic_stats": {
-          "max": 0.99999,
-          "mean": -0.00247,
-          "median": -0.00331,
-          "min": -0.99989
-        },
-        "counts": {
-          "infinite": 0,
-          "nan": 0
-        },
-        "dtype": "float32",
-        "histogram": {
-          "counts": [
-            12341,
-            12339,
-            12279,
-            12164,
-            12217,
-            12333,
-            12054,
-            12193
-          ],
-          "edges": [
-            -0.99989,
-            -0.7499,
-            -0.49992,
-            -0.24994,
-            5e-05,
-            0.25003,
-            0.50002,
-            0.75,
-            0.99999
-          ]
-        },
-        "random_values": [
-          {
-            "position": [
-              0,
-              82,
-              49,
-              2
-            ],
-            "value": 0.27088
-          },
-          {
-            "position": [
-              0,
-              106,
-              53,
-              0
-            ],
-            "value": 0.01852
-          },
-          {
-            "position": [
-              0,
-              82,
-              30,
-              0
-            ],
-            "value": -0.46262
-          },
-          {
-            "position": [
-              0,
-              29,
-              67,
-              0
-            ],
-            "value": -0.38665
-          },
-          {
-            "position": [
-              0,
-              121,
-              80,
-              1
-            ],
-            "value": 0.69851
-          }
-        ],
-        "subsample_basic_stats": {
-          "max": 0.99993,
-          "mean": -0.00077,
-          "median": 0.00452,
-          "min": -0.99979
-        }
-      }
-    },
     "label": {
       "LABELS": {
         "array_shape": [
@@ -1212,71 +727,71 @@
         "random_values": [
           {
             "position": [
-              1,
-              8
+              0,
+              11
             ],
             "value": 2
           },
           {
             "position": [
               1,
-              3
+              14
             ],
             "value": 3
-          },
-          {
-            "position": [
-              0,
-              2
-            ],
-            "value": -1
           },
           {
             "position": [
               1,
               1
             ],
+            "value": -1
+          },
+          {
+            "position": [
+              1,
+              7
+            ],
             "value": 0
           },
           {
             "position": [
-              0,
-              6
+              1,
+              4
             ],
             "value": 1
           }
         ],
         "values": [
           {
-            "count": 3,
+            "count": 8,
             "value": -2
           },
           {
-            "count": 2,
+            "count": 8,
             "value": -1
           },
           {
-            "count": 6,
+            "count": 2,
             "value": 0
           },
           {
-            "count": 1,
+            "count": 5,
             "value": 1
           },
           {
-            "count": 3,
+            "count": 1,
             "value": 2
           },
           {
-            "count": 9,
+            "count": 3,
             "value": 3
           },
           {
-            "count": 3,
+            "count": 1,
             "value": 4
           },
           {
-            "count": 3,
+            "count": 2,
             "value": 5
           }
         ]
@@ -1296,7 +811,186 @@
             "position": [
               0,
               99,
+              39,
+              0
+            ],
+            "value": 6
+          },
+          {
+            "position": [
+              0,
+              14,
+              8,
+              0
+            ],
+            "value": 4
+          },
+          {
+            "position": [
+              0,
+              24,
+              49,
+              0
+            ],
+            "value": 5
+          }
+        ],
+        "values": [
+          {
+            "count": 10838,
+            "value": 4
+          },
+          {
+            "count": 10944,
+            "value": 5
+          },
+          {
+            "count": 10858,
+            "value": 6
+          }
+        ]
+      }
+    },
+    "mask_timeless": {
+      "REF": {
+        "array_shape": [
+          160,
+          102,
+          2
+        ],
+        "dtype": "bool",
+        "random_values": [
+          {
+            "position": [
+              82,
+              13,
+              0
+            ],
+            "value": false
+          },
+          {
+            "position": [
+              42,
+              19,
+              1
+            ],
+            "value": true
+          }
+        ],
+        "values": [
+          {
+            "count": 16497,
+            "value": false
+          },
+          {
+            "count": 16143,
+            "value": true
+          }
+        ]
+      }
+    },
+    "timestamp": [
+      "2022-02-07T23:12:14",
+      "2022-02-22T15:12:32"
+    ]
+  },
+  "eopatch-id-2-col-1-row-0_1_0": {
+    "bbox": "BBox(((732580.0, 4388970.0), (734620.0, 4392070.0)), crs=CRS('32638'))",
+    "label": {
+      "LABELS": {
+        "array_shape": [
+          2,
+          15
+        ],
+        "dtype": "int16",
+        "random_values": [
+          {
+            "position": [
+              0,
+              11
+            ],
+            "value": 2
+          },
+          {
+            "position": [
+              1,
+              14
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              1,
+              1
+            ],
+            "value": -1
+          },
+          {
+            "position": [
+              1,
+              7
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              1,
+              4
+            ],
+            "value": 1
+          }
+        ],
+        "values": [
+          {
+            "count": 8,
+            "value": -2
+          },
+          {
+            "count": 8,
+            "value": -1
+          },
+          {
+            "count": 2,
+            "value": 0
+          },
+          {
+            "count": 5,
+            "value": 1
+          },
+          {
+            "count": 1,
+            "value": 2
+          },
+          {
+            "count": 3,
+            "value": 3
+          },
+          {
+            "count": 1,
+            "value": 4
+          },
+          {
+            "count": 2,
+            "value": 5
+          }
+        ]
+      }
+    },
+    "mask": {
+      "dataMask": {
+        "array_shape": [
+          2,
+          160,
+          102,
+          1
+        ],
+        "dtype": "uint8",
+        "random_values": [
+          {
+            "position": [
+              0,
               98,
+              72,
               0
             ],
             "value": 6
@@ -1305,7 +999,7 @@
             "position": [
               0,
               13,
-              60,
+              24,
               0
             ],
             "value": 4
@@ -1314,7 +1008,7 @@
             "position": [
               0,
               23,
-              51,
+              37,
               0
             ],
             "value": 5
@@ -1322,15 +1016,194 @@
         ],
         "values": [
           {
-            "count": 10862,
+            "count": 10751,
             "value": 4
           },
           {
-            "count": 10849,
+            "count": 11015,
             "value": 5
           },
           {
-            "count": 10929,
+            "count": 10874,
+            "value": 6
+          }
+        ]
+      }
+    },
+    "mask_timeless": {
+      "REF": {
+        "array_shape": [
+          160,
+          102,
+          2
+        ],
+        "dtype": "bool",
+        "random_values": [
+          {
+            "position": [
+              82,
+              32,
+              0
+            ],
+            "value": false
+          },
+          {
+            "position": [
+              42,
+              70,
+              1
+            ],
+            "value": true
+          }
+        ],
+        "values": [
+          {
+            "count": 16376,
+            "value": false
+          },
+          {
+            "count": 16264,
+            "value": true
+          }
+        ]
+      }
+    },
+    "timestamp": [
+      "2022-02-07T23:12:14",
+      "2022-02-22T15:12:32"
+    ]
+  },
+  "eopatch-id-3-col-1-row-1_0_0": {
+    "bbox": "BBox(((730780.0, 4391970.0), (732820.0, 4395070.0)), crs=CRS('32638'))",
+    "label": {
+      "LABELS": {
+        "array_shape": [
+          2,
+          15
+        ],
+        "dtype": "int16",
+        "random_values": [
+          {
+            "position": [
+              1,
+              10
+            ],
+            "value": 2
+          },
+          {
+            "position": [
+              0,
+              4
+            ],
+            "value": 3
+          },
+          {
+            "position": [
+              1,
+              13
+            ],
+            "value": -1
+          },
+          {
+            "position": [
+              0,
+              13
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              1,
+              12
+            ],
+            "value": 1
+          }
+        ],
+        "values": [
+          {
+            "count": 3,
+            "value": -2
+          },
+          {
+            "count": 4,
+            "value": -1
+          },
+          {
+            "count": 5,
+            "value": 0
+          },
+          {
+            "count": 3,
+            "value": 1
+          },
+          {
+            "count": 5,
+            "value": 2
+          },
+          {
+            "count": 4,
+            "value": 3
+          },
+          {
+            "count": 2,
+            "value": 4
+          },
+          {
+            "count": 4,
+            "value": 5
+          }
+        ]
+      }
+    },
+    "mask": {
+      "dataMask": {
+        "array_shape": [
+          2,
+          160,
+          102,
+          1
+        ],
+        "dtype": "uint8",
+        "random_values": [
+          {
+            "position": [
+              0,
+              98,
+              71,
+              0
+            ],
+            "value": 6
+          },
+          {
+            "position": [
+              0,
+              12,
+              97,
+              0
+            ],
+            "value": 4
+          },
+          {
+            "position": [
+              0,
+              23,
+              75,
+              0
+            ],
+            "value": 5
+          }
+        ],
+        "values": [
+          {
+            "count": 10903,
+            "value": 4
+          },
+          {
+            "count": 10834,
+            "value": 5
+          },
+          {
+            "count": 10903,
             "value": 6
           }
         ]
@@ -1375,109 +1248,12 @@
       }
     },
     "timestamp": [
-      "2022-02-24T00:40:21",
-      "2022-02-26T00:20:44"
+      "2022-02-07T23:12:14",
+      "2022-02-22T15:12:32"
     ]
   },
-  "eopatch-id-2-col-1-row-0_1_0": {
-    "bbox": "BBox(((732580.0, 4388970.0), (734620.0, 4392070.0)), crs=CRS('32638'))",
-    "data": {
-      "BANDS": {
-        "array_shape": [
-          2,
-          160,
-          102,
-          3
-        ],
-        "basic_stats": {
-          "max": 0.99999,
-          "mean": 0.00368,
-          "median": 0.00569,
-          "min": -1.0
-        },
-        "counts": {
-          "infinite": 0,
-          "nan": 0
-        },
-        "dtype": "float32",
-        "histogram": {
-          "counts": [
-            12029,
-            12133,
-            12324,
-            12169,
-            12555,
-            12093,
-            12162,
-            12455
-          ],
-          "edges": [
-            -1.0,
-            -0.75,
-            -0.5,
-            -0.25,
-            -0.0,
-            0.24999,
-            0.49999,
-            0.74999,
-            0.99999
-          ]
-        },
-        "random_values": [
-          {
-            "position": [
-              0,
-              74,
-              91,
-              1
-            ],
-            "value": 0.274
-          },
-          {
-            "position": [
-              0,
-              70,
-              45,
-              1
-            ],
-            "value": 0.02599
-          },
-          {
-            "position": [
-              0,
-              148,
-              8,
-              0
-            ],
-            "value": -0.45435
-          },
-          {
-            "position": [
-              0,
-              105,
-              57,
-              1
-            ],
-            "value": -0.37926
-          },
-          {
-            "position": [
-              0,
-              144,
-              36,
-              1
-            ],
-            "value": 0.70516
-          }
-        ],
-        "subsample_basic_stats": {
-          "max": 0.99989,
-          "mean": 0.00804,
-          "median": 0.01048,
-          "min": -0.99992
-        }
-      }
-    },
+  "eopatch-id-3-col-1-row-1_1_0": {
+    "bbox": "BBox(((732580.0, 4391970.0), (734620.0, 4395070.0)), crs=CRS('32638'))",
     "label": {
       "LABELS": {
         "array_shape": [
@@ -1489,35 +1265,35 @@
           {
             "position": [
               1,
-              8
+              10
             ],
             "value": 2
           },
           {
             "position": [
-              1,
-              3
+              0,
+              4
             ],
             "value": 3
           },
           {
             "position": [
-              0,
-              2
+              1,
+              13
             ],
             "value": -1
           },
           {
             "position": [
-              1,
-              1
+              0,
+              13
             ],
             "value": 0
           },
           {
             "position": [
-              0,
-              6
+              1,
+              12
             ],
             "value": 1
           }
@@ -1528,31 +1304,31 @@
             "value": -2
           },
           {
-            "count": 2,
+            "count": 4,
             "value": -1
           },
           {
-            "count": 6,
+            "count": 5,
             "value": 0
           },
           {
-            "count": 1,
+            "count": 3,
             "value": 1
           },
           {
-            "count": 3,
+            "count": 5,
             "value": 2
           },
           {
-            "count": 9,
+            "count": 4,
             "value": 3
           },
           {
-            "count": 3,
+            "count": 2,
             "value": 4
           },
           {
-            "count": 3,
+            "count": 4,
             "value": 5
           }
         ]
@@ -1571,8 +1347,8 @@
           {
             "position": [
               0,
-              99,
-              4,
+              98,
+              14,
               0
             ],
             "value": 6
@@ -1581,7 +1357,7 @@
             "position": [
               0,
               12,
-              51,
+              11,
               0
             ],
             "value": 4
@@ -1590,7 +1366,7 @@
             "position": [
               0,
               23,
-              41,
+              99,
               0
             ],
             "value": 5
@@ -1598,15 +1374,15 @@
         ],
         "values": [
           {
-            "count": 10794,
+            "count": 10846,
             "value": 4
           },
           {
-            "count": 10952,
+            "count": 10856,
             "value": 5
           },
           {
-            "count": 10894,
+            "count": 10938,
             "value": 6
           }
         ]
@@ -1651,560 +1427,8 @@
       }
     },
     "timestamp": [
-      "2022-02-24T00:40:21",
-      "2022-02-26T00:20:44"
-    ]
-  },
-  "eopatch-id-3-col-1-row-1_0_0": {
-    "bbox": "BBox(((730780.0, 4391970.0), (732820.0, 4395070.0)), crs=CRS('32638'))",
-    "data": {
-      "BANDS": {
-        "array_shape": [
-          2,
-          160,
-          102,
-          3
-        ],
-        "basic_stats": {
-          "max": 1.0,
-          "mean": 0.00204,
-          "median": 0.00349,
-          "min": -0.9999
-        },
-        "counts": {
-          "infinite": 0,
-          "nan": 0
-        },
-        "dtype": "float32",
-        "histogram": {
-          "counts": [
-            12130,
-            12209,
-            12223,
-            12237,
-            12305,
-            12230,
-            12369,
-            12217
-          ],
-          "edges": [
-            -0.9999,
-            -0.74991,
-            -0.49993,
-            -0.24994,
-            5e-05,
-            0.25004,
-            0.50002,
-            0.75001,
-            1.0
-          ]
-        },
-        "random_values": [
-          {
-            "position": [
-              1,
-              50,
-              97,
-              2
-            ],
-            "value": 0.27576
-          },
-          {
-            "position": [
-              0,
-              157,
-              50,
-              1
-            ],
-            "value": 0.02472
-          },
-          {
-            "position": [
-              0,
-              5,
-              52,
-              1
-            ],
-            "value": -0.45893
-          },
-          {
-            "position": [
-              1,
-              19,
-              88,
-              2
-            ],
-            "value": -0.38292
-          },
-          {
-            "position": [
-              0,
-              126,
-              79,
-              2
-            ],
-            "value": 0.70235
-          }
-        ],
-        "subsample_basic_stats": {
-          "max": 0.99893,
-          "mean": 0.00915,
-          "median": 0.01984,
-          "min": -0.99981
-        }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              8
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              3
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              0,
-              2
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 2,
-            "value": -1
-          },
-          {
-            "count": 6,
-            "value": 0
-          },
-          {
-            "count": 1,
-            "value": 1
-          },
-          {
-            "count": 3,
-            "value": 2
-          },
-          {
-            "count": 9,
-            "value": 3
-          },
-          {
-            "count": 3,
-            "value": 4
-          },
-          {
-            "count": 3,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          160,
-          102,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              96,
-              4,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              13,
-              20,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              23,
-              83,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 10857,
-            "value": 4
-          },
-          {
-            "count": 10956,
-            "value": 5
-          },
-          {
-            "count": 10827,
-            "value": 6
-          }
-        ]
-      }
-    },
-    "mask_timeless": {
-      "REF": {
-        "array_shape": [
-          160,
-          102,
-          2
-        ],
-        "dtype": "bool",
-        "random_values": [
-          {
-            "position": [
-              81,
-              49,
-              0
-            ],
-            "value": false
-          },
-          {
-            "position": [
-              42,
-              99,
-              1
-            ],
-            "value": true
-          }
-        ],
-        "values": [
-          {
-            "count": 16253,
-            "value": false
-          },
-          {
-            "count": 16387,
-            "value": true
-          }
-        ]
-      }
-    },
-    "timestamp": [
-      "2022-02-24T00:40:21",
-      "2022-02-26T00:20:44"
-    ]
-  },
-  "eopatch-id-3-col-1-row-1_1_0": {
-    "bbox": "BBox(((732580.0, 4391970.0), (734620.0, 4395070.0)), crs=CRS('32638'))",
-    "data": {
-      "BANDS": {
-        "array_shape": [
-          2,
-          160,
-          102,
-          3
-        ],
-        "basic_stats": {
-          "max": 0.99999,
-          "mean": 0.00043,
-          "median": 1e-05,
-          "min": -1.0
-        },
-        "counts": {
-          "infinite": 0,
-          "nan": 0
-        },
-        "dtype": "float32",
-        "histogram": {
-          "counts": [
-            12153,
-            12438,
-            12057,
-            12308,
-            12140,
-            12244,
-            12321,
-            12259
-          ],
-          "edges": [
-            -1.0,
-            -0.75,
-            -0.5,
-            -0.25,
-            -0.0,
-            0.25,
-            0.5,
-            0.75,
-            0.99999
-          ]
-        },
-        "random_values": [
-          {
-            "position": [
-              1,
-              80,
-              81,
-              2
-            ],
-            "value": 0.27591
-          },
-          {
-            "position": [
-              0,
-              149,
-              76,
-              0
-            ],
-            "value": 0.02158
-          },
-          {
-            "position": [
-              0,
-              118,
-              18,
-              1
-            ],
-            "value": -0.46162
-          },
-          {
-            "position": [
-              1,
-              53,
-              14,
-              2
-            ],
-            "value": -0.38436
-          },
-          {
-            "position": [
-              1,
-              139,
-              90,
-              1
-            ],
-            "value": 0.70214
-          }
-        ],
-        "subsample_basic_stats": {
-          "max": 0.99982,
-          "mean": -0.00039,
-          "median": 0.00056,
-          "min": -0.9995
-        }
-      }
-    },
-    "label": {
-      "LABELS": {
-        "array_shape": [
-          2,
-          15
-        ],
-        "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              1,
-              8
-            ],
-            "value": 2
-          },
-          {
-            "position": [
-              1,
-              3
-            ],
-            "value": 3
-          },
-          {
-            "position": [
-              0,
-              2
-            ],
-            "value": -1
-          },
-          {
-            "position": [
-              1,
-              1
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              0,
-              6
-            ],
-            "value": 1
-          }
-        ],
-        "values": [
-          {
-            "count": 3,
-            "value": -2
-          },
-          {
-            "count": 2,
-            "value": -1
-          },
-          {
-            "count": 6,
-            "value": 0
-          },
-          {
-            "count": 1,
-            "value": 1
-          },
-          {
-            "count": 3,
-            "value": 2
-          },
-          {
-            "count": 9,
-            "value": 3
-          },
-          {
-            "count": 3,
-            "value": 4
-          },
-          {
-            "count": 3,
-            "value": 5
-          }
-        ]
-      }
-    },
-    "mask": {
-      "dataMask": {
-        "array_shape": [
-          2,
-          160,
-          102,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              0,
-              99,
-              12,
-              0
-            ],
-            "value": 6
-          },
-          {
-            "position": [
-              0,
-              13,
-              52,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              0,
-              23,
-              38,
-              0
-            ],
-            "value": 5
-          }
-        ],
-        "values": [
-          {
-            "count": 10973,
-            "value": 4
-          },
-          {
-            "count": 10848,
-            "value": 5
-          },
-          {
-            "count": 10819,
-            "value": 6
-          }
-        ]
-      }
-    },
-    "mask_timeless": {
-      "REF": {
-        "array_shape": [
-          160,
-          102,
-          2
-        ],
-        "dtype": "bool",
-        "random_values": [
-          {
-            "position": [
-              81,
-              62,
-              1
-            ],
-            "value": false
-          },
-          {
-            "position": [
-              43,
-              2,
-              1
-            ],
-            "value": true
-          }
-        ],
-        "values": [
-          {
-            "count": 16221,
-            "value": false
-          },
-          {
-            "count": 16419,
-            "value": true
-          }
-        ]
-      }
-    },
-    "timestamp": [
-      "2022-02-24T00:40:21",
-      "2022-02-26T00:20:44"
+      "2022-02-07T23:12:14",
+      "2022-02-22T15:12:32"
     ]
   }
 }
