@@ -31,10 +31,10 @@ class SplitGridPipeline(Pipeline):
 
     class Schema(Pipeline.Schema):
         input_folder_key: str = Field(
-            description="A storage manager key pointing to the folder from where data will be loaded."
+            description="A storage manager key pointing to the folder where the data will be loaded from."
         )
         eopatch_output_folder_key: str = Field(
-            description="A storage manager key pointing to the folder to where data will be saved."
+            description="A storage manager key pointing to the folder where the data will be saved."
         )
         grid_output_folder_key: str = Field(
             description="A storage manager key of where to save the resulting split grid."
@@ -42,13 +42,10 @@ class SplitGridPipeline(Pipeline):
         subsplit_grid_filename: str = Field(
             description="Filename of new grid, which can be used in `CustomAreaManager`.", regex=r"^.+\.gpkg$"
         )
-        features: List[Feature] = Field(description="Which features will be loaded and joined.")
+        features: List[Feature] = Field(description="Which features will be loaded and adapted to new grid.")
         raise_misaligned: bool = Field(
             True,
-            description=(
-                "If True this will raise an error if splitting or joining any spatial raster EOPatch feature would "
-                "cause a misalignment. If False, misalignment issues will be ignored."
-            ),
+            description="Raise an error if spatially splitting the EOPatch produces misalignments.",
         )
 
         split_x: int = Field(2, description="Number of splits done on each EOPatch along the x-axis.")
@@ -57,7 +54,7 @@ class SplitGridPipeline(Pipeline):
         buffer: Union[Literal["auto"], Tuple[float, float]] = Field(
             "auto",
             description=(
-                "How large is the original EOPatch buffer, provided as `(buffer_x, buffer_y)` in CRS units. Applies"
+                "Amount of buffer present on existing EOPatches, provided as (buffer_x, buffer_y) in CRS units. Applies"
                 " same buffer to split EOPatches. The pipeline tries to obtain this information from area manager, but"
                 " not all area manager classes are supported."
             ),
