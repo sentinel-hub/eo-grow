@@ -1,7 +1,8 @@
 """Implementation of the base AreaManager."""
 import logging
+from abc import ABCMeta, abstractmethod
 from collections import defaultdict
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import fiona
 import fs
@@ -248,3 +249,92 @@ class AreaManager(EOGrowObject):
         for bbox_df in grid:
             crs = CRS(bbox_df.crs)
             bbox_df["BBOX"] = bbox_df.geometry.apply(lambda geo: BBox(geo.bounds, crs))  # noqa B023
+
+
+class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
+    """A manager for the AOI and how it is split into EOPatches"""
+
+    NAME_COLUMN = "eopatch_name"
+
+    class Schema(ManagerSchema):
+        ...
+
+    config: Schema
+
+    def __init__(self, config: Schema, storage: StorageManager):
+        """
+        :param config: A configuration file
+        :param storage: An instance of StorageManager class
+        """
+        super().__init__(config)
+
+        self.storage = storage
+
+    @abstractmethod
+    def get_area_geometry(self, *, crs: CRS = CRS.WGS84) -> Geometry:
+        """Provides a single geometry object of entire AOI"""
+
+    def get_grid(self) -> Dict[CRS, gpd.GeoDataFrame]:
+        """Provides a grid of bounding boxes which divide the AOI. Uses caching to avoid recalculations.
+
+        The grid is split into different CRS zones.
+
+        The `geometry` column serves as BBox geometry definition. The `geom.bounds` is taken as the definition.
+
+        The EOPatch names are stored in a column with identifier `self.NAME_COLUMN`.
+
+        :return: A dictionary of GeoDataFrames that defines how the area is split into EOPatches.
+        """
+        grid_path = fs.path.combine(self.storage.get_cache_folder(), self.get_grid_cache_filename())
+
+        if self.storage.filesystem.exists(grid_path):
+            return self._load_grid(grid_path)
+
+        grid = self._create_grid()
+        self._save_grid(grid, grid_path)
+        return grid
+
+    @abstractmethod
+    def _create_grid(self) -> Dict[CRS, gpd.GeoDataFrame]:
+        """Defines a new grid, which encodes how the area is split into EOPatches.
+
+        The grid is split into different CRS zones.
+
+        The `geometry` column serves as BBox geometry definition, with the implication that for a geometry `geom`
+        the BBox is defined as `geom.bounds`.
+
+        The EOPatch names are stored in a column with identifier `eopatch_name`.
+        """
+
+    def _load_grid(self, grid_path: str) -> Dict[CRS, gpd.GeoDataFrame]:
+        """A method that loads bounding box grid saved in a cache folder"""
+        LOGGER.info("Loading grid from %s", grid_path)
+
+        grid = {}
+        with LocalFile(grid_path, mode="r", filesystem=self.storage.filesystem) as local_file:
+            for crs_layer in fiona.listlayers(local_file.path):
+                data = gpd.read_file(local_file.path, layer=crs_layer, engine=self.storage.config.geopandas_backend)
+                grid[CRS(data.crs)] = data
+
+        return grid
+
+    def _save_grid(self, grid: Dict[CRS, gpd.GeoDataFrame], grid_path: str) -> None:
+        """A method that saves bounding box grid in a cache folder"""
+        LOGGER.info("Saving grid to %s", grid_path)
+
+        with LocalFile(grid_path, mode="w", filesystem=self.storage.filesystem) as local_file:
+            for _, crs_grid in grid.items():
+                crs_grid.to_file(
+                    local_file.path,
+                    driver="GPKG",
+                    encoding="utf-8",
+                    layer=f"Grid EPSG:{crs_grid.crs.to_epsg()}",
+                    engine=self.storage.config.geopandas_backend,
+                )
+
+    @abstractmethod
+    def get_grid_cache_filename(self) -> str:
+        """Provides a filename that is used for caching the grid, including the file extensions (likely .gpkg).
+
+        Should ensure that two different grids don't clash.
+        """
