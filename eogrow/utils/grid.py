@@ -95,3 +95,35 @@ def get_enclosing_bbox(bboxes: Sequence[BBox]) -> BBox:
 
     collection = GeometryCollection([bbox.geometry for bbox in bboxes])
     return BBox(collection.bounds, crs=bboxes[0].crs)
+
+
+def split_bbox(
+    named_bbox: Tuple[str, BBox],
+    split_x: int,
+    split_y: int,
+    buffer_x: float,
+    buffer_y: float,
+    naming_schema: str = "{name}_{i_x}_{i_y}",
+) -> List[Tuple[str, BBox]]:
+    """Splits a BBox into multiple smaller BBoxes with new names generated for them.
+
+    The `buffer` parameters describe the buffer of the original BBox, which is copied to the split ones.
+    """
+    name, bbox = named_bbox
+    min_x, min_y = bbox.lower_left
+    max_x, max_y = bbox.upper_right
+
+    ll_xs, x_step = np.linspace(min_x + buffer_x, max_x - buffer_x, split_x, endpoint=False, retstep=True)
+    ll_ys, y_step = np.linspace(min_y + buffer_y, max_y - buffer_y, split_y, endpoint=False, retstep=True)
+
+    split_bboxes = []
+    for i_x, ll_x in enumerate(ll_xs):
+        for i_y, ll_y in enumerate(ll_ys):
+            lower_left = (ll_x - buffer_x, ll_y - buffer_y)
+            upper_right = (ll_x + x_step + buffer_x, ll_y + y_step + buffer_y)
+            split_bbox = BBox((lower_left, upper_right), crs=bbox.crs)
+
+            split_name = naming_schema.format(name=name, i_x=i_x, i_y=i_y)
+            split_bboxes.append((split_name, split_bbox))
+
+    return split_bboxes
