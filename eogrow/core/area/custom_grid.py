@@ -120,7 +120,7 @@ class NewCustomGridAreaManager(BaseAreaManager):
         return Geometry(area_shape, crs)
 
     def get_grid_cache_filename(self) -> str:
-        input_filename = self.config.grid_filename.rsplit(".", 1)[0]
         input_filename = fs.path.basename(self.config.grid_filename)
+        input_filename = input_filename.rsplit(".", 1)[0]
 
         return f"{self.__class__.__name__}_{input_filename}.gpkg"
