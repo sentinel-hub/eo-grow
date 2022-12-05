@@ -254,6 +254,9 @@ class AreaManager(EOGrowObject):
 class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
     """A manager for the AOI and how it is split into EOPatches"""
 
+    # NOTE: since the BaseAreaManager is an abstract class, some core functionalities (caching etc.) are instead
+    #   tested in the test suite of the UtmZoneAreaManager.
+
     NAME_COLUMN = "eopatch_name"
 
     class Schema(ManagerSchema):
