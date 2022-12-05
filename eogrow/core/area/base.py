@@ -272,7 +272,7 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
 
     @abstractmethod
     def get_area_geometry(self, *, crs: CRS = CRS.WGS84) -> Geometry:
-        """Provides a single geometry object of entire AOI"""
+        """Provides a dissolved geometry object of the entire AOI"""
 
     def get_grid(self) -> Dict[CRS, gpd.GeoDataFrame]:
         """Provides a grid of bounding boxes which divide the AOI. Uses caching to avoid recalculations.
