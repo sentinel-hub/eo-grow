@@ -277,11 +277,8 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
     def get_grid(self) -> Dict[CRS, gpd.GeoDataFrame]:
         """Provides a grid of bounding boxes which divide the AOI. Uses caching to avoid recalculations.
 
-        The grid is split into different CRS zones.
-
-        The `geometry` column serves as BBox geometry definition. The `geom.bounds` is taken as the definition.
-
-        The EOPatch names are stored in a column with identifier `self.NAME_COLUMN`.
+        The grid is split into different CRS zones. The `bounds` properties of the geometries are taken as BBox
+        definitions. EOPatch names are stored in a column with identifier `self.NAME_COLUMN`.
 
         :return: A dictionary of GeoDataFrames that defines how the area is split into EOPatches.
         """
@@ -298,12 +295,8 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
     def _create_grid(self) -> Dict[CRS, gpd.GeoDataFrame]:
         """Defines a new grid, which encodes how the area is split into EOPatches.
 
-        The grid is split into different CRS zones.
-
-        The `geometry` column serves as BBox geometry definition, with the implication that for a geometry `geom`
-        the BBox is defined as `geom.bounds`.
-
-        The EOPatch names are stored in a column with identifier `eopatch_name`.
+        The grid is split into different CRS zones. The `bounds` properties of the geometries are taken as BBox
+        definitions. EOPatch names are stored in a column with identifier `self.NAME_COLUMN`.
         """
 
     def _load_grid(self, grid_path: str) -> Dict[CRS, gpd.GeoDataFrame]:
