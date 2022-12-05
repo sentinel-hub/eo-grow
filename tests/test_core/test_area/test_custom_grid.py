@@ -51,3 +51,5 @@ def test_new_custom_grid_area_manager(storage):
         "732120 4390045, 729480 4390045, 729480 4391145))",
         crs=CRS.UTM_38N,
     )
+
+    assert manager.get_grid_cache_filename() == "NewCustomGridAreaManager_test_custom_grid.gpkg"
