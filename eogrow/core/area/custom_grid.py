@@ -1,6 +1,6 @@
 """Area manager implementation for custom grids."""
 import logging
-from typing import Any, List
+from typing import Any, Dict, List
 
 import fs
 import geopandas as gpd
@@ -12,7 +12,7 @@ from sentinelhub import CRS, Geometry
 from ...utils.types import Path
 from ...utils.vector import concat_gdf
 from ..schemas import ManagerSchema
-from .base import AreaManager
+from .base import AreaManager, BaseAreaManager
 
 LOGGER = logging.getLogger(__name__)
 
@@ -81,3 +81,46 @@ class CustomGridAreaManager(AreaManager):
         filename = filename.replace(" ", "_")
 
         return fs.path.combine(self.storage.get_cache_folder(), f"{filename}.{suffix}")
+
+
+class NewCustomGridAreaManager(BaseAreaManager):
+    """Area manager that works with a pre-defined grid of EOPatches"""
+
+    class Schema(BaseAreaManager.Schema):
+        grid_folder_key: str = Field("input_data", description="Which folder the grid file is in.")
+        grid_filename: Path = Field(
+            description=(
+                "A Geopackage with a collection of bounding boxes and attributes that will define EOPatches. In"
+                " case bounding boxes are in multiple CRS then each Geopackage layer should contain bounding boxes"
+                " from one CRS."
+            ),
+            regex=r"^.+\..+$",
+        )
+        name_column: str = Field(description="Name of the column containing EOPatch names.")
+
+    config: Schema
+
+    def _create_grid(self) -> Dict[CRS, gpd.GeoDataFrame]:
+        grid_path = fs.path.combine(self.storage.get_folder(self.config.grid_folder_key), self.config.grid_filename)
+        grid = self._load_grid(grid_path)
+
+        for crs, crs_gdf in grid.items():
+            # Correct name of eoptach-name-column, drop all non-significant ones
+            names = crs_gdf[self.config.name_column]
+            grid[crs] = gpd.GeoDataFrame(geometry=crs_gdf.geometry, data={self.NAME_COLUMN: names}, crs=crs_gdf.crs)
+
+        return grid
+
+    def get_area_geometry(self, *, crs: CRS = CRS.WGS84) -> Geometry:
+        all_grid_gdfs = list(self.get_grid().values())
+        area_df = concat_gdf(all_grid_gdfs, reproject_crs=crs)
+
+        LOGGER.info("Calculating a unary union of the area geometries")
+        area_shape = shapely.ops.unary_union(area_df.geometry)
+        return Geometry(area_shape, crs)
+
+    def get_grid_cache_filename(self) -> str:
+        input_filename = fs.path.basename(self.config.grid_filename)
+        input_filename = input_filename.rsplit(".", 1)[0]
+
+        return f"{self.__class__.__name__}_{input_filename}.gpkg"
