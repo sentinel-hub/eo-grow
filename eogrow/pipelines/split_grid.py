@@ -1,4 +1,5 @@
 """Implements a pipeline that creates a finer grid and splits EOPatches accordingly."""
+import itertools as it
 import logging
 from collections import defaultdict
 from typing import Dict, List, Literal, Tuple, Union
@@ -8,7 +9,8 @@ import geopandas as gpd
 from pydantic import Field
 
 from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, OverwritePermission, SaveTask
-from sentinelhub import BBox
+from sentinelhub import CRS, BBox
+from sentinelhub.geometry import Geometry
 
 from ..core.area.batch import BatchAreaManager
 from ..core.area.utm import UtmZoneAreaManager
@@ -59,7 +61,14 @@ class SplitGridPipeline(Pipeline):
                 " not all area manager classes are supported."
             ),
         )
-        # TODO: could add AOI file?
+
+        keep_aoi_only: bool = Field(
+            True,
+            description=(
+                "Only keeps EOPatches that intersect the AOI of the area manager, specified by the `get_area_geometry`"
+                " method of the manager."
+            ),
+        )
 
         skip_existing: Literal[False] = False
 
@@ -69,6 +78,8 @@ class SplitGridPipeline(Pipeline):
         buffer_x, buffer_y = self._get_buffer()
 
         bboxes = self.eopatch_manager.get_bboxes(eopatch_list=self.patch_list)
+        area = self.area_manager.get_area_geometry()
+        area_projection_cache = {area.crs: area}
 
         bbox_splits = []
         for named_bbox in zip(self.patch_list, bboxes):
@@ -79,6 +90,10 @@ class SplitGridPipeline(Pipeline):
                 buffer_x=buffer_x,
                 buffer_y=buffer_y,
             )
+
+            if self.config.keep_aoi_only:
+                split_bboxes = self._keep_intersecting(area, area_projection_cache, split_bboxes)
+
             bbox_splits.append((named_bbox, split_bboxes))
 
         self.save_new_grid(bbox_splits)
@@ -89,6 +104,20 @@ class SplitGridPipeline(Pipeline):
         finished, failed, _ = self.run_execution(workflow, exec_args)
 
         return finished, failed
+
+    def _keep_intersecting(
+        self, area: Geometry, area_cache: Dict[CRS, Geometry], split_bboxes: List[NamedBBox]
+    ) -> List[NamedBBox]:
+        """Assumes all bboxes in a split share the same CRS. Only keeps the ones that intersect the AOI."""
+        if not split_bboxes:
+            return []
+        _, some_bbox = split_bboxes[0]
+        crs = some_bbox.crs
+
+        if crs not in area_cache:
+            area_cache[crs] = area.transform(crs)
+
+        return [bbox for bbox in split_bboxes if _intersects_area(bbox, area_cache[crs])]
 
     def _get_buffer(self) -> Tuple[float, float]:
         """Infers buffer from AreaManager schemas if possible."""
@@ -139,10 +168,12 @@ class SplitGridPipeline(Pipeline):
         exec_args: List[Dict[EONode, Dict[str, object]]] = []
         for (orig_name, _), split_bboxes in bbox_splits:
             single_exec: Dict[EONode, Dict[str, object]] = {load_node: dict(eopatch_folder=orig_name)}
+            # Since some bboxes might get filtered out, the remaining slice and save nodes should get None arguments
+            split_bboxes_iter = it.chain(split_bboxes, it.repeat((None, None)))
 
-            for i, (subbox_name, subbox) in enumerate(split_bboxes):
-                single_exec[slice_nodes[i]] = dict(bbox=subbox)
-                single_exec[save_nodes[i]] = dict(eopatch_folder=subbox_name)
+            for slice_node, save_node, (subbox_name, subbox) in zip(slice_nodes, save_nodes, split_bboxes_iter):
+                single_exec[slice_node] = dict(bbox=subbox)
+                single_exec[save_node] = dict(eopatch_folder=subbox_name)
 
             exec_args.append(single_exec)
 
@@ -179,3 +210,10 @@ class SplitGridPipeline(Pipeline):
                     layer=f"Grid EPSG:{crs_grid.crs.to_epsg()}",
                     engine=self.storage.config.geopandas_backend,
                 )
+
+
+def _intersects_area(named_bbox: NamedBBox, area: Geometry) -> bool:
+    _, bbox = named_bbox
+    if area.crs is not bbox.crs:
+        raise ValueError("CRS of area and BBox do not match, cannot calculate intersection.")
+    return area.geometry.intersects(bbox.geometry)
