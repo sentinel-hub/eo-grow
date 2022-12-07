@@ -9,7 +9,6 @@ import geopandas as gpd
 import shapely
 from geopandas import GeoDataFrame
 from pydantic import Field
-from shapely.geometry import Polygon
 
 from sentinelhub import CRS, Geometry, UtmZoneSplitter
 
@@ -161,7 +160,7 @@ class NewUtmZoneAreaManager(BaseAreaManager):
 
     class Schema(BaseAreaManager.Schema):
         area_of_interest: AreaSchema
-        patches: PatchSchema
+        patch: PatchSchema
 
         offset_x: float = Field(0, description="An offset of tiling grid in horizontal dimension")
         offset_y: float = Field(0, description="An offset of tiling grid in vertical dimension")
@@ -175,21 +174,21 @@ class NewUtmZoneAreaManager(BaseAreaManager):
         splitter = UtmZoneSplitter(
             [area_geometry.geometry],
             crs=area_geometry.crs,
-            bbox_size=(self.config.patches.size_x, self.config.patches.size_y),
+            bbox_size=(self.config.patch.size_x, self.config.patch.size_y),
             offset=(self.config.offset_x, self.config.offset_y),
         )
 
         bbox_list, info_list = splitter.get_bbox_list(), splitter.get_info_list()
 
-        absolute_buffer = self.config.patches.buffer_x, self.config.patches.buffer_y
+        absolute_buffer = self.config.patch.buffer_x, self.config.patch.buffer_y
         if absolute_buffer != (0, 0):
             bbox_list = [bbox.buffer(absolute_buffer, relative=False) for bbox in bbox_list]
 
-        crs_to_patches: Dict[CRS, List[Tuple[str, Polygon]]] = defaultdict(list)
+        crs_to_patches = defaultdict(list)
         zfill_length = len(str(len(bbox_list) - 1))
         for i, (bbox, info) in enumerate(zip(bbox_list, info_list)):
-            index_x, index_y = info["index_x"], info["index_y"]
-            name = f"eopatch-id-{i:0{zfill_length}}-col-{index_x}-row-{index_y}"
+            i_x, i_y = info["index_x"], info["index_y"]
+            name = f"eopatch-id-{i:0{zfill_length}}-col-{i_x}-row-{i_y}"
             crs_to_patches[bbox.crs].append((name, bbox.geometry))
 
         grid = {}
@@ -224,10 +223,10 @@ class NewUtmZoneAreaManager(BaseAreaManager):
 
         raw_params = [
             input_filename,
-            self.config.patches.size_x,
-            self.config.patches.size_y,
-            self.config.patches.buffer_x,
-            self.config.patches.buffer_y,
+            self.config.patch.size_x,
+            self.config.patch.size_y,
+            self.config.patch.buffer_x,
+            self.config.patch.buffer_y,
             self.config.offset_x,
             self.config.offset_y,
         ]

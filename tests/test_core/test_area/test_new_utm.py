@@ -15,7 +15,7 @@ pytestmark = pytest.mark.fast
 def large_area_config_fixture():
     return {
         "area_of_interest": {"filename": "test_large_area.geojson", "buffer": 1},
-        "patches": {"size_x": 1000000, "size_y": 1000000, "buffer_x": 0, "buffer_y": 0},
+        "patch": {"size_x": 1000000, "size_y": 1000000, "buffer_x": 0, "buffer_y": 0},
     }
 
 
@@ -23,7 +23,7 @@ def large_area_config_fixture():
 def area_config_fixture():
     return {
         "area_of_interest": {"filename": "test_area.geojson", "buffer": 0.001},
-        "patches": {"size_x": 2400, "size_y": 1100, "buffer_x": 120, "buffer_y": 55},
+        "patch": {"size_x": 2400, "size_y": 1100, "buffer_x": 120, "buffer_y": 55},
     }
 
 
