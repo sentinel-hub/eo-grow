@@ -3,6 +3,8 @@ import shutil
 
 import pytest
 
+from eogrow.core.area import CustomGridAreaManager
+from eogrow.core.config import interpret_config_from_dict
 from eogrow.utils.testing import create_folder_dict, run_and_test_pipeline
 
 pytestmark = pytest.mark.fast
@@ -11,6 +13,11 @@ pytestmark = pytest.mark.fast
 @pytest.fixture(scope="session", name="batch_folders")
 def batch_folders_fixture(config_folder, stats_folder):
     return create_folder_dict(config_folder, stats_folder, os.path.join("switch_grids", "batch"))
+
+
+@pytest.fixture(scope="session", name="new_folders")
+def new_folders_fixture(config_folder, stats_folder):
+    return create_folder_dict(config_folder, stats_folder, os.path.join("switch_grids", "new"))
 
 
 @pytest.fixture(scope="session", name="utm_folders")
@@ -32,23 +39,22 @@ def batch_grid_fixture(project_folder):
     return cache_grid_path
 
 
-@pytest.mark.parametrize(
-    "experiment_name",
-    [
-        "switch1",
-        "switch2",
-    ],
-)
+@pytest.mark.parametrize("experiment_name", ["switch1", "switch2"])
 def test_batch_grid_switching(experiment_name, batch_folders, batch_grid):
     run_and_test_pipeline(experiment_name, **batch_folders)
 
 
-@pytest.mark.parametrize(
-    "experiment_name",
-    [
-        "switch1",
-        "switch2",
-    ],
-)
+@pytest.mark.parametrize("experiment_name", ["switch1", "switch2"])
 def test_utm_grid_switching(experiment_name, utm_folders):
     run_and_test_pipeline(experiment_name, **utm_folders)
+
+
+@pytest.mark.parametrize("experiment_name", ["switch_batch", "switch_utm"])
+def test_new_grid_switching(experiment_name, new_folders, batch_grid, test_storage_manager):
+    run_and_test_pipeline(experiment_name, **new_folders, folder_key="output_folder")
+
+    # check the output file is compatible with custom grid area managers
+    new_area_manager = CustomGridAreaManager.from_raw_config(
+        interpret_config_from_dict({"grid_filename": "test_custom_grid.geojson"}), storage=test_storage_manager
+    )
+    new_area_manager.get_grid()
