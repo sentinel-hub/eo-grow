@@ -7,20 +7,15 @@ from typing import Any, Dict, List, Optional, Tuple, cast
 
 import fs
 import geopandas as gpd
-import shapely.ops
 from geopandas import GeoDataFrame
 from pydantic import Field
 
 from eolearn.core.exceptions import EODeprecationWarning
 from sentinelhub import CRS, BatchRequest, BatchRequestStatus, BatchSplitter, BBox, SentinelHubBatch
-from sentinelhub.geometry import Geometry
 
-from ...utils.fs import LocalFile
 from ...utils.general import convert_bbox_coords_to_int, reduce_to_coprime
 from ...utils.grid import GridTransformation, create_transformations, get_grid_bbox
-from ...utils.vector import count_points
-from ..schemas import BaseSchema
-from .base import AreaManager, BaseAreaManager
+from .base import AreaManager, BaseSplitterAreaManager
 
 LOGGER = logging.getLogger(__name__)
 
@@ -293,26 +288,10 @@ def _fix_split_columns(grid: List[GeoDataFrame]) -> List[GeoDataFrame]:
     return grid
 
 
-class AreaSchema(BaseSchema):
-    filename: str
-    buffer: Optional[float] = Field(
-        description=(
-            "Buffer that will be applied to AOI geometry. Buffer has to be in the same units as AOI CRS. "
-            "In case buffer is too small, relatively to AOI size, it won't have any effect."
-        ),
-    )
-    simplification_factor: Optional[float] = Field(
-        description=(
-            "A tolerance factor in CRS units how much the buffered area geometry will be simplified before splitting."
-        ),
-    )
-
-
-class NewBatchAreaManager(BaseAreaManager):
+class NewBatchAreaManager(BaseSplitterAreaManager):
     """Area manager that splits grid per UTM zones"""
 
-    class Schema(BaseAreaManager.Schema):
-        area_of_interest: AreaSchema
+    class Schema(BaseSplitterAreaManager.Schema):
         tiling_grid_id: int = Field(
             description="An id of one of the tiling grids predefined at Sentinel Hub Batch service."
         )
@@ -360,25 +339,6 @@ class NewBatchAreaManager(BaseAreaManager):
 
         return grid
 
-    def get_area_geometry(self, *, crs: CRS = CRS.WGS84) -> Geometry:
-        """Provides a single geometry object of entire AOI"""
-        aoi_filename = fs.path.join(self.storage.get_input_data_folder(), self.config.area_of_interest.filename)
-        with LocalFile(aoi_filename, mode="r", filesystem=self.storage.filesystem) as local_file:
-            area_df = gpd.read_file(local_file.path, engine=self.storage.config.geopandas_backend)
-
-        LOGGER.info("Processing AOI geometry")
-        area_shape = shapely.ops.unary_union(area_df.geometry)
-
-        if self.config.area_of_interest.buffer is not None:
-            area_shape = area_shape.buffer(self.config.area_of_interest.buffer)
-
-        if self.config.area_of_interest.simplification_factor is not None:
-            area_shape = area_shape.simplify(self.config.area_of_interest.simplification_factor, preserve_topology=True)
-            LOGGER.info("Simplified area shape has %d points", count_points(area_shape))
-
-        LOGGER.info("Finished processing AOI geometry")
-        return Geometry(area_shape, CRS(area_df.crs)).transform(crs)
-
     def _verify_batch_request(self, batch_request: BatchRequest) -> None:
         """Verifies that given batch request has finished and that it has the same tiling grid parameters as
         they are written in the config.
@@ -398,7 +358,7 @@ class NewBatchAreaManager(BaseAreaManager):
             )
 
     def get_grid_cache_filename(self) -> str:
-        input_filename = fs.path.basename(self.config.area_of_interest.filename)
+        input_filename = fs.path.basename(self.config.area.filename)
         input_filename = input_filename.rsplit(".", 1)[0]
 
         raw_params = [
@@ -411,8 +371,3 @@ class NewBatchAreaManager(BaseAreaManager):
         params = [str(param) for param in raw_params]
 
         return f"{self.__class__.__name__}_{'_'.join(params)}.gpkg"
-
-
-def _sort_key_function(values: Tuple[Any, dict]) -> Tuple[str, int, int]:
-    _, info = values
-    return info["name"], info["split_x"], info["split_y"]

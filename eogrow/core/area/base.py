@@ -17,7 +17,7 @@ from ...utils.grid import GridTransformation
 from ...utils.types import Path
 from ...utils.vector import count_points
 from ..base import EOGrowObject
-from ..schemas import ManagerSchema
+from ..schemas import BaseSchema, ManagerSchema
 from ..storage import StorageManager
 
 LOGGER = logging.getLogger(__name__)
@@ -334,3 +334,46 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
 
         Should ensure that two different grids don't clash.
         """
+
+
+class AreaSchema(BaseSchema):
+    filename: str
+    buffer: Optional[float] = Field(
+        description=(
+            "Buffer that will be applied to AOI geometry. Buffer has to be in the same units as AOI CRS. "
+            "In case buffer is too small, relatively to AOI size, it won't have any effect."
+        ),
+    )
+    simplification_factor: Optional[float] = Field(
+        description=(
+            "A tolerance factor in CRS units how much the buffered area geometry will be simplified before splitting."
+        ),
+    )
+
+
+class BaseSplitterAreaManager(BaseAreaManager, metaclass=ABCMeta):  # noqa: B024
+    """A manager for the AOI and how it is split into EOPatches"""
+
+    class Schema(BaseAreaManager.Schema):
+        area: AreaSchema
+
+    config: Schema
+
+    def get_area_geometry(self, *, crs: CRS = CRS.WGS84) -> Geometry:
+        """Provides a single geometry object of entire AOI"""
+        aoi_filename = fs.path.join(self.storage.get_input_data_folder(), self.config.area.filename)
+        with LocalFile(aoi_filename, mode="r", filesystem=self.storage.filesystem) as local_file:
+            area_df = gpd.read_file(local_file.path, engine=self.storage.config.geopandas_backend)
+
+        LOGGER.info("Processing AOI geometry")
+        area_shape = shapely.ops.unary_union(area_df.geometry)
+
+        if self.config.area.buffer is not None:
+            area_shape = area_shape.buffer(self.config.area.buffer)
+
+        if self.config.area.simplification_factor is not None:
+            area_shape = area_shape.simplify(self.config.area.simplification_factor, preserve_topology=True)
+            LOGGER.info("Simplified area shape has %d points", count_points(area_shape))
+
+        LOGGER.info("Finished processing AOI geometry")
+        return Geometry(area_shape, CRS(area_df.crs)).transform(crs)
