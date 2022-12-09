@@ -1,15 +1,23 @@
 """Area manager implementation for automated UTM CRS grids."""
-import logging
-from typing import Any, List, Tuple, cast
 
+import logging
+from collections import defaultdict
+from typing import Any, Dict, List, Optional, Tuple, cast
+
+import fs
+import geopandas as gpd
+import shapely
 from geopandas import GeoDataFrame
 from pydantic import Field
 
-from sentinelhub import Geometry, UtmZoneSplitter
+from sentinelhub import CRS, Geometry, UtmZoneSplitter
 
+from ...utils.fs import LocalFile
 from ...utils.general import reduce_to_coprime
 from ...utils.grid import GridTransformation, create_transformations
-from .base import AreaManager
+from ...utils.vector import count_points
+from ..schemas import BaseSchema
+from .base import AreaManager, BaseAreaManager
 
 LOGGER = logging.getLogger(__name__)
 
@@ -123,3 +131,102 @@ class UtmZoneAreaManager(AreaManager):
                     "Cannot transform grid because source and target area managers have different values of config "
                     f"parameter {param}."
                 )
+
+
+class AreaSchema(BaseSchema):
+    filename: str
+    buffer: Optional[float] = Field(
+        description="Buffer that will be applied to AOI geometry. Buffer has to be in the same units as AOI CRS.",
+    )
+    simplification_factor: Optional[float] = Field(
+        description=(
+            "A tolerance factor in CRS units how much the buffered area geometry will be simplified before splitting."
+        ),
+    )
+
+
+class PatchSchema(BaseSchema):
+    size_x: int = Field(description="A width of each EOPatch in meters")
+    size_y: int = Field(description="A height of each EOPatch in meters")
+    buffer_x: float = Field(0, description="Number of meters by which to increase the tile size to left and right.")
+    buffer_y: float = Field(0, description="Number of meters by which to increase the tile size to up and down.")
+
+
+class NewUtmZoneAreaManager(BaseAreaManager):
+    """Area manager that splits grid per UTM zones"""
+
+    class Schema(BaseAreaManager.Schema):
+        area_of_interest: AreaSchema
+        patch: PatchSchema
+
+        offset_x: float = Field(0, description="An offset of tiling grid in horizontal dimension")
+        offset_y: float = Field(0, description="An offset of tiling grid in vertical dimension")
+
+    config: Schema
+
+    def _create_grid(self) -> Dict[CRS, GeoDataFrame]:
+        """Uses UtmZoneSplitter to create a grid"""
+        area_geometry = self.get_area_geometry()
+        LOGGER.info("Splitting area geometry into UTM zone grid")
+        splitter = UtmZoneSplitter(
+            [area_geometry.geometry],
+            crs=area_geometry.crs,
+            bbox_size=(self.config.patch.size_x, self.config.patch.size_y),
+            offset=(self.config.offset_x, self.config.offset_y),
+        )
+
+        bbox_list, info_list = splitter.get_bbox_list(), splitter.get_info_list()
+
+        absolute_buffer = self.config.patch.buffer_x, self.config.patch.buffer_y
+        if absolute_buffer != (0, 0):
+            bbox_list = [bbox.buffer(absolute_buffer, relative=False) for bbox in bbox_list]
+
+        crs_to_patches = defaultdict(list)
+        zfill_length = len(str(len(bbox_list) - 1))
+        for i, (bbox, info) in enumerate(zip(bbox_list, info_list)):
+            i_x, i_y = info["index_x"], info["index_y"]
+            name = f"eopatch-id-{i:0{zfill_length}}-col-{i_x}-row-{i_y}"
+            crs_to_patches[bbox.crs].append((name, bbox.geometry))
+
+        grid = {}
+        for crs, named_bbox_geoms in crs_to_patches.items():
+            names, geoms = zip(*named_bbox_geoms)
+            grid[crs] = gpd.GeoDataFrame({self.NAME_COLUMN: names}, geometry=list(geoms), crs=crs.pyproj_crs())
+
+        return grid
+
+    def get_area_geometry(self, *, crs: CRS = CRS.WGS84) -> Geometry:
+        """Provides a single geometry object of entire AOI"""
+        aoi_filename = fs.path.join(self.storage.get_input_data_folder(), self.config.area_of_interest.filename)
+        with LocalFile(aoi_filename, mode="r", filesystem=self.storage.filesystem) as local_file:
+            area_df = gpd.read_file(local_file.path, engine=self.storage.config.geopandas_backend)
+
+        LOGGER.info("Processing AOI geometry")
+        area_shape = shapely.ops.unary_union(area_df.geometry)
+
+        if self.config.area_of_interest.buffer is not None:
+            area_shape = area_shape.buffer(self.config.area_of_interest.buffer)
+
+        if self.config.area_of_interest.simplification_factor is not None:
+            area_shape = area_shape.simplify(self.config.area_of_interest.simplification_factor, preserve_topology=True)
+            LOGGER.info("Simplified area shape has %d points", count_points(area_shape))
+
+        LOGGER.info("Finished processing AOI geometry")
+        return Geometry(area_shape, CRS(area_df.crs)).transform(crs)
+
+    def get_grid_cache_filename(self) -> str:
+        input_filename = fs.path.basename(self.config.area_of_interest.filename)
+        input_filename = input_filename.rsplit(".", 1)[0]
+
+        raw_params = [
+            input_filename,
+            self.config.patch.size_x,
+            self.config.patch.size_y,
+            self.config.patch.buffer_x,
+            self.config.patch.buffer_y,
+            self.config.offset_x,
+            self.config.offset_y,
+        ]
+        params = [str(param) for param in raw_params]
+
+        return f"{self.__class__.__name__}_{'_'.join(params)}.gpkg"
