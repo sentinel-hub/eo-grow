@@ -137,8 +137,7 @@ class AreaSchema(BaseSchema):
     filename: str
     buffer: Optional[float] = Field(
         description=(
-            "Buffer that will be applied to AOI geometry. Buffer has to be in the same units as AOI CRS. "
-            "In case buffer is too small, relatively to AOI size, it won't have any effect."
+            "Buffer that will be applied to AOI geometry. Buffer has to be in the same units as AOI CRS."
         ),
     )
     simplification_factor: Optional[float] = Field(
