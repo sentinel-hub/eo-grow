@@ -349,8 +349,8 @@ class NewBatchAreaManager(BaseAreaManager):
         bbox_list, info_list = splitter.get_bbox_list(), splitter.get_info_list()
 
         crs_to_patches = defaultdict(list)
-        # they are returned in random order, so we sort them beforehand
-        for bbox, info in sorted(zip(bbox_list, info_list), key=_sort_key_function):
+        # they are returned in random order, so we sort them by name beforehand
+        for bbox, info in sorted(zip(bbox_list, info_list), key=lambda x: x[1]["name"]):
             crs_to_patches[bbox.crs].append((info["name"], bbox.geometry))
 
         grid = {}
