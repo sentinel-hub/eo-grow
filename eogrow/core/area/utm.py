@@ -136,9 +136,7 @@ class UtmZoneAreaManager(AreaManager):
 class AreaSchema(BaseSchema):
     filename: str
     buffer: Optional[float] = Field(
-        description=(
-            "Buffer that will be applied to AOI geometry. Buffer has to be in the same units as AOI CRS."
-        ),
+        description="Buffer that will be applied to AOI geometry. Buffer has to be in the same units as AOI CRS.",
     )
     simplification_factor: Optional[float] = Field(
         description=(
