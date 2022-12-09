@@ -1,4 +1,5 @@
-import mock
+from unittest.mock import patch
+
 import pytest
 from geopandas import GeoDataFrame
 from geopandas.testing import assert_geodataframe_equal
@@ -57,9 +58,11 @@ def test_get_grid_caching(storage, area_config):
     """Tests that subsequent calls use the cached version of the grid. NOTE: implementation specific test!"""
     area_manager = NewUtmZoneAreaManager.from_raw_config(area_config, storage)
 
+    assert area_manager.get_grid_cache_filename() == "NewUtmZoneAreaManager_test_area_2400_1100_120.0_55.0_0.0_0.0.gpkg"
+
     grid1 = area_manager.get_grid()
     # the second call should not create a new split
-    with mock.patch.object(NewUtmZoneAreaManager, "_create_grid") as creation_mock:
+    with patch.object(NewUtmZoneAreaManager, "_create_grid") as creation_mock:
         grid2 = area_manager.get_grid()
         creation_mock.assert_not_called()
 
