@@ -58,7 +58,7 @@ def area_config_fixture():
     return {
         "manager": "eogrow.core.area.NewBatchAreaManager",
         "area_of_interest": {
-            "filename": "batch_geometry.geojson",
+            "filename": "test_large_area.geojson",
             "buffer": 2,
             "simplification_factor": 0.1,
         },
@@ -79,10 +79,11 @@ def test_area_shape_and_cache(storage, area_config):
     assert manager.get_grid_cache_filename() == "NewBatchAreaManager_test_large_area_2_120.0_10_1.gpkg"
 
 
-def test_no_batch_id_errpr(storage, area_config):
-    area_config["batch_id"] = None
-    with pytest.fails(MissingBatchIdError):
-        NewBatchAreaManager.from_raw_config(area_config, storage)
+def test_no_batch_id_error(storage, area_config):
+    del area_config["batch_id"]
+    manager = NewBatchAreaManager.from_raw_config(area_config, storage)
+    with pytest.raises(MissingBatchIdError):
+        manager.get_grid()
 
 
 def test_grid(storage, area_config, configured_requests_mock):

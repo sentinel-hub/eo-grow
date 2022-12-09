@@ -350,7 +350,7 @@ class NewBatchAreaManager(BaseAreaManager):
 
         crs_to_patches = defaultdict(list)
         # they are returned in random order, so we sort them by name beforehand
-        for bbox, info in sorted(zip(bbox_list, info_list), key=lambda x: x[1]["name"]):
+        for bbox, info in sorted(zip(bbox_list, info_list), key=lambda x: x[1]["name"]):  # type: ignore
             crs_to_patches[bbox.crs].append((info["name"], bbox.geometry))
 
         grid = {}
