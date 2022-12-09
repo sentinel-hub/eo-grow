@@ -62,12 +62,8 @@ class SplitGridPipeline(Pipeline):
             ),
         )
 
-        keep_aoi_only: bool = Field(
-            True,
-            description=(
-                "Only keeps EOPatches that intersect the AOI of the area manager, specified by the `get_area_geometry`"
-                " method of the manager."
-            ),
+        prune: bool = Field(
+            True, description="Remove all split EOPatches that don't intersect with the area manager AOI."
         )
 
         skip_existing: Literal[False] = False
@@ -91,7 +87,7 @@ class SplitGridPipeline(Pipeline):
                 buffer_y=buffer_y,
             )
 
-            if self.config.keep_aoi_only:
+            if self.config.prune:
                 split_bboxes = self._keep_intersecting(area, area_projection_cache, split_bboxes)
 
             bbox_splits.append((named_bbox, split_bboxes))

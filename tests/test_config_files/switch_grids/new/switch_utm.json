@@ -28,7 +28,7 @@
     "input_folder_key": "input_folder",
     "eopatch_output_folder_key": "output_folder",
     "subsplit_grid_filename": "new_grid.gpkg",
-    "keep_aoi_only": false,
+    "prune": false,
     "grid_output_folder_key": "temp"
   }
 ]
