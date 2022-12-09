@@ -113,14 +113,14 @@ def split_bbox(
     min_x, min_y = bbox.lower_left
     max_x, max_y = bbox.upper_right
 
-    ll_xs, x_step = np.linspace(min_x + buffer_x, max_x - buffer_x, split_x, endpoint=False, retstep=True)
-    ll_ys, y_step = np.linspace(min_y + buffer_y, max_y - buffer_y, split_y, endpoint=False, retstep=True)
+    x_edges, x_step = np.linspace(min_x + buffer_x, max_x - buffer_x, split_x, endpoint=False, retstep=True)
+    y_edges, y_step = np.linspace(min_y + buffer_y, max_y - buffer_y, split_y, endpoint=False, retstep=True)
 
     split_bboxes = []
-    for i_x, ll_x in enumerate(ll_xs):
-        for i_y, ll_y in enumerate(ll_ys):
-            lower_left = (ll_x - buffer_x, ll_y - buffer_y)
-            upper_right = (ll_x + x_step + buffer_x, ll_y + y_step + buffer_y)
+    for i_x, x_edge in enumerate(x_edges):
+        for i_y, y_edge in enumerate(y_edges):
+            lower_left = (x_edge - buffer_x, y_edge - buffer_y)
+            upper_right = (x_edge + x_step + buffer_x, y_edge + y_step + buffer_y)
             split_bbox = BBox((lower_left, upper_right), crs=bbox.crs)
 
             split_name = naming_schema.format(name=name, i_x=i_x, i_y=i_y)
