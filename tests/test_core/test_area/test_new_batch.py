@@ -20,8 +20,6 @@ from sentinelhub.areas import BatchSplitter
 from eogrow.core.area import NewBatchAreaManager
 from eogrow.core.area.batch import MissingBatchIdError
 
-pytestmark = pytest.mark.fast
-
 
 @pytest.fixture(name="configured_requests_mock")
 def request_mock_setup(requests_mock):
@@ -69,12 +67,14 @@ def area_config_fixture():
     }
 
 
+@pytest.mark.fast
 def test_cache_name(storage, area_config):
     manager = NewBatchAreaManager.from_raw_config(area_config, storage)
 
     assert manager.get_grid_cache_filename() == "NewBatchAreaManager_test_large_area_2_120.0_10_1.gpkg"
 
 
+@pytest.mark.fast
 def test_no_batch_id_error(storage, area_config):
     del area_config["batch_id"]
     manager = NewBatchAreaManager.from_raw_config(area_config, storage)
