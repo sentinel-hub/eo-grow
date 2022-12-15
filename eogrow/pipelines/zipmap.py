@@ -54,7 +54,7 @@ class ZipMapPipeline(Pipeline):
         )
 
         @validator("params")
-        def parse_params(cls, v, values):  # type: ignore[no-untyped-def]
+        def parse_params(cls, v: Dict[str, Any], values: Dict[str, Any]) -> Dict[str, Any]:
             """Parse the parameters according to model, but returning as a dictionary to allow `**kwargs` passing."""
             if values.get("params_model"):
                 params_model: BaseSchema = import_object(values["params_model"])

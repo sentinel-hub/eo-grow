@@ -189,9 +189,9 @@ class FractionSamplingPipeline(BaseRandomSamplingPipeline):
         sampling_feature_name: str = Field(
             description="Name of MASK_TIMELESS feature to be used to create sample point"
         )
-        erosion_dict: Optional[Dict[float, List[int]]] = Field(
+        erosion_dict: Optional[Dict[int, List[int]]] = Field(
             description="A dictionary specifying disc radius of erosion operation to be applied to a list of label IDs",
-            example={2.5: [1, 3, 4], 1.0: [2]},
+            example={2: [1, 3, 4], 1: [2]},
         )
         fraction_of_samples: Union[float, Dict[int, float]] = Field(
             description=(
@@ -262,7 +262,7 @@ class BlockSamplingPipeline(BaseRandomSamplingPipeline):
         """Prepare the sampling task"""
         task = BlockSamplingTask(
             features_to_sample=self._get_features_to_sample(),
-            amount=self.config.fraction_of_samples or self.config.number_of_samples,
+            amount=self.config.fraction_of_samples or self.config.number_of_samples,  # type: ignore[arg-type]
             sample_size=self.config.sample_size,
             mask_of_samples=self._get_mask_of_samples_feature(),
         )
