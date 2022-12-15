@@ -260,9 +260,10 @@ class BlockSamplingPipeline(BaseRandomSamplingPipeline):
 
     def _get_sampling_node(self, previous_node: EONode) -> EONode:
         """Prepare the sampling task"""
+        amount: float = self.config.fraction_of_samples or self.config.number_of_samples  # type: ignore[assignment]
         task = BlockSamplingTask(
             features_to_sample=self._get_features_to_sample(),
-            amount=self.config.fraction_of_samples or self.config.number_of_samples,  # type: ignore[arg-type]
+            amount=amount,
             sample_size=self.config.sample_size,
             mask_of_samples=self._get_mask_of_samples_feature(),
         )
