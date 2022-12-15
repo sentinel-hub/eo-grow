@@ -1,6 +1,7 @@
 from typing import Dict
 from unittest.mock import patch
 
+import fs
 import pytest
 from geopandas import GeoDataFrame
 from geopandas.testing import assert_geodataframe_equal
@@ -8,7 +9,7 @@ from geopandas.testing import assert_geodataframe_equal
 from sentinelhub import CRS, BBox
 from sentinelhub.geometry import Geometry
 
-from eogrow.core.area.base import BaseAreaManager, BaseSplitterAreaManager
+from eogrow.core.area.base import BaseAreaManager, get_geometry_from_file
 from eogrow.utils.vector import count_points
 
 pytestmark = pytest.mark.fast
@@ -50,22 +51,12 @@ def test_get_grid_caching(storage):
         assert_geodataframe_equal(gdf1, gdf2, check_index_type=False, check_dtype=False)
 
 
-class DummySplitterAreaManager(BaseSplitterAreaManager):
-    def _create_grid(self) -> Dict[CRS, GeoDataFrame]:
-        raise NotImplementedError
-
-    def get_grid_cache_filename(self) -> str:
-        raise NotImplementedError
-
-
 @pytest.mark.parametrize(
     "simplification_factor,expected_point_count", [(0, 128), (0.00001, 64), (0.0001, 25), (0.001, 10), (0.1, 5)]
 )
-def test_base_splitter_area_geometry(storage, simplification_factor, expected_point_count):
-    area_config = {
-        "area": {"filename": "test_area.geojson", "buffer": 0.001, "simplification_factor": simplification_factor},
-    }
-    area_manager = DummySplitterAreaManager.from_raw_config(area_config, storage)
+@pytest.mark.parametrize("engine", ["fiona", "pyogrio"])
+def test_get_geometry_from_file(storage, simplification_factor, expected_point_count, engine):
+    file_path = fs.path.join(storage.get_input_data_folder(), "test_area.geojson")
 
-    geometry = area_manager.get_area_geometry()
+    geometry = get_geometry_from_file(storage.filesystem, file_path, 0.001, simplification_factor, engine)
     assert count_points(geometry.geometry) == expected_point_count

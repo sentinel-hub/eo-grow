@@ -14,7 +14,7 @@ from sentinelhub import CRS, Geometry, UtmZoneSplitter
 from ...utils.general import reduce_to_coprime
 from ...utils.grid import GridTransformation, create_transformations
 from ..schemas import BaseSchema
-from .base import AreaManager, BaseSplitterAreaManager
+from .base import AreaManager, AreaSchema, BaseAreaManager, get_geometry_from_file
 
 LOGGER = logging.getLogger(__name__)
 
@@ -137,16 +137,27 @@ class PatchSchema(BaseSchema):
     buffer_y: float = Field(0, description="Number of meters by which to increase the tile size to up and down.")
 
 
-class NewUtmZoneAreaManager(BaseSplitterAreaManager):
+class NewUtmZoneAreaManager(BaseAreaManager):
     """Area manager that splits grid per UTM zones"""
 
-    class Schema(BaseSplitterAreaManager.Schema):
+    class Schema(BaseAreaManager.Schema):
+        area: AreaSchema
         patch: PatchSchema
 
         offset_x: float = Field(0, description="An offset of tiling grid in horizontal dimension")
         offset_y: float = Field(0, description="An offset of tiling grid in vertical dimension")
 
     config: Schema
+
+    def get_area_geometry(self, *, crs: CRS = CRS.WGS84) -> Geometry:
+        file_path = fs.path.join(self.storage.get_input_data_folder(), self.config.area.filename)
+        return get_geometry_from_file(
+            filesystem=self.storage.filesystem,
+            file_path=file_path,
+            buffer=self.config.area.buffer,
+            simplification_factor=self.config.area.simplification_factor,
+            geopandas_engine=self.storage.config.geopandas_backend,
+        ).transform(crs)
 
     def _create_grid(self) -> Dict[CRS, GeoDataFrame]:
         """Uses UtmZoneSplitter to create a grid"""

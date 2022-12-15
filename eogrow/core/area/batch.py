@@ -11,11 +11,11 @@ from geopandas import GeoDataFrame
 from pydantic import Field
 
 from eolearn.core.exceptions import EODeprecationWarning
-from sentinelhub import CRS, BatchRequest, BatchRequestStatus, BatchSplitter, BBox, SentinelHubBatch
+from sentinelhub import CRS, BatchRequest, BatchRequestStatus, BatchSplitter, BBox, Geometry, SentinelHubBatch
 
 from ...utils.general import convert_bbox_coords_to_int, reduce_to_coprime
 from ...utils.grid import GridTransformation, create_transformations, get_grid_bbox
-from .base import AreaManager, BaseSplitterAreaManager
+from .base import AreaManager, AreaSchema, BaseAreaManager, get_geometry_from_file
 
 LOGGER = logging.getLogger(__name__)
 
@@ -288,10 +288,11 @@ def _fix_split_columns(grid: List[GeoDataFrame]) -> List[GeoDataFrame]:
     return grid
 
 
-class NewBatchAreaManager(BaseSplitterAreaManager):
+class NewBatchAreaManager(BaseAreaManager):
     """Area manager that splits grid per UTM zones"""
 
-    class Schema(BaseSplitterAreaManager.Schema):
+    class Schema(BaseAreaManager.Schema):
+        area: AreaSchema
         tiling_grid_id: int = Field(
             description="An id of one of the tiling grids predefined at Sentinel Hub Batch service."
         )
@@ -310,6 +311,16 @@ class NewBatchAreaManager(BaseSplitterAreaManager):
         )
 
     config: Schema
+
+    def get_area_geometry(self, *, crs: CRS = CRS.WGS84) -> Geometry:
+        file_path = fs.path.join(self.storage.get_input_data_folder(), self.config.area.filename)
+        return get_geometry_from_file(
+            filesystem=self.storage.filesystem,
+            file_path=file_path,
+            buffer=self.config.area.buffer,
+            simplification_factor=self.config.area.simplification_factor,
+            geopandas_engine=self.storage.config.geopandas_backend,
+        ).transform(crs)
 
     def _create_grid(self) -> Dict[CRS, GeoDataFrame]:
         """Uses BatchSplitter to create a grid"""
