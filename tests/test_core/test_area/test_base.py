@@ -16,16 +16,18 @@ pytestmark = pytest.mark.fast
 
 
 class DummyAreaManager(BaseAreaManager):
+    BBOXES = [BBox((0, 0, 1, 1), CRS.WGS84), BBox((1, 1, 2, 2), CRS.WGS84), BBox((0, 0, 1, 1), CRS(3035))]
+    NAMES = ["beep", "boop", "bap"]
+
     def _create_grid(self) -> Dict[CRS, GeoDataFrame]:
-        bboxes = [BBox((0, 0, 1, 1), CRS.WGS84), BBox((1, 1, 2, 2), CRS.WGS84), BBox((0, 0, 1, 1), CRS(3035))]
         return {
             CRS.WGS84: GeoDataFrame(
-                data={"eopatch_name": ["beep", "boop"]},
-                geometry=[bbox.geometry for bbox in bboxes[:2]],
+                data={"eopatch_name": self.NAMES[:2]},
+                geometry=[bbox.geometry for bbox in self.BBOXES[:2]],
                 crs=CRS.WGS84.pyproj_crs(),
             ),
             CRS(3035): GeoDataFrame(
-                data={"eopatch_name": ["bap"]}, geometry=[bboxes[2].geometry], crs=CRS(3035).pyproj_crs()
+                data={"eopatch_name": [self.NAMES[2]]}, geometry=[self.BBOXES[2].geometry], crs=CRS(3035).pyproj_crs()
             ),
         }
 
@@ -49,6 +51,20 @@ def test_get_grid_caching(storage):
     for gdf1, gdf2 in zip(grid1.values(), grid2.values()):
         # could potentially fail if the loaded grid doesn't have the same order :/
         assert_geodataframe_equal(gdf1, gdf2, check_index_type=False, check_dtype=False)
+
+
+@pytest.mark.parametrize(
+    "patch_list, expected_bboxes",
+    [
+        ([], []),
+        (None, list(zip(DummyAreaManager.NAMES, DummyAreaManager.BBOXES))),
+        (DummyAreaManager.NAMES[1:], list(zip(DummyAreaManager.NAMES[1:], DummyAreaManager.BBOXES[1:]))),
+    ],
+)
+def test_get_names_and_bboxes(patch_list, expected_bboxes, storage):
+    manager = DummyAreaManager.from_raw_config({}, storage)
+
+    assert expected_bboxes == manager.get_names_and_bboxes(patch_list)
 
 
 @pytest.mark.parametrize(
