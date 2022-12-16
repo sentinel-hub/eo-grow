@@ -2,7 +2,7 @@
 import logging
 from abc import ABCMeta, abstractmethod
 from collections import defaultdict
-from typing import Dict, List, Optional
+from typing import Dict, List, Literal, Optional
 
 import fiona
 import fs
@@ -17,10 +17,25 @@ from ...utils.grid import GridTransformation
 from ...utils.types import Path
 from ...utils.vector import count_points
 from ..base import EOGrowObject
-from ..schemas import ManagerSchema
+from ..schemas import BaseSchema, ManagerSchema
 from ..storage import StorageManager
 
 LOGGER = logging.getLogger(__name__)
+
+
+class AreaSchema(BaseSchema):
+    filename: str
+    buffer: Optional[float] = Field(
+        description=(
+            "Buffer that will be applied to AOI geometry. Buffer has to be in the same units as AOI CRS. "
+            "In case buffer is too small, relatively to AOI size, it won't have any effect."
+        ),
+    )
+    simplification_factor: Optional[float] = Field(
+        description=(
+            "A tolerance factor in CRS units how much the buffered area geometry will be simplified before splitting."
+        ),
+    )
 
 
 class AreaManager(EOGrowObject):
@@ -254,9 +269,6 @@ class AreaManager(EOGrowObject):
 class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
     """A manager for the AOI and how it is split into EOPatches"""
 
-    # NOTE: since the BaseAreaManager is an abstract class, some core functionalities (caching etc.) are instead
-    #   tested in the test suite of the UtmZoneAreaManager.
-
     NAME_COLUMN = "eopatch_name"
 
     class Schema(ManagerSchema):
@@ -334,3 +346,25 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
 
         Should ensure that two different grids don't clash.
         """
+
+
+def get_geometry_from_file(
+    filesystem: fs.base.FS,
+    file_path: str,
+    buffer: Optional[float],
+    simplification_factor: Optional[float],
+    geopandas_engine: Literal["fiona", "pyogrio"] = "fiona",
+) -> Geometry:
+    """Provides a single geometry object of entire AOI"""
+    with LocalFile(file_path, mode="r", filesystem=filesystem) as local_file:
+        area_df = gpd.read_file(local_file.path, engine=geopandas_engine)
+
+    area_shape = shapely.ops.unary_union(area_df.geometry)
+
+    if buffer is not None:
+        area_shape = area_shape.buffer(buffer)
+
+    if simplification_factor is not None:
+        area_shape = area_shape.simplify(simplification_factor, preserve_topology=True)
+
+    return Geometry(area_shape, CRS(area_df.crs))

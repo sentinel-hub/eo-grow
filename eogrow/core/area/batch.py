@@ -1,17 +1,23 @@
 """Area manager implementation for Sentinel Hub batch grids."""
 import contextlib
+import logging
 import warnings
-from typing import Any, List, Tuple, cast
+from collections import defaultdict
+from typing import Any, Dict, List, Optional, Tuple, cast
 
+import fs
+import geopandas as gpd
 from geopandas import GeoDataFrame
 from pydantic import Field
 
 from eolearn.core.exceptions import EODeprecationWarning
-from sentinelhub import CRS, BatchRequest, BatchRequestStatus, BatchSplitter, BBox, SentinelHubBatch
+from sentinelhub import CRS, BatchRequest, BatchRequestStatus, BatchSplitter, BBox, Geometry, SentinelHubBatch
 
 from ...utils.general import convert_bbox_coords_to_int, reduce_to_coprime
 from ...utils.grid import GridTransformation, create_transformations, get_grid_bbox
-from .base import AreaManager
+from .base import AreaManager, AreaSchema, BaseAreaManager, get_geometry_from_file
+
+LOGGER = logging.getLogger(__name__)
 
 
 class BatchAreaManager(AreaManager):
@@ -280,3 +286,99 @@ def _fix_split_columns(grid: List[GeoDataFrame]) -> List[GeoDataFrame]:
         )
 
     return grid
+
+
+class NewBatchAreaManager(BaseAreaManager):
+    """Area manager that splits grid per UTM zones"""
+
+    class Schema(BaseAreaManager.Schema):
+        area: AreaSchema
+        tiling_grid_id: int = Field(
+            description="An id of one of the tiling grids predefined at Sentinel Hub Batch service."
+        )
+        resolution: float = Field(
+            description=(
+                "One of the resolutions that are predefined at Sentinel Hub Batch service for chosen tiling_grid_id."
+            )
+        )
+        tile_buffer_x: int = Field(0, description="Number of pixels for which to buffer each tile left and right.")
+        tile_buffer_y: int = Field(0, description="Number of pixels for which to buffer each tile up and down.")
+        batch_id: Optional[str] = Field(
+            description=(
+                "An ID of a batch job for this pipeline. If it is given the pipeline will just monitor the "
+                "existing batch job. If it is not given it will create a new batch job."
+            ),
+        )
+
+    config: Schema
+
+    def get_area_geometry(self, *, crs: CRS = CRS.WGS84) -> Geometry:
+        file_path = fs.path.join(self.storage.get_input_data_folder(), self.config.area.filename)
+        return get_geometry_from_file(
+            filesystem=self.storage.filesystem,
+            file_path=file_path,
+            buffer=self.config.area.buffer,
+            simplification_factor=self.config.area.simplification_factor,
+            geopandas_engine=self.storage.config.geopandas_backend,
+        ).transform(crs)
+
+    def _create_grid(self) -> Dict[CRS, GeoDataFrame]:
+        """Uses BatchSplitter to create a grid"""
+        if self.config.batch_id is None:
+            raise MissingBatchIdError(
+                "Trying to create a new batch grid but cannot collect tile geometries because 'batch_id' has not been "
+                f"given. You can either define it in {self.__class__.__name__} config schema or run a pipeline that "
+                "creates a new batch request."
+            )
+
+        batch_client = SentinelHubBatch(config=self.storage.sh_config)
+        batch_request = batch_client.get_request(self.config.batch_id)
+        self._verify_batch_request(batch_request)
+
+        splitter = BatchSplitter(batch_request=batch_request, config=self.storage.sh_config)
+        bbox_list, info_list = splitter.get_bbox_list(), splitter.get_info_list()
+
+        crs_to_patches = defaultdict(list)
+        # they are returned in random order, so we sort them by name beforehand
+        for bbox, info in sorted(zip(bbox_list, info_list), key=lambda x: x[1]["name"]):  # type: ignore
+            crs_to_patches[bbox.crs].append((info["name"], bbox.geometry))
+
+        grid = {}
+        for crs, named_bbox_geoms in crs_to_patches.items():
+            names, geoms = zip(*named_bbox_geoms)
+            grid[crs] = gpd.GeoDataFrame({self.NAME_COLUMN: names}, geometry=list(geoms), crs=crs.pyproj_crs())
+
+        return grid
+
+    def _verify_batch_request(self, batch_request: BatchRequest) -> None:
+        """Verifies that given batch request has finished and that it has the same tiling grid parameters as
+        they are written in the config.
+        """
+        batch_request.raise_for_status(status=[BatchRequestStatus.FAILED, BatchRequestStatus.CANCELED])
+
+        expected_tiling_grid_params = {
+            "id": self.config.tiling_grid_id,
+            "bufferY": self.config.tile_buffer_y,
+            "bufferX": self.config.tile_buffer_x,
+            "resolution": self.config.resolution,
+        }
+        if batch_request.tiling_grid != expected_tiling_grid_params:
+            raise ValueError(
+                f"Tiling grid parameters in config are {expected_tiling_grid_params} but given batch "
+                f"request has parameters {batch_request.tiling_grid}"
+            )
+
+    def get_grid_cache_filename(self) -> str:
+        input_filename = fs.path.basename(self.config.area.filename)
+        input_filename = input_filename.rsplit(".", 1)[0]
+
+        raw_params = [
+            input_filename,
+            self.config.tiling_grid_id,
+            self.config.resolution,
+            self.config.tile_buffer_x,
+            self.config.tile_buffer_y,
+        ]
+        params = [str(param) for param in raw_params]
+
+        return f"{self.__class__.__name__}_{'_'.join(params)}.gpkg"

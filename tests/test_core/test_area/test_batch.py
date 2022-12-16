@@ -15,7 +15,7 @@ pytestmark = pytest.mark.fast
 
 
 @pytest.fixture(scope="function", name="batch_config")
-def large_area_config_fixture(config_folder):
+def batch_config_fixture(config_folder):
     filename = os.path.join(config_folder, "other", "batch_area_config.json")
     return interpret_config_from_path(filename)
 
