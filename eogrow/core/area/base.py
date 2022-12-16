@@ -2,7 +2,7 @@
 import logging
 from abc import ABCMeta, abstractmethod
 from collections import defaultdict
-from typing import Dict, Iterable, List, Literal, Optional, Tuple
+from typing import Dict, List, Literal, Optional, Tuple
 
 import fiona
 import fs
@@ -12,6 +12,7 @@ from pydantic import Field
 
 from sentinelhub import CRS, BBox, Geometry
 
+from ...utils.eopatch_list import load_eopatch_names
 from ...utils.fs import LocalFile
 from ...utils.grid import GridTransformation
 from ...utils.types import Path
@@ -36,6 +37,11 @@ class AreaSchema(BaseSchema):
             "A tolerance factor in CRS units how much the buffered area geometry will be simplified before splitting."
         ),
     )
+
+
+class PatchListSchema(BaseSchema):
+    input_folder_key: str = Field(description="The storage manager key pointing to the folder containing the file.")
+    filename: str = Field(description="A JSON file containing a list of EOPatch names.", regex=r"^.+\.(json|JSON)$")
 
 
 class AreaManager(EOGrowObject):
@@ -272,7 +278,9 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
     NAME_COLUMN = "eopatch_name"
 
     class Schema(ManagerSchema):
-        ...
+        patch_list: Optional[PatchListSchema] = Field(
+            description="Names of EOPatches to keep when filtering in `get_names_and_bboxes` method."
+        )
 
     config: Schema
 
@@ -347,18 +355,26 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
         Should ensure that two different grids don't clash.
         """
 
-    def get_names_and_bboxes(self, relevant_patches: Optional[Iterable[str]] = None) -> List[Tuple[str, BBox]]:
+    def get_names_and_bboxes(self) -> List[Tuple[str, BBox]]:
         """Returns a list of eopatch names and appropriate BBoxes.
 
         :param relevant_patches: A collection of patch names for which BBoxes should be returned.
         """
-        to_return = set(relevant_patches) if relevant_patches is not None else None
-        all_patches = []
+        relevant_patches = None
+        if self.config.patch_list is not None:
+            folder_path = self.storage.get_folder(self.config.patch_list.input_folder_key)
+            patch_list_path = fs.path.join(folder_path, self.config.patch_list.filename)
+            relevant_patches = set(load_eopatch_names(self.storage.filesystem, patch_list_path))
+
+        named_bboxes = []
         for crs, grid in self.get_grid().items():
             for _, row in grid.iterrows():
-                if to_return is None or row.eopatch_name in to_return:
-                    all_patches.append((row.eopatch_name, BBox(row.geometry.bounds, crs=crs)))
-        return all_patches
+                if relevant_patches is None or row.eopatch_name in relevant_patches:
+                    named_bboxes.append((row.eopatch_name, BBox(row.geometry.bounds, crs=crs)))
+
+        if relevant_patches is not None and len(named_bboxes) != len(relevant_patches):
+            LOGGER.info("Patch list contains %d names, but %d were returned.", len(relevant_patches), len(named_bboxes))
+        return named_bboxes
 
 
 def get_geometry_from_file(

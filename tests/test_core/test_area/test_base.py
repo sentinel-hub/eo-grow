@@ -10,6 +10,7 @@ from sentinelhub import CRS, BBox
 from sentinelhub.geometry import Geometry
 
 from eogrow.core.area.base import BaseAreaManager, get_geometry_from_file
+from eogrow.utils.eopatch_list import save_eopatch_names
 from eogrow.utils.vector import count_points
 
 pytestmark = pytest.mark.fast
@@ -62,9 +63,16 @@ def test_get_grid_caching(storage):
     ],
 )
 def test_get_names_and_bboxes(patch_list, expected_bboxes, storage):
-    manager = DummyAreaManager.from_raw_config({}, storage)
+    if patch_list is None:
+        config = {}
+    else:
+        path = fs.path.join(storage.get_folder("temp"), "patch_list.json")
+        save_eopatch_names(storage.filesystem, path, patch_list)
+        config = {"patch_list": {"input_folder_key": "temp", "filename": "patch_list.json"}}
 
-    assert expected_bboxes == manager.get_names_and_bboxes(patch_list)
+    manager = DummyAreaManager.from_raw_config(config, storage)
+
+    assert expected_bboxes == manager.get_names_and_bboxes()
 
 
 @pytest.mark.parametrize(

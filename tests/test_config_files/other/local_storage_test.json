@@ -11,6 +11,7 @@
     "project_folder": "${config_path}/../../test_project/",
     "aws_profile": null,
     "structure": {
+      "temp": "temp",
       "batch": "tiffs",
       "eopatches": "path/to/eopatches"
     }
