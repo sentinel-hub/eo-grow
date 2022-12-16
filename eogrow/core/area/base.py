@@ -2,7 +2,7 @@
 import logging
 from abc import ABCMeta, abstractmethod
 from collections import defaultdict
-from typing import Dict, List, Literal, Optional
+from typing import Dict, Iterable, List, Literal, Optional, Tuple
 
 import fiona
 import fs
@@ -346,6 +346,19 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
 
         Should ensure that two different grids don't clash.
         """
+
+    def get_names_and_bboxes(self, relevant_patches: Optional[Iterable[str]] = None) -> List[Tuple[str, BBox]]:
+        """Returns a list of eopatch names and appropriate BBoxes.
+
+        :param relevant_patches: A collection of patch names for which BBoxes should be returned.
+        """
+        to_return = set(relevant_patches) if relevant_patches is not None else None
+        all_patches = []
+        for crs, grid in self.get_grid().items():
+            for _, row in grid.iterrows():
+                if to_return is None or row.eopatch_name in to_return:
+                    all_patches.append((row.eopatch_name, BBox(row.geometry.bounds, crs=crs)))
+        return all_patches
 
 
 def get_geometry_from_file(
