@@ -10,22 +10,25 @@ from sentinelhub import CRS, BBox
 from sentinelhub.geometry import Geometry
 
 from eogrow.core.area.base import BaseAreaManager, get_geometry_from_file
+from eogrow.utils.eopatch_list import save_eopatch_names
 from eogrow.utils.vector import count_points
 
 pytestmark = pytest.mark.fast
 
 
 class DummyAreaManager(BaseAreaManager):
+    BBOXES = [BBox((0, 0, 1, 1), CRS.WGS84), BBox((1, 1, 2, 2), CRS.WGS84), BBox((0, 0, 1, 1), CRS(3035))]
+    NAMES = ["beep", "boop", "bap"]
+
     def _create_grid(self) -> Dict[CRS, GeoDataFrame]:
-        bboxes = [BBox((0, 0, 1, 1), CRS.WGS84), BBox((1, 1, 2, 2), CRS.WGS84), BBox((0, 0, 1, 1), CRS(3035))]
         return {
             CRS.WGS84: GeoDataFrame(
-                data={"eopatch_name": ["beep", "boop"]},
-                geometry=[bbox.geometry for bbox in bboxes[:2]],
+                data={"eopatch_name": self.NAMES[:2]},
+                geometry=[bbox.geometry for bbox in self.BBOXES[:2]],
                 crs=CRS.WGS84.pyproj_crs(),
             ),
             CRS(3035): GeoDataFrame(
-                data={"eopatch_name": ["bap"]}, geometry=[bboxes[2].geometry], crs=CRS(3035).pyproj_crs()
+                data={"eopatch_name": [self.NAMES[2]]}, geometry=[self.BBOXES[2].geometry], crs=CRS(3035).pyproj_crs()
             ),
         }
 
@@ -49,6 +52,27 @@ def test_get_grid_caching(storage):
     for gdf1, gdf2 in zip(grid1.values(), grid2.values()):
         # could potentially fail if the loaded grid doesn't have the same order :/
         assert_geodataframe_equal(gdf1, gdf2, check_index_type=False, check_dtype=False)
+
+
+@pytest.mark.parametrize(
+    "patch_list, expected_bboxes",
+    [
+        ([], []),
+        (None, list(zip(DummyAreaManager.NAMES, DummyAreaManager.BBOXES))),
+        (DummyAreaManager.NAMES[1:], list(zip(DummyAreaManager.NAMES[1:], DummyAreaManager.BBOXES[1:]))),
+    ],
+)
+def test_get_names_and_bboxes(patch_list, expected_bboxes, storage):
+    if patch_list is None:
+        config = {}
+    else:
+        path = fs.path.join(storage.get_folder("temp"), "patch_list.json")
+        save_eopatch_names(storage.filesystem, path, patch_list)
+        config = {"patch_list": {"input_folder_key": "temp", "filename": "patch_list.json"}}
+
+    manager = DummyAreaManager.from_raw_config(config, storage)
+
+    assert expected_bboxes == manager.get_names_and_bboxes()
 
 
 @pytest.mark.parametrize(
