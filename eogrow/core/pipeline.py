@@ -11,7 +11,7 @@ from eolearn.core.extra.ray import RayExecutor
 
 from ..utils.meta import import_object
 from ..utils.ray import handle_ray_connection
-from ..utils.types import ProcessingType
+from ..utils.types import PatchList, ProcessingType
 from .area.base import AreaManager
 from .base import EOGrowObject
 from .config import RawConfig
@@ -91,16 +91,7 @@ class Pipeline(EOGrowObject):
         """Returns the full name of the pipeline execution"""
         return f"{pipeline_timestamp}-{self.__class__.__name__}-{self.pipeline_id}"
 
-    @property
-    def patch_list(self) -> List[str]:
-        """A property that provides a list of EOPatch names that will be used by the pipeline. The list is calculated
-        lazily the first time this property is called.
-        """
-        if self._patch_list is None:
-            self._patch_list = self._prepare_patch_list()
-        return self._patch_list
-
-    def _prepare_patch_list(self) -> List[str]:
+    def get_patch_list(self) -> PatchList:
         """Method which at the initialization prepares the list of EOPatches which will be used"""
         if self.config.input_patch_file is None:
             patch_list = self.eopatch_manager.get_eopatch_filenames(id_list=self.config.patch_list)
@@ -128,20 +119,22 @@ class Pipeline(EOGrowObject):
 
         return patch_list
 
-    def filter_patch_list(self, patch_list: List[str]) -> List[str]:
+    def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """Overwrite this method to specify which EOPatches should be filtered with `skip_existing`"""
         raise NotImplementedError("Method `filter_patch_list` must be implemented in order to use `skip_existing`")
 
-    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, object]]]:
+    def get_execution_arguments(
+        self, workflow: EOWorkflow, patch_list: PatchList
+    ) -> List[Dict[EONode, Dict[str, object]]]:
         """Prepares execution arguments for each eopatch from a list of patches
 
         :param workflow: A workflow for which arguments will be prepared
         """
-        bbox_list = self.eopatch_manager.get_bboxes(eopatch_list=self.patch_list)
+        bbox_list = self.eopatch_manager.get_bboxes(eopatch_list=patch_list)
 
         exec_args = []
         nodes = workflow.get_nodes()
-        for name, bbox in zip(self.patch_list, bbox_list):
+        for name, bbox in zip(patch_list, bbox_list):
             single_exec_dict: Dict[EONode, Dict[str, Any]] = {}
 
             for node in nodes:
@@ -165,7 +158,7 @@ class Pipeline(EOGrowObject):
         self,
         workflow: EOWorkflow,
         exec_args: List[dict],
-        eopatch_list: Optional[List[str]] = None,
+        eopatch_list: PatchList,
         **executor_run_params: Any,
     ) -> Tuple[List[str], List[str], List[WorkflowResults]]:
         """A method which runs EOExecutor on given workflow with given execution parameters
@@ -176,9 +169,6 @@ class Pipeline(EOGrowObject):
             self.patch_list will be used
         :return: Lists of successfully/unsuccessfully executed EOPatch names and the result of the EOWorkflow execution
         """
-        if eopatch_list is None:
-            eopatch_list = self.patch_list
-
         executor_class: Type[EOExecutor]
 
         execution_kind = self._init_processing()
@@ -274,7 +264,8 @@ class Pipeline(EOGrowObject):
                 "Default implementation of run_procedure method requires implementation of build_workflow method"
             )
         workflow = self.build_workflow()
-        exec_args = self.get_execution_arguments(workflow)
+        patch_list = self.get_patch_list()
+        exec_args = self.get_execution_arguments(workflow, patch_list)
 
-        finished, failed, _ = self.run_execution(workflow, exec_args)
+        finished, failed, _ = self.run_execution(workflow, exec_args, patch_list)
         return finished, failed

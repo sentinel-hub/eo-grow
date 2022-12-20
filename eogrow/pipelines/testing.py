@@ -11,7 +11,7 @@ from ..core.config import RawConfig, recursive_config_join
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.testing import DummyRasterFeatureTask, DummyTimestampFeatureTask
-from ..utils.types import Feature, TimePeriod
+from ..utils.types import Feature, PatchList, TimePeriod
 from ..utils.validators import field_validator, parse_dtype, parse_time_period
 
 Self = TypeVar("Self", bound="TestPipeline")
@@ -143,9 +143,11 @@ class DummyDataPipeline(Pipeline):
 
         return EOWorkflow.from_endnodes(save_node)
 
-    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, object]]]:
+    def get_execution_arguments(
+        self, workflow: EOWorkflow, patch_list: PatchList
+    ) -> List[Dict[EONode, Dict[str, object]]]:
         """Extends the basic method for adding execution arguments by adding seed arguments a sampling task"""
-        exec_args = super().get_execution_arguments(workflow)
+        exec_args = super().get_execution_arguments(workflow, patch_list)
 
         # Sorting is done to ensure seeds are always given to nodes in the same order
         add_feature_nodes = sorted(self._nodes_to_configs_map, key=lambda _node: _node.get_name())

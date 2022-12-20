@@ -2,9 +2,11 @@
 """
 import datetime
 from enum import Enum
-from typing import Any, Dict, Literal, Tuple, Union
+from typing import Any, Dict, List, Literal, Tuple, Union
 
 from eolearn.core import FeatureType
+
+PatchList = List[str]
 
 Path = str
 S3Path = str

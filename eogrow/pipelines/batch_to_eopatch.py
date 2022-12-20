@@ -22,7 +22,7 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec, RawSchemaDict
+from ..utils.types import Feature, FeatureSpec, PatchList, RawSchemaDict
 from ..utils.validators import optional_field_validator, parse_dtype
 
 
@@ -232,13 +232,15 @@ class BatchToEOPatchPipeline(Pipeline):
         """This method can be overwritten to add more tasks that process loaded data before saving it."""
         return previous_node
 
-    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, object]]]:
+    def get_execution_arguments(
+        self, workflow: EOWorkflow, patch_list: PatchList
+    ) -> List[Dict[EONode, Dict[str, object]]]:
         """Prepare execution arguments per each EOPatch"""
-        exec_args = super().get_execution_arguments(workflow)
+        exec_args = super().get_execution_arguments(workflow, patch_list)
 
         nodes = workflow.get_nodes()
 
-        for name, single_exec_dict in zip(self.patch_list, exec_args):
+        for name, single_exec_dict in zip(patch_list, exec_args):
             for node in nodes:
                 if isinstance(node.task, ImportFromTiffTask):
                     if node.name is None:

@@ -25,9 +25,10 @@ class SimplePipeline(Pipeline):
         logger.debug("Some log")
 
         workflow = EOWorkflow([])
-        exec_args = self.get_execution_arguments(workflow)
+        patch_list = self.get_patch_list()
+        exec_args = self.get_execution_arguments(workflow, patch_list)
 
-        finished, failed, _ = self.run_execution(workflow, exec_args)
+        finished, failed, _ = self.run_execution(workflow, exec_args, patch_list)
 
         return finished[:-1], finished[-1:] + failed
 

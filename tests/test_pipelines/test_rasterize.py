@@ -60,7 +60,7 @@ def add_vector_data(pipeline):
     vector_data["LULC_ID"] = vector_data["LULC"].apply(lambda lulc_name: LULC_MAP[lulc_name])
     vector_data["LULC_POLYGON_ID"] = vector_data.index + 1
 
-    for eopatch_name in pipeline.patch_list:
+    for eopatch_name in pipeline.get_patch_list():
         eopatch_folder = os.path.join(pipeline.storage.get_folder("reference", full_path=True), eopatch_name)
 
         eopatch = EOPatch.load(eopatch_folder, lazy_loading=True)

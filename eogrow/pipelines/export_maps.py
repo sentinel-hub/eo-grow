@@ -26,7 +26,7 @@ from eogrow.core.config import RawConfig
 
 from ..core.pipeline import Pipeline
 from ..utils.map import CogifyResamplingOptions, WarpResamplingOptions, cogify_inplace, extract_bands, merge_tiffs
-from ..utils.types import Feature
+from ..utils.types import Feature, PatchList
 
 LOGGER = logging.getLogger(__name__)
 
@@ -186,12 +186,14 @@ class ExportMapsPipeline(Pipeline):
 
         return EOWorkflow(linearly_connect_tasks(*task_list))
 
-    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, object]]]:
-        exec_args = super().get_execution_arguments(workflow)
+    def get_execution_arguments(
+        self, workflow: EOWorkflow, patch_list: PatchList
+    ) -> List[Dict[EONode, Dict[str, object]]]:
+        exec_args = super().get_execution_arguments(workflow, patch_list)
         nodes = workflow.get_nodes()
         for node in nodes:
             if isinstance(node.task, ExportToTiffTask):
-                for patch_name, single_exec_dict in zip(self.patch_list, exec_args):
+                for patch_name, single_exec_dict in zip(patch_list, exec_args):
                     single_exec_dict[node] = dict(filename=self.get_tiff_name(patch_name))
 
         return exec_args

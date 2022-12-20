@@ -73,12 +73,13 @@ class SplitGridPipeline(Pipeline):
     def run_procedure(self) -> Tuple[List, List]:
         buffer_x, buffer_y = self._get_buffer()
 
-        bboxes = self.eopatch_manager.get_bboxes(eopatch_list=self.patch_list)
+        patch_list = self.get_patch_list()
+        bboxes = self.eopatch_manager.get_bboxes(eopatch_list=patch_list)
         area = self.area_manager.get_area_geometry()
         area_projection_cache = {area.crs: area}
 
         bbox_splits = []
-        for named_bbox in zip(self.patch_list, bboxes):
+        for named_bbox in zip(patch_list, bboxes):
             split_bboxes = split_bbox(
                 named_bbox,
                 split_x=self.config.split_x,
@@ -95,9 +96,10 @@ class SplitGridPipeline(Pipeline):
         self.save_new_grid(bbox_splits)
 
         workflow = self.build_workflow()
+        patch_list = self.get_patch_list()
         exec_args = self.get_execution_arguments(workflow, bbox_splits)
 
-        finished, failed, _ = self.run_execution(workflow, exec_args)
+        finished, failed, _ = self.run_execution(workflow, exec_args, patch_list)
 
         return finished, failed
 

@@ -42,12 +42,13 @@ class MergeSamplesPipeline(Pipeline):
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         """Procedure which merges data from EOPatches into ML-ready numpy arrays"""
         workflow = self.build_workflow()
-        exec_args = self.get_execution_arguments(workflow)
+        patch_list = self.get_patch_list()
+        exec_args = self.get_execution_arguments(workflow, patch_list)
 
         # It doesn't make sense to parallelize loading over a cluster, but it would # make sense to parallelize over
         # features that have to be concatenated or, if we would concatenate into multiple files, parallelize creating
         # batches of features
-        successful, failed, results = self.run_execution(workflow, exec_args, multiprocess=False)
+        successful, failed, results = self.run_execution(workflow, exec_args, patch_list, multiprocess=False)
 
         result_patches = [cast(EOPatch, result.outputs.get(self._OUTPUT_NAME)) for result in results]
 
