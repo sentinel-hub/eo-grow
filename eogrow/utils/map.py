@@ -5,6 +5,7 @@ import logging
 import os
 import shutil
 import subprocess
+import warnings
 from tempfile import NamedTemporaryFile
 from typing import Iterable, Literal, Optional
 
@@ -123,6 +124,14 @@ def cogify(
 
     if dtype is not None:
         gdaltranslate_options += f" -ot {GDAL_DTYPE_SETTINGS[dtype]}"
+
+    if version < "3.6.0" and resampling == "MODE":
+        warnings.warn(
+            "GDAL versions below 3.6.0 have issues with `MODE` overview resampling. Trying to fix issue by setting"
+            " GDAL_OVR_CHUNK_MAX_SIZE to a large integer (2100000000).",
+            category=RuntimeWarning,
+        )
+        gdaltranslate_options += " --config GDAL_OVR_CHUNK_MAX_SIZE 2100000000"
 
     subprocess.check_call(f"gdal_translate {gdaltranslate_options} {input_file} {output_file}", shell=True)
 
