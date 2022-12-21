@@ -48,7 +48,7 @@ class MergeSamplesPipeline(Pipeline):
         # It doesn't make sense to parallelize loading over a cluster, but it would # make sense to parallelize over
         # features that have to be concatenated or, if we would concatenate into multiple files, parallelize creating
         # batches of features
-        successful, failed, results = self.run_execution(workflow, exec_args, patch_list, multiprocess=False)
+        successful, failed, results = self.run_execution(workflow, exec_args, multiprocess=False)
 
         result_patches = [cast(EOPatch, result.outputs.get(self._OUTPUT_NAME)) for result in results]
 

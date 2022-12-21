@@ -11,7 +11,7 @@ from ..core.config import RawConfig, recursive_config_join
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.testing import DummyRasterFeatureTask, DummyTimestampFeatureTask
-from ..utils.types import Feature, PatchList, TimePeriod
+from ..utils.types import ExecKwargs, Feature, PatchList, TimePeriod
 from ..utils.validators import field_validator, parse_dtype, parse_time_period
 
 Self = TypeVar("Self", bound="TestPipeline")
@@ -143,9 +143,7 @@ class DummyDataPipeline(Pipeline):
 
         return EOWorkflow.from_endnodes(save_node)
 
-    def get_execution_arguments(
-        self, workflow: EOWorkflow, patch_list: PatchList
-    ) -> List[Dict[EONode, Dict[str, object]]]:
+    def get_execution_arguments(self, workflow: EOWorkflow, patch_list: PatchList) -> ExecKwargs:
         """Extends the basic method for adding execution arguments by adding seed arguments a sampling task"""
         exec_args = super().get_execution_arguments(workflow, patch_list)
 
@@ -153,13 +151,14 @@ class DummyDataPipeline(Pipeline):
         add_feature_nodes = sorted(self._nodes_to_configs_map, key=lambda _node: _node.get_name())
 
         generator = np.random.default_rng(seed=self.config.seed)
-        for index, workflow_args in enumerate(exec_args):
+        global_seeds = {node: generator.integers(low=0, high=2**32) for node in add_feature_nodes}
+        for _, exec_kwargs in exec_args.items():
             for node in add_feature_nodes:
-                seed: object = generator.integers(low=0, high=2**32)
+                if self._nodes_to_configs_map[node].same_for_all:
+                    seed = global_seeds[node]
+                else:
+                    seed = generator.integers(low=0, high=2**32)
 
-                if self._nodes_to_configs_map[node].same_for_all and index > 0:
-                    seed = exec_args[0][node]["seed"]
-
-                workflow_args[node] = dict(seed=seed)
+                exec_kwargs[node] = dict(seed=seed)
 
         return exec_args

@@ -14,7 +14,7 @@ from eogrow.utils.validators import ensure_exactly_one_defined
 from ..core.pipeline import Pipeline
 from ..tasks.common import ClassFilterTask
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec, PatchList
+from ..utils.types import ExecKwargs, Feature, FeatureSpec, PatchList
 
 
 class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
@@ -166,9 +166,7 @@ class BaseRandomSamplingPipeline(BaseSamplingPipeline, metaclass=abc.ABCMeta):  
         super().__init__(*args, **kwargs)
         self._sampling_node_uid: Optional[str] = None
 
-    def get_execution_arguments(
-        self, workflow: EOWorkflow, patch_list: PatchList
-    ) -> List[Dict[EONode, Dict[str, object]]]:
+    def get_execution_arguments(self, workflow: EOWorkflow, patch_list: PatchList) -> ExecKwargs:
         """Extends the basic method for adding execution arguments by adding seed arguments a sampling task"""
         exec_args = super().get_execution_arguments(workflow, patch_list)
 
@@ -178,8 +176,8 @@ class BaseRandomSamplingPipeline(BaseSamplingPipeline, metaclass=abc.ABCMeta):  
 
         generator = np.random.default_rng(seed=self.config.seed)
 
-        for arg_index in range(len(patch_list)):
-            exec_args[arg_index][sampling_node] = dict(seed=generator.integers(low=0, high=2**32))
+        for _, single_exec_args in exec_args.items():
+            single_exec_args[sampling_node] = dict(seed=generator.integers(low=0, high=2**32))
 
         return exec_args
 

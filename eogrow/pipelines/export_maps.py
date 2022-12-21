@@ -15,7 +15,7 @@ from fs.tempfs import TempFS
 from pydantic import Field
 from tqdm.auto import tqdm
 
-from eolearn.core import EONode, EOPatch, EOTask, EOWorkflow, FeatureType, LoadTask, linearly_connect_tasks
+from eolearn.core import EOPatch, EOTask, EOWorkflow, FeatureType, LoadTask, linearly_connect_tasks
 from eolearn.core.utils.fs import get_full_path, pickle_fs, unpickle_fs
 from eolearn.core.utils.parallelize import parallelize
 from eolearn.features import LinearFunctionTask
@@ -26,7 +26,7 @@ from eogrow.core.config import RawConfig
 
 from ..core.pipeline import Pipeline
 from ..utils.map import CogifyResamplingOptions, WarpResamplingOptions, cogify_inplace, extract_bands, merge_tiffs
-from ..utils.types import Feature, PatchList
+from ..utils.types import ExecKwargs, Feature, PatchList
 
 LOGGER = logging.getLogger(__name__)
 
@@ -186,14 +186,12 @@ class ExportMapsPipeline(Pipeline):
 
         return EOWorkflow(linearly_connect_tasks(*task_list))
 
-    def get_execution_arguments(
-        self, workflow: EOWorkflow, patch_list: PatchList
-    ) -> List[Dict[EONode, Dict[str, object]]]:
+    def get_execution_arguments(self, workflow: EOWorkflow, patch_list: PatchList) -> ExecKwargs:
         exec_args = super().get_execution_arguments(workflow, patch_list)
         nodes = workflow.get_nodes()
         for node in nodes:
             if isinstance(node.task, ExportToTiffTask):
-                for patch_name, single_exec_dict in zip(patch_list, exec_args):
+                for patch_name, single_exec_dict in exec_args.items():
                     single_exec_dict[node] = dict(filename=self.get_tiff_name(patch_name))
 
         return exec_args

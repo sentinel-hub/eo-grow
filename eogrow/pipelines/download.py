@@ -3,7 +3,7 @@ import abc
 import datetime as dt
 import logging
 from contextlib import nullcontext
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, List, Optional, Tuple, Union
 
 import numpy as np
 import ray
@@ -27,7 +27,7 @@ from sentinelhub.download import SessionSharing, collect_shared_session
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec, PatchList, Path, ProcessingType, TimePeriod
+from ..utils.types import ExecKwargs, Feature, FeatureSpec, PatchList, Path, ProcessingType, TimePeriod
 from ..utils.validators import (
     ensure_exactly_one_defined,
     field_validator,
@@ -156,9 +156,7 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
 
         return EOWorkflow.from_endnodes(end_node)
 
-    def get_execution_arguments(
-        self, workflow: EOWorkflow, patch_list: PatchList
-    ) -> List[Dict[EONode, Dict[str, object]]]:
+    def get_execution_arguments(self, workflow: EOWorkflow, patch_list: PatchList) -> ExecKwargs:
         """Adds required bbox and time_interval parameters for input task to the base execution arguments
 
         :param workflow: EOWorkflow used to download images
@@ -171,10 +169,10 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
 
         bbox_list = self.eopatch_manager.get_bboxes(eopatch_list=patch_list)
 
-        for index, bbox in enumerate(bbox_list):
-            exec_args[index][download_node] = {"bbox": bbox}
+        for patch_name, bbox in zip(patch_list, bbox_list):
+            exec_args[patch_name][download_node] = {"bbox": bbox}
             if hasattr(self.config, "time_period"):
-                exec_args[index][download_node]["time_interval"] = self.config.time_period
+                exec_args[patch_name][download_node]["time_interval"] = self.config.time_period
 
         return exec_args
 
@@ -190,7 +188,7 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
         if execution_kind is ProcessingType.MULTI:
             context = SessionSharing(SentinelHubSession(self.sh_config))
         with context:
-            finished, failed, _ = self.run_execution(workflow, exec_args, patch_list)
+            finished, failed, _ = self.run_execution(workflow, exec_args)
 
         return finished, failed
 

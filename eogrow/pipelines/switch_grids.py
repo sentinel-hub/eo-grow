@@ -119,7 +119,10 @@ class SwitchGridsPipeline(Pipeline):
         exec_args = self.get_execution_arguments_from_transformations(workflow, transformations)
         execution_names, name_mapping = self._get_execution_names_and_mapping(transformations)
 
-        finished, failed, _ = self.run_execution(workflow, exec_args, eopatch_list=execution_names)
+        # This one will be removed soon anyway
+        execution_kwargs = {name: kwargs for name, kwargs in zip(execution_names, exec_args)}
+
+        finished, failed, _ = self.run_execution(workflow, execution_kwargs)
 
         finished = [input_name for execution_name in finished for input_name in name_mapping[execution_name]]
         failed = [input_name for execution_name in failed for input_name in name_mapping[execution_name]]

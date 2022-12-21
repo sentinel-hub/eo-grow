@@ -18,7 +18,7 @@ from ..core.pipeline import Pipeline
 from ..tasks.spatial import SpatialSliceTask
 from ..utils.fs import LocalFile
 from ..utils.grid import split_bbox
-from ..utils.types import Feature, FeatureSpec
+from ..utils.types import ExecKwargs, Feature, FeatureSpec
 
 LOGGER = logging.getLogger(__name__)
 
@@ -99,7 +99,7 @@ class SplitGridPipeline(Pipeline):
         patch_list = self.get_patch_list()
         exec_args = self.get_execution_arguments(workflow, bbox_splits)
 
-        finished, failed, _ = self.run_execution(workflow, exec_args, patch_list)
+        finished, failed, _ = self.run_execution(workflow, exec_args)
 
         return finished, failed
 
@@ -157,13 +157,13 @@ class SplitGridPipeline(Pipeline):
 
     def get_execution_arguments(  # type: ignore[override]
         self, workflow: EOWorkflow, bbox_splits: List[Tuple[NamedBBox, List[NamedBBox]]]
-    ) -> List[Dict[EONode, Dict[str, object]]]:
+    ) -> ExecKwargs:
         nodes = workflow.get_nodes()
         load_node = nodes[0]
         save_nodes = [node for node in nodes if isinstance(node.task, SaveTask)]
         slice_nodes = [save_node.inputs[0] for save_node in save_nodes]
 
-        exec_args: List[Dict[EONode, Dict[str, object]]] = []
+        exec_args: ExecKwargs = {}
         for (orig_name, _), split_bboxes in bbox_splits:
             single_exec: Dict[EONode, Dict[str, object]] = {load_node: dict(eopatch_folder=orig_name)}
             # Since some bboxes might get filtered out, the remaining slice and save nodes should get None arguments
@@ -173,7 +173,7 @@ class SplitGridPipeline(Pipeline):
                 single_exec[slice_node] = dict(bbox=subbox)
                 single_exec[save_node] = dict(eopatch_folder=subbox_name)
 
-            exec_args.append(single_exec)
+            exec_args[orig_name] = single_exec
 
         return exec_args
 

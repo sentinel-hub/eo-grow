@@ -4,9 +4,10 @@ import datetime
 from enum import Enum
 from typing import Any, Dict, List, Literal, Tuple, Union
 
-from eolearn.core import FeatureType
+from eolearn.core import EONode, FeatureType
 
 PatchList = List[str]
+ExecKwargs = Dict[str, Dict[EONode, Dict[str, object]]]
 
 Path = str
 S3Path = str
