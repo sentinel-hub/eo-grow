@@ -163,7 +163,7 @@ class Pipeline(EOGrowObject):
         """A method which runs EOExecutor on given workflow with given execution parameters
 
         :param workflow: A workflow to be executed
-        :param execution_args: A list of dictionaries holding execution arguments
+        :param execution_kwargs: A dictionary mapping execution names to dictionaries holding execution arguments
         :param eopatch_list: A custom list of EOPatch names on which execution will run. If not specified, the default
             self.patch_list will be used
         :return: Lists of successfully/unsuccessfully executed EOPatch names and the result of the EOWorkflow execution
