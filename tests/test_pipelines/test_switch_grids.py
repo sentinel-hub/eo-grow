@@ -7,7 +7,8 @@ from eogrow.core.area import CustomGridAreaManager
 from eogrow.core.config import interpret_config_from_dict
 from eogrow.utils.testing import create_folder_dict, run_and_test_pipeline
 
-pytestmark = pytest.mark.fast
+# disabling testing as it will be removed soon
+# pytestmark = pytest.mark.fast
 
 
 @pytest.fixture(scope="session", name="batch_folders")
