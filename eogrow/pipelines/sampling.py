@@ -176,8 +176,8 @@ class BaseRandomSamplingPipeline(BaseSamplingPipeline, metaclass=abc.ABCMeta):  
 
         generator = np.random.default_rng(seed=self.config.seed)
 
-        for _, single_exec_args in exec_args.items():
-            single_exec_args[sampling_node] = dict(seed=generator.integers(low=0, high=2**32))
+        for _, patch_args in exec_args.items():
+            patch_args[sampling_node] = dict(seed=generator.integers(low=0, high=2**32))
 
         return exec_args
 

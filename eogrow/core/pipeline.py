@@ -135,16 +135,16 @@ class Pipeline(EOGrowObject):
         exec_kwargs = {}
         nodes = workflow.get_nodes()
         for name, bbox in zip(patch_list, bbox_list):
-            single_exec_dict: Dict[EONode, Dict[str, Any]] = {}
+            patch_args: Dict[EONode, Dict[str, Any]] = {}
 
             for node in nodes:
                 if isinstance(node.task, (SaveTask, LoadTask)):
-                    single_exec_dict[node] = dict(eopatch_folder=name)
+                    patch_args[node] = dict(eopatch_folder=name)
 
                 if isinstance(node.task, CreateEOPatchTask):
-                    single_exec_dict[node] = dict(bbox=bbox)
+                    patch_args[node] = dict(bbox=bbox)
 
-            exec_kwargs[name] = single_exec_dict
+            exec_kwargs[name] = patch_args
         return exec_kwargs
 
     def _init_processing(self) -> ProcessingType:

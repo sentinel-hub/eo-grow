@@ -165,15 +165,15 @@ class SplitGridPipeline(Pipeline):
 
         exec_args: ExecKwargs = {}
         for (orig_name, _), split_bboxes in bbox_splits:
-            single_exec: Dict[EONode, Dict[str, object]] = {load_node: dict(eopatch_folder=orig_name)}
+            patch_args: Dict[EONode, Dict[str, object]] = {load_node: dict(eopatch_folder=orig_name)}
             # Since some bboxes might get filtered out, the remaining slice and save nodes should get None arguments
             split_bboxes_iter = it.chain(split_bboxes, it.repeat((None, None)))
 
             for slice_node, save_node, (subbox_name, subbox) in zip(slice_nodes, save_nodes, split_bboxes_iter):
-                single_exec[slice_node] = dict(bbox=subbox)
-                single_exec[save_node] = dict(eopatch_folder=subbox_name)
+                patch_args[slice_node] = dict(bbox=subbox)
+                patch_args[save_node] = dict(eopatch_folder=subbox_name)
 
-            exec_args[orig_name] = single_exec
+            exec_args[orig_name] = patch_args
 
         return exec_args
 

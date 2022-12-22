@@ -238,17 +238,17 @@ class BatchToEOPatchPipeline(Pipeline):
 
         nodes = workflow.get_nodes()
 
-        for patch_name, single_exec_dict in exec_args.items():
+        for patch_name, patch_args in exec_args.items():
             for node in nodes:
                 if isinstance(node.task, ImportFromTiffTask):
                     if node.name is None:
                         raise RuntimeError("One of the ImportFromTiffTask nodes has not been tagged with filename.")
                     filename = node.name.split()[0]
                     path = f"{patch_name}/{filename}"
-                    single_exec_dict[node] = dict(filename=path)
+                    patch_args[node] = dict(filename=path)
 
                 if isinstance(node.task, (DeleteFilesTask, LoadUserDataTask)):
-                    single_exec_dict[node] = dict(folder=patch_name)
+                    patch_args[node] = dict(folder=patch_name)
 
         return exec_args
 

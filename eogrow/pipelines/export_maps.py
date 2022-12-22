@@ -191,8 +191,8 @@ class ExportMapsPipeline(Pipeline):
         nodes = workflow.get_nodes()
         for node in nodes:
             if isinstance(node.task, ExportToTiffTask):
-                for patch_name, single_exec_dict in exec_args.items():
-                    single_exec_dict[node] = dict(filename=self.get_tiff_name(patch_name))
+                for patch_name, patch_args in exec_args.items():
+                    patch_args[node] = dict(filename=self.get_tiff_name(patch_name))
 
         return exec_args
 
