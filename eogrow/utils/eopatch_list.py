@@ -1,9 +1,14 @@
 """Utilities for working with lists of EOPatch names."""
 
 import json
-from typing import List
+from collections import defaultdict
+from typing import DefaultDict, Dict, List
 
 from fs.base import FS
+
+from sentinelhub import CRS
+
+from .types import PatchList
 
 
 def save_eopatch_names(filesystem: FS, file_path: str, eopatch_list: List[str]) -> None:
@@ -27,3 +32,10 @@ def load_eopatch_names(filesystem: FS, file_path: str) -> List[str]:
     """
     with filesystem.open(file_path, "r") as file:
         return json.load(file)
+
+
+def group_by_crs(patch_list: PatchList) -> Dict[CRS, List[str]]:
+    patches_by_crs: DefaultDict[CRS, List[str]] = defaultdict(list)
+    for name, bbox in patch_list:
+        patches_by_crs[bbox.crs].append(name)
+    return patches_by_crs
