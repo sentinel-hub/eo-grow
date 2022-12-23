@@ -51,11 +51,7 @@ def prepare_batch_files(
 
 
 @pytest.mark.parametrize(
-    "experiment_name",
-    [
-        pytest.param("batch_to_eopatch", marks=pytest.mark.chain),
-        "batch_to_eopatch_no_userdata",
-    ],
+    "experiment_name", [pytest.param("batch_to_eopatch", marks=pytest.mark.chain), "batch_to_eopatch_no_userdata"]
 )
 def test_batch_to_eopatch_pipeline(folders, experiment_name):
     # Can't use utility testing due to custom pipeline
@@ -70,11 +66,9 @@ def test_batch_to_eopatch_pipeline(folders, experiment_name):
     filesystem.removetree(input_folder)
     filesystem.removetree(output_folder)
 
-    bboxes = pipeline.eopatch_manager.get_bboxes()
-    folders = pipeline.eopatch_manager.get_eopatch_filenames()
     add_userdata = bool(pipeline.config.userdata_feature_name or pipeline.config.userdata_timestamp_reader)
-    for bbox, patch_folder in zip(bboxes, folders):
-        patch_path = fs.path.combine(input_folder, patch_folder)
+    for patch_name, bbox in pipeline.get_patch_list():
+        patch_path = fs.path.combine(input_folder, patch_name)
         prepare_batch_files(
             folder=patch_path,
             filesystem=filesystem,

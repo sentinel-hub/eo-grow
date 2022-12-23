@@ -289,7 +289,6 @@ def check_pipeline_logs(pipeline: Pipeline) -> None:
         path = fs.path.combine(logs_folder, filename)
         assert pipeline.storage.filesystem.isfile(path), f"File {path} is missing"
 
-    logs_folder = pipeline.logging_manager.get_pipeline_logs_folder(pipeline.current_execution_name, full_path=True)
     failed_filename = fs.path.combine(logs_folder, "failed.json")
     assert not load_eopatch_names(
         pipeline.storage.filesystem, failed_filename

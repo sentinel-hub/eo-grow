@@ -14,9 +14,6 @@
     "offset_x": 0,
     "offset_y": 0
   },
-  "eopatch": {
-    "manager": "eogrow.core.eopatch.EOPatchManager"
-  },
   "logging": {
     "manager": "eogrow.core.logging.LoggingManager",
     "save_logs": true,
