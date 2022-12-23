@@ -2,7 +2,7 @@
   "pipeline": "SimplePipeline",
   "**global_config": "${config_path}/../global_config.json",
   "test_param": 10,
-  "patch_list": [0, 1],
+  "test_on": [0, 1],
   "workers": 3,
   "logging": {
     "save_logs": true,

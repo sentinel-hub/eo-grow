@@ -48,8 +48,11 @@ class PipelineSchema(BaseSchema):
         ),
     )
 
-    patch_list: Optional[List[int]] = Field(
-        description="A list of EOPatch indices for which the pipeline should be executed"
+    test_on: Optional[List[int]] = Field(
+        description=(
+            "A list of EOPatch indices for which the pipeline is executed. Used for testing, can be set through CLI"
+            " with the -t flag."
+        )
     )
     skip_existing: bool = Field(
         False,
