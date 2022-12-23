@@ -25,6 +25,7 @@ from sentinelhub import CRS, MimeType
 from eogrow.core.config import RawConfig
 
 from ..core.pipeline import Pipeline
+from ..utils.eopatch_list import group_by_crs
 from ..utils.map import CogifyResamplingOptions, WarpResamplingOptions, cogify_inplace, extract_bands, merge_tiffs
 from ..utils.types import ExecKwargs, Feature, PatchList
 
@@ -116,20 +117,23 @@ class ExportMapsPipeline(Pipeline):
 
         """
 
-        successful, failed = super().run_procedure()
+        workflow = self.build_workflow()
+        patch_list = self.get_patch_list()
+        exec_args = self.get_execution_arguments(workflow, patch_list)
+
+        successful, failed, _ = self.run_execution(workflow, exec_args)
 
         if not successful:
             raise ValueError("Failed to extract tiff files from any of EOPatches.")
 
         feature_type, _ = self.config.feature
         output_folder = self.storage.get_folder(self.config.output_folder_key)
-        crs_eopatch_dict = self.eopatch_manager.split_by_utm(successful)
 
-        for crs, eopatch_list in crs_eopatch_dict.items():
-            LOGGER.info("Processing UTM %d", crs.epsg)
+        for crs, eopatch_name_list in group_by_crs(patch_list).items():
+            LOGGER.info("Processing CRS %d", crs.epsg)
 
             exported_tiff_paths = [
-                fs.path.join(output_folder, self.get_tiff_name(patch_name)) for patch_name in eopatch_list
+                fs.path.join(output_folder, self.get_tiff_name(patch_name)) for patch_name in eopatch_name_list
             ]
             filesystem, geotiff_paths = self._prepare_files(exported_tiff_paths)
 
@@ -141,7 +145,7 @@ class ExportMapsPipeline(Pipeline):
                 combine_tiffs_jobs = [CombineTiffsJob(geotiff_paths, merged_map_name, time=None)]
             else:
                 time_to_tiffs_map = self._split_patches_temporally(
-                    filesystem, crs_output_folder, geotiff_paths, some_eopatch=eopatch_list[0], crs=crs
+                    filesystem, crs_output_folder, geotiff_paths, some_eopatch=eopatch_name_list[0], crs=crs
                 )
                 map_name_maker = partial(self.get_tiff_name, self.MERGED_MAP_NAME, crs)
 

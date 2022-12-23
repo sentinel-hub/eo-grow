@@ -83,7 +83,7 @@ class BatchToEOPatchPipeline(Pipeline):
         self._has_userdata = self.config.userdata_feature_name or self.config.userdata_timestamp_reader
         self._all_batch_files = self._get_all_batch_files()
 
-    def filter_patch_list(self, patch_list: List[str]) -> List[str]:
+    def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """EOPatches are filtered according to existence of specified output features"""
 
         filtered_patch_list = get_patches_with_missing_features(

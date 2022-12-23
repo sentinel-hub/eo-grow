@@ -12,8 +12,8 @@ from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, OverwritePer
 from sentinelhub import CRS, BBox
 from sentinelhub.geometry import Geometry
 
-from ..core.area.batch import BatchAreaManager
-from ..core.area.utm import UtmZoneAreaManager
+from ..core.area.batch import NewBatchAreaManager
+from ..core.area.utm import NewUtmZoneAreaManager
 from ..core.pipeline import Pipeline
 from ..tasks.spatial import SpatialSliceTask
 from ..utils.fs import LocalFile
@@ -74,12 +74,11 @@ class SplitGridPipeline(Pipeline):
         buffer_x, buffer_y = self._get_buffer()
 
         patch_list = self.get_patch_list()
-        bboxes = self.eopatch_manager.get_bboxes(eopatch_list=patch_list)
         area = self.area_manager.get_area_geometry()
         area_projection_cache = {area.crs: area}
 
         bbox_splits = []
-        for named_bbox in zip(patch_list, bboxes):
+        for named_bbox in patch_list:
             split_bboxes = split_bbox(
                 named_bbox,
                 split_x=self.config.split_x,
@@ -123,9 +122,9 @@ class SplitGridPipeline(Pipeline):
             return self.config.buffer
 
         area_config = self.area_manager.config
-        if isinstance(area_config, UtmZoneAreaManager.Schema):
-            return area_config.patch_buffer_x, area_config.patch_buffer_y
-        if isinstance(area_config, BatchAreaManager.Schema):
+        if isinstance(area_config, NewUtmZoneAreaManager.Schema):
+            return area_config.patch.buffer_x, area_config.patch.buffer_y
+        if isinstance(area_config, NewBatchAreaManager.Schema):
             res = area_config.resolution
             return area_config.tile_buffer_x * res, area_config.tile_buffer_y * res
         raise ValueError(

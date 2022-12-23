@@ -2,7 +2,7 @@
 Utilities for filtering eopatch lists
 """
 from concurrent.futures import ThreadPoolExecutor
-from typing import List, Sequence, Set, Tuple, Union
+from typing import Sequence, Set, Tuple, Union
 
 import fs
 from fs.base import FS
@@ -12,7 +12,7 @@ from eolearn.core import FeatureType
 from eolearn.core.eodata_io import walk_filesystem
 from eolearn.core.utils.types import EllipsisType
 
-from ..utils.types import FeatureSpec
+from ..utils.types import FeatureSpec, PatchList
 
 
 def check_if_features_exist(
@@ -36,9 +36,9 @@ def check_if_features_exist(
 def get_patches_with_missing_features(
     filesystem: FS,
     patches_folder: str,
-    patch_list: List[str],
+    patch_list: PatchList,
     features: Sequence[FeatureSpec],
-) -> List[str]:
+) -> PatchList:
     """Filters out names of those EOPatches that are missing some given features.
 
     :param filesystem: A filesystem object.
@@ -47,7 +47,7 @@ def get_patches_with_missing_features(
     :param features: A list of EOPatch features.
     :return: A sublist of `patch_list` with only EOPatch names that are missing some features.
     """
-    eopatch_paths = [fs.path.combine(patches_folder, eopatch) for eopatch in patch_list]
+    eopatch_paths = [fs.path.combine(patches_folder, eopatch) for eopatch, _ in patch_list]
 
     def check_patch(eopatch_path: str) -> bool:
         return check_if_features_exist(filesystem, eopatch_path, features)

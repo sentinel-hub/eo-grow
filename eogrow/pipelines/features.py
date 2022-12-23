@@ -28,7 +28,7 @@ from ..tasks.features import (
     join_valid_and_cloud_masks,
 )
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec, TimePeriod
+from ..utils.types import Feature, FeatureSpec, PatchList, TimePeriod
 from ..utils.validators import field_validator, optional_field_validator, parse_dtype, parse_time_period
 
 LOGGER = logging.getLogger(__name__)
@@ -75,7 +75,7 @@ class FeaturesPipeline(Pipeline):
 
     config: Schema
 
-    def filter_patch_list(self, patch_list: List[str]) -> List[str]:
+    def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """EOPatches are filtered according to existence of specified output features"""
 
         filtered_patch_list = get_patches_with_missing_features(

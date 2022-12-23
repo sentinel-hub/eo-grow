@@ -29,7 +29,12 @@ class MergeSamplesPipeline(Pipeline):
             description="Dictionary of all features for which samples are to be merged."
         )
         include_timestamp: bool = Field(False, description="Whether to also prepare an array of merged timestamps.")
-        id_filename: Optional[str] = Field(description="Filename of array holding patch id of concatenated features")
+        id_filename: Optional[str] = Field(
+            description=(
+                "Filename of array holding patch ID of concatenated features. The patch ID is the index of the patch in"
+                " the final patch list, any filtration of the patch list will impact the results."
+            )
+        )
         suffix: str = Field("", description="String to append to array filenames")
         workers: int = Field(1, description="Number of threads used to load data from EOPatches in parallel.")
         use_ray: Literal[False] = Field(False, description="Pipeline does not parallelize properly.")
@@ -99,10 +104,8 @@ class MergeSamplesPipeline(Pipeline):
 
         if self.config.id_filename:
             LOGGER.info("Started merging EOPatch ids")
-            patch_ids = self.eopatch_manager.get_id_list_from_eopatch_list(patch_names)
             patch_id_arrays = [
-                np.ones(sample_num, dtype=np.uint32) * patch_id
-                for sample_num, patch_id in zip(patch_sample_nums, patch_ids)
+                np.ones(sample_num, dtype=np.uint32) * patch_id for patch_id, sample_num in enumerate(patch_sample_nums)
             ]
 
             merged_patch_ids: np.ndarray = np.concatenate(patch_id_arrays, axis=0)
