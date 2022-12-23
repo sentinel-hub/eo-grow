@@ -1,5 +1,5 @@
 """Pipeline for conversion of batch results to EOPatches."""
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 
 import numpy as np
 from pydantic import Field, root_validator
@@ -22,7 +22,7 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec, RawSchemaDict
+from ..utils.types import ExecKwargs, Feature, FeatureSpec, PatchList, RawSchemaDict
 from ..utils.validators import optional_field_validator, parse_dtype
 
 
@@ -232,23 +232,23 @@ class BatchToEOPatchPipeline(Pipeline):
         """This method can be overwritten to add more tasks that process loaded data before saving it."""
         return previous_node
 
-    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, object]]]:
+    def get_execution_arguments(self, workflow: EOWorkflow, patch_list: PatchList) -> ExecKwargs:
         """Prepare execution arguments per each EOPatch"""
-        exec_args = super().get_execution_arguments(workflow)
+        exec_args = super().get_execution_arguments(workflow, patch_list)
 
         nodes = workflow.get_nodes()
 
-        for name, single_exec_dict in zip(self.patch_list, exec_args):
+        for patch_name, patch_args in exec_args.items():
             for node in nodes:
                 if isinstance(node.task, ImportFromTiffTask):
                     if node.name is None:
                         raise RuntimeError("One of the ImportFromTiffTask nodes has not been tagged with filename.")
                     filename = node.name.split()[0]
-                    path = f"{name}/{filename}"
-                    single_exec_dict[node] = dict(filename=path)
+                    path = f"{patch_name}/{filename}"
+                    patch_args[node] = dict(filename=path)
 
                 if isinstance(node.task, (DeleteFilesTask, LoadUserDataTask)):
-                    single_exec_dict[node] = dict(folder=name)
+                    patch_args[node] = dict(folder=patch_name)
 
         return exec_args
 

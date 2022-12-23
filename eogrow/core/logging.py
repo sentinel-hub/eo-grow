@@ -219,7 +219,9 @@ class LoggingManager(EOGrowObject):
         with self.storage.filesystem.open(report_filename, "w") as report_file:
             json.dump(report, report_file, indent=2, default=jsonify)
 
-    def save_eopatch_execution_status(self, pipeline_execution_name: str, finished: list, failed: list) -> None:
+    def save_eopatch_execution_status(
+        self, pipeline_execution_name: str, finished: List[str], failed: List[str]
+    ) -> None:
         """Saves lists of EOPatch names for which execution either finished successfully or failed"""
         if not self.config.save_logs:
             return

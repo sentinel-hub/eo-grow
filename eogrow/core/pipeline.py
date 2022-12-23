@@ -11,7 +11,7 @@ from eolearn.core.extra.ray import RayExecutor
 
 from ..utils.meta import import_object
 from ..utils.ray import handle_ray_connection
-from ..utils.types import ProcessingType
+from ..utils.types import ExecKwargs, PatchList, ProcessingType
 from .area.base import AreaManager
 from .base import EOGrowObject
 from .config import RawConfig
@@ -91,16 +91,7 @@ class Pipeline(EOGrowObject):
         """Returns the full name of the pipeline execution"""
         return f"{pipeline_timestamp}-{self.__class__.__name__}-{self.pipeline_id}"
 
-    @property
-    def patch_list(self) -> List[str]:
-        """A property that provides a list of EOPatch names that will be used by the pipeline. The list is calculated
-        lazily the first time this property is called.
-        """
-        if self._patch_list is None:
-            self._patch_list = self._prepare_patch_list()
-        return self._patch_list
-
-    def _prepare_patch_list(self) -> List[str]:
+    def get_patch_list(self) -> PatchList:
         """Method which at the initialization prepares the list of EOPatches which will be used"""
         if self.config.input_patch_file is None:
             patch_list = self.eopatch_manager.get_eopatch_filenames(id_list=self.config.patch_list)
@@ -128,31 +119,33 @@ class Pipeline(EOGrowObject):
 
         return patch_list
 
-    def filter_patch_list(self, patch_list: List[str]) -> List[str]:
+    def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """Overwrite this method to specify which EOPatches should be filtered with `skip_existing`"""
         raise NotImplementedError("Method `filter_patch_list` must be implemented in order to use `skip_existing`")
 
-    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, object]]]:
-        """Prepares execution arguments for each eopatch from a list of patches
+    def get_execution_arguments(self, workflow: EOWorkflow, patch_list: PatchList) -> ExecKwargs:
+        """Prepares execution arguments for each eopatch from a list of patches.
+        The output should be a dictionary should be of form `{execution_name: {node: node_kwargs}}`.
+        Execution names are usually names of EOPatches, but can be anything.
 
         :param workflow: A workflow for which arguments will be prepared
         """
-        bbox_list = self.eopatch_manager.get_bboxes(eopatch_list=self.patch_list)
+        bbox_list = self.eopatch_manager.get_bboxes(eopatch_list=patch_list)
 
-        exec_args = []
+        exec_kwargs = {}
         nodes = workflow.get_nodes()
-        for name, bbox in zip(self.patch_list, bbox_list):
-            single_exec_dict: Dict[EONode, Dict[str, Any]] = {}
+        for name, bbox in zip(patch_list, bbox_list):
+            patch_args: Dict[EONode, Dict[str, Any]] = {}
 
             for node in nodes:
                 if isinstance(node.task, (SaveTask, LoadTask)):
-                    single_exec_dict[node] = dict(eopatch_folder=name)
+                    patch_args[node] = dict(eopatch_folder=name)
 
                 if isinstance(node.task, CreateEOPatchTask):
-                    single_exec_dict[node] = dict(bbox=bbox)
+                    patch_args[node] = dict(bbox=bbox)
 
-            exec_args.append(single_exec_dict)
-        return exec_args
+            exec_kwargs[name] = patch_args
+        return exec_kwargs
 
     def _init_processing(self) -> ProcessingType:
         """Figures out which execution mode is used and configures connection to Ray if required."""
@@ -164,21 +157,17 @@ class Pipeline(EOGrowObject):
     def run_execution(
         self,
         workflow: EOWorkflow,
-        exec_args: List[dict],
-        eopatch_list: Optional[List[str]] = None,
+        execution_kwargs: ExecKwargs,
         **executor_run_params: Any,
     ) -> Tuple[List[str], List[str], List[WorkflowResults]]:
         """A method which runs EOExecutor on given workflow with given execution parameters
 
         :param workflow: A workflow to be executed
-        :param exec_args: A list of dictionaries holding execution arguments
+        :param execution_kwargs: A dictionary mapping execution names to dictionaries holding execution arguments
         :param eopatch_list: A custom list of EOPatch names on which execution will run. If not specified, the default
             self.patch_list will be used
         :return: Lists of successfully/unsuccessfully executed EOPatch names and the result of the EOWorkflow execution
         """
-        if eopatch_list is None:
-            eopatch_list = self.patch_list
-
         executor_class: Type[EOExecutor]
 
         execution_kind = self._init_processing()
@@ -188,11 +177,18 @@ class Pipeline(EOGrowObject):
             executor_class = EOExecutor
             executor_run_params["workers"] = self.config.workers
 
-        LOGGER.info("Starting %s for %d EOPatches", executor_class.__name__, len(exec_args))
+        LOGGER.info("Starting %s for %d EOPatches", executor_class.__name__, len(execution_kwargs))
+
+        # Unpacking manually to ensure order matches
+        list_of_kwargs, execution_names = [], []
+        for exec_name, exec_kwargs in execution_kwargs.items():
+            list_of_kwargs.append(exec_kwargs)
+            execution_names.append(exec_name)
+
         executor = executor_class(
             workflow,
-            exec_args,
-            execution_names=eopatch_list,
+            list_of_kwargs,
+            execution_names=execution_names,
             save_logs=self.logging_manager.config.save_logs,
             logs_folder=self.logging_manager.get_pipeline_logs_folder(self.current_execution_name),
             filesystem=self.storage.filesystem,
@@ -201,20 +197,20 @@ class Pipeline(EOGrowObject):
         )
         execution_results = executor.run(**executor_run_params)
 
-        successful_eopatches = [eopatch_list[idx] for idx in executor.get_successful_executions()]
-        failed_eopatches = [eopatch_list[idx] for idx in executor.get_failed_executions()]
+        successful = [execution_names[idx] for idx in executor.get_successful_executions()]
+        failed = [execution_names[idx] for idx in executor.get_failed_executions()]
         LOGGER.info(
             "%s finished with %d / %d success rate",
             executor_class.__name__,
-            len(successful_eopatches),
-            len(successful_eopatches) + len(failed_eopatches),
+            len(successful),
+            len(successful) + len(failed),
         )
 
         if self.logging_manager.config.save_logs:
             executor.make_report(include_logs=self.logging_manager.config.include_logs_to_report)
             LOGGER.info("Saved EOExecution report to %s", executor.get_report_path(full_path=True))
 
-        return successful_eopatches, failed_eopatches, execution_results
+        return successful, failed, execution_results
 
     def run(self) -> None:
         """Call this method to run any pipeline"""
@@ -274,7 +270,8 @@ class Pipeline(EOGrowObject):
                 "Default implementation of run_procedure method requires implementation of build_workflow method"
             )
         workflow = self.build_workflow()
-        exec_args = self.get_execution_arguments(workflow)
+        patch_list = self.get_patch_list()
+        exec_args = self.get_execution_arguments(workflow, patch_list)
 
         finished, failed, _ = self.run_execution(workflow, exec_args)
         return finished, failed
