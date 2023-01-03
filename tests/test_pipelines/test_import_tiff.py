@@ -33,9 +33,12 @@ def test_import_tiff_pipeline(folders, experiment_name):
     pipeline = ImportTiffPipeline.from_raw_config(interpret_config_from_path(config_filename))
 
     filesystem = pipeline.storage.filesystem
-    input_folder = pipeline.storage.get_folder(pipeline.config.tiff_folder_key)
-    input_file = os.path.join(input_folder, pipeline.config.input_filename)
+    if pipeline.config.tiff_folder_key is not None:
+        input_folder = pipeline.storage.get_folder(pipeline.config.tiff_folder_key)
+    else:
+        input_folder = pipeline.storage.get_input_data_folder()
 
+    input_file = os.path.join(input_folder, pipeline.config.input_filename)
     output_folder = pipeline.storage.get_folder(pipeline.config.output_folder_key)
     filesystem.removetree(output_folder)
 
