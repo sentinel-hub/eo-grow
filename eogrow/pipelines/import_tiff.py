@@ -41,7 +41,12 @@ class ResizeSchema(BaseSchema):
 class ImportTiffPipeline(Pipeline):
     class Schema(Pipeline.Schema):
         output_folder_key: str = Field(description="The storage manager key of the output folder.")
-        tiff_folder_key: str = Field(description="The storage manager key of the folder containing the tiff to import.")
+        tiff_folder_key: Optional[str] = Field(
+            description=(
+                "The storage manager key of the folder containing the tiff to import. Defaults to the input-data"
+                " directory."
+            )
+        )
         input_filename: str = Field(description="Name of tiff file to import.")
         output_feature: Feature = Field(description="Feature containing the imported tiff information.")
         no_data_value: float = Field(
@@ -72,7 +77,12 @@ class ImportTiffPipeline(Pipeline):
     def build_workflow(self) -> EOWorkflow:
         create_eopatch_node = EONode(CreateEOPatchTask())
 
-        file_path = fs.path.join(self.storage.get_folder(self.config.tiff_folder_key), self.config.input_filename)
+        if self.config.tiff_folder_key is not None:
+            tiff_folder = self.storage.get_folder(self.config.tiff_folder_key)
+        else:
+            tiff_folder = self.storage.get_input_data_folder()
+
+        file_path = fs.path.join(tiff_folder, self.config.input_filename)
         import_task = ImportFromTiffTask(
             self.config.output_feature,
             file_path,
