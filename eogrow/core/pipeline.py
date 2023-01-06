@@ -107,8 +107,10 @@ class Pipeline(EOGrowObject):
         else:
             if self.config.patch_list:
                 warnings.warn(
-                    "'patch_list' and 'input_patch_file' parameters have both been given, therefore patches "
-                    "from input_patch_file will be filtered according to patch_list indices",
+                    (
+                        "'patch_list' and 'input_patch_file' parameters have both been given, therefore patches "
+                        "from input_patch_file will be filtered according to patch_list indices"
+                    ),
                     RuntimeWarning,
                 )
             patch_list = self.eopatch_manager.load_eopatch_filenames(
