@@ -41,7 +41,10 @@ class ResizeSchema(BaseSchema):
 class ImportTiffPipeline(Pipeline):
     class Schema(Pipeline.Schema):
         output_folder_key: str = Field(description="The storage manager key of the output folder.")
-        tiff_folder_key: str = Field(description="The storage manager key of the folder containing the tiff to import.")
+        tiff_folder_key: str = Field(
+            "input_data",
+            description="The storage manager key of the folder containing the tiff. Defaults to the input-data folder.",
+        )
         input_filename: str = Field(description="Name of tiff file to import.")
         output_feature: Feature = Field(description="Feature containing the imported tiff information.")
         no_data_value: float = Field(

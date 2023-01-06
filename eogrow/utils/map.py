@@ -127,8 +127,10 @@ def cogify(
 
     if version < "3.6.0" and resampling == "MODE":
         warnings.warn(
-            "GDAL versions below 3.6.0 have issues with `MODE` overview resampling. Trying to fix issue by setting"
-            " GDAL_OVR_CHUNK_MAX_SIZE to a large integer (2100000000).",
+            (
+                "GDAL versions below 3.6.0 have issues with `MODE` overview resampling. Trying to fix issue by setting"
+                " GDAL_OVR_CHUNK_MAX_SIZE to a large integer (2100000000)."
+            ),
             category=RuntimeWarning,
         )
         gdaltranslate_options += " --config GDAL_OVR_CHUNK_MAX_SIZE 2100000000"
