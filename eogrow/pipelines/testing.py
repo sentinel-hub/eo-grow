@@ -47,7 +47,7 @@ class TestPipeline(Pipeline):
 
         self.area_manager.get_area_geometry()
         grid = self.area_manager.get_grid()
-        num_patches = sum([len(df.index) for df in grid.values()])
+        num_patches = sum(map(len, grid.values()))
         LOGGER.info("Grid has %d EOPatches and is split over %d CRS zones", num_patches, len(grid))
 
         patch_list = self.area_manager.get_patch_list()
