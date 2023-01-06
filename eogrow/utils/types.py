@@ -5,8 +5,9 @@ from enum import Enum
 from typing import Any, Dict, List, Literal, Tuple, Union
 
 from eolearn.core import EONode, FeatureType
+from sentinelhub import BBox
 
-PatchList = List[str]
+PatchList = List[Tuple[str, BBox]]
 ExecKwargs = Dict[str, Dict[EONode, Dict[str, object]]]
 
 Path = str

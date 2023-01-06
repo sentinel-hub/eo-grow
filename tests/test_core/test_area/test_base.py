@@ -72,7 +72,7 @@ def test_get_names_and_bboxes(patch_list, expected_bboxes, storage):
 
     manager = DummyAreaManager.from_raw_config(config, storage)
 
-    assert expected_bboxes == manager.get_names_and_bboxes()
+    assert expected_bboxes == manager.get_patch_list()
 
 
 @pytest.mark.parametrize(

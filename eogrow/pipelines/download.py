@@ -93,7 +93,7 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
         super().__init__(*args, **kwargs)
         self.download_node_uid: Optional[str] = None
 
-    def filter_patch_list(self, patch_list: List[str]) -> List[str]:
+    def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """EOPatches are filtered according to existence of specified output features"""
 
         filtered_patch_list = get_patches_with_missing_features(
@@ -167,9 +167,7 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
         if download_node is None:
             return exec_args
 
-        bbox_list = self.eopatch_manager.get_bboxes(eopatch_list=patch_list)
-
-        for patch_name, bbox in zip(patch_list, bbox_list):
+        for patch_name, bbox in patch_list:
             exec_args[patch_name][download_node] = {"bbox": bbox}
             if hasattr(self.config, "time_period"):
                 exec_args[patch_name][download_node]["time_interval"] = self.config.time_period

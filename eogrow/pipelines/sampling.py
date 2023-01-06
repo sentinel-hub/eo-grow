@@ -43,7 +43,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
 
     config: Schema
 
-    def filter_patch_list(self, patch_list: List[str]) -> List[str]:
+    def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """Filter output EOPatches that have already been processed"""
         filtered_patch_list = get_patches_with_missing_features(
             self.storage.filesystem,

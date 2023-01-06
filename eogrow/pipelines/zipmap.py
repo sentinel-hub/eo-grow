@@ -19,7 +19,7 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.meta import import_object
-from ..utils.types import Feature, FeatureSpec
+from ..utils.types import Feature, FeatureSpec, PatchList
 
 LOGGER = logging.getLogger(__name__)
 
@@ -70,7 +70,7 @@ class ZipMapPipeline(Pipeline):
 
     config: Schema
 
-    def filter_patch_list(self, patch_list: List[str]) -> List[str]:
+    def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """EOPatches are filtered according to existence of new features"""
         # Note: does not catch missing BBox or Timestamp
         filtered_patch_list = get_patches_with_missing_features(

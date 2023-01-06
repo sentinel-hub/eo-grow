@@ -47,11 +47,11 @@ class TestPipeline(Pipeline):
 
         self.area_manager.get_area_geometry()
         grid = self.area_manager.get_grid()
-        num_patches = sum([len(df.index) for df in grid])
+        num_patches = sum(map(len, grid.values()))
         LOGGER.info("Grid has %d EOPatches and is split over %d CRS zones", num_patches, len(grid))
 
-        eopatches = self.eopatch_manager.get_eopatch_filenames()
-        LOGGER.info("The first EOPatch has a name %s", eopatches[0])
+        patch_list = self.area_manager.get_patch_list()
+        LOGGER.info("The first EOPatch has a name %s", patch_list[0][0])
 
         return [], []
 

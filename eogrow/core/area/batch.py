@@ -15,6 +15,7 @@ from sentinelhub import CRS, BatchRequest, BatchRequestStatus, BatchSplitter, BB
 
 from ...utils.general import convert_bbox_coords_to_int, reduce_to_coprime
 from ...utils.grid import GridTransformation, create_transformations, get_grid_bbox
+from ..storage import StorageManager
 from .base import AreaManager, AreaSchema, BaseAreaManager, get_geometry_from_file
 
 LOGGER = logging.getLogger(__name__)
@@ -312,6 +313,12 @@ class NewBatchAreaManager(BaseAreaManager):
 
     config: Schema
 
+    def __init__(self, config: Schema, storage: StorageManager):
+        super().__init__(config, storage)
+        # We provide a way to inject a Batch ID after initialization if no ID was given in the config
+        # This is meant to be used only in the BatchDownloadPipeline to force caching
+        self._injected_batch_id: Optional[str] = None
+
     def get_area_geometry(self, *, crs: CRS = CRS.WGS84) -> Geometry:
         file_path = fs.path.join(self.storage.get_input_data_folder(), self.config.area.filename)
         return get_geometry_from_file(
@@ -324,7 +331,9 @@ class NewBatchAreaManager(BaseAreaManager):
 
     def _create_grid(self) -> Dict[CRS, GeoDataFrame]:
         """Uses BatchSplitter to create a grid"""
-        if self.config.batch_id is None:
+        batch_id = self.config.batch_id or self._injected_batch_id
+
+        if batch_id is None:
             raise MissingBatchIdError(
                 "Trying to create a new batch grid but cannot collect tile geometries because 'batch_id' has not been "
                 f"given. You can either define it in {self.__class__.__name__} config schema or run a pipeline that "
@@ -332,7 +341,7 @@ class NewBatchAreaManager(BaseAreaManager):
             )
 
         batch_client = SentinelHubBatch(config=self.storage.sh_config)
-        batch_request = batch_client.get_request(self.config.batch_id)
+        batch_request = batch_client.get_request(batch_id)
         self._verify_batch_request(batch_request)
 
         splitter = BatchSplitter(batch_request=batch_request, config=self.storage.sh_config)

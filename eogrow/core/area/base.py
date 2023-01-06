@@ -2,7 +2,7 @@
 import logging
 from abc import ABCMeta, abstractmethod
 from collections import defaultdict
-from typing import Dict, List, Literal, Optional, Tuple
+from typing import Dict, List, Literal, Optional
 
 import fiona
 import fs
@@ -15,7 +15,7 @@ from sentinelhub import CRS, BBox, Geometry
 from ...utils.eopatch_list import load_eopatch_names
 from ...utils.fs import LocalFile
 from ...utils.grid import GridTransformation
-from ...utils.types import Path
+from ...utils.types import PatchList, Path
 from ...utils.vector import count_points
 from ..base import EOGrowObject
 from ..schemas import BaseSchema, ManagerSchema
@@ -355,11 +355,8 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
         Should ensure that two different grids don't clash.
         """
 
-    def get_names_and_bboxes(self) -> List[Tuple[str, BBox]]:
-        """Returns a list of eopatch names and appropriate BBoxes.
-
-        :param relevant_patches: A collection of patch names for which BBoxes should be returned.
-        """
+    def get_patch_list(self) -> PatchList:
+        """Returns a list of eopatch names and appropriate BBoxes."""
         relevant_patches = None
         if self.config.patch_list is not None:
             folder_path = self.storage.get_folder(self.config.patch_list.input_folder_key)

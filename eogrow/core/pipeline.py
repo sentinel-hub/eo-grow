@@ -3,7 +3,6 @@ import datetime as dt
 import logging
 import time
 import uuid
-import warnings
 from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
 
 from eolearn.core import CreateEOPatchTask, EOExecutor, EONode, EOWorkflow, LoadTask, SaveTask, WorkflowResults
@@ -12,10 +11,9 @@ from eolearn.core.extra.ray import RayExecutor
 from ..utils.meta import import_object
 from ..utils.ray import handle_ray_connection
 from ..utils.types import ExecKwargs, PatchList, ProcessingType
-from .area.base import AreaManager
+from .area.base import BaseAreaManager
 from .base import EOGrowObject
 from .config import RawConfig
-from .eopatch import EOPatchManager
 from .logging import EOExecutionFilter, EOExecutionHandler, LoggingManager
 from .schemas import ManagerSchema, PipelineSchema
 from .storage import StorageManager
@@ -55,8 +53,7 @@ class Pipeline(EOGrowObject):
         self.storage: StorageManager = self._load_manager(config.storage)
         self.sh_config = self.storage.sh_config
 
-        self.area_manager: AreaManager = self._load_manager(config.area, storage=self.storage)
-        self.eopatch_manager: EOPatchManager = self._load_manager(config.eopatch, area_manager=self.area_manager)
+        self.area_manager: BaseAreaManager = self._load_manager(config.area, storage=self.storage)
         self.logging_manager: LoggingManager = self._load_manager(config.logging, storage=self.storage)
 
         self._patch_list: Optional[List[str]] = None
@@ -93,18 +90,10 @@ class Pipeline(EOGrowObject):
 
     def get_patch_list(self) -> PatchList:
         """Method which at the initialization prepares the list of EOPatches which will be used"""
-        if self.config.input_patch_file is None:
-            patch_list = self.eopatch_manager.get_eopatch_filenames(id_list=self.config.patch_list)
-        else:
-            if self.config.patch_list:
-                warnings.warn(
-                    "'patch_list' and 'input_patch_file' parameters have both been given, therefore patches "
-                    "from input_patch_file will be filtered according to patch_list indices",
-                    RuntimeWarning,
-                )
-            patch_list = self.eopatch_manager.load_eopatch_filenames(
-                self.config.input_patch_file, id_list=self.config.patch_list
-            )
+        patch_list = self.area_manager.get_patch_list()
+
+        if self.config.test_subset:
+            patch_list = [named_bbox for i, named_bbox in enumerate(patch_list) if i in self.config.test_subset]
 
         if self.config.skip_existing:
             LOGGER.info("Checking which EOPatches can be skipped")
@@ -130,11 +119,9 @@ class Pipeline(EOGrowObject):
 
         :param workflow: A workflow for which arguments will be prepared
         """
-        bbox_list = self.eopatch_manager.get_bboxes(eopatch_list=patch_list)
-
         exec_kwargs = {}
         nodes = workflow.get_nodes()
-        for name, bbox in zip(patch_list, bbox_list):
+        for name, bbox in patch_list:
             patch_args: Dict[EONode, Dict[str, Any]] = {}
 
             for node in nodes:
@@ -250,8 +237,6 @@ class Pipeline(EOGrowObject):
                 elapsed_time=elapsed_time,
             )
 
-            finished = self.eopatch_manager.parse_eopatch_list(finished)
-            failed = self.eopatch_manager.parse_eopatch_list(failed)
             self.logging_manager.save_eopatch_execution_status(
                 pipeline_execution_name=self.current_execution_name, finished=finished, failed=failed
             )
