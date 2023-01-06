@@ -315,7 +315,7 @@ class NewBatchAreaManager(BaseAreaManager):
 
     def __init__(self, config: Schema, storage: StorageManager):
         super().__init__(config, storage)
-        # We provide an way to inject a Batch ID after initialization if no ID was given in the config
+        # We provide a way to inject a Batch ID after initialization if no ID was given in the config
         # This is meant to be used only in the BatchDownloadPipeline to force caching
         self._injected_batch_id: Optional[str] = None
 
