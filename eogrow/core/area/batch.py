@@ -274,8 +274,10 @@ def _fix_split_columns(grid: List[GeoDataFrame]) -> List[GeoDataFrame]:
 
     if columns_missing:
         warnings.warn(
-            "Since eo-grow 1.1.0 cached batch grid should also have columns split_x and split_y. "
-            "For the future, make sure to clear cached grid file and reproduce it.",
+            (
+                "Since eo-grow 1.1.0 cached batch grid should also have columns split_x and split_y. "
+                "For the future, make sure to clear cached grid file and reproduce it."
+            ),
             category=EODeprecationWarning,
         )
 
