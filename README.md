@@ -33,7 +33,6 @@ The core object of **`eo-grow`** is the `Pipeline`. Each pipeline has a `run_pro
 Each pipeline is linked to so called *managers*:
 - `StorageManager` handles loading and saving of files,
 - `AreaManager` defines the area of interest and how it should be split into EOPatches,
-- `EOPatchManager` takes care of listing eopatches and handling their storage details,
 - `LoggingManager` provides control over logging.
 
 ![eo-grow-structure](docs/source/figures/eo-grow-structure.png)

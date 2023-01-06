@@ -3,7 +3,7 @@ from geopandas import GeoDataFrame
 
 from sentinelhub import CRS
 
-from eogrow.core.area import NewUtmZoneAreaManager
+from eogrow.core.area import UtmZoneAreaManager
 
 pytestmark = pytest.mark.fast
 
@@ -32,7 +32,7 @@ def area_config_fixture():
     ],
 )
 def test_bbox_split(storage, config, expected_zone_num, expected_bbox_num):
-    area_manager = NewUtmZoneAreaManager.from_raw_config(config, storage)
+    area_manager = UtmZoneAreaManager.from_raw_config(config, storage)
 
     grid = area_manager.get_grid()
 
@@ -49,6 +49,6 @@ def test_bbox_split(storage, config, expected_zone_num, expected_bbox_num):
 
 
 def test_cache_name(storage, area_config):
-    area_manager = NewUtmZoneAreaManager.from_raw_config(area_config, storage)
+    area_manager = UtmZoneAreaManager.from_raw_config(area_config, storage)
 
-    assert area_manager.get_grid_cache_filename() == "NewUtmZoneAreaManager_test_area_2400_1100_120.0_55.0_0.0_0.0.gpkg"
+    assert area_manager.get_grid_cache_filename() == "UtmZoneAreaManager_test_area_2400_1100_120.0_55.0_0.0_0.0.gpkg"

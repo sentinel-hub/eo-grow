@@ -20,7 +20,7 @@ from sentinelhub import (
     read_data,
 )
 
-from ..core.area.batch import NewBatchAreaManager
+from ..core.area.batch import BatchAreaManager
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..utils.types import Path, TimePeriod
@@ -60,7 +60,7 @@ class BatchDownloadPipeline(Pipeline):
     """Pipeline to start and monitor a Sentinel Hub batch job"""
 
     class Schema(Pipeline.Schema):
-        area: NewBatchAreaManager.Schema
+        area: BatchAreaManager.Schema
 
         output_folder_key: str = Field(
             description="Storage manager key pointing to the path where batch results will be saved."
@@ -117,7 +117,7 @@ class BatchDownloadPipeline(Pipeline):
         skip_existing: Literal[False] = False
 
     config: Schema
-    area_manager: NewBatchAreaManager
+    area_manager: BatchAreaManager
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)

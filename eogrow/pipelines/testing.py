@@ -29,7 +29,6 @@ class TestPipeline(Pipeline):
 
     _DEFAULT_CONFIG_PARAMS = {
         "pipeline": "eogrow.pipelines.testing.TestPipeline",
-        "eopatch": {"manager": "eogrow.eopatches.EOPatchManager"},
         "logging": {"manager": "eogrow.logging.LoggingManager", "show_logs": True},
     }
 
