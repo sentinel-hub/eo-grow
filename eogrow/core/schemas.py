@@ -48,7 +48,7 @@ class PipelineSchema(BaseSchema):
         ),
     )
 
-    test_on: Optional[List[int]] = Field(
+    test_subset: Optional[List[int]] = Field(
         description=(
             "A list of EOPatch indices for which the pipeline is executed. Used for testing, can be set through CLI"
             " with the -t flag."

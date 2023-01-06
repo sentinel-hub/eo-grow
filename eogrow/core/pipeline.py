@@ -92,8 +92,8 @@ class Pipeline(EOGrowObject):
         """Method which at the initialization prepares the list of EOPatches which will be used"""
         patch_list = self.area_manager.get_patch_list()
 
-        if self.config.test_on:
-            patch_list = [named_bbox for i, named_bbox in enumerate(patch_list) if i in self.config.test_on]
+        if self.config.test_subset:
+            patch_list = [named_bbox for i, named_bbox in enumerate(patch_list) if i in self.config.test_subset]
 
         if self.config.skip_existing:
             LOGGER.info("Checking which EOPatches can be skipped")
