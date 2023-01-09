@@ -29,7 +29,7 @@ class SplitGridPipeline(Pipeline):
     """Pipeline that creates a finer grid and splits EOPatches accordingly.
 
     The new grid is output as a geopackage file, which can be used with a `CustomAreaManager`.
-    The name of the column with eopatch names it `eopatch_name`.
+    The name of the column with eopatch names is `eopatch_name`.
     """
 
     class Schema(Pipeline.Schema):
