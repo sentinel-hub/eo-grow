@@ -4,7 +4,7 @@ from warnings import warn
 from ..types import *  # noqa # pylint: disable=wildcard-import,unused-wildcard-import
 
 warn(
-    "The module `eogrow.types` is deprecated, use `eogrow.types` instead.",
+    "The module `eogrow.utils.types` is deprecated, use `eogrow.types` instead.",
     category=DeprecationWarning,
     stacklevel=2,
 )
