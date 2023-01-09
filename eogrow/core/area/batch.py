@@ -30,15 +30,16 @@ class BatchAreaManager(BaseAreaManager):
         )
         resolution: float = Field(
             description=(
-                "One of the resolutions that are predefined at Sentinel Hub Batch service for chosen tiling_grid_id."
+                "ID of the chosen resolution. Resolution options are predefined at Sentinel Hub Batch service for a"
+                " chosen tiling_grid_id."
             )
         )
         tile_buffer_x: int = Field(0, description="Number of pixels for which to buffer each tile left and right.")
         tile_buffer_y: int = Field(0, description="Number of pixels for which to buffer each tile up and down.")
         batch_id: Optional[str] = Field(
             description=(
-                "An ID of a batch job for this pipeline. If it is given the pipeline will just monitor the "
-                "existing batch job. If it is not given it will create a new batch job."
+                "An ID of a batch job that defines the AOI. Not required when using BatchDownloadPipeline,"
+                " which generates a new batch job with the given AOI parameters."
             ),
         )
 
@@ -61,13 +62,13 @@ class BatchAreaManager(BaseAreaManager):
         ).transform(crs)
 
     def _create_grid(self) -> Dict[CRS, GeoDataFrame]:
-        """Uses BatchSplitter to create a grid"""
+        """Uses BatchSplitter to create a grid for the selected batch job."""
         batch_id = self.config.batch_id or self._injected_batch_id
 
         if batch_id is None:
             raise MissingBatchIdError(
                 "Trying to create a new batch grid but cannot collect tile geometries because 'batch_id' has not been "
-                f"given. You can either define it in {self.__class__.__name__} config schema or run a pipeline that "
+                f"given. You can either provide it in the {self.__class__.__name__} schema or run a pipeline that "
                 "creates a new batch request."
             )
 
@@ -91,8 +92,8 @@ class BatchAreaManager(BaseAreaManager):
         return grid
 
     def _verify_batch_request(self, batch_request: BatchRequest) -> None:
-        """Verifies that given batch request has finished and that it has the same tiling grid parameters as
-        they are written in the config.
+        """Verifies that the given batch request has finished and that it has the same tiling grid parameters as
+        in the config.
         """
         batch_request.raise_for_status(status=[BatchRequestStatus.FAILED, BatchRequestStatus.CANCELED])
 

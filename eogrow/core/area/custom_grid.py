@@ -20,12 +20,11 @@ class CustomGridAreaManager(BaseAreaManager):
     """Area manager that works with a pre-defined grid of EOPatches"""
 
     class Schema(BaseAreaManager.Schema):
-        grid_folder_key: str = Field("input_data", description="Which folder the grid file is in.")
+        grid_folder_key: str = Field("input_data", description="Storage key pointing to the folder with the grid file.")
         grid_filename: Path = Field(
             description=(
-                "A Geopackage with a collection of bounding boxes and attributes that will define EOPatches. In"
-                " case bounding boxes are in multiple CRS then each Geopackage layer should contain bounding boxes"
-                " from one CRS."
+                "A Geopackage with a collection of bounding boxes and attributes that define EOPatches. If bounding"
+                " boxes are in multiple CRS then each Geopackage layer should contain bounding boxes from one CRS."
             ),
             regex=r"^.+\..+$",
         )
@@ -38,7 +37,7 @@ class CustomGridAreaManager(BaseAreaManager):
         grid = self._load_grid(grid_path)
 
         for crs, crs_gdf in grid.items():
-            # Correct name of eoptach-name-column, drop all non-significant ones
+            # Correct name of eopatch-name-column, drop all non-significant ones
             names = crs_gdf[self.config.name_column]
             grid[crs] = gpd.GeoDataFrame(geometry=crs_gdf.geometry, data={self.NAME_COLUMN: names}, crs=crs_gdf.crs)
 

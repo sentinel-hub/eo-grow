@@ -93,6 +93,7 @@ class Pipeline(EOGrowObject):
         patch_list = self.area_manager.get_patch_list()
 
         if self.config.test_subset:
+            LOGGER.info("Filtering according to `test_subset` parameter.")
             patch_list = [named_bbox for i, named_bbox in enumerate(patch_list) if i in self.config.test_subset]
 
         if self.config.skip_existing:
@@ -104,18 +105,19 @@ class Pipeline(EOGrowObject):
             )
             LOGGER.info("%s, %d / %d remaining", skip_message, len(filtered_patch_list), len(patch_list))
 
-            patch_list = filtered_patch_list
+            return filtered_patch_list
 
         return patch_list
 
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
-        """Overwrite this method to specify which EOPatches should be filtered with `skip_existing`"""
+        """Specifies which EOPatches should be filtered when `skip_existing` is enabled."""
         raise NotImplementedError("Method `filter_patch_list` must be implemented in order to use `skip_existing`")
 
     def get_execution_arguments(self, workflow: EOWorkflow, patch_list: PatchList) -> ExecKwargs:
         """Prepares execution arguments for each eopatch from a list of patches.
-        The output should be a dictionary should be of form `{execution_name: {node: node_kwargs}}`.
-        Execution names are usually names of EOPatches, but can be anything.
+
+        The output should be a dictionary of form `{execution_name: {node: node_kwargs}}`. Execution names are usually
+         names of EOPatches, but can be anything.
 
         :param workflow: A workflow for which arguments will be prepared
         """
@@ -200,7 +202,7 @@ class Pipeline(EOGrowObject):
         return successful, failed, execution_results
 
     def run(self) -> None:
-        """Call this method to run any pipeline"""
+        """The main method of pipeline execution. Sets up logging and runs the pipeline procedure."""
         timestamp = dt.datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%SZ")
         self.current_execution_name = self.get_pipeline_execution_name(timestamp)
 
@@ -248,11 +250,11 @@ class Pipeline(EOGrowObject):
 
         By default, builds the workflow by using a `build_workflow` method, which must be additionally implemented.
 
-        :return: A list of successfully executed EOPatch names and a list of unsuccessfully executed EOPatch names
+        :return: A list of successful executions and a list of unsuccessful executions
         """
         if not hasattr(self, "build_workflow"):
             raise NotImplementedError(
-                "Default implementation of run_procedure method requires implementation of build_workflow method"
+                "Default implementation of run_procedure method requires implementation of build_workflow method."
             )
         workflow = self.build_workflow()
         patch_list = self.get_patch_list()
