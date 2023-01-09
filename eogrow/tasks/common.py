@@ -6,7 +6,7 @@ import numpy as np
 from eolearn.core import EOPatch, EOTask, MapFeatureTask
 from eolearn.geometry import MorphologicalOperations
 
-from ..utils.types import Feature
+from ..types import Feature
 
 
 class MappingTask(MapFeatureTask):
