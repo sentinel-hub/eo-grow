@@ -21,8 +21,8 @@ from eolearn.io import ImportFromTiffTask
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
+from ..types import Feature, FeatureSpec, RawSchemaDict
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec, RawSchemaDict
 from ..utils.validators import optional_field_validator, parse_dtype
 
 

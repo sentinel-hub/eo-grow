@@ -7,7 +7,7 @@ import numpy as np
 
 from eolearn.core import EOPatch, EOTask, FeatureType, MapFeatureTask
 
-from ..utils.types import Feature
+from ..types import Feature
 
 
 def join_valid_and_cloud_masks(valid_mask: np.ndarray, cloud_mask: np.ndarray) -> np.ndarray:

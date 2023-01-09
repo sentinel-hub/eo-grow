@@ -12,8 +12,8 @@ from ..core.eopatch import EOPatchManager
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema, ManagerSchema
 from ..tasks.spatial import SpatialJoinTask, SpatialSliceTask
+from ..types import Feature, FeatureSpec, RawSchemaDict
 from ..utils.grid import GridTransformation
-from ..utils.types import Feature, FeatureSpec, RawSchemaDict
 from ..utils.validators import field_validator, optional_field_validator, validate_manager
 
 LOGGER = logging.getLogger(__name__)

@@ -9,7 +9,7 @@ from pydantic import Field
 
 from sentinelhub import CRS, Geometry
 
-from ...utils.types import Path
+from ...types import Path
 from ...utils.vector import concat_gdf
 from ..schemas import ManagerSchema
 from .base import AreaManager

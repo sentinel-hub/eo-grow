@@ -17,9 +17,9 @@ from eolearn.core import (
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
+from ..types import Feature, FeatureSpec
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.meta import import_object
-from ..utils.types import Feature, FeatureSpec
 
 LOGGER = logging.getLogger(__name__)
 
