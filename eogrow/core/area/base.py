@@ -11,9 +11,9 @@ from pydantic import Field
 
 from sentinelhub import CRS, BBox, Geometry
 
+from ...types import Path
 from ...utils.fs import LocalFile
 from ...utils.grid import GridTransformation
-from ...utils.types import Path
 from ...utils.vector import count_points
 from ..base import EOGrowObject
 from ..schemas import ManagerSchema

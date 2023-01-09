@@ -7,8 +7,8 @@ from geopandas import GeoDataFrame
 from eolearn.core import EOPatch, EOTask, FeatureType, deep_eq
 from sentinelhub import CRS, BBox, bbox_to_resolution
 
+from ..types import Feature, FeatureSpec
 from ..utils.general import convert_to_int
-from ..utils.types import Feature, FeatureSpec
 from ..utils.vector import concat_gdf
 
 

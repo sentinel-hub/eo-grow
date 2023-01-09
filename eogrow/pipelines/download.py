@@ -26,8 +26,8 @@ from sentinelhub.download import SessionSharing, collect_shared_session
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
+from ..types import Feature, FeatureSpec, Path, ProcessingType, TimePeriod
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec, Path, ProcessingType, TimePeriod
 from ..utils.validators import (
     ensure_exactly_one_defined,
     field_validator,

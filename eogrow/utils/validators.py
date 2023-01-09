@@ -12,7 +12,7 @@ from sentinelhub import DataCollection
 from sentinelhub.data_collections_bands import Band, Bands, MetaBands, Unit
 
 from .meta import collect_schema, import_object
-from .types import RawSchemaDict, S3Path, TimePeriod
+from .types import RawSchemaDict, TimePeriod
 
 if TYPE_CHECKING:
     from ..core.schemas import ManagerSchema
@@ -49,7 +49,7 @@ def optional_field_validator(
     return validator(field, allow_reuse=allow_reuse, **kwargs)(optional_validator)
 
 
-def validate_s3_path(value: S3Path) -> S3Path:
+def validate_s3_path(value: str) -> str:
     """Validates the prefix of a S3 bucket path"""
     assert value.startswith("s3://"), "S3 path must start with s3://"
     return value

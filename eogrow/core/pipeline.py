@@ -9,9 +9,9 @@ from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
 from eolearn.core import CreateEOPatchTask, EOExecutor, EONode, EOWorkflow, LoadTask, SaveTask, WorkflowResults
 from eolearn.core.extra.ray import RayExecutor
 
+from ..types import ProcessingType
 from ..utils.meta import import_object
 from ..utils.ray import handle_ray_connection
-from ..utils.types import ProcessingType
 from .area.base import AreaManager
 from .base import EOGrowObject
 from .config import RawConfig

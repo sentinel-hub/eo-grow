@@ -10,7 +10,7 @@ from eolearn.core import EOPatch, EOWorkflow, FeatureType, LoadTask, OutputTask,
 from eolearn.core.utils.fs import get_full_path
 
 from ..core.pipeline import Pipeline
-from ..utils.types import Feature, FeatureSpec
+from ..types import Feature, FeatureSpec
 
 LOGGER = logging.getLogger(__name__)
 

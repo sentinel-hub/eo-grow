@@ -10,7 +10,7 @@ from eolearn.core.exceptions import EODeprecationWarning
 from ..core.config import RawConfig
 from ..core.pipeline import Pipeline
 from ..tasks.common import MappingTask
-from ..utils.types import FeatureSpec
+from ..types import FeatureSpec
 
 
 class MappingPipeline(Pipeline):
