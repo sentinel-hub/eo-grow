@@ -19,9 +19,9 @@ from sentinelhub import BBox
 
 from ..core.config import collect_configs_from_path, interpret_config_from_dict
 from ..core.pipeline import Pipeline
+from ..types import JsonDict
 from ..utils.eopatch_list import load_eopatch_names
 from ..utils.meta import load_pipeline_class
-from ..utils.types import JsonDict
 
 
 class ContentTester:

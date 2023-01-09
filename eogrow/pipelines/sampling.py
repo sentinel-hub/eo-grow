@@ -13,8 +13,8 @@ from eogrow.utils.validators import ensure_exactly_one_defined
 
 from ..core.pipeline import Pipeline
 from ..tasks.common import ClassFilterTask
+from ..types import ExecKwargs, Feature, FeatureSpec, PatchList
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import ExecKwargs, Feature, FeatureSpec, PatchList
 
 
 class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):

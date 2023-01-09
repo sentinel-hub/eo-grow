@@ -10,8 +10,8 @@ from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, MergeEOPatch
 
 from ..core.pipeline import Pipeline
 from ..tasks.prediction import ClassificationPredictionTask, RegressionPredictionTask
+from ..types import Feature, FeatureSpec, PatchList, RawSchemaDict
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec, PatchList, RawSchemaDict
 from ..utils.validators import optional_field_validator, parse_dtype
 
 

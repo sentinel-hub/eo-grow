@@ -25,9 +25,9 @@ from eolearn.io import VectorImportTask
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
+from ..types import Feature, FeatureSpec, PatchList
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.fs import LocalFile
-from ..utils.types import Feature, FeatureSpec, PatchList
 from ..utils.validators import ensure_exactly_one_defined, field_validator, parse_dtype
 from ..utils.vector import concat_gdf
 

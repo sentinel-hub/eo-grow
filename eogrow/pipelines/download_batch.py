@@ -23,7 +23,7 @@ from sentinelhub import (
 from ..core.area.batch import BatchAreaManager
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
-from ..utils.types import Path, TimePeriod
+from ..types import Path, TimePeriod
 from ..utils.validators import field_validator, optional_field_validator, parse_data_collection, parse_time_period
 
 LOGGER = logging.getLogger(__name__)

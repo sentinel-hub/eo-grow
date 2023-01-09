@@ -12,8 +12,8 @@ from eolearn.io import ImportFromTiffTask
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
+from ..types import Feature, PatchList
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, PatchList
 from ..utils.validators import optional_field_validator, parse_dtype
 
 

@@ -12,7 +12,7 @@ from eolearn.core import FeatureType
 from eolearn.core.eodata_io import walk_filesystem
 from eolearn.core.utils.types import EllipsisType
 
-from ..utils.types import FeatureSpec, PatchList
+from ..types import FeatureSpec, PatchList
 
 
 def check_if_features_exist(

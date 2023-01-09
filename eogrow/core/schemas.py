@@ -10,7 +10,7 @@ from typing import List, Optional, Type
 from pydantic import BaseModel, Field
 from pydantic.fields import ModelField
 
-from ..utils.types import BoolOrAuto, ImportPath
+from ..types import BoolOrAuto, ImportPath
 from ..utils.validators import field_validator, validate_manager
 from .base import EOGrowObject
 

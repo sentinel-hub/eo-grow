@@ -16,9 +16,9 @@ from ..core.area.batch import BatchAreaManager
 from ..core.area.utm import UtmZoneAreaManager
 from ..core.pipeline import Pipeline
 from ..tasks.spatial import SpatialSliceTask
+from ..types import ExecKwargs, Feature, FeatureSpec
 from ..utils.fs import LocalFile
 from ..utils.grid import split_bbox
-from ..utils.types import ExecKwargs, Feature, FeatureSpec
 
 LOGGER = logging.getLogger(__name__)
 

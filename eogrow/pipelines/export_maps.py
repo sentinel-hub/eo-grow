@@ -25,9 +25,9 @@ from sentinelhub import CRS, MimeType
 from eogrow.core.config import RawConfig
 
 from ..core.pipeline import Pipeline
+from ..types import ExecKwargs, Feature, PatchList
 from ..utils.eopatch_list import group_by_crs
 from ..utils.map import CogifyResamplingOptions, WarpResamplingOptions, cogify_inplace, extract_bands, merge_tiffs
-from ..utils.types import ExecKwargs, Feature, PatchList
 
 LOGGER = logging.getLogger(__name__)
 

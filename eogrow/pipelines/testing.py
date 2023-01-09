@@ -11,7 +11,7 @@ from ..core.config import RawConfig, recursive_config_join
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.testing import DummyRasterFeatureTask, DummyTimestampFeatureTask
-from ..utils.types import ExecKwargs, Feature, PatchList, TimePeriod
+from ..types import ExecKwargs, Feature, PatchList, TimePeriod
 from ..utils.validators import field_validator, parse_dtype, parse_time_period
 
 Self = TypeVar("Self", bound="TestPipeline")

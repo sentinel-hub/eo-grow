@@ -11,8 +11,8 @@ from eolearn.core import EOPatch, EOTask
 from eolearn.core.utils.fs import pickle_fs, unpickle_fs
 from sentinelhub import parse_time
 
+from ..types import Feature
 from ..utils.meta import import_object
-from ..utils.types import Feature
 
 
 class LoadUserDataTask(EOTask):
