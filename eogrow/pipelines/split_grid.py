@@ -29,6 +29,7 @@ class SplitGridPipeline(Pipeline):
     """Pipeline that creates a finer grid and splits EOPatches accordingly.
 
     The new grid is output as a geopackage file, which can be used with a `CustomAreaManager`.
+    The name of the column with eopatch names it `eopatch_name`.
     """
 
     class Schema(Pipeline.Schema):
@@ -199,7 +200,7 @@ class SplitGridPipeline(Pipeline):
                 names = [name for name, _ in named_bboxes]
                 geometries = [bbox.geometry for _, bbox in named_bboxes]
 
-                crs_grid = gpd.GeoDataFrame({"eopatch_names": names}, geometry=geometries, crs=crs.pyproj_crs())
+                crs_grid = gpd.GeoDataFrame({"eopatch_name": names}, geometry=geometries, crs=crs.pyproj_crs())
                 crs_grid.to_file(
                     local_file.path,
                     driver="GPKG",
