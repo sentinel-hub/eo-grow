@@ -12,8 +12,8 @@ from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, OverwritePer
 from sentinelhub import CRS, BBox
 from sentinelhub.geometry import Geometry
 
-from ..core.area.batch import NewBatchAreaManager
-from ..core.area.utm import NewUtmZoneAreaManager
+from ..core.area.batch import BatchAreaManager
+from ..core.area.utm import UtmZoneAreaManager
 from ..core.pipeline import Pipeline
 from ..tasks.spatial import SpatialSliceTask
 from ..utils.fs import LocalFile
@@ -122,9 +122,9 @@ class SplitGridPipeline(Pipeline):
             return self.config.buffer
 
         area_config = self.area_manager.config
-        if isinstance(area_config, NewUtmZoneAreaManager.Schema):
+        if isinstance(area_config, UtmZoneAreaManager.Schema):
             return area_config.patch.buffer_x, area_config.patch.buffer_y
-        if isinstance(area_config, NewBatchAreaManager.Schema):
+        if isinstance(area_config, BatchAreaManager.Schema):
             res = area_config.resolution
             return area_config.tile_buffer_x * res, area_config.tile_buffer_y * res
         raise ValueError(

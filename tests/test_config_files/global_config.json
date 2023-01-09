@@ -1,6 +1,6 @@
 {
   "area": {
-    "manager": "eogrow.core.area.NewUtmZoneAreaManager",
+    "manager": "eogrow.core.area.UtmZoneAreaManager",
     "area": {
       "filename": "test_area.geojson",
       "buffer": 0.001
