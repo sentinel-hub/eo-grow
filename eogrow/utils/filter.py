@@ -10,7 +10,7 @@ from tqdm.auto import tqdm
 
 from eolearn.core import FeatureType
 from eolearn.core.eodata_io import walk_filesystem
-from eolearn.core.types import EllipsisType
+from eolearn.core.utils.types import EllipsisType
 
 from ..types import FeatureSpec
 
