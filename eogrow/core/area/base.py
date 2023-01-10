@@ -89,7 +89,7 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
         """
 
     def _load_grid(self, grid_path: str) -> Dict[CRS, gpd.GeoDataFrame]:
-        """A method that loads the bounding box grid saved in the cache folder."""
+        """A method that loads the bounding box grid from the cache folder."""
         LOGGER.info("Loading grid from %s", grid_path)
 
         grid = {}
