@@ -1,8 +1,0 @@
-{ // These parameters must match the content of test_project/input-data/batch_grid.gpkg grid file
-  "manager": "eogrow.core.area.BatchAreaManager",
-  "area_filename": "batch_area.geojson",
-  "tiling_grid_id": 1,
-  "resolution": 10,
-  "tile_buffer_x": 3,
-  "tile_buffer_y": 7
-}

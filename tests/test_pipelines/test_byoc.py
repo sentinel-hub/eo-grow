@@ -9,12 +9,11 @@ Mocks:
 - The bucket_name is changed since it's not parsed correctly (because we're not on S3).
 - When reading the cover geometry the path is not filesystem relative (but a join of bucket name + bucket relative)
     so we mock it to prevent `rasterio.open` to fail.
-- All request endpoints are mocked in the `requests_mock` fixture.
+- Most request endpoints are mocked in the `requests_mock` fixture.
 """
 import os
-import time
+from unittest.mock import patch
 
-import mock
 import pytest
 from shapely.geometry import Polygon
 
@@ -31,12 +30,8 @@ MOCK_COVER_GEOM = [[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]
 
 @pytest.fixture(name="configured_requests_mock")
 def request_mock_setup(requests_mock):
-    requests_mock.get(url="/latest/dynamic/instance-identity/document", response_list=[{}])  # logging
-
-    requests_mock.post(
-        url="/oauth/token",
-        response_list=[{"json": {"access_token": "x", "expires_in": 10000, "expires_at": time.time() + 10000}}],
-    )
+    requests_mock.get(url="/latest/dynamic/instance-identity/document", real_http=True)  # logging
+    requests_mock.post(url="/oauth/token", real_http=True)
 
     # creating a new collection
     requests_mock.post(url="/api/v1/byoc/collections", response_list=[{"json": {"data": {"id": "mock-collection"}}}])
@@ -67,12 +62,12 @@ def run_byoc_pipeline(config_folder: str, config: str, preparation_config: str, 
         return Geometry(Polygon(MOCK_COVER_GEOM), crs=CRS.WGS84)
 
     # patch storage manager so it believes it's on aws, but only during init
-    with mock.patch.object(StorageManager, "is_on_aws", lambda _: True):
+    with patch.object(StorageManager, "is_on_aws", lambda _: True):
         SentinelHubDownloadClient._CACHED_SESSIONS = {}
         pipeline = IngestByocTilesPipeline.from_path(config_path)
         pipeline.bucket_name = "mock-bucket"
 
-    with mock.patch.object(pipeline, "_get_tile_cover_geometry", _get_tile_cover_geometry_mock):
+    with patch.object(pipeline, "_get_tile_cover_geometry", _get_tile_cover_geometry_mock):
         pipeline.run()
 
     # filter out all requests pertaining to logging of instance details

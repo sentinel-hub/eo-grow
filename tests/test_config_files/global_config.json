@@ -1,17 +1,18 @@
 {
   "area": {
     "manager": "eogrow.core.area.UtmZoneAreaManager",
-    "area_filename": "test_area.geojson",
-    "area_buffer": 0.001,
-    "patch_size_x": 2400,
-    "patch_size_y": 1100,
-    "patch_buffer_x": 120,
-    "patch_buffer_y": 55,
+    "area": {
+      "filename": "test_area.geojson",
+      "buffer": 0.001
+    },
+    "patch":{
+      "size_x": 2400,
+      "size_y": 1100,
+      "buffer_x": 120,
+      "buffer_y": 55
+    },
     "offset_x": 0,
     "offset_y": 0
-  },
-  "eopatch": {
-    "manager": "eogrow.core.eopatch.EOPatchManager"
   },
   "logging": {
     "manager": "eogrow.core.logging.LoggingManager",

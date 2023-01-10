@@ -39,7 +39,7 @@ def test_import_tiff_pipeline(folders, experiment_name):
     output_folder = pipeline.storage.get_folder(pipeline.config.output_folder_key)
     filesystem.removetree(output_folder)
 
-    bboxes = pipeline.eopatch_manager.get_bboxes()
+    bboxes = [bbox for _, bbox in pipeline.get_patch_list()]
     # one EOPatch gets left out so that we have some 'missing area', we also buffer it so that we have 'extra area'
     tiff_geom = unary_union([bbox.geometry for bbox in bboxes[:-1]]).buffer(100)
 

@@ -124,15 +124,11 @@ class BatchDownloadPipeline(Pipeline):
 
         self.batch_client = SentinelHubBatch(config=self.sh_config)
 
-        if self.area_manager.subsplit != (1, 1):
-            raise ValueError(
-                f"Cannot run {self.__class__.__name__} if {self.area_manager.__class__.__name__} is using a subsplit."
-                " Set subsplit parameters to 1."
-            )
-
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         """Procedure that uses Sentinel Hub batch service to download data to an S3 bucket."""
         batch_request = self._create_or_collect_batch_request()
+        self.cache_batch_area_manager_grid(batch_request.request_id)
+
         user_action = self._trigger_user_action(batch_request)
 
         if user_action is BatchUserAction.ANALYSE or (
@@ -144,8 +140,6 @@ class BatchDownloadPipeline(Pipeline):
                 config=self.sh_config,
                 sleep_time=self.config.monitoring_analysis_sleep_time,
             )
-
-        self.ensure_batch_grid(batch_request.request_id)
 
         if self.config.analysis_only:
             return [], []
@@ -252,17 +246,17 @@ class BatchDownloadPipeline(Pipeline):
         LOGGER.info("Didn't trigger batch job because current batch request status is %s", status)
         return BatchUserAction.NONE
 
-    def ensure_batch_grid(self, request_id: str) -> None:
+    def cache_batch_area_manager_grid(self, request_id: str) -> None:
         """This method ensures that area manager caches batch grid into the storage."""
-        if self.area_manager.batch_id and self.area_manager.batch_id != request_id:
+        if self.area_manager.config.batch_id and self.area_manager.config.batch_id != request_id:
             raise ValueError(
                 f"{self.area_manager.__class__.__name__} is set to use batch request with ID "
-                f"{self.area_manager.batch_id} but {self.__class__.__name__} is using batch request with ID "
+                f"{self.area_manager.config.batch_id} but {self.__class__.__name__} is using batch request with ID "
                 f"{request_id}. Make sure that you use the same IDs."
             )
-        self.area_manager.batch_id = request_id
+        self.area_manager._injected_batch_id = request_id
 
-        self.area_manager.cache_grid()
+        self.area_manager.get_grid()  # this caches the grid for later use
 
     @staticmethod
     def _get_tile_names_from_results(

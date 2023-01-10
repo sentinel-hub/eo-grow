@@ -169,10 +169,18 @@ def test_parse_dtype(dtype_input: Union[str, type, np.dtype]):
 @pytest.mark.parametrize(
     "manager_input, succeeds",
     [
-        ("eogrow.core.eopatch.EOPatchManager", False),  # not a dict
-        ({"wrong_field", "eogrow.core.eopatch.EOPatchManager"}, False),
+        ("eogrow.core.area.UtmZoneAreaManager", False),  # not a dict
+        ({"wrong_field", "eogrow.core.area.UtmZoneAreaManager"}, False),
         ({"manager": "NonexistingManager"}, False),
-        ({"manager": "eogrow.core.eopatch.EOPatchManager"}, True),
+        (
+            {
+                "manager": "eogrow.core.area.BatchAreaManager",
+                "area": {"filename": "some_aoi.geojson"},
+                "tiling_grid_id": 0,
+                "resolution": 10,
+            },
+            True,
+        ),
         (
             {
                 "manager": "eogrow.core.logging.LoggingManager",
