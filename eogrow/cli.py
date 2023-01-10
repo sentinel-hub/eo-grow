@@ -85,7 +85,7 @@ class EOGrowCli:
         for raw_config in raw_configs:
             config = interpret_config_from_dict(raw_config, cli_variable_mapping)
             if test_patches:
-                config["patch_list"] = list(test_patches)
+                config["test_subset"] = list(test_patches)
 
             pipelines.append(load_pipeline_class(config).from_raw_config(config))
 

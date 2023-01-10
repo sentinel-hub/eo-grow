@@ -3,7 +3,6 @@ deepdiff
 fs_s3fs
 ipdb
 jupyter
-mock
 moto
 mypy>=0.990
 pre-commit

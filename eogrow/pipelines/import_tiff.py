@@ -1,5 +1,5 @@
 """Implements a pipeline for importing reference data from a raster image."""
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 import fs
 import numpy as np
@@ -12,7 +12,7 @@ from eolearn.io import ImportFromTiffTask
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
-from ..types import Feature
+from ..types import Feature, PatchList
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import optional_field_validator, parse_dtype
 
@@ -62,7 +62,7 @@ class ImportTiffPipeline(Pipeline):
 
     config: Schema
 
-    def filter_patch_list(self, patch_list: List[str]) -> List[str]:
+    def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """EOPatches are filtered according to existence of new features."""
         filtered_patch_list = get_patches_with_missing_features(
             self.storage.filesystem,

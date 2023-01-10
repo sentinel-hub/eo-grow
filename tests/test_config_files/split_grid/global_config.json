@@ -8,7 +8,7 @@
   },
   "storage": {
     "manager": "eogrow.core.storage.StorageManager",
-    "project_folder": "${config_path}/../../../test_project",
+    "project_folder": "${config_path}/../../test_project",
     "structure": {
       "input_folder": "input-grid-folder",
       "output_folder": "output-grid-folder",

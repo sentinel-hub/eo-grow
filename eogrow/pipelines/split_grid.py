@@ -16,7 +16,7 @@ from ..core.area.batch import BatchAreaManager
 from ..core.area.utm import UtmZoneAreaManager
 from ..core.pipeline import Pipeline
 from ..tasks.spatial import SpatialSliceTask
-from ..types import Feature, FeatureSpec
+from ..types import ExecKwargs, Feature, FeatureSpec
 from ..utils.fs import LocalFile
 from ..utils.grid import split_bbox
 
@@ -29,6 +29,7 @@ class SplitGridPipeline(Pipeline):
     """Pipeline that creates a finer grid and splits EOPatches accordingly.
 
     The new grid is output as a geopackage file, which can be used with a `CustomAreaManager`.
+    The name of the column with eopatch names is `eopatch_name`.
     """
 
     class Schema(Pipeline.Schema):
@@ -73,12 +74,12 @@ class SplitGridPipeline(Pipeline):
     def run_procedure(self) -> Tuple[List, List]:
         buffer_x, buffer_y = self._get_buffer()
 
-        bboxes = self.eopatch_manager.get_bboxes(eopatch_list=self.patch_list)
+        patch_list = self.get_patch_list()
         area = self.area_manager.get_area_geometry()
         area_projection_cache = {area.crs: area}
 
         bbox_splits = []
-        for named_bbox in zip(self.patch_list, bboxes):
+        for named_bbox in patch_list:
             split_bboxes = split_bbox(
                 named_bbox,
                 split_x=self.config.split_x,
@@ -95,6 +96,7 @@ class SplitGridPipeline(Pipeline):
         self.save_new_grid(bbox_splits)
 
         workflow = self.build_workflow()
+        patch_list = self.get_patch_list()
         exec_args = self.get_execution_arguments(workflow, bbox_splits)
 
         finished, failed, _ = self.run_execution(workflow, exec_args)
@@ -122,7 +124,7 @@ class SplitGridPipeline(Pipeline):
 
         area_config = self.area_manager.config
         if isinstance(area_config, UtmZoneAreaManager.Schema):
-            return area_config.patch_buffer_x, area_config.patch_buffer_y
+            return area_config.patch.buffer_x, area_config.patch.buffer_y
         if isinstance(area_config, BatchAreaManager.Schema):
             res = area_config.resolution
             return area_config.tile_buffer_x * res, area_config.tile_buffer_y * res
@@ -155,23 +157,23 @@ class SplitGridPipeline(Pipeline):
 
     def get_execution_arguments(  # type: ignore[override]
         self, workflow: EOWorkflow, bbox_splits: List[Tuple[NamedBBox, List[NamedBBox]]]
-    ) -> List[Dict[EONode, Dict[str, object]]]:
+    ) -> ExecKwargs:
         nodes = workflow.get_nodes()
         load_node = nodes[0]
         save_nodes = [node for node in nodes if isinstance(node.task, SaveTask)]
         slice_nodes = [save_node.inputs[0] for save_node in save_nodes]
 
-        exec_args: List[Dict[EONode, Dict[str, object]]] = []
+        exec_args: ExecKwargs = {}
         for (orig_name, _), split_bboxes in bbox_splits:
-            single_exec: Dict[EONode, Dict[str, object]] = {load_node: dict(eopatch_folder=orig_name)}
+            patch_args: Dict[EONode, Dict[str, object]] = {load_node: dict(eopatch_folder=orig_name)}
             # Since some bboxes might get filtered out, the remaining slice and save nodes should get None arguments
             split_bboxes_iter = it.chain(split_bboxes, it.repeat((None, None)))
 
             for slice_node, save_node, (subbox_name, subbox) in zip(slice_nodes, save_nodes, split_bboxes_iter):
-                single_exec[slice_node] = dict(bbox=subbox)
-                single_exec[save_node] = dict(eopatch_folder=subbox_name)
+                patch_args[slice_node] = dict(bbox=subbox)
+                patch_args[save_node] = dict(eopatch_folder=subbox_name)
 
-            exec_args.append(single_exec)
+            exec_args[orig_name] = patch_args
 
         return exec_args
 
@@ -198,7 +200,7 @@ class SplitGridPipeline(Pipeline):
                 names = [name for name, _ in named_bboxes]
                 geometries = [bbox.geometry for _, bbox in named_bboxes]
 
-                crs_grid = gpd.GeoDataFrame({"eopatch_names": names}, geometry=geometries, crs=crs.pyproj_crs())
+                crs_grid = gpd.GeoDataFrame({"eopatch_name": names}, geometry=geometries, crs=crs.pyproj_crs())
                 crs_grid.to_file(
                     local_file.path,
                     driver="GPKG",

@@ -27,7 +27,7 @@ from ..tasks.features import (
     ValidDataFractionPredicate,
     join_valid_and_cloud_masks,
 )
-from ..types import Feature, FeatureSpec, TimePeriod
+from ..types import Feature, FeatureSpec, PatchList, TimePeriod
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import field_validator, optional_field_validator, parse_dtype, parse_time_period
 
@@ -75,7 +75,7 @@ class FeaturesPipeline(Pipeline):
 
     config: Schema
 
-    def filter_patch_list(self, patch_list: List[str]) -> List[str]:
+    def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """EOPatches are filtered according to existence of specified output features"""
 
         filtered_patch_list = get_patches_with_missing_features(
