@@ -11,9 +11,9 @@ from pydantic import Field
 
 from sentinelhub import CRS, BBox, Geometry
 
+from ...types import PatchList
 from ...utils.eopatch_list import load_eopatch_names
 from ...utils.fs import LocalFile
-from ...utils.types import PatchList
 from ..base import EOGrowObject
 from ..schemas import BaseSchema, ManagerSchema
 from ..storage import StorageManager
@@ -24,15 +24,10 @@ LOGGER = logging.getLogger(__name__)
 class AreaSchema(BaseSchema):
     filename: str
     buffer: Optional[float] = Field(
-        description=(
-            "Buffer that will be applied to AOI geometry. Buffer has to be in the same units as AOI CRS. "
-            "In case buffer is too small, relatively to AOI size, it won't have any effect."
-        ),
+        description="Buffer that will be applied to AOI geometry. Buffer has to be in the same units as AOI CRS.",
     )
     simplification_factor: Optional[float] = Field(
-        description=(
-            "A tolerance factor in CRS units how much the buffered area geometry will be simplified before splitting."
-        ),
+        description="Tolerance factor (in CRS units) for simplifying the buffered area geometry before splitting it.",
     )
 
 
@@ -55,7 +50,7 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
 
     def __init__(self, config: Schema, storage: StorageManager):
         """
-        :param config: A configuration file
+        :param config: The configuration schema
         :param storage: An instance of StorageManager class
         """
         super().__init__(config)
@@ -92,7 +87,7 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
         """
 
     def _load_grid(self, grid_path: str) -> Dict[CRS, gpd.GeoDataFrame]:
-        """A method that loads bounding box grid saved in a cache folder"""
+        """A method that loads the bounding box grid from the cache folder."""
         LOGGER.info("Loading grid from %s", grid_path)
 
         grid = {}
@@ -104,7 +99,7 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
         return grid
 
     def _save_grid(self, grid: Dict[CRS, gpd.GeoDataFrame], grid_path: str) -> None:
-        """A method that saves bounding box grid in a cache folder"""
+        """A method that saves the bounding box grid to the cache folder."""
         LOGGER.info("Saving grid to %s", grid_path)
 
         with LocalFile(grid_path, mode="w", filesystem=self.storage.filesystem) as local_file:
