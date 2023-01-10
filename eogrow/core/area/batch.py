@@ -30,8 +30,8 @@ class BatchAreaManager(BaseAreaManager):
         )
         resolution: float = Field(
             description=(
-                "ID of the chosen resolution. Resolution options are predefined at Sentinel Hub Batch service for a"
-                " chosen tiling_grid_id."
+                "Resolution of downloaded imagery in meters. Resolution options are predefined at Sentinel Hub Batch"
+                " service for a chosen tiling_grid_id."
             )
         )
         tile_buffer_x: int = Field(0, description="Number of pixels for which to buffer each tile left and right.")

@@ -27,9 +27,7 @@ class AreaSchema(BaseSchema):
         description="Buffer that will be applied to AOI geometry. Buffer has to be in the same units as AOI CRS.",
     )
     simplification_factor: Optional[float] = Field(
-        description=(
-            "Tolerance factor (in CRS units) for simplifying the buffered area geometry before splitting it."
-        ),
+        description="Tolerance factor (in CRS units) for simplifying the buffered area geometry before splitting it.",
     )
 
 

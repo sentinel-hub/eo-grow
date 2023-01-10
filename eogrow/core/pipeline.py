@@ -254,7 +254,8 @@ class Pipeline(EOGrowObject):
         """
         if not hasattr(self, "build_workflow"):
             raise NotImplementedError(
-                "Default implementation of the `run_procedure` method requires implementation of the `build_workflow` method."
+                "Default implementation of the `run_procedure` method requires implementation of the `build_workflow`"
+                " method."
             )
         workflow = self.build_workflow()
         patch_list = self.get_patch_list()
