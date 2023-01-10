@@ -28,7 +28,7 @@ class AreaSchema(BaseSchema):
     )
     simplification_factor: Optional[float] = Field(
         description=(
-            "Tolerance factor (in CRS units) for how much the buffered area geometry is simplified before splitting."
+            "Tolerance factor (in CRS units) for simplifying the buffered area geometry before splitting it."
         ),
     )
 
