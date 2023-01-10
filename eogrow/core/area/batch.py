@@ -92,7 +92,7 @@ class BatchAreaManager(BaseAreaManager):
         return grid
 
     def _verify_batch_request(self, batch_request: BatchRequest) -> None:
-        """Verifies that the given batch request has finished and that it has the same tiling grid parameters as
+        """Verifies that the given batch request has finished and that it contains the same tiling grid parameters as
         in the config.
         """
         batch_request.raise_for_status(status=[BatchRequestStatus.FAILED, BatchRequestStatus.CANCELED])

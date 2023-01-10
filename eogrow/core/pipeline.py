@@ -110,7 +110,7 @@ class Pipeline(EOGrowObject):
         return patch_list
 
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
-        """Specifies which EOPatches should be filtered when `skip_existing` is enabled."""
+        """Specifies which EOPatches should be skipped when `skip_existing` is enabled."""
         raise NotImplementedError("Method `filter_patch_list` must be implemented in order to use `skip_existing`")
 
     def get_execution_arguments(self, workflow: EOWorkflow, patch_list: PatchList) -> ExecKwargs:
@@ -202,7 +202,7 @@ class Pipeline(EOGrowObject):
         return successful, failed, execution_results
 
     def run(self) -> None:
-        """The main method of pipeline execution. Sets up logging and runs the pipeline procedure."""
+        """The main method for pipeline execution. It sets up logging and runs the pipeline procedure."""
         timestamp = dt.datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%SZ")
         self.current_execution_name = self.get_pipeline_execution_name(timestamp)
 
@@ -250,11 +250,11 @@ class Pipeline(EOGrowObject):
 
         By default, builds the workflow by using a `build_workflow` method, which must be additionally implemented.
 
-        :return: A list of successful executions and a list of unsuccessful executions
+        :return: A pair of lists representing successful and unsuccessful executions.
         """
         if not hasattr(self, "build_workflow"):
             raise NotImplementedError(
-                "Default implementation of run_procedure method requires implementation of build_workflow method."
+                "Default implementation of the `run_procedure` method requires implementation of the `build_workflow` method."
             )
         workflow = self.build_workflow()
         patch_list = self.get_patch_list()
