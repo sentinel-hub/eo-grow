@@ -95,7 +95,14 @@ class BatchAreaManager(BaseAreaManager):
         """Verifies that the given batch request has finished and that it contains the same tiling grid parameters as
         in the config.
         """
-        batch_request.raise_for_status(status=[BatchRequestStatus.FAILED, BatchRequestStatus.CANCELED])
+        batch_request.raise_for_status(
+            status=(
+                BatchRequestStatus.CREATED,  # tiles not available prior to analysis
+                BatchRequestStatus.ANALYSING,  # tiles not available prior to analysis
+                BatchRequestStatus.FAILED,
+                BatchRequestStatus.CANCELED,
+            )
+        )
 
         expected_tiling_grid_params = {
             "id": self.config.tiling_grid_id,
