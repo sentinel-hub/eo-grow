@@ -127,7 +127,6 @@ class BatchDownloadPipeline(Pipeline):
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         """Procedure that uses Sentinel Hub batch service to download data to an S3 bucket."""
         batch_request = self._create_or_collect_batch_request()
-        self.cache_batch_area_manager_grid(batch_request.request_id)
 
         user_action = self._trigger_user_action(batch_request)
 
@@ -140,6 +139,8 @@ class BatchDownloadPipeline(Pipeline):
                 config=self.sh_config,
                 sleep_time=self.config.monitoring_analysis_sleep_time,
             )
+
+        self.cache_batch_area_manager_grid(batch_request.request_id)
 
         if self.config.analysis_only:
             return [], []
