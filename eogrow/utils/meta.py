@@ -21,7 +21,7 @@ def load_pipeline_class(config: dict) -> Type[Pipeline]:
     """Given a config object it loads the pipeline class referenced in the config"""
     pipeline_class_name = config.get(_PIPELINE_PARAM_NAME)
     if pipeline_class_name is None:
-        raise ValueError(f"Config file is missing '{_PIPELINE_PARAM_NAME}' parameter, don't know which pipeline to use")
+        raise ValueError(f"Config file is missing `{_PIPELINE_PARAM_NAME}` parameter, don't know which pipeline to use")
 
     pipeline_class = import_object(pipeline_class_name)
     return pipeline_class
@@ -52,20 +52,20 @@ def collect_schema(object_with_schema: Any) -> Type[BaseSchema]:
 def import_object(import_path: str) -> Any:
     """Imports an object from a given import path"""
     if "." not in import_path:
-        raise ValueError(f"Import path {import_path} doesn't reference an object in a module.")
+        raise ValueError(f"Import path `{import_path}` doesn't reference an object in a module.")
     module_name, object_name = import_path.rsplit(".", 1)
 
     try:
         module = importlib.import_module(module_name)
     except ModuleNotFoundError as exception:
-        raise ModuleNotFoundError(f"{exception}. Given import path '{import_path}' is invalid.") from exception
+        raise ModuleNotFoundError(f"{exception}. Given import path `{import_path}` is invalid.") from exception
 
     if hasattr(module, object_name):
         return getattr(module, object_name)
 
     raise ImportError(
-        f"Cannot import name '{object_name}' from {module_name} ({module.__file__}). Given import path "
-        f"'{import_path}' is invalid."
+        f"Cannot import name `{object_name}` from {module_name} ({module.__file__}). Given import path "
+        f"`{import_path}` is invalid."
     )
 
 
