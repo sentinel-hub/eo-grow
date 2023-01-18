@@ -8,7 +8,7 @@ from fs.base import FS
 
 from sentinelhub import CRS
 
-from .types import PatchList
+from ..types import PatchList
 
 
 def save_eopatch_names(filesystem: FS, file_path: str, eopatch_list: List[str]) -> None:

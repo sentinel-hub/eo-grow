@@ -11,8 +11,8 @@ from pydantic import BaseModel, Field, root_validator, validator
 from sentinelhub import DataCollection
 from sentinelhub.data_collections_bands import Band, Bands, MetaBands, Unit
 
+from ..types import RawSchemaDict, TimePeriod
 from .meta import collect_schema, import_object
-from .types import RawSchemaDict, TimePeriod
 
 if TYPE_CHECKING:
     from ..core.schemas import ManagerSchema
