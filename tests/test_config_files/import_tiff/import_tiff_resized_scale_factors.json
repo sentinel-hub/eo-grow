@@ -5,7 +5,9 @@
   "output_feature": ["data_timeless", "TooBig"],
   "input_filename": "import_test.tiff",
   "resize": {
-    "parameters": ["scale_factors", [0.5, 0.5]],
+    "resize_type": "scale_factors",
+    "height_param": 0.5,
+    "width_param": 0.5,
     "method": "cubic"
   }
 }

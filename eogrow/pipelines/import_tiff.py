@@ -1,9 +1,9 @@
 """Implements a pipeline for importing reference data from a raster image."""
-from typing import Optional, Tuple
+from typing import Optional
 
 import fs
 import numpy as np
-from pydantic import Field, validator
+from pydantic import Field
 
 from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, FeatureType, OverwritePermission, SaveTask
 from eolearn.features.feature_manipulation import SpatialResizeTask
@@ -20,22 +20,18 @@ from ..utils.validators import optional_field_validator, parse_dtype
 class ResizeSchema(BaseSchema):
     """How to resize the tiff data after adding it to EOPatches."""
 
-    parameters: Tuple[ResizeParam, Tuple[float, float]] = Field(
+    resize_type: ResizeParam = Field(
         description=(
-            "Specify the resize parameters in the same way as for `SpatialResizeTask`. Examples:"
-            ' `["resolution", [10, 20]]` for changing resolution from 10 to 20,'
-            ' `["new_size", [500, 1000]]` for making the imported data of size (500, 1000).'
+            "Determines type of resizing process and how `width_param` and `height_param` are used. See"
+            " `SpatialResizeTask` documentation for more info."
         )
+    )
+    width_param: float = Field(description="Parameter to be applied to the width in combination with the resize_type.")
+    height_param: float = Field(
+        description="Parameter to be applied to the height in combination with the resize_type."
     )
     method: ResizeMethod = ResizeMethod.LINEAR
     library: ResizeLib = ResizeLib.PIL
-
-    @validator("parameters")
-    def parameters_parser(cls, v: Tuple[ResizeParam, Tuple[float, float]]) -> Tuple[ResizeParam, Tuple[float, float]]:
-        kind, params = v
-        if kind is ResizeParam.NEW_SIZE:
-            params = (round(params[0]), round(params[1]))
-        return kind, params
 
 
 class ImportTiffPipeline(Pipeline):
@@ -88,8 +84,15 @@ class ImportTiffPipeline(Pipeline):
 
         resize_node = None
         if self.config.resize:
+            width_param, height_param = self.config.resize.width_param, self.config.resize.height_param
+            if self.config.resize.resize_type is ResizeParam.NEW_SIZE:
+                # pydantic transforms input to floats, but the function fails unles integers are provided for NEW_SIZE
+                width_param, height_param = round(width_param), round(height_param)
+
             resize_task = SpatialResizeTask(
-                resize_parameters=self.config.resize.parameters,
+                resize_type=self.config.resize.resize_type,
+                height_param=height_param,
+                width_param=width_param,
                 resize_method=self.config.resize.method,
                 resize_library=self.config.resize.library,
             )

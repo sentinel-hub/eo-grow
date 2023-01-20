@@ -64,7 +64,7 @@ class ZipMapPipeline(Pipeline):
         output_folder_key: str = Field(
             description="The storage manager key pointing to the output folder for the algorithm pipeline."
         )
-        output_feature: FeatureSpec
+        output_feature: Feature
 
         compress_level: int = Field(1, description="Level of compression used in saving eopatches.")
 
