@@ -7,8 +7,8 @@
   "input_filename": "import_test.tiff",
   "resize": {
     "resize_type": "new_size",
-    "height_param":  500,
-    "width_param": 500,
+    "height_param": 500,
+    "width_param": 400,
     "method": "cubic"
   }
 }
