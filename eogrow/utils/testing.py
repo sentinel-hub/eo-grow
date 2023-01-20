@@ -4,7 +4,7 @@ Module implementing utilities for unit testing pipeline results
 import functools
 import json
 import os
-from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, cast
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, cast
 
 import fs
 import numpy as np
@@ -129,7 +129,10 @@ class ContentTester:
         """Calculates statistics of given EOPatch and it's content"""
         stats: Dict[str, object] = {}
 
-        for feature_type, feature_set in eopatch.get_features().items():
+        for feature_type in FeatureType:
+            if feature_type not in eopatch:
+                continue
+
             feature_type_name = feature_type.value
 
             if feature_type is FeatureType.BBOX:
@@ -139,7 +142,6 @@ class ContentTester:
                 stats[feature_type_name] = [time.isoformat() for time in eopatch.timestamp]
 
             else:
-                feature_set = cast(Set[str], feature_set)
                 feature_stats_dict = {}
 
                 if feature_type.is_raster():
@@ -149,7 +151,7 @@ class ContentTester:
                 else:  # Only FeatureType.META_INFO remains
                     calculation_method = str
 
-                for feature_name in feature_set:
+                for feature_name in eopatch[feature_type]:
                     feature_stats_dict[feature_name] = calculation_method(eopatch[feature_type][feature_name])
 
                 stats[feature_type_name] = feature_stats_dict

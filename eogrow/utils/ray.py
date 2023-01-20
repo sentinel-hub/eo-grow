@@ -5,7 +5,7 @@ import logging
 
 import ray
 
-from .types import BoolOrAuto
+from ..types import BoolOrAuto
 
 LOGGER = logging.getLogger(__name__)
 

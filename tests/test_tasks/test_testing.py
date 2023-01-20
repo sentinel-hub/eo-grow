@@ -26,7 +26,10 @@ def test_dummy_raster_feature_task(feature_type, shape, dtype, min_value, max_va
     eopatch = task.execute()
 
     assert isinstance(eopatch, EOPatch)
-    assert eopatch.get_feature_list() == [feature]
+
+    assert feature in eopatch
+    assert len(eopatch.get_features()) == 1
+
     data = eopatch[feature]
     assert data.shape == shape
     assert data.dtype == dtype
@@ -47,7 +50,10 @@ def test_dummy_timestamp_feature_task():
     eopatch = task.execute()
 
     assert isinstance(eopatch, EOPatch)
-    assert eopatch.get_feature_list() == [FeatureType.TIMESTAMP]
+
+    assert FeatureType.TIMESTAMP in eopatch
+    assert len(eopatch.get_features()) == 1
+
     assert len(eopatch.timestamp) == timestamp_num
     assert eopatch.timestamp == sorted(eopatch.timestamp)
     assert eopatch.timestamp[0] >= start_time
