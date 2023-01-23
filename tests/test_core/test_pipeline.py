@@ -22,7 +22,7 @@ class SimplePipeline(Pipeline):
     class Schema(Pipeline.Schema):
         test_param: int
 
-    def run_procedure(self) -> Tuple[List[str, str]]:
+    def run_procedure(self) -> Tuple[List[str], List[str]]:
         logger = logging.getLogger(__name__)
         logger.debug("Some log")
 
