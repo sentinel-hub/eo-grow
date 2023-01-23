@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+from numpy.testing import assert_array_equal
 
 from eolearn.core import EOPatch
 from eolearn.core.constants import FeatureType
@@ -35,4 +36,4 @@ def test_MaxNDVI(ndvi: np.ndarray, expected: np.ndarray) -> None:
     patch.data["NDVI"] = ndvi
 
     test_max_ndvi = MaxNDVI((FeatureType.DATA, "NDVI"), (FeatureType.DATA_TIMELESS, "MaxNDVI"))
-    np.array_equal(test_max_ndvi(patch).data_timeless["MaxNDVI"], expected)
+    assert_array_equal(test_max_ndvi(patch).data_timeless["MaxNDVI"], expected)
