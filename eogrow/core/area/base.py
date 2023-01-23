@@ -76,6 +76,23 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
 
         grid = self._create_grid()
         self._save_grid(grid, grid_path)
+
+        if self.config.patch_list is not None:
+            folder_path = self.storage.get_folder(self.config.patch_list.input_folder_key)
+            patch_list_path = fs.path.join(folder_path, self.config.patch_list.filename)
+            relevant_patches = set(load_eopatch_names(self.storage.filesystem, patch_list_path))
+
+            for crs, geoms in grid.items():
+                grid[crs] = geoms[geoms[self.NAME_COLUMN].isin(relevant_patches)]
+
+            grid = {crs: geoms for crs, geoms in grid.items() if not geoms.empty}
+
+            num_geoms = sum(map(len, grid.values()))
+            if len(relevant_patches) != num_geoms:
+                raise ValueError(
+                    f"Filtration done with {len(relevant_patches)} unique names, but {num_geoms} patches were found"
+                )
+
         return grid
 
     @abstractmethod
@@ -121,20 +138,12 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
 
     def get_patch_list(self) -> PatchList:
         """Returns a list of eopatch names and appropriate BBoxes."""
-        relevant_patches = None
-        if self.config.patch_list is not None:
-            folder_path = self.storage.get_folder(self.config.patch_list.input_folder_key)
-            patch_list_path = fs.path.join(folder_path, self.config.patch_list.filename)
-            relevant_patches = set(load_eopatch_names(self.storage.filesystem, patch_list_path))
 
         named_bboxes = []
         for crs, grid in self.get_grid().items():
             for _, row in grid.iterrows():
-                if relevant_patches is None or row.eopatch_name in relevant_patches:
-                    named_bboxes.append((row.eopatch_name, BBox(row.geometry.bounds, crs=crs)))
+                named_bboxes.append((row.eopatch_name, BBox(row.geometry.bounds, crs=crs)))
 
-        if relevant_patches is not None and len(named_bboxes) != len(relevant_patches):
-            LOGGER.info("Patch list contains %d names, but %d were returned.", len(relevant_patches), len(named_bboxes))
         return named_bboxes
 
 
