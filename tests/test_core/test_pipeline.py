@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import pytest
 
@@ -52,12 +52,41 @@ def test_pipeline_execution(simple_config_filename: str) -> None:
     assert folder_content[0].startswith("eoexecution-report")
 
 
-def test_get_patch_list_filtration(simple_config_filename: str) -> None:
+@pytest.mark.parametrize(
+    "test_subset, expected_result",
+    [
+        ([], []),
+        (
+            [0, "eopatch-id-1-col-0-row-1"],
+            [
+                ("eopatch-id-0-col-0-row-0", BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS(32638))),
+                ("eopatch-id-1-col-0-row-1", BBox(((729480.0, 4391145.0), (732120.0, 4392355.0)), crs=CRS(32638))),
+            ],
+        ),
+        (
+            [0, 1],
+            [
+                ("eopatch-id-0-col-0-row-0", BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS(32638))),
+                ("eopatch-id-1-col-0-row-1", BBox(((729480.0, 4391145.0), (732120.0, 4392355.0)), crs=CRS(32638))),
+            ],
+        ),
+    ],
+)
+def test_get_patch_list_filtration(
+    test_subset: List[Union[int, str]], expected_result: List[Tuple[str, BBox]], simple_config_filename: str
+) -> None:
     """Tests that the `test_subset` filtration is done correctly."""
     config = interpret_config_from_path(simple_config_filename)
+    config["test_subset"] = test_subset
     pipeline = SimplePipeline.from_raw_config(config)
-    expected_patch_list = [
-        ("eopatch-id-0-col-0-row-0", BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS(32638))),
-        ("eopatch-id-1-col-0-row-1", BBox(((729480.0, 4391145.0), (732120.0, 4392355.0)), crs=CRS(32638))),
-    ]
-    assert pipeline.get_patch_list() == expected_patch_list
+    assert pipeline.get_patch_list() == expected_result
+
+
+@pytest.mark.parametrize("test_subset", [[0, 100], ["beep"]])
+def test_get_patch_list_filtration_error(test_subset: List[Union[int, str]], simple_config_filename: str) -> None:
+    """Tests that the `test_subset` filtration fails if indices or names are not valid."""
+    config = interpret_config_from_path(simple_config_filename)
+    config["test_subset"] = test_subset
+    pipeline = SimplePipeline.from_raw_config(config)
+    with pytest.raises(ValueError):
+        pipeline.get_patch_list()

@@ -92,7 +92,7 @@ class Pipeline(EOGrowObject):
         """Method which at the initialization prepares the list of EOPatches which will be used"""
         patch_list = self.area_manager.get_patch_list()
 
-        if self.config.test_subset:
+        if self.config.test_subset is not None:
             LOGGER.info("Filtering according to `test_subset` parameter.")
             indices = {x for x in self.config.test_subset if isinstance(x, int)}
             names = {x for x in self.config.test_subset if isinstance(x, str)}
