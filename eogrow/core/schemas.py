@@ -5,7 +5,7 @@ For each pipeline a separate schema has to be defined which inherits from Pipeli
 as an internal class of the implemented pipeline class
 """
 from inspect import isclass
-from typing import List, Optional, Type
+from typing import List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 from pydantic.fields import ModelField
@@ -48,10 +48,10 @@ class PipelineSchema(BaseSchema):
         ),
     )
 
-    test_subset: Optional[List[int]] = Field(
+    test_subset: Optional[List[Union[int, str]]] = Field(
         description=(
-            "A list of EOPatch indices for which the pipeline is executed. Used for testing, can be set through CLI"
-            " with the -t flag."
+            "A list of EOPatch indices and/or names for which the pipeline is executed. Used for testing, can be set"
+            " through CLI with the -t flag."
         )
     )
     skip_existing: bool = Field(

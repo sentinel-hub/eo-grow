@@ -92,9 +92,17 @@ class Pipeline(EOGrowObject):
         """Method which at the initialization prepares the list of EOPatches which will be used"""
         patch_list = self.area_manager.get_patch_list()
 
-        if self.config.test_subset:
+        if self.config.test_subset is not None:
             LOGGER.info("Filtering according to `test_subset` parameter.")
-            patch_list = [named_bbox for i, named_bbox in enumerate(patch_list) if i in self.config.test_subset]
+            indices = {x for x in self.config.test_subset if isinstance(x, int)}
+            names = {x for x in self.config.test_subset if isinstance(x, str)}
+            patch_list = [(name, bbox) for i, (name, bbox) in enumerate(patch_list) if (i in indices or name in names)]
+
+            if len(patch_list) < len(self.config.test_subset):
+                raise ValueError(
+                    f"The parameter `test_subset` specifies {len(self.config.test_subset)} patches, but only"
+                    f" {len(patch_list)} remain after filtration. Please recheck your input for `test_subset`."
+                )
 
         if self.config.skip_existing:
             LOGGER.info("Checking which EOPatches can be skipped")
