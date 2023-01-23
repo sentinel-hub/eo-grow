@@ -16,7 +16,6 @@ from sentinelhub import BBox
 PatchList: TypeAlias = List[Tuple[str, BBox]]
 ExecKwargs: TypeAlias = Dict[str, Dict[EONode, Dict[str, object]]]
 
-Path: TypeAlias = str
 ImportPath: TypeAlias = str
 TimePeriod: TypeAlias = Tuple[datetime.date, datetime.date]
 

@@ -26,7 +26,7 @@ from sentinelhub.download import SessionSharing, collect_shared_session
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
-from ..types import ExecKwargs, Feature, FeatureSpec, PatchList, Path, ProcessingType, TimePeriod
+from ..types import ExecKwargs, Feature, FeatureSpec, PatchList, ProcessingType, TimePeriod
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import (
     ensure_exactly_one_defined,
@@ -295,7 +295,7 @@ class DownloadEvalscriptPipeline(BaseDownloadPipeline):
 
     class Schema(BaseDownloadPipeline.Schema, CommonDownloadFields, TimeDependantFields):
         features: List[Feature] = Field(description="Features to construct from the evalscript")
-        evalscript_path: Path
+        evalscript_path: str
 
     config: Schema
 
