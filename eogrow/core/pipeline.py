@@ -97,12 +97,10 @@ class Pipeline(EOGrowObject):
             indices = {x for x in self.config.test_subset if isinstance(x, int)}
             names = {x for x in self.config.test_subset if isinstance(x, str)}
             patch_list = [(name, bbox) for i, (name, bbox) in enumerate(patch_list) if (i in indices or name in names)]
+
             if len(patch_list) < len(self.config.test_subset):
-                LOGGER.info(
-                    "The parameter `test_subset` specifies %d patches, but only %d remain after filtration.",
-                    len(self.config.test_subset),
-                    len(patch_list),
-                )
+                log_message = "The parameter `test_subset` specifies %d patches, but only %d remain after filtration."
+                LOGGER.info(log_message, len(self.config.test_subset), len(patch_list))
 
         if self.config.skip_existing:
             LOGGER.info("Checking which EOPatches can be skipped")
