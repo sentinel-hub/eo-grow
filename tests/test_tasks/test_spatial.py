@@ -17,7 +17,7 @@ from eogrow.tasks.spatial import get_array_slices
                 "resolution": (10, 10),
             },
             (slice(0, 100, None), slice(0, 100, None)),
-            id="clean test",
+            id="fully covered",
         ),
         pytest.param(
             {
