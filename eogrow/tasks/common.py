@@ -1,9 +1,11 @@
 """Common tasks shared between pipelines."""
+import warnings
 from typing import Callable, List, Optional, Union
 
 import numpy as np
 
 from eolearn.core import EOPatch, EOTask, MapFeatureTask
+from eolearn.core.exceptions import EODeprecationWarning
 from eolearn.geometry import MorphologicalOperations
 
 from ..types import Feature
@@ -15,6 +17,10 @@ class MappingTask(MapFeatureTask):
     """
 
     def __init__(self, input_feature: Feature, output_feature: Feature, mapping_dict: dict):
+        warnings.warn(
+            "MappingTask is unused and will be removed in the future with MappingPipeline.",
+            EODeprecationWarning,
+        )
         super().__init__(input_feature, output_feature, mapping_dict=mapping_dict)
 
     def map_method(self, feature: np.ndarray, mapping_dict: dict) -> np.ndarray:  # type: ignore[override]
