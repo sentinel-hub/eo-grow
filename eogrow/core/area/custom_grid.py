@@ -44,7 +44,7 @@ class CustomGridAreaManager(BaseAreaManager):
         return grid
 
     def get_area_geometry(self, *, crs: CRS = CRS.WGS84) -> Geometry:
-        all_grid_gdfs = list(self.get_grid().values())
+        all_grid_gdfs = list(self.get_grid(filtered=True).values())
         area_df = concat_gdf(all_grid_gdfs, reproject_crs=crs)
 
         LOGGER.info("Calculating a unary union of the area geometries")
