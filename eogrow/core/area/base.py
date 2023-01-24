@@ -61,7 +61,7 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
     def get_area_geometry(self, *, crs: CRS = CRS.WGS84) -> Geometry:
         """Provides a dissolved geometry object of the entire AOI"""
 
-    def get_grid(self) -> Dict[CRS, gpd.GeoDataFrame]:
+    def get_grid(self, filtered: bool = True) -> Dict[CRS, gpd.GeoDataFrame]:
         """Provides a grid of bounding boxes which divide the AOI. Uses caching to avoid recalculations.
 
         The grid is split into different CRS zones. The `bounds` properties of the geometries are taken as BBox
@@ -77,7 +77,7 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
         grid = self._create_grid()
         self._save_grid(grid, grid_path)
 
-        if self.config.patch_list is not None:
+        if filtered and self.config.patch_list is not None:
             folder_path = self.storage.get_folder(self.config.patch_list.input_folder_key)
             patch_list_path = fs.path.join(folder_path, self.config.patch_list.filename)
             relevant_patches = set(load_eopatch_names(self.storage.filesystem, patch_list_path))
@@ -140,7 +140,7 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
         """Returns a list of eopatch names and appropriate BBoxes."""
 
         named_bboxes = []
-        for crs, grid in self.get_grid().items():
+        for crs, grid in self.get_grid(filtered=True).items():
             for _, row in grid.iterrows():
                 named_bboxes.append((row.eopatch_name, BBox(row.geometry.bounds, crs=crs)))
 
