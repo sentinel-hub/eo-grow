@@ -53,6 +53,15 @@ def test_get_grid_filtration(storage: StorageManager) -> None:
     assert_geodataframe_equal(filtered_grid[CRS.WGS84], expected_geoms)
 
 
+def test_get_grid_filtration_flag(storage: StorageManager) -> None:
+    full_grid = DummyAreaManager.from_raw_config({}, storage).get_grid()
+    config = _prepare_patch_list_config(storage, ["beep"])
+    unfiltered_grid = DummyAreaManager.from_raw_config(config, storage).get_grid(filtered=False)
+
+    for crs, crs_grid in full_grid.items():
+        assert_geodataframe_equal(unfiltered_grid[crs], crs_grid)
+
+
 def test_get_grid_filtration_failure(storage: StorageManager) -> None:
     config = _prepare_patch_list_config(storage, ["I_do_not_exist"])
     with pytest.raises(ValueError):
