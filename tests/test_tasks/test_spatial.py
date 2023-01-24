@@ -12,29 +12,29 @@ from eogrow.tasks.spatial import get_array_slices
     [
         (
             {
-                "bbox": BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS("32638")),
-                "slice_bbox": BBox(((729480.0, 4390255.0), (730480.0, 4391255.0)), crs=CRS("32638")),
+                "bbox": BBox(((730000, 4400000), (731000, 4401000)), crs=CRS("32638")),
+                "slice_bbox": BBox(((730000, 4400000), (731000, 4401000)), crs=CRS("32638")),
                 "resolution": (10, 10),
             },
             (slice(0, 100, None), slice(0, 100, None)),
         ),
         (
             {
-                "bbox": BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS("32638")),
-                "slice_bbox": BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS("32638")),
+                "bbox": BBox(((730000, 4400000), (732000, 4401000)), crs=CRS("32638")),
+                "slice_bbox": BBox(((730000, 4400000), (732000, 4401000)), crs=CRS("32638")),
                 "resolution": (10, 10),
             },
-            (slice(0, 264, None), slice(0, 121, None)),
+            (slice(0, 200, None), slice(0, 100, None)),
         ),
         (
             {
-                "bbox": BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS("32638")),
-                "slice_bbox": BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS("32638")),
+                "bbox": BBox(((730000, 4400000), (732000, 4401000)), crs=CRS("32638")),
+                "slice_bbox": BBox(((730000, 4400000), (732000, 4401000)), crs=CRS("32638")),
                 "resolution": (10, 10),
                 "limit_x": (50, 100),
-                "limit_y": (100, 200),
+                "limit_y": (100, 300),
             },
-            (slice(50, 100, None), slice(100, 121, None)),
+            (slice(50, 100, None), slice(100, 100, None)),
         ),
         (
             {
@@ -46,16 +46,16 @@ from eogrow.tasks.spatial import get_array_slices
         ),
         (
             {
-                "bbox": BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS("32638")),
-                "slice_bbox": BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS("32638")),
+                "bbox": BBox(((730000, 4400000), (732000, 4401000)), crs=CRS("32638")),
+                "slice_bbox": BBox(((730000, 4400000), (732000, 4401000)), crs=CRS("32638")),
                 "size": (10, 10),
             },
             (slice(0, 10, None), slice(0, 10, None)),
         ),
         (
             {
-                "bbox": BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS("32638")),
-                "slice_bbox": BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS("32638")),
+                "bbox": BBox(((730000, 4400000), (732000, 4401000)), crs=CRS("32638")),
+                "slice_bbox": BBox(((730000, 4400000), (732000, 4401000)), crs=CRS("32638")),
                 "size": (10, 10),
                 "limit_x": (50, 100),
                 "limit_y": (100, 200),
@@ -63,6 +63,7 @@ from eogrow.tasks.spatial import get_array_slices
             (slice(50, 10, None), slice(100, 10, None)),
         ),
     ],
+    ids=["clean_test", "random_test", "test_limits", "test_WGS84", "test_size", "test_size_limit"],
 )
 def test_get_array_slices(input_params: Dict[str, Any], expected: Tuple[slice, slice]) -> None:
     assert get_array_slices(**input_params) == expected
@@ -72,21 +73,22 @@ def test_get_array_slices(input_params: Dict[str, Any], expected: Tuple[slice, s
     "input_params",
     [
         {
-            "bbox": BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS("32638")),
-            "slice_bbox": BBox(((729480.0, 4390255.0), (730480.0, 4391255.0)), crs=CRS("32638")),
+            "bbox": BBox(((730000, 4400000), (732000, 4401000)), crs=CRS("32638")),
+            "slice_bbox": BBox(((730000, 4400000), (732000, 4401000)), crs=CRS("32638")),
         },
         {
-            "bbox": BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS("32638")),
-            "slice_bbox": BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS("32638")),
+            "bbox": BBox(((730000, 4400000), (732000, 4401000)), crs=CRS("32638")),
+            "slice_bbox": BBox(((730000, 4400000), (732000, 4401000)), crs=CRS("32638")),
             "resolution": (10, 10),
             "size": (10, 10),
         },
         {
-            "bbox": BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS("32638")),
-            "slice_bbox": BBox(((729480.5, 4390045.5), (732120.0, 4391255.0)), crs=CRS("32638")),
+            "bbox": BBox(((730000, 4400000), (732000, 4401000)), crs=CRS("32638")),
+            "slice_bbox": BBox(((730000.5, 4400000.5), (732000, 4401000)), crs=CRS("32638")),
             "resolution": (10, 10),
         },
     ],
+    ids=["no_resolution_or_size", "resolution_and_size", "clipping_value_not_integer"],
 )
 def test_get_array_slices_invalid_input(input_params: Dict[str, Any]) -> None:
     with pytest.raises(ValueError):
