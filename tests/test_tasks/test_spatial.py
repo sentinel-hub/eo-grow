@@ -26,7 +26,7 @@ from eogrow.tasks.spatial import get_array_slices
                 "resolution": (10, 10),
             },
             (slice(0, 99, None), slice(0, 65, None)),
-            id="less regular test",
+            id="contained",
         ),
         pytest.param(
             {
