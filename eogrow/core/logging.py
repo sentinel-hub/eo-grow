@@ -14,7 +14,7 @@ from pydantic import Field
 
 from eolearn.core.utils.fs import join_path, unpickle_fs
 
-from ..utils.eopatch_list import save_eopatch_names
+from ..utils.eopatch_list import save_names
 from ..utils.fs import LocalFile
 from ..utils.general import jsonify
 from ..utils.logging import get_instance_info
@@ -228,7 +228,7 @@ class LoggingManager(EOGrowObject):
 
         logs_folder = self.get_pipeline_logs_folder(pipeline_execution_name)
         for eopatches, filename in [(finished, "finished.json"), (failed, "failed.json")]:
-            save_eopatch_names(self.storage.filesystem, fs.path.combine(logs_folder, filename), eopatches)
+            save_names(self.storage.filesystem, fs.path.combine(logs_folder, filename), eopatches)
 
 
 class FilesystemHandler(FileHandler):

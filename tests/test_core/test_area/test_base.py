@@ -12,7 +12,7 @@ from sentinelhub.geometry import Geometry
 from eogrow.core.area.base import BaseAreaManager, get_geometry_from_file
 from eogrow.core.config import RawConfig
 from eogrow.core.storage import StorageManager
-from eogrow.utils.eopatch_list import save_eopatch_names
+from eogrow.utils.eopatch_list import save_names
 from eogrow.utils.vector import count_points
 
 pytestmark = pytest.mark.fast
@@ -116,6 +116,6 @@ def test_get_geometry_from_file(
 
 def _prepare_patch_list_config(storage: StorageManager, patch_list: List[str]) -> RawConfig:
     path = fs.path.join(storage.get_folder("temp"), "patch_list.json")
-    save_eopatch_names(storage.filesystem, path, patch_list)
+    save_names(storage.filesystem, path, patch_list)
     config = {"patch_names": {"input_folder_key": "temp", "filename": "patch_list.json"}}
     return cast(RawConfig, config)

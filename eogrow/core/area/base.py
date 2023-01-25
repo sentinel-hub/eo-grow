@@ -12,7 +12,7 @@ from pydantic import Field
 from sentinelhub import CRS, BBox, Geometry
 
 from ...types import PatchList
-from ...utils.eopatch_list import load_eopatch_names
+from ...utils.eopatch_list import load_names
 from ...utils.fs import LocalFile
 from ..base import EOGrowObject
 from ..schemas import BaseSchema, ManagerSchema
@@ -80,7 +80,7 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
         if filtered and self.config.patch_names is not None:
             folder_path = self.storage.get_folder(self.config.patch_names.input_folder_key)
             patch_names_path = fs.path.join(folder_path, self.config.patch_names.filename)
-            relevant_patches = set(load_eopatch_names(self.storage.filesystem, patch_names_path))
+            relevant_patches = set(load_names(self.storage.filesystem, patch_names_path))
 
             for crs, geoms in grid.items():
                 grid[crs] = geoms[geoms[self.NAME_COLUMN].isin(relevant_patches)]
