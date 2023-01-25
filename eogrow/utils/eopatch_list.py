@@ -11,16 +11,16 @@ from sentinelhub import CRS
 from ..types import PatchList
 
 
-def save_eopatch_names(filesystem: FS, file_path: str, eopatch_list: List[str]) -> None:
+def save_eopatch_names(filesystem: FS, file_path: str, eopatch_names: List[str]) -> None:
     """Saves a list of EOPatches to a file
 
     :param filesystem: Filesystem used to save the file.
     :param filename: Path of a JSON file where names of EOPatches will be saved.
-    :param eopatch_list: A list of EOPatch names.
+    :param eopatch_names: A list of EOPatch names.
     """
 
     with filesystem.open(file_path, "w") as file:
-        json.dump(eopatch_list, file, indent=2)
+        json.dump(eopatch_names, file, indent=2)
 
 
 def load_eopatch_names(filesystem: FS, file_path: str) -> List[str]:

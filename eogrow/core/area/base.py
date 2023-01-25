@@ -42,8 +42,8 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
     NAME_COLUMN = "eopatch_name"
 
     class Schema(ManagerSchema):
-        patch_list: Optional[PatchListSchema] = Field(
-            description="Names of EOPatches to keep when filtering in `get_names_and_bboxes` method."
+        patch_names_list: Optional[PatchListSchema] = Field(
+            description="Names of EOPatches to keep when filtering in the `get_grid` method."
         )
 
     config: Schema
@@ -77,10 +77,10 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
         grid = self._create_grid()
         self._save_grid(grid, grid_path)
 
-        if filtered and self.config.patch_list is not None:
-            folder_path = self.storage.get_folder(self.config.patch_list.input_folder_key)
-            patch_list_path = fs.path.join(folder_path, self.config.patch_list.filename)
-            relevant_patches = set(load_eopatch_names(self.storage.filesystem, patch_list_path))
+        if filtered and self.config.patch_names_list is not None:
+            folder_path = self.storage.get_folder(self.config.patch_names_list.input_folder_key)
+            patch_names_path = fs.path.join(folder_path, self.config.patch_names_list.filename)
+            relevant_patches = set(load_eopatch_names(self.storage.filesystem, patch_names_path))
 
             for crs, geoms in grid.items():
                 grid[crs] = geoms[geoms[self.NAME_COLUMN].isin(relevant_patches)]
