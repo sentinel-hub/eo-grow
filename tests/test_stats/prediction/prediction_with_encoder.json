@@ -56,12 +56,12 @@
         "array_shape": [
           121,
           264,
-          31944
+          1
         ],
         "dtype": "int16",
         "values": [
           {
-            "count": 1020419136,
+            "count": 31944,
             "value": 1
           }
         ]
@@ -125,12 +125,12 @@
         "array_shape": [
           121,
           264,
-          31944
+          1
         ],
         "dtype": "int16",
         "values": [
           {
-            "count": 1020419136,
+            "count": 31944,
             "value": 1
           }
         ]

@@ -23,7 +23,7 @@ from sentinelhub import (
 from ..core.area.batch import BatchAreaManager
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
-from ..types import Path, TimePeriod
+from ..types import TimePeriod
 from ..utils.validators import field_validator, optional_field_validator, parse_data_collection, parse_time_period
 
 LOGGER = logging.getLogger(__name__)
@@ -67,7 +67,7 @@ class BatchDownloadPipeline(Pipeline):
         )
 
         inputs: List[InputDataSchema]
-        evalscript_path: Path
+        evalscript_path: str
 
         tiff_outputs: List[str] = Field(default_factory=list, description="Names of TIFF outputs of a batch job")
         save_userdata: bool = Field(

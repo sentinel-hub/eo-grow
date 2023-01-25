@@ -9,7 +9,6 @@ from pydantic import Field
 
 from sentinelhub import CRS, Geometry
 
-from ...types import Path
 from ...utils.vector import concat_gdf
 from .base import BaseAreaManager
 
@@ -21,7 +20,7 @@ class CustomGridAreaManager(BaseAreaManager):
 
     class Schema(BaseAreaManager.Schema):
         grid_folder_key: str = Field("input_data", description="Storage key pointing to the folder with the grid file.")
-        grid_filename: Path = Field(
+        grid_filename: str = Field(
             description=(
                 "A Geopackage with a collection of bounding boxes and attributes that define EOPatches. If bounding"
                 " boxes are in multiple CRS then each Geopackage layer should contain bounding boxes from one CRS."
@@ -44,7 +43,7 @@ class CustomGridAreaManager(BaseAreaManager):
         return grid
 
     def get_area_geometry(self, *, crs: CRS = CRS.WGS84) -> Geometry:
-        all_grid_gdfs = list(self.get_grid().values())
+        all_grid_gdfs = list(self.get_grid(filtered=True).values())
         area_df = concat_gdf(all_grid_gdfs, reproject_crs=crs)
 
         LOGGER.info("Calculating a unary union of the area geometries")
