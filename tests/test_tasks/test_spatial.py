@@ -80,7 +80,7 @@ pytestmark = pytest.mark.fast
             id="test slice_bbox included",
         ),
         pytest.param(
-                # Test is specific to current implementation, serves only to detect unplanned changes.
+            # Test is specific to current implementation, serves only to detect unplanned changes.
             {
                 "bbox": BBox(((730000, 4400000), (732000, 4401000)), crs=CRS("32638")),
                 "slice_bbox": BBox(((731000, 4400500), (733000, 4401500)), crs=CRS("32638")),
