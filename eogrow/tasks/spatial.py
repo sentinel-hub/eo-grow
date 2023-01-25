@@ -213,11 +213,13 @@ def get_array_slices(
 
     :param bbox: A bounding box of initial array.
     :param slice_bbox: A bounding box of array to be sliced.
-    :param resolution: A working resolution.
+    :param resolution: A working resolution in CRS units.
     :param size: A working size.
     :param raise_misaligned: Whether to raise an error if the slice would be pixel misaligned the initial array.
-    :param limit_x: If provided it will clip the horizontal slice to a given interval.
-    :param limit_y: If provided it will clip the vertical slice to a given interval.
+    :param limit_x: If provided it will clip the horizontal slice to a given interval, should be used to clip slice_bbox
+    to bbox.
+    :param limit_y: If provided it will clip the vertical slice to a given interval, should be used to clip slice_bbox
+    to bbox.
     :return: A slice over horizontal direction and a slice over vertical direction.
     """
     raster_upper_left = np.array([bbox.min_x, bbox.max_y])
