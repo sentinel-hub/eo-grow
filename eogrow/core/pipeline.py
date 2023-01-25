@@ -56,8 +56,6 @@ class Pipeline(EOGrowObject):
         self.area_manager: BaseAreaManager = self._load_manager(config.area, storage=self.storage)
         self.logging_manager: LoggingManager = self._load_manager(config.logging, storage=self.storage)
 
-        self._patch_list: Optional[List[str]] = None
-
     @classmethod
     def from_raw_config(cls: Type[Self], config: RawConfig, *args: Any, **kwargs: Any) -> Self:
         """Creates an object from a dictionary by constructing a validated config and use it to create the object."""

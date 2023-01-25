@@ -12,7 +12,7 @@ from pydantic import Field
 from sentinelhub import CRS, BBox, Geometry
 
 from ...types import PatchList
-from ...utils.eopatch_list import load_eopatch_names
+from ...utils.eopatch_list import load_names
 from ...utils.fs import LocalFile
 from ..base import EOGrowObject
 from ..schemas import BaseSchema, ManagerSchema
@@ -42,8 +42,8 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
     NAME_COLUMN = "eopatch_name"
 
     class Schema(ManagerSchema):
-        patch_list: Optional[PatchListSchema] = Field(
-            description="Names of EOPatches to keep when filtering in `get_names_and_bboxes` method."
+        patch_names: Optional[PatchListSchema] = Field(
+            description="Names of EOPatches to keep when filtering in the `get_grid` method."
         )
 
     config: Schema
@@ -77,20 +77,20 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
         grid = self._create_grid()
         self._save_grid(grid, grid_path)
 
-        if filtered and self.config.patch_list is not None:
-            folder_path = self.storage.get_folder(self.config.patch_list.input_folder_key)
-            patch_list_path = fs.path.join(folder_path, self.config.patch_list.filename)
-            relevant_patches = set(load_eopatch_names(self.storage.filesystem, patch_list_path))
+        if filtered and self.config.patch_names is not None:
+            folder_path = self.storage.get_folder(self.config.patch_names.input_folder_key)
+            patch_names_path = fs.path.join(folder_path, self.config.patch_names.filename)
+            relevant_patch_names = set(load_names(self.storage.filesystem, patch_names_path))
 
             for crs, geoms in grid.items():
-                grid[crs] = geoms[geoms[self.NAME_COLUMN].isin(relevant_patches)]
+                grid[crs] = geoms[geoms[self.NAME_COLUMN].isin(relevant_patch_names)]
 
             grid = {crs: geoms for crs, geoms in grid.items() if not geoms.empty}
 
             num_geoms = sum(map(len, grid.values()))
-            if len(relevant_patches) != num_geoms:
+            if len(relevant_patch_names) != num_geoms:
                 raise ValueError(
-                    f"Filtration done with {len(relevant_patches)} unique names, but {num_geoms} patches were found"
+                    f"Filtration done with {len(relevant_patch_names)} unique names, but {num_geoms} patches were found"
                 )
 
         return grid
