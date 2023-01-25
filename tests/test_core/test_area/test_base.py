@@ -117,5 +117,5 @@ def test_get_geometry_from_file(
 def _prepare_patch_list_config(storage: StorageManager, patch_list: List[str]) -> RawConfig:
     path = fs.path.join(storage.get_folder("temp"), "patch_list.json")
     save_eopatch_names(storage.filesystem, path, patch_list)
-    config = {"patch_names_list": {"input_folder_key": "temp", "filename": "patch_list.json"}}
+    config = {"relevant_patch_names": {"input_folder_key": "temp", "filename": "patch_list.json"}}
     return cast(RawConfig, config)
