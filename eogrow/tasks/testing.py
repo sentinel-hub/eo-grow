@@ -1,6 +1,4 @@
-"""
-Implements tasks for testing purposes
-"""
+"""Tasks used to generate test data."""
 import datetime as dt
 from typing import Optional, Tuple, Union
 
@@ -9,7 +7,7 @@ import numpy as np
 from eolearn.core import EOPatch, EOTask, FeatureTypeSet
 from eolearn.core.utils.common import is_discrete_type
 
-from ..utils.types import Feature, TimePeriod
+from ..types import Feature, TimePeriod
 
 
 class DummyRasterFeatureTask(EOTask):

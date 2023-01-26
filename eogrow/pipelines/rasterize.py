@@ -1,6 +1,4 @@
-"""
-A pipeline module for rasterizing vector datasets.
-"""
+"""Implements a pipeline for rasterizing vector datasets."""
 import logging
 import os
 import uuid
@@ -27,9 +25,9 @@ from eolearn.io import VectorImportTask
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
+from ..types import Feature, FeatureSpec, PatchList
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.fs import LocalFile
-from ..utils.types import Feature, FeatureSpec
 from ..utils.validators import ensure_exactly_one_defined, field_validator, parse_dtype
 from ..utils.vector import concat_gdf
 
@@ -116,7 +114,7 @@ class RasterizePipeline(Pipeline):
         else:
             self.vector_feature = self.config.vector_input
 
-    def filter_patch_list(self, patch_list: List[str]) -> List[str]:
+    def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         filtered_patch_list = get_patches_with_missing_features(
             self.storage.filesystem,
             self.storage.get_folder(self.config.output_folder_key),

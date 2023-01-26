@@ -1,6 +1,3 @@
-"""
-Tests for general utilities
-"""
 import datetime as dt
 import enum
 import json
@@ -12,8 +9,6 @@ from eolearn.core import FeatureType
 from sentinelhub import CRS, BBox, DataCollection
 
 from eogrow.utils.general import convert_bbox_coords_to_int, convert_to_int, jsonify, large_list_repr, reduce_to_coprime
-
-pytestmark = pytest.mark.fast
 
 
 class MyEnum(enum.Enum):

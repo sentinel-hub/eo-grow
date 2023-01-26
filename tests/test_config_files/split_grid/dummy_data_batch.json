@@ -1,7 +1,18 @@
+
 {
   "pipeline": "eogrow.pipelines.testing.DummyDataPipeline",
   "**global_config": "${config_path}/global_config.json",
-  "output_folder_key": "grid_folder1",
+  "area": { // These parameters must match the content of test_project/input-data/batch_grid.gpkg grid file
+    "manager": "eogrow.core.area.BatchAreaManager",
+    "area": {
+      "filename": "batch_area.geojson"
+    },
+    "tiling_grid_id": 1,
+    "resolution": 10,
+    "tile_buffer_x": 3,
+    "tile_buffer_y": 7
+  },
+  "output_folder_key": "input_folder",
   "seed": 42,
   "raster_features": [
     {
@@ -12,11 +23,11 @@
       "max_value": 1
     },
     {
-      "feature": ["mask", "dataMask"],
-      "shape": [2, 1014, 1006, 1],
-      "dtype": "uint8",
-      "min_value": 4,
-      "max_value": 6
+      "feature": ["data", "IGNORED_BANDS"],
+      "shape": [2, 1014, 1006, 3],
+      "dtype": "float32",
+      "min_value": -1,
+      "max_value": 1
     },
     {
       "feature": ["mask_timeless", "REF"],
@@ -24,18 +35,6 @@
       "dtype": "bool",
       "min_value": 0,
       "max_value": 1
-    },
-    {
-      "feature": ["label", "LABELS"],
-      "shape": [2, 15],
-      "dtype": "int16",
-      "min_value": -2,
-      "max_value": 5
-    },
-    {
-      "feature": ["scalar", "IGNORE"],
-      "shape": [2, 5],
-      "dtype": "float"
     }
   ],
   "timestamp_feature": {

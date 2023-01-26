@@ -1,6 +1,4 @@
-"""
-This module handles everything regarding storage of the data
-"""
+"""Implementation of the StorageManager class for handling project storage."""
 from typing import Dict, Literal, Optional
 
 import fs
@@ -10,7 +8,7 @@ from pydantic import BaseSettings, Field
 from eolearn.core.utils.fs import get_aws_credentials, get_filesystem, is_s3_path
 from sentinelhub import SHConfig
 
-from ..utils.types import AwsAclType
+from ..types import AwsAclType
 from .base import EOGrowObject
 from .schemas import ManagerSchema
 

@@ -1,5 +1,3 @@
-""" A module for testing eogrow.config
-"""
 import json
 import os
 
@@ -14,9 +12,6 @@ from eogrow.core.config import (
     interpret_config_from_path,
 )
 from eogrow.utils.meta import get_os_import_path
-
-pytestmark = pytest.mark.fast
-
 
 CONFIG_DICT = {
     "new_param": 4,

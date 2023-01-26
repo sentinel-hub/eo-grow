@@ -1,6 +1,4 @@
-"""
-Module implementing command line interface for `eo-grow`
-"""
+"""Implements the command line interface for `eo-grow`."""
 import json
 import os
 import re
@@ -87,7 +85,7 @@ class EOGrowCli:
         for raw_config in raw_configs:
             config = interpret_config_from_dict(raw_config, cli_variable_mapping)
             if test_patches:
-                config["patch_list"] = list(test_patches)
+                config["test_subset"] = list(test_patches)
 
             pipelines.append(load_pipeline_class(config).from_raw_config(config))
 
@@ -153,14 +151,14 @@ class EOGrowCli:
         encoded_configs = encode_config_list(configs)
         cmd = (
             f"{EOGrowCli._command_namespace} -e {encoded_configs}"
-            + "".join(f' -v "{cli_var_spec}"' for cli_var_spec in cli_variables)
+            + "".join(f' -v "{cli_var_spec}"' for cli_var_spec in cli_variables)  # noqa B028
             + "".join(f" -t {patch_index}" for patch_index in test_patches)
             + ("; " if stop_cluster else "")  # Otherwise, ray will incorrectly prepare a command for stopping a cluster
         )
         flag_info = [("start", start_cluster), ("stop", stop_cluster), ("screen", use_screen), ("tmux", use_tmux)]
         exec_flags = " ".join(f"--{flag_name}" for flag_name, use_flag in flag_info if use_flag)
 
-        subprocess.call(f"ray exec {exec_flags} {cluster_yaml} '{cmd}'", shell=True)
+        subprocess.call(f"ray exec {exec_flags} {cluster_yaml} '{cmd}'", shell=True)  # noqa B028
 
     @staticmethod
     @click.command()

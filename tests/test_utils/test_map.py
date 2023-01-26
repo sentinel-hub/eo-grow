@@ -1,6 +1,3 @@
-"""
-Tests for utils.map module
-"""
 from typing import List, Optional
 
 import numpy as np
@@ -23,8 +20,6 @@ from eogrow.utils.map import (
     extract_bands,
     merge_tiffs,
 )
-
-pytestmark = pytest.mark.fast
 
 
 def make_geotiff(data: np.ndarray, bbox: BBox, filesystem: FS, *, folder: str = ".", name: str):

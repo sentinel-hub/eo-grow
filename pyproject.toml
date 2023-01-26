@@ -12,7 +12,7 @@ line_length = 120
 [tool.pytest.ini_options]
 log_cli_level = "INFO"
 markers = [
-    "fast: marks unit tests that are fast to execute",
+    "integration: marks tests that fully execute pipelines (and tend to be slow)",
     "chain: marks tests that represent an end-to-end pipeline execution"
 ]
 
@@ -28,6 +28,7 @@ disallow_untyped_defs = true
 disallow_untyped_decorators = true
 warn_unreachable = true
 strict_equality = true
+pretty = true
 plugins = [
     "pydantic.mypy"
 ]

@@ -5,6 +5,7 @@
 [![License](https://img.shields.io/pypi/l/eo-grow.svg)](https://github.com/sentinel-hub/eo-grow/blob/master/LICENSE)
 [![Overall downloads](http://pepy.tech/badge/eo-grow)](https://pepy.tech/project/eo-grow)
 [![Last month downloads](https://pepy.tech/badge/eo-grow/month)](https://pepy.tech/project/eo-grow)
+[![Code coverage](https://codecov.io/gh/sentinel-hub/eo-grow/branch/main/graph/badge.svg)](https://codecov.io/gh/sentinel-hub/eo-grow)
 
 # eo-grow
 **Earth observation framework for scaled-up processing in Python.**
@@ -32,7 +33,6 @@ The core object of **`eo-grow`** is the `Pipeline`. Each pipeline has a `run_pro
 Each pipeline is linked to so called *managers*:
 - `StorageManager` handles loading and saving of files,
 - `AreaManager` defines the area of interest and how it should be split into EOPatches,
-- `EOPatchManager` takes care of listing eopatches and handling their storage details,
 - `LoggingManager` provides control over logging.
 
 ![eo-grow-structure](docs/source/figures/eo-grow-structure.png)

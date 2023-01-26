@@ -1,5 +1,3 @@
-""" A module for testing StorageManager class
-"""
 import os
 from typing import Optional
 
@@ -11,14 +9,15 @@ from fs_s3fs import S3FS
 from eogrow.core.config import RawConfig, interpret_config_from_path
 from eogrow.core.storage import StorageManager
 
-pytestmark = pytest.mark.fast
-
 
 @pytest.fixture(name="local_storage_manager")
-def local_storage_manager_fixture(config_folder):
-    filename = os.path.join(config_folder, "other", "local_storage_test.json")
-    config = interpret_config_from_path(filename)
-    return StorageManager.from_raw_config(config["storage"])
+def local_storage_manager_fixture(project_folder):
+    manager_config = {
+        "manager": "eogrow.core.storage.StorageManager",
+        "project_folder": project_folder,
+        "structure": {"temp": "temp", "batch": "tiffs", "eopatches": "path/to/eopatches"},
+    }
+    return StorageManager.from_raw_config(manager_config)
 
 
 @pytest.fixture(name="aws_storage_config")

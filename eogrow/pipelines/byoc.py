@@ -1,6 +1,4 @@
-"""
-Defines pipelines for ingesting and modifying BYOC collections.
-"""
+"""Defines pipelines for ingesting and modifying BYOC collections."""
 import datetime
 import datetime as dt
 import logging
@@ -19,7 +17,7 @@ from sentinelhub.geometry import Geometry
 from eogrow.core.config import RawConfig
 
 from ..core.pipeline import Pipeline
-from ..utils.types import JsonDict
+from ..types import JsonDict
 from ..utils.validators import (
     ensure_defined_together,
     ensure_exactly_one_defined,

@@ -1,3 +1,1 @@
-"""
-A subfolder with a collection of various utilities
-"""
+"""A submodule implementing various utilities."""

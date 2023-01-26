@@ -1,6 +1,3 @@
-"""
-Tests for validator utilities
-"""
 import datetime as dt
 from contextlib import nullcontext
 from typing import Optional, Union
@@ -13,7 +10,7 @@ from sentinelhub import DataCollection
 from sentinelhub.data_collections_bands import Band, MetaBands, Unit
 
 from eogrow.core.schemas import BaseSchema, ManagerSchema
-from eogrow.utils.types import RawSchemaDict
+from eogrow.types import RawSchemaDict
 from eogrow.utils.validators import (
     ensure_defined_together,
     ensure_exactly_one_defined,
@@ -24,8 +21,6 @@ from eogrow.utils.validators import (
     parse_time_period,
     validate_manager,
 )
-
-pytestmark = pytest.mark.fast
 
 
 def is_large_enough(value: int):
@@ -172,10 +167,18 @@ def test_parse_dtype(dtype_input: Union[str, type, np.dtype]):
 @pytest.mark.parametrize(
     "manager_input, succeeds",
     [
-        ("eogrow.core.eopatch.EOPatchManager", False),  # not a dict
-        ({"wrong_field", "eogrow.core.eopatch.EOPatchManager"}, False),
+        ("eogrow.core.area.UtmZoneAreaManager", False),  # not a dict
+        ({"wrong_field", "eogrow.core.area.UtmZoneAreaManager"}, False),
         ({"manager": "NonexistingManager"}, False),
-        ({"manager": "eogrow.core.eopatch.EOPatchManager"}, True),
+        (
+            {
+                "manager": "eogrow.core.area.BatchAreaManager",
+                "area": {"filename": "some_aoi.geojson"},
+                "tiling_grid_id": 0,
+                "resolution": 10,
+            },
+            True,
+        ),
         (
             {
                 "manager": "eogrow.core.logging.LoggingManager",

@@ -1,36 +1,16 @@
-"""
-Common tasks shared between pipelines
-"""
+"""Common tasks shared between pipelines."""
 from typing import Callable, List, Optional, Union
 
 import numpy as np
 
-from eolearn.core import EOPatch, EOTask, MapFeatureTask
+from eolearn.core import EOPatch, EOTask
 from eolearn.geometry import MorphologicalOperations
 
-from ..utils.types import Feature
-
-
-class MappingTask(MapFeatureTask):
-    """A task that takes an input mask_timeless feature and creates an output mask_timeless feature, where the
-    input mask values are mapped to the output mask values, using the provided mapping dictionary.
-    """
-
-    def __init__(self, input_feature: Feature, output_feature: Feature, mapping_dict: dict):
-        super().__init__(input_feature, output_feature, mapping_dict=mapping_dict)
-
-    def map_method(self, feature: np.ndarray, mapping_dict: dict) -> np.ndarray:  # type: ignore[override]
-        mapped_values = feature.copy()
-        for map_from, map_to in mapping_dict.items():
-            mapped_values[feature == map_from] = map_to
-
-        return mapped_values
+from ..types import Feature
 
 
 class ClassFilterTask(EOTask):
-    """
-    Run class specific morphological operation.
-    """
+    """Run class specific morphological operation."""
 
     def __init__(
         self,

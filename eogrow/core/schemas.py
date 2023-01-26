@@ -5,12 +5,12 @@ For each pipeline a separate schema has to be defined which inherits from Pipeli
 as an internal class of the implemented pipeline class
 """
 from inspect import isclass
-from typing import List, Optional, Type
+from typing import List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 from pydantic.fields import ModelField
 
-from ..utils.types import BoolOrAuto, ImportPath, Path
+from ..types import BoolOrAuto, ImportPath
 from ..utils.validators import field_validator, validate_manager
 from .base import EOGrowObject
 
@@ -34,9 +34,6 @@ class PipelineSchema(BaseSchema):
     area: ManagerSchema = Field(description="A schema of an implementation of AreaManager class")
     validate_area = field_validator("area", validate_manager, pre=True)
 
-    eopatch: ManagerSchema = Field(description="A schema of an implementation of EOPatchManager class")
-    validate_eopatch = field_validator("eopatch", validate_manager, pre=True)
-
     logging: ManagerSchema = Field(description="A schema of an implementation of LoggingManager class")
     validate_logging = field_validator("logging", validate_manager, pre=True)
 
@@ -51,10 +48,12 @@ class PipelineSchema(BaseSchema):
         ),
     )
 
-    patch_list: Optional[List[int]] = Field(
-        description="A list of EOPatch indices for which the pipeline should be executed"
+    test_subset: Optional[List[Union[int, str]]] = Field(
+        description=(
+            "A list of EOPatch indices and/or names for which the pipeline is executed. Used for testing, can be set"
+            " through CLI with the -t flag."
+        )
     )
-    input_patch_file: Optional[Path] = Field(description="File path to a file with input EOPatch names")
     skip_existing: bool = Field(
         False,
         description=(

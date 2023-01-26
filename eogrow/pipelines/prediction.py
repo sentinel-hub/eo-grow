@@ -1,6 +1,4 @@
-"""
-Module implementing prediction pipeline
-"""
+"""Implements a base prediction pipeline and a LGBM specialized classification and regression pipelines."""
 import abc
 from typing import List, Optional, Tuple
 
@@ -12,8 +10,8 @@ from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, MergeEOPatch
 
 from ..core.pipeline import Pipeline
 from ..tasks.prediction import ClassificationPredictionTask, RegressionPredictionTask
+from ..types import Feature, FeatureSpec, PatchList, RawSchemaDict
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec, RawSchemaDict
 from ..utils.validators import optional_field_validator, parse_dtype
 
 
@@ -73,7 +71,7 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         """If a multiprocessing lock is needed when executing"""
         return not self.config.use_ray and self.config.workers > 1
 
-    def filter_patch_list(self, patch_list: List[str]) -> List[str]:
+    def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """EOPatches are filtered according to existence of specified output features"""
 
         filtered_patch_list = get_patches_with_missing_features(

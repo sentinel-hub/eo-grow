@@ -4,7 +4,7 @@ Module implementing utilities for unit testing pipeline results
 import functools
 import json
 import os
-from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, cast
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, cast
 
 import fs
 import numpy as np
@@ -19,8 +19,9 @@ from sentinelhub import BBox
 
 from ..core.config import collect_configs_from_path, interpret_config_from_dict
 from ..core.pipeline import Pipeline
+from ..types import JsonDict
+from ..utils.eopatch_list import load_names
 from ..utils.meta import load_pipeline_class
-from ..utils.types import JsonDict
 
 
 class ContentTester:
@@ -128,7 +129,10 @@ class ContentTester:
         """Calculates statistics of given EOPatch and it's content"""
         stats: Dict[str, object] = {}
 
-        for feature_type, feature_set in eopatch.get_features().items():
+        for feature_type in FeatureType:
+            if feature_type not in eopatch:
+                continue
+
             feature_type_name = feature_type.value
 
             if feature_type is FeatureType.BBOX:
@@ -138,7 +142,6 @@ class ContentTester:
                 stats[feature_type_name] = [time.isoformat() for time in eopatch.timestamp]
 
             else:
-                feature_set = cast(Set[str], feature_set)
                 feature_stats_dict = {}
 
                 if feature_type.is_raster():
@@ -148,7 +151,7 @@ class ContentTester:
                 else:  # Only FeatureType.META_INFO remains
                     calculation_method = str
 
-                for feature_name in feature_set:
+                for feature_name in eopatch[feature_type]:
                     feature_stats_dict[feature_name] = calculation_method(eopatch[feature_type][feature_name])
 
                 stats[feature_type_name] = feature_stats_dict
@@ -288,14 +291,11 @@ def check_pipeline_logs(pipeline: Pipeline) -> None:
         path = fs.path.combine(logs_folder, filename)
         assert pipeline.storage.filesystem.isfile(path), f"File {path} is missing"
 
-    logs_folder = pipeline.logging_manager.get_pipeline_logs_folder(pipeline.current_execution_name, full_path=True)
     failed_filename = fs.path.combine(logs_folder, "failed.json")
-    assert not pipeline.eopatch_manager.load_eopatch_filenames(
-        failed_filename
-    ), f"Some executions failed, check {logs_folder}"
+    assert not load_names(pipeline.storage.filesystem, failed_filename), f"Some executions failed, check {logs_folder}"
 
     finished_filename = os.path.join(logs_folder, "finished.json")
-    assert pipeline.eopatch_manager.load_eopatch_filenames(finished_filename), "No executions finished"
+    assert load_names(pipeline.storage.filesystem, finished_filename), "No executions finished"
 
 
 def run_and_test_pipeline(

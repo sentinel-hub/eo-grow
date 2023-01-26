@@ -1,3 +1,1 @@
-"""
-A subfolder with a collection of EOTasks
-"""
+"""A submodule with custom EOTasks implementations."""

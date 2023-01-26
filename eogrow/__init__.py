@@ -1,5 +1,3 @@
-"""
-The main init module
-"""
+"""The main module of the eo-grow package."""
 
-__version__ = "1.3.3"
+__version__ = "1.4.0"

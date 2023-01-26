@@ -1,6 +1,4 @@
-"""
-Pipelines for testing
-"""
+"""Implements pipelines used for data preparation in testing."""
 import logging
 from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
 
@@ -13,7 +11,7 @@ from ..core.config import RawConfig, recursive_config_join
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.testing import DummyRasterFeatureTask, DummyTimestampFeatureTask
-from ..utils.types import Feature, TimePeriod
+from ..types import ExecKwargs, Feature, PatchList, TimePeriod
 from ..utils.validators import field_validator, parse_dtype, parse_time_period
 
 Self = TypeVar("Self", bound="TestPipeline")
@@ -31,7 +29,6 @@ class TestPipeline(Pipeline):
 
     _DEFAULT_CONFIG_PARAMS = {
         "pipeline": "eogrow.pipelines.testing.TestPipeline",
-        "eopatch": {"manager": "eogrow.eopatches.EOPatchManager"},
         "logging": {"manager": "eogrow.logging.LoggingManager", "show_logs": True},
     }
 
@@ -47,14 +44,13 @@ class TestPipeline(Pipeline):
         else:
             LOGGER.info("Project folder %s does not exist", self.storage.config.project_folder)
 
-        self.area_manager.get_area_dataframe()
         self.area_manager.get_area_geometry()
         grid = self.area_manager.get_grid()
-        grid_size = self.area_manager.get_grid_size()
-        LOGGER.info("Grid has %d EOPatches and is split over %d CRS zones", grid_size, len(grid))
+        num_patches = sum(map(len, grid.values()))
+        LOGGER.info("Grid has %d EOPatches and is split over %d CRS zones", num_patches, len(grid))
 
-        eopatches = self.eopatch_manager.get_eopatch_filenames()
-        LOGGER.info("The first EOPatch has a name %s", eopatches[0])
+        patch_list = self.area_manager.get_patch_list()
+        LOGGER.info("The first EOPatch has a name %s", patch_list[0][0])
 
         return [], []
 
@@ -146,21 +142,22 @@ class DummyDataPipeline(Pipeline):
 
         return EOWorkflow.from_endnodes(save_node)
 
-    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, object]]]:
+    def get_execution_arguments(self, workflow: EOWorkflow, patch_list: PatchList) -> ExecKwargs:
         """Extends the basic method for adding execution arguments by adding seed arguments a sampling task"""
-        exec_args = super().get_execution_arguments(workflow)
+        exec_args = super().get_execution_arguments(workflow, patch_list)
 
         # Sorting is done to ensure seeds are always given to nodes in the same order
         add_feature_nodes = sorted(self._nodes_to_configs_map, key=lambda _node: _node.get_name())
 
         generator = np.random.default_rng(seed=self.config.seed)
-        for index, workflow_args in enumerate(exec_args):
+        global_seeds = {node: generator.integers(low=0, high=2**32) for node in add_feature_nodes}
+        for _, exec_kwargs in exec_args.items():
             for node in add_feature_nodes:
-                seed: object = generator.integers(low=0, high=2**32)
+                if self._nodes_to_configs_map[node].same_for_all:
+                    seed = global_seeds[node]
+                else:
+                    seed = generator.integers(low=0, high=2**32)
 
-                if self._nodes_to_configs_map[node].same_for_all and index > 0:
-                    seed = exec_args[0][node]["seed"]
-
-                workflow_args[node] = dict(seed=seed)
+                exec_kwargs[node] = dict(seed=seed)
 
         return exec_args

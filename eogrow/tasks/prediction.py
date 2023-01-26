@@ -1,6 +1,4 @@
-"""
-Task definitions for prediction
-"""
+"""Defines task needed in prediction pipelines."""
 import abc
 from typing import Any, Callable, List, Optional, Tuple, Union, cast
 
@@ -12,7 +10,7 @@ from fs.base import FS
 from eolearn.core import EOPatch, EOTask, execute_with_mp_lock
 from eolearn.core.utils.fs import pickle_fs, unpickle_fs
 
-from ..utils.types import Feature
+from ..types import Feature
 
 
 class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
@@ -157,9 +155,11 @@ class ClassificationPredictionTask(BasePredictionTask):
         If specified also adds probability scores and uses a label encoder.
         """
         predictions = self.apply_predictor(self.model.predict, processed_features, np.zeros((0,), dtype=np.uint8))
-        predictions = predictions[..., np.newaxis]
+
         if self.label_encoder is not None:
             predictions = self.label_encoder.inverse_transform(predictions)
+
+        predictions = predictions[..., np.newaxis]
         eopatch[self.output_feature] = self.transform_to_feature_form(predictions, mask)
 
         if self.output_probability_feature is not None:

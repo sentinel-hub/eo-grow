@@ -1,11 +1,9 @@
-"""
-Module implementing pipelines for downloading data
-"""
+"""Implements different customizeable pipelines for downloading data."""
 import abc
 import datetime as dt
 import logging
 from contextlib import nullcontext
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, List, Optional, Tuple, Union
 
 import numpy as np
 import ray
@@ -28,8 +26,8 @@ from sentinelhub.download import SessionSharing, collect_shared_session
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
+from ..types import ExecKwargs, Feature, FeatureSpec, PatchList, ProcessingType, TimePeriod
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec, Path, ProcessingType, TimePeriod
 from ..utils.validators import (
     ensure_exactly_one_defined,
     field_validator,
@@ -95,7 +93,7 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
         super().__init__(*args, **kwargs)
         self.download_node_uid: Optional[str] = None
 
-    def filter_patch_list(self, patch_list: List[str]) -> List[str]:
+    def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """EOPatches are filtered according to existence of specified output features"""
 
         filtered_patch_list = get_patches_with_missing_features(
@@ -158,23 +156,21 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
 
         return EOWorkflow.from_endnodes(end_node)
 
-    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, object]]]:
+    def get_execution_arguments(self, workflow: EOWorkflow, patch_list: PatchList) -> ExecKwargs:
         """Adds required bbox and time_interval parameters for input task to the base execution arguments
 
         :param workflow: EOWorkflow used to download images
         """
-        exec_args = super().get_execution_arguments(workflow)
+        exec_args = super().get_execution_arguments(workflow, patch_list)
 
         download_node = workflow.get_node_with_uid(self.download_node_uid)
         if download_node is None:
             return exec_args
 
-        bbox_list = self.eopatch_manager.get_bboxes(eopatch_list=self.patch_list)
-
-        for index, bbox in enumerate(bbox_list):
-            exec_args[index][download_node] = {"bbox": bbox}
+        for patch_name, bbox in patch_list:
+            exec_args[patch_name][download_node] = {"bbox": bbox}
             if hasattr(self.config, "time_period"):
-                exec_args[index][download_node]["time_interval"] = self.config.time_period
+                exec_args[patch_name][download_node]["time_interval"] = self.config.time_period
 
         return exec_args
 
@@ -182,8 +178,9 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
         execution_kind = self._init_processing()
         session_loader = self._create_session_loader(execution_kind)
 
+        patch_list = self.get_patch_list()
         workflow = self.build_workflow(session_loader)
-        exec_args = self.get_execution_arguments(workflow)
+        exec_args = self.get_execution_arguments(workflow, patch_list)
 
         context: Union[SessionSharing, nullcontext] = nullcontext()
         if execution_kind is ProcessingType.MULTI:
@@ -298,7 +295,7 @@ class DownloadEvalscriptPipeline(BaseDownloadPipeline):
 
     class Schema(BaseDownloadPipeline.Schema, CommonDownloadFields, TimeDependantFields):
         features: List[Feature] = Field(description="Features to construct from the evalscript")
-        evalscript_path: Path
+        evalscript_path: str
 
     config: Schema
 

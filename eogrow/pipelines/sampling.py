@@ -1,6 +1,4 @@
-"""
-Module implementing sampling pipelines
-"""
+"""Implements different pipelines for sampling from data."""
 import abc
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -15,8 +13,8 @@ from eogrow.utils.validators import ensure_exactly_one_defined
 
 from ..core.pipeline import Pipeline
 from ..tasks.common import ClassFilterTask
+from ..types import ExecKwargs, Feature, FeatureSpec, PatchList
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.types import Feature, FeatureSpec
 
 
 class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
@@ -45,7 +43,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
 
     config: Schema
 
-    def filter_patch_list(self, patch_list: List[str]) -> List[str]:
+    def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """Filter output EOPatches that have already been processed"""
         filtered_patch_list = get_patches_with_missing_features(
             self.storage.filesystem,
@@ -168,9 +166,9 @@ class BaseRandomSamplingPipeline(BaseSamplingPipeline, metaclass=abc.ABCMeta):  
         super().__init__(*args, **kwargs)
         self._sampling_node_uid: Optional[str] = None
 
-    def get_execution_arguments(self, workflow: EOWorkflow) -> List[Dict[EONode, Dict[str, object]]]:
+    def get_execution_arguments(self, workflow: EOWorkflow, patch_list: PatchList) -> ExecKwargs:
         """Extends the basic method for adding execution arguments by adding seed arguments a sampling task"""
-        exec_args = super().get_execution_arguments(workflow)
+        exec_args = super().get_execution_arguments(workflow, patch_list)
 
         sampling_node = workflow.get_node_with_uid(self._sampling_node_uid)
         if sampling_node is None:
@@ -178,8 +176,8 @@ class BaseRandomSamplingPipeline(BaseSamplingPipeline, metaclass=abc.ABCMeta):  
 
         generator = np.random.default_rng(seed=self.config.seed)
 
-        for arg_index in range(len(self.patch_list)):
-            exec_args[arg_index][sampling_node] = dict(seed=generator.integers(low=0, high=2**32))
+        for _, patch_args in exec_args.items():
+            patch_args[sampling_node] = dict(seed=generator.integers(low=0, high=2**32))
 
         return exec_args
 
@@ -191,9 +189,9 @@ class FractionSamplingPipeline(BaseRandomSamplingPipeline):
         sampling_feature_name: str = Field(
             description="Name of MASK_TIMELESS feature to be used to create sample point"
         )
-        erosion_dict: Optional[Dict[float, List[int]]] = Field(
+        erosion_dict: Optional[Dict[int, List[int]]] = Field(
             description="A dictionary specifying disc radius of erosion operation to be applied to a list of label IDs",
-            example={2.5: [1, 3, 4], 1.0: [2]},
+            example={2: [1, 3, 4], 1: [2]},
         )
         fraction_of_samples: Union[float, Dict[int, float]] = Field(
             description=(
@@ -262,9 +260,10 @@ class BlockSamplingPipeline(BaseRandomSamplingPipeline):
 
     def _get_sampling_node(self, previous_node: EONode) -> EONode:
         """Prepare the sampling task"""
+        amount: float = self.config.fraction_of_samples or self.config.number_of_samples  # type: ignore[assignment]
         task = BlockSamplingTask(
             features_to_sample=self._get_features_to_sample(),
-            amount=self.config.fraction_of_samples or self.config.number_of_samples,
+            amount=amount,
             sample_size=self.config.sample_size,
             mask_of_samples=self._get_mask_of_samples_feature(),
         )

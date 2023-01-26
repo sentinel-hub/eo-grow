@@ -1,6 +1,4 @@
-"""
-Module implementing management of configurations
-"""
+"""Implements functions that transform raw dictionaries/JSON files according to the config language of eo-grow."""
 import base64
 import copy
 import json
@@ -179,7 +177,7 @@ def _sub_variable(match: re.Match, variable_mapping: Dict[str, str]) -> str:
     variable_name = match.group(1)
     if variable_name in variable_mapping:
         return str(variable_mapping[variable_name])
-    raise ValueError(f"Variable name '{variable_name}' doesn't exist in a config dictionary of variables.")
+    raise ValueError(f"Variable name `{variable_name}` doesn't exist in a config dictionary of variables.")
 
 
 def _recursive_apply_to_strings(config: object, function: Callable) -> object:

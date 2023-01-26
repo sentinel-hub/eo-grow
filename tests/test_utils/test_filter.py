@@ -1,8 +1,5 @@
-"""
-Tests for fs_utils module
-"""
 import datetime
-from itertools import chain, combinations
+from itertools import chain, combinations, repeat
 
 import boto3
 import numpy as np
@@ -15,8 +12,6 @@ from eolearn.core import EOPatch, FeatureType
 from sentinelhub import CRS, BBox
 
 from eogrow.utils.filter import check_if_features_exist, get_patches_with_missing_features
-
-pytestmark = pytest.mark.fast
 
 BUCKET_NAME = "mocked-test-bucket"
 PATCH_NAMES = [f"eopatch{i}" for i in range(5)]
@@ -80,5 +75,6 @@ def test_check_if_features_exist(mock_s3fs, temp_fs, test_features, expected_res
     ],
 )
 def test_get_patches_with_missing_features(mock_s3fs, temp_fs, features, expected_num):
+    patch_list = list(zip(PATCH_NAMES, repeat(BBox((0, 0, 1, 1), CRS.WGS84))))
     for filesystem in [mock_s3fs, temp_fs]:
-        assert len(get_patches_with_missing_features(filesystem, "/", PATCH_NAMES, features)) == expected_num
+        assert len(get_patches_with_missing_features(filesystem, "/", patch_list, features)) == expected_num

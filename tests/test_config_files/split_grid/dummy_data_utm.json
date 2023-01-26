@@ -1,42 +1,45 @@
+
 {
   "pipeline": "eogrow.pipelines.testing.DummyDataPipeline",
   "**global_config": "${config_path}/global_config.json",
-  "output_folder_key": "grid_folder1",
+  "area": {
+    "manager": "eogrow.core.area.UtmZoneAreaManager",
+    "area":{
+      "filename": "test_area.geojson",
+      "buffer": 0.01
+    },
+    "patch":{
+      "size_x": 3600,
+      "size_y": 3000,
+      "buffer_x": 120,
+      "buffer_y": 50
+    },
+    "offset_x": 100,
+    "offset_y": 20
+  },
+  "output_folder_key": "input_folder",
   "seed": 42,
   "raster_features": [
     {
-      "feature": ["data", "BANDS"],
-      "shape": [2, 112, 130, 3],
-      "dtype": "float32",
-      "min_value": -1,
-      "max_value": 1
-    },
-    {
       "feature": ["mask", "dataMask"],
-      "shape": [2, 112, 130, 1],
+      "shape": [2, 160, 192, 1],
       "dtype": "uint8",
       "min_value": 4,
       "max_value": 6
-    },
-    {
-      "feature": ["mask_timeless", "REF"],
-      "shape": [112, 130, 2],
-      "dtype": "bool",
-      "min_value": 0,
-      "max_value": 1
     },
     {
       "feature": ["label", "LABELS"],
       "shape": [2, 15],
       "dtype": "int16",
       "min_value": -2,
-      "max_value": 5,
-      "same_for_all": true
+      "max_value": 5
     },
     {
-      "feature": ["scalar", "IGNORE"],
-      "shape": [2, 5],
-      "dtype": "float"
+      "feature": ["mask_timeless", "REF"],
+      "shape": [160, 192, 2],
+      "dtype": "bool",
+      "min_value": 0,
+      "max_value": 1
     }
   ],
   "timestamp_feature": {

@@ -1,6 +1,3 @@
-"""
-Testing rasterization pipeline
-"""
 import os
 
 import geopandas as gpd
@@ -11,6 +8,8 @@ from eolearn.core import EONode, EOPatch, FeatureType, MapFeatureTask
 from eogrow.core.config import interpret_config_from_path
 from eogrow.pipelines.rasterize import RasterizePipeline
 from eogrow.utils.testing import ContentTester, check_pipeline_logs, create_folder_dict, run_and_test_pipeline
+
+pytestmark = pytest.mark.integration
 
 
 @pytest.fixture(scope="session", name="folders")
@@ -63,7 +62,7 @@ def add_vector_data(pipeline):
     vector_data["LULC_ID"] = vector_data["LULC"].apply(lambda lulc_name: LULC_MAP[lulc_name])
     vector_data["LULC_POLYGON_ID"] = vector_data.index + 1
 
-    for eopatch_name in pipeline.patch_list:
+    for eopatch_name, _ in pipeline.get_patch_list():
         eopatch_folder = os.path.join(pipeline.storage.get_folder("reference", full_path=True), eopatch_name)
 
         eopatch = EOPatch.load(eopatch_folder, lazy_loading=True)

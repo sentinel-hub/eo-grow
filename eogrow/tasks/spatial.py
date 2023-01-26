@@ -1,6 +1,4 @@
-"""
-Tasks for spatial operations on EOPatches
-"""
+"""Tasks for spatial operations on EOPatches, used in grid-switching."""
 from typing import Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np
@@ -9,8 +7,8 @@ from geopandas import GeoDataFrame
 from eolearn.core import EOPatch, EOTask, FeatureType, deep_eq
 from sentinelhub import CRS, BBox, bbox_to_resolution
 
+from ..types import Feature, FeatureSpec
 from ..utils.general import convert_to_int
-from ..utils.types import Feature, FeatureSpec
 from ..utils.vector import concat_gdf
 
 
@@ -215,11 +213,13 @@ def get_array_slices(
 
     :param bbox: A bounding box of initial array.
     :param slice_bbox: A bounding box of array to be sliced.
-    :param resolution: A working resolution.
+    :param resolution: A working resolution in CRS units.
     :param size: A working size.
     :param raise_misaligned: Whether to raise an error if the slice would be pixel misaligned the initial array.
-    :param limit_x: If provided it will clip the horizontal slice to a given interval.
-    :param limit_y: If provided it will clip the vertical slice to a given interval.
+    :param limit_x: If provided it will clip the horizontal slice to a given interval, should be used to clip slice_bbox
+    to bbox.
+    :param limit_y: If provided it will clip the vertical slice to a given interval, should be used to clip slice_bbox
+    to bbox.
     :return: A slice over horizontal direction and a slice over vertical direction.
     """
     raster_upper_left = np.array([bbox.min_x, bbox.max_y])

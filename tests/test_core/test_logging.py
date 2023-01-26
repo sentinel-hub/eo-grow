@@ -1,6 +1,3 @@
-"""
-Tests for logging module
-"""
 import functools
 
 import boto3
@@ -12,8 +9,6 @@ from moto import mock_s3
 from eolearn.core import EOExecutor, EONode, EOTask, EOWorkflow
 
 from eogrow.core.logging import EOExecutionFilter, EOExecutionHandler, RegularBackupHandler
-
-pytestmark = pytest.mark.fast
 
 
 class CheckValueTask(EOTask):

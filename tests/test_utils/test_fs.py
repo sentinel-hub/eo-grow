@@ -1,6 +1,3 @@
-"""
-Tests for fs_utils module
-"""
 import json
 import os
 
@@ -11,8 +8,6 @@ from fs.tempfs import TempFS
 from fs.walk import Walker
 
 from eogrow.utils.fs import LocalFile, LocalFolder
-
-pytestmark = pytest.mark.fast
 
 
 @pytest.mark.parametrize("always_copy", [True, False])

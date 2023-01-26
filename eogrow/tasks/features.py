@@ -1,6 +1,4 @@
-"""
-Definition of tasks needed for calculating features
-"""
+"""Implements tasks needed for calculating features in FeaturesPipeline."""
 import abc
 from datetime import date, datetime, time, timedelta
 from typing import List, Optional, Sequence, Tuple, Union
@@ -9,7 +7,7 @@ import numpy as np
 
 from eolearn.core import EOPatch, EOTask, FeatureType, MapFeatureTask
 
-from ..utils.types import Feature
+from ..types import Feature
 
 
 def join_valid_and_cloud_masks(valid_mask: np.ndarray, cloud_mask: np.ndarray) -> np.ndarray:
