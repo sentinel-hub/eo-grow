@@ -5,8 +5,6 @@ from sentinelhub import CRS, BBox
 
 from eogrow.utils.grid import split_bbox
 
-pytestmark = pytest.mark.fast
-
 
 @pytest.mark.parametrize(
     "bbox, split_x, split_y, buffer_x, buffer_y",

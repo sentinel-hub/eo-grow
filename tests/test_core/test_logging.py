@@ -10,8 +10,6 @@ from eolearn.core import EOExecutor, EONode, EOTask, EOWorkflow
 
 from eogrow.core.logging import EOExecutionFilter, EOExecutionHandler, RegularBackupHandler
 
-pytestmark = pytest.mark.fast
-
 
 class CheckValueTask(EOTask):
     def execute(self, *_, value=0):

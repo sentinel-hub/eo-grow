@@ -5,8 +5,6 @@ import subprocess
 
 import pytest
 
-pytestmark = pytest.mark.fast
-
 
 @pytest.mark.parametrize(
     "command",

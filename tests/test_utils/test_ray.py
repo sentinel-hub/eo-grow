@@ -3,8 +3,6 @@ import ray
 
 from eogrow.utils.ray import handle_ray_connection
 
-pytestmark = pytest.mark.fast
-
 
 @pytest.fixture(name="ray_cluster", scope="class")
 def ray_cluster_fixture():

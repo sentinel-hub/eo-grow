@@ -7,6 +7,8 @@ from eogrow.core.config import interpret_config_from_path
 from eogrow.pipelines.training import ClassificationTrainingPipeline
 from eogrow.utils.testing import create_folder_dict
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.fixture(scope="session", name="folders")
 def config_folder_fixture(config_folder, stats_folder):

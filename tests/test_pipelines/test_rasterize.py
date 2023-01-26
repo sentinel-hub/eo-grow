@@ -9,6 +9,8 @@ from eogrow.core.config import interpret_config_from_path
 from eogrow.pipelines.rasterize import RasterizePipeline
 from eogrow.utils.testing import ContentTester, check_pipeline_logs, create_folder_dict, run_and_test_pipeline
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.fixture(scope="session", name="folders")
 def config_folder_fixture(config_folder, stats_folder):

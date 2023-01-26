@@ -10,8 +10,6 @@ from sentinelhub import CRS, BBox
 from eogrow.core.config import interpret_config_from_path
 from eogrow.core.pipeline import Pipeline
 
-pytestmark = pytest.mark.fast
-
 
 @pytest.fixture(scope="session", name="simple_config_filename")
 def simple_config_filename_fixture(config_folder):

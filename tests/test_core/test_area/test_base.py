@@ -15,8 +15,6 @@ from eogrow.core.storage import StorageManager
 from eogrow.utils.eopatch_list import save_names
 from eogrow.utils.vector import count_points
 
-pytestmark = pytest.mark.fast
-
 
 class DummyAreaManager(BaseAreaManager):
     BBOXES = [BBox((0, 0, 1, 1), CRS.WGS84), BBox((1, 1, 2, 2), CRS.WGS84), BBox((0, 0, 1, 1), CRS(3035))]
