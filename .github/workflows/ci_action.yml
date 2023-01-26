@@ -94,7 +94,7 @@ jobs:
       - name: Run fast tests
         if: ${{ !matrix.full_test_suite }}
         run: |
-          pytest -m "fast"
+          pytest -m "not integration"
 
       - name: Run fast and chain integration tests, create code coverage
         if: ${{ matrix.full_test_suite }}
@@ -102,10 +102,10 @@ jobs:
           sentinelhub.config \
             --sh_client_id "${{ secrets.SH_CLIENT_ID }}" \
             --sh_client_secret "${{ secrets.SH_CLIENT_SECRET }}"
-          pytest -m "fast or chain" --cov --cov-report=term --cov-report=xml
+          pytest -m "chain or not integration" --cov --cov-report=term --cov-report=xml
 
       - name: Upload code coverage
-        if: ${{ matrix.full_test_suite }}
+        if: ${{ matrix.full_test_suite && github.event_name == 'push' }}
         uses: codecov/codecov-action@v3
         with:
           files: coverage.xml
