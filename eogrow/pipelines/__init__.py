@@ -1,3 +1,1 @@
-"""
-A subfolder with a collection of pipelines
-"""
+"""A submodule with Pipeline definitions."""
