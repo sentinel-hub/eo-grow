@@ -10,6 +10,8 @@ from eogrow.core.config import interpret_config_from_path
 from eogrow.pipelines.import_tiff import ImportTiffPipeline
 from eogrow.utils.testing import ContentTester, check_pipeline_logs, create_folder_dict, generate_tiff_file
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.fixture(scope="session", name="folders")
 def config_folder_fixture(config_folder, stats_folder):

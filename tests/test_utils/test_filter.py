@@ -13,8 +13,6 @@ from sentinelhub import CRS, BBox
 
 from eogrow.utils.filter import check_if_features_exist, get_patches_with_missing_features
 
-pytestmark = pytest.mark.fast
-
 BUCKET_NAME = "mocked-test-bucket"
 PATCH_NAMES = [f"eopatch{i}" for i in range(5)]
 REAL_FEATURES = [FeatureType.BBOX, FeatureType.TIMESTAMP, (FeatureType.DATA, "data"), (FeatureType.MASK, "mask")]

@@ -12,7 +12,7 @@ line_length = 120
 [tool.pytest.ini_options]
 log_cli_level = "INFO"
 markers = [
-    "fast: marks unit tests that are fast to execute",
+    "integration: marks tests that fully execute pipelines (and tend to be slow)",
     "chain: marks tests that represent an end-to-end pipeline execution"
 ]
 

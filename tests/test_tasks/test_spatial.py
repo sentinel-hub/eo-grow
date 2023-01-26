@@ -6,8 +6,6 @@ from sentinelhub import CRS, BBox
 
 from eogrow.tasks.spatial import get_array_slices
 
-pytestmark = pytest.mark.fast
-
 
 @pytest.mark.parametrize(
     "input_params, expected",

@@ -2,7 +2,7 @@ import pytest
 
 from eogrow.utils.testing import create_folder_dict, run_and_test_pipeline
 
-pytestmark = pytest.mark.fast
+pytestmark = pytest.mark.integration
 
 
 @pytest.fixture(scope="session", name="folders")

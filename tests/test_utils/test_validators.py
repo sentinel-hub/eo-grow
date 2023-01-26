@@ -22,8 +22,6 @@ from eogrow.utils.validators import (
     validate_manager,
 )
 
-pytestmark = pytest.mark.fast
-
 
 def is_large_enough(value: int):
     """Checks size of integer"""

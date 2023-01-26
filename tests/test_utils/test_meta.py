@@ -15,8 +15,6 @@ from eogrow.utils.meta import (
     load_pipeline_class,
 )
 
-pytestmark = pytest.mark.fast
-
 
 def test_load_pipeline_class():
     pipeline_class = load_pipeline_class({"pipeline": "eogrow.core.pipeline.Pipeline"})
