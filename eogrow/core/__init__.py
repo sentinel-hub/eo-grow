@@ -1,3 +1,1 @@
-"""
-A subfolder with the core package content
-"""
+"""A submodule with definitions of core objects."""
