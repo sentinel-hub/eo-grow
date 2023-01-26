@@ -9,8 +9,6 @@ from fs_s3fs import S3FS
 from eogrow.core.config import RawConfig, interpret_config_from_path
 from eogrow.core.storage import StorageManager
 
-pytestmark = pytest.mark.fast
-
 
 @pytest.fixture(name="local_storage_manager")
 def local_storage_manager_fixture(project_folder):

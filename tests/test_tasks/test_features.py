@@ -5,8 +5,6 @@ import pytest
 
 from eogrow.tasks.features import ValidDataFractionPredicate
 
-pytestmark = pytest.mark.fast
-
 ZEROES = np.zeros((1, 100, 100))
 ONES = np.ones((1, 100, 100))
 NOT_SYMMETRICAL = np.array([x % 3 == 0 for x in range(1000)]).reshape(10, 10, 10)

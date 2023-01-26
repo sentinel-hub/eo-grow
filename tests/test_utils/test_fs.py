@@ -9,8 +9,6 @@ from fs.walk import Walker
 
 from eogrow.utils.fs import LocalFile, LocalFolder
 
-pytestmark = pytest.mark.fast
-
 
 @pytest.mark.parametrize("always_copy", [True, False])
 def test_local_file(always_copy):

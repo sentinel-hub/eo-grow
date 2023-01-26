@@ -1,12 +1,7 @@
-import pytest
-
 from sentinelhub import CRS, Geometry
 
 from eogrow.core.area import CustomGridAreaManager
 from eogrow.core.config import interpret_config_from_dict
-
-pytestmark = pytest.mark.fast
-
 
 CONFIG = interpret_config_from_dict({"grid_filename": "test_custom_grid.geojson"})
 

@@ -7,8 +7,6 @@ from eolearn.core import EOPatch, FeatureType
 
 from eogrow.tasks.testing import DummyRasterFeatureTask, DummyTimestampFeatureTask
 
-pytestmark = pytest.mark.fast
-
 
 @pytest.mark.parametrize(
     "feature_type, shape, dtype, min_value, max_value",

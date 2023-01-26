@@ -67,14 +67,12 @@ def area_config_fixture():
     }
 
 
-@pytest.mark.fast
 def test_cache_name(storage, area_config):
     manager = BatchAreaManager.from_raw_config(area_config, storage)
 
     assert manager.get_grid_cache_filename() == "BatchAreaManager_test_large_area_2_120.0_10_1.gpkg"
 
 
-@pytest.mark.fast
 def test_no_batch_id_error(storage, area_config):
     del area_config["batch_id"]
     manager = BatchAreaManager.from_raw_config(area_config, storage)

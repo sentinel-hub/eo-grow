@@ -27,6 +27,8 @@ from eogrow.pipelines.export_maps import ExportMapsPipeline
 CONFIG_SUBFOLDER = "byoc"
 MOCK_COVER_GEOM = [[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.fixture(name="configured_requests_mock")
 def request_mock_setup(requests_mock):

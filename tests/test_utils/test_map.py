@@ -21,8 +21,6 @@ from eogrow.utils.map import (
     merge_tiffs,
 )
 
-pytestmark = pytest.mark.fast
-
 
 def make_geotiff(data: np.ndarray, bbox: BBox, filesystem: FS, *, folder: str = ".", name: str):
     feature = (FeatureType.DATA_TIMELESS, "data")

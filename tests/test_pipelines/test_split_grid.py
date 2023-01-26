@@ -6,7 +6,7 @@ import pytest
 from eogrow.core.area import CustomGridAreaManager
 from eogrow.utils.testing import create_folder_dict, run_and_test_pipeline
 
-pytestmark = pytest.mark.fast
+pytestmark = pytest.mark.integration
 
 
 @pytest.fixture(scope="session", name="folders")
@@ -28,7 +28,7 @@ def batch_grid_fixture(project_folder):
     return cache_grid_path
 
 
-@pytest.mark.parametrize("experiment_name", ["split_batch", "split_utm"])
+@pytest.mark.parametrize("experiment_name", ["split_batch", pytest.param("split_utm", marks=pytest.mark.chain)])
 def test_grid_splitting(experiment_name, folders, batch_grid, test_storage_manager):
     run_and_test_pipeline(experiment_name, **folders, folder_key="output_folder")
 

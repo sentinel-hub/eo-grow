@@ -13,9 +13,6 @@ from eogrow.core.config import (
 )
 from eogrow.utils.meta import get_os_import_path
 
-pytestmark = pytest.mark.fast
-
-
 CONFIG_DICT = {
     "new_param": 4,
     "project_folder": "new_path",

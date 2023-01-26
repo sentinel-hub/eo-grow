@@ -5,8 +5,6 @@ from sentinelhub import CRS
 
 from eogrow.core.area import UtmZoneAreaManager
 
-pytestmark = pytest.mark.fast
-
 
 @pytest.fixture(scope="session", name="large_area_config")
 def large_area_config_fixture():
