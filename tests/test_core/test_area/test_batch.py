@@ -80,7 +80,7 @@ def test_no_batch_id_error(storage, area_config):
         manager.get_grid()
 
 
-@pytest.mark.integeration
+@pytest.mark.integration
 def test_grid(storage, area_config, configured_requests_mock):
     manager = BatchAreaManager.from_raw_config(area_config, storage)
 
