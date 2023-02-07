@@ -62,8 +62,8 @@ def convert_bbox_coords_to_int(bbox: BBox, error: float = 1e-8) -> BBox:
     """Converts bounding box coordinates to integers by removing numerical errors. If the difference is larger than a
     numerical error it raises an error."""
     coords = np.array(list(bbox))
-    fixed_coords = convert_to_int(coords, raise_diff=True, error=error)
-    return BBox(tuple(fixed_coords), crs=bbox.crs)
+    min_x, min_y, max_x, max_y = convert_to_int(coords, raise_diff=True, error=error)
+    return BBox((min_x, min_y, max_x, max_y), crs=bbox.crs)
 
 
 def large_list_repr(large_list: list) -> str:

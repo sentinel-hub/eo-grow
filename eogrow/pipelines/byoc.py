@@ -139,7 +139,7 @@ class IngestByocTilesPipeline(Pipeline):
         with rasterio.open(full_path) as tiff_data:
             tiff_bounds = tiff_data.bounds
             tiff_crs = CRS(tiff_data.crs.to_epsg())
-        tiff_poly = BBox([tiff_bounds.left, tiff_bounds.bottom, tiff_bounds.right, tiff_bounds.top], tiff_crs).geometry
+        tiff_poly = BBox((tiff_bounds.left, tiff_bounds.bottom, tiff_bounds.right, tiff_bounds.top), tiff_crs).geometry
 
         cover_poly = self._get_cover_geometry(tiff_crs)
         final_poly = tiff_poly.intersection(cover_poly) if cover_poly else tiff_poly
