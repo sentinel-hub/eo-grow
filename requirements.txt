@@ -22,3 +22,4 @@ ray[default]
 scikit-learn
 sentinelhub>=3.6.2
 shapely>=1.8.0
+typing-extensions
