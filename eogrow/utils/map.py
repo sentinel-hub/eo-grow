@@ -137,6 +137,7 @@ def cogify(
                 " GDAL_OVR_CHUNK_MAX_SIZE to a large integer (2100000000)."
             ),
             category=RuntimeWarning,
+            stacklevel=2,
         )
         gdaltranslate_options += " --config GDAL_OVR_CHUNK_MAX_SIZE 2100000000"
 
