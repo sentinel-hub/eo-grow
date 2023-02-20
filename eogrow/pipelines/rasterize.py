@@ -255,5 +255,9 @@ class RasterizePipeline(Pipeline):
     def _get_output_features(self) -> List[FeatureSpec]:
         """Lists all features that are to be saved upon the pipeline completion"""
         features: List[FeatureSpec] = [FeatureType.BBOX]
+
+        if self.vector_feature[0].is_temporal():
+            features.extend([FeatureType.TIMESTAMP])
+
         features.extend(column.output_feature for column in self.config.columns)
         return features
