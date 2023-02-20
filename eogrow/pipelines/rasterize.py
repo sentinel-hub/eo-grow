@@ -169,10 +169,13 @@ class RasterizePipeline(Pipeline):
             )
             data_preparation_node = EONode(import_task, inputs=[create_node])
         else:
+            features = [self.vector_feature, FeatureType.BBOX]
+            if self.vector_feature[0].is_temporal():
+                features.append(FeatureType.TIMESTAMP)
             input_task = LoadTask(
                 self.storage.get_folder(self.config.input_folder_key),
                 filesystem=self.storage.filesystem,
-                features=[self.vector_feature, FeatureType.BBOX],
+                features=features,
             )
             data_preparation_node = EONode(input_task)
 
