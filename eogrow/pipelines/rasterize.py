@@ -106,12 +106,17 @@ class RasterizePipeline(Pipeline):
         if len({self._is_temporal(c.output_feature) for c in self.config.columns}) != 1:
             raise ValueError("All output features have to be either temporal or timeless!")
 
+        output_is_temporal = self._is_temporal(self.config.columns[0].output_feature)
         if isinstance(self.config.vector_input, str):
             self.filename = self._parse_input_file(self.config.vector_input)
-            output_is_temporal = self._is_temporal(self.config.columns[0].output_feature)
             feature_type = FeatureType.VECTOR if output_is_temporal else FeatureType.VECTOR_TIMELESS
             self.vector_feature = feature_type, f"TEMP_{uuid.uuid4().hex}"
         else:
+            if output_is_temporal != self._is_temporal(self.config.vector_input):
+                raise ValueError(
+                    "The requested output feature does not correspond to input vector feature."
+                    " Both input and output should be the same, either temporal or timeless."
+                )
             self.vector_feature = self.config.vector_input
 
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
