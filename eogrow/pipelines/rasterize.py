@@ -103,12 +103,12 @@ class RasterizePipeline(Pipeline):
 
         self.filename: Optional[str] = None
 
-        if len({c.output_feature[0].is_temporal() for c in self.config.columns}) != 1:
+        if len({self._is_temporal(c.output_feature) for c in self.config.columns}) != 1:
             raise ValueError("All output features have to be either temporal or timeless!")
 
         if isinstance(self.config.vector_input, str):
             self.filename = self._parse_input_file(self.config.vector_input)
-            output_is_temporal = self.config.columns[0].output_feature[0].is_temporal()
+            output_is_temporal = self._is_temporal(self.config.columns[0].output_feature)
             feature_type = FeatureType.VECTOR if output_is_temporal else FeatureType.VECTOR_TIMELESS
             self.vector_feature = feature_type, f"TEMP_{uuid.uuid4().hex}"
         else:
@@ -170,7 +170,7 @@ class RasterizePipeline(Pipeline):
             data_preparation_node = EONode(import_task, inputs=[create_node])
         else:
             features = [self.vector_feature, FeatureType.BBOX]
-            if self.vector_feature[0].is_temporal():
+            if self._is_temporal(self.vector_feature):
                 features.append(FeatureType.TIMESTAMP)
             input_task = LoadTask(
                 self.storage.get_folder(self.config.input_folder_key),
@@ -256,8 +256,13 @@ class RasterizePipeline(Pipeline):
         """Lists all features that are to be saved upon the pipeline completion"""
         features: List[FeatureSpec] = [FeatureType.BBOX]
 
-        if self.vector_feature[0].is_temporal():
-            features.extend([FeatureType.TIMESTAMP])
+        if self._is_temporal(self.vector_feature):
+            features.append(FeatureType.TIMESTAMP)
 
         features.extend(column.output_feature for column in self.config.columns)
         return features
+
+    @staticmethod
+    def _is_temporal(feature: Feature) -> bool:
+        f_type, _ = feature
+        return f_type.is_temporal()
