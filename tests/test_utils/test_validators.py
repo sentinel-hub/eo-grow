@@ -289,19 +289,20 @@ class DummyFeatureSchema(BaseSchema):
 
 
 @pytest.mark.parametrize(
-    "valid_config",
+    "valid_config, invalid_config",
     [
-        dict(mask_like_feature=("mask_timeless", "foo"), temporal_feature=("scalar", "bar")),
-        dict(mask_like_feature=("mask", "foo"), temporal_feature=("vector", "bar")),
-        dict(feature_3d=("data_timeless", "foo"), temporal_feature=("data", "bar")),
-    ],
-)
-@pytest.mark.parametrize(
-    "invalid_config",
-    [
-        dict(mask_like_feature=("data_timeless", "foo")),
-        dict(temporal_feature=("vector_timeless", "bar")),
-        dict(feature_3d=("data", "foobar")),
+        (
+            dict(mask_like_feature=("mask_timeless", "foo"), temporal_feature=("scalar", "bar")),
+            dict(mask_like_feature=("data_timeless", "foobar")),
+        ),
+        (
+            dict(mask_like_feature=("mask", "foo"), temporal_feature=("vector", "bar")),
+            dict(temporal_feature=("vector_timeless", "foobar")),
+        ),
+        (
+            dict(feature_3d=("data_timeless", "foo"), temporal_feature=("data", "bar")),
+            dict(feature_3d=("data", "foobar")),
+        ),
     ],
 )
 def test_feature_restrictor(valid_config, invalid_config):
