@@ -6,11 +6,12 @@ import numpy as np
 import pytest
 from pydantic import ValidationError
 
+from eolearn.core import FeatureType
 from sentinelhub import DataCollection
 from sentinelhub.data_collections_bands import Band, MetaBands, Unit
 
 from eogrow.core.schemas import BaseSchema, ManagerSchema
-from eogrow.types import RawSchemaDict
+from eogrow.types import Feature, RawSchemaDict
 from eogrow.utils.validators import (
     ensure_defined_together,
     ensure_exactly_one_defined,
@@ -19,6 +20,7 @@ from eogrow.utils.validators import (
     parse_data_collection,
     parse_dtype,
     parse_time_period,
+    restrict_types,
     validate_manager,
 )
 
@@ -267,3 +269,43 @@ def test_parse_collection_from_dict():
     assert collection.catalog_id == "byoc-test"
     assert collection.bands == (Band("Band1", (Unit.DN,), (np.float32,)), Band("Band2", (Unit.REFLECTANCE,), (bool,)))
     assert collection.is_byoc is True
+
+
+class DummyFeatureSchema(BaseSchema):
+    mask_like_feature: Optional[Feature]
+    _check_mask_feature = field_validator(
+        "mask_like_feature", restrict_types([FeatureType.MASK, FeatureType.MASK_TIMELESS])
+    )
+
+    temporal_feature: Optional[Feature]
+    _check_temporal_feature = field_validator(
+        "temporal_feature", restrict_types([ftype for ftype in FeatureType if ftype.is_temporal()])
+    )
+
+    feature_3d: Optional[Feature]
+    _check_3d_feature = field_validator(
+        "feature_3d", restrict_types([ftype for ftype in FeatureType if ftype.ndim() == 3])
+    )
+
+
+@pytest.mark.parametrize(
+    "valid_config",
+    [
+        dict(mask_like_feature=("mask_timeless", "foo"), temporal_feature=("scalar", "bar")),
+        dict(mask_like_feature=("mask", "foo"), temporal_feature=("vector", "bar")),
+        dict(feature_3d=("data_timeless", "foo"), temporal_feature=("data", "bar")),
+    ],
+)
+@pytest.mark.parametrize(
+    "invalid_config",
+    [
+        dict(mask_like_feature=("data_timeless", "foo")),
+        dict(temporal_feature=("vector_timeless", "bar")),
+        dict(feature_3d=("data", "foobar")),
+    ],
+)
+def test_feature_restrictor(valid_config, invalid_config):
+    DummyFeatureSchema(**valid_config)
+
+    with pytest.raises(ValidationError):
+        DummyFeatureSchema(**invalid_config)
