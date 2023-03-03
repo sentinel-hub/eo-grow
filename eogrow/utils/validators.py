@@ -3,15 +3,16 @@ Module defining common validators for schemas and validator wrappers
 """
 import datetime as dt
 import inspect
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Tuple, Type, Union
 
 import numpy as np
 from pydantic import BaseModel, Field, root_validator, validator
 
+from eolearn.core import FeatureType
 from sentinelhub import DataCollection
 from sentinelhub.data_collections_bands import Band, Bands, MetaBands, Unit
 
-from ..types import RawSchemaDict, TimePeriod
+from ..types import Feature, RawSchemaDict, TimePeriod
 from .meta import collect_schema, import_object
 
 if TYPE_CHECKING:
@@ -212,3 +213,15 @@ def parse_data_collection(value: Union[str, dict, DataCollection]) -> DataCollec
         return DataCollection.define_batch(collection_id, **params)
 
     return DataCollection.define(name, **params)
+
+
+def restrict_types(allowed_feature_types: Iterable[FeatureType]) -> Callable[[Optional[Feature]], Optional[Feature]]:
+    """Validates a field representing a feature, where it restricts the possible feature types."""
+
+    def validate_feature(value: Optional[Feature]) -> Optional[Feature]:
+        if value is not None:
+            ftype, _ = value
+            assert ftype in allowed_feature_types, f"Feature type can be one of {allowed_feature_types}, got {ftype}."
+        return value
+
+    return validate_feature
