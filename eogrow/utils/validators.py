@@ -151,7 +151,7 @@ class BandSchema(BaseModel):
 
 
 class DataCollectionSchema(BaseModel):
-    """Schema used in parsing DataCollection objects. Any extra parameters are passed to the definition as `**params`."""
+    """Schema used in parsing DataCollection objects. Extra parameters are passed to the definition as `**params`."""
 
     name: str = Field(
         "Name of the data collection. When defining BYOC collections use `BYOC_` prefix and for Batch collections use"
