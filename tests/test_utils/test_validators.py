@@ -11,7 +11,6 @@ from sentinelhub import DataCollection
 from sentinelhub.data_collections_bands import Band, MetaBands, Unit
 
 from eogrow.core.schemas import BaseSchema, ManagerSchema
-
 from eogrow.types import Feature, RawSchemaDict
 from eogrow.utils.validators import (
     ensure_defined_together,
