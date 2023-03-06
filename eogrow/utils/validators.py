@@ -214,13 +214,12 @@ def parse_data_collection(value: Union[str, dict, DataCollection]) -> DataCollec
     return DataCollection.define(name, **params)
 
 
-def restrict_types(allowed_feature_types: Iterable[FeatureType]) -> Callable[[Optional[Feature]], Optional[Feature]]:
+def restrict_types(allowed_feature_types: Iterable[FeatureType]) -> Callable[[Feature], Feature]:
     """Validates a field representing a feature, where it restricts the possible feature types."""
 
-    def validate_feature(value: Optional[Feature]) -> Optional[Feature]:
-        if value is not None:
-            ftype, _ = value
-            assert ftype in allowed_feature_types, f"Feature type can be one of {allowed_feature_types}, got {ftype}."
+    def validate_feature(value: Feature) -> Feature:
+        ftype, _ = value
+        assert ftype in allowed_feature_types, f"Feature type can be one of {allowed_feature_types}, got {ftype}."
         return value
 
     return validate_feature
