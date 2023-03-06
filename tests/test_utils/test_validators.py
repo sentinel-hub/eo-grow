@@ -289,24 +289,25 @@ class DummyFeatureSchema(BaseSchema):
 
 
 @pytest.mark.parametrize(
-    "valid_config, invalid_config",
+    "valid_config",
     [
-        (
-            dict(mask_like_feature=("mask_timeless", "foo"), temporal_feature=("scalar", "bar")),
-            dict(mask_like_feature=("data_timeless", "foobar")),
-        ),
-        (
-            dict(mask_like_feature=("mask", "foo"), temporal_feature=("vector", "bar")),
-            dict(temporal_feature=("vector_timeless", "foobar")),
-        ),
-        (
-            dict(feature_3d=("data_timeless", "foo"), temporal_feature=("data", "bar")),
-            dict(feature_3d=("data", "foobar")),
-        ),
+        dict(temporal_feature=("scalar", "foobar")),
+        dict(temporal_feature=("data", "foo"), mask_like_feature=("mask", "bar")),
+        dict(temporal_feature=("vector", "foo"), feature_3d=("data_timeless", "bar")),
     ],
 )
-def test_feature_restrictor(valid_config, invalid_config):
+def test_restricted_features_valid(valid_config):
     DummyFeatureSchema(**valid_config)
 
+
+@pytest.mark.parametrize(
+    "invalid_config",
+    [
+        dict(temporal_feature=("vector_timeless", "foobar")),
+        dict(temporal_feature=("data", "foo"), mask_like_feature=("data_timeless", "bar")),
+        dict(temporal_feature=("mask", "foo"), feature_3d=("data", "bar")),
+    ],
+)
+def test_restricted_features_invalid(invalid_config):
     with pytest.raises(ValidationError):
         DummyFeatureSchema(**invalid_config)
