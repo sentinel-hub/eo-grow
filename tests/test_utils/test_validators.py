@@ -272,18 +272,18 @@ def test_parse_collection_from_dict():
 
 
 class DummyFeatureSchema(BaseSchema):
-    mask_like_feature: Optional[Feature]
-    _check_mask_feature = field_validator(
-        "mask_like_feature", restrict_types([FeatureType.MASK, FeatureType.MASK_TIMELESS])
-    )
-
-    temporal_feature: Optional[Feature]
+    temporal_feature: Feature
     _check_temporal_feature = field_validator(
         "temporal_feature", restrict_types([ftype for ftype in FeatureType if ftype.is_temporal()])
     )
 
+    mask_like_feature: Optional[Feature]
+    _check_mask_feature = optional_field_validator(
+        "mask_like_feature", restrict_types([FeatureType.MASK, FeatureType.MASK_TIMELESS])
+    )
+
     feature_3d: Optional[Feature]
-    _check_3d_feature = field_validator(
+    _check_3d_feature = optional_field_validator(
         "feature_3d", restrict_types([ftype for ftype in FeatureType if ftype.ndim() == 3])
     )
 
