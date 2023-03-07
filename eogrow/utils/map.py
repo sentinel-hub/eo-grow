@@ -5,9 +5,15 @@ import logging
 import os
 import shutil
 import subprocess
+import tempfile
 import warnings
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Iterable, Literal, Optional
+
+SH_COMMAND_LIMIT = 130000
+OPEN_FILES_LIMIT = 1000
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -175,8 +181,27 @@ def merge_tiffs(
     if dtype is not None:
         gdalwarp_options += f" -ot {GDAL_DTYPE_SETTINGS[dtype]}"
 
-    command = f"gdalwarp {gdalwarp_options} {' '.join(input_filenames)} {merged_filename}"
-    subprocess.check_call(command, shell=True)
+    input_filelist = list(input_filenames)
+    command = f"gdalwarp {gdalwarp_options} {' '.join(input_filelist)} {merged_filename}"
+
+    if len(command) > SH_COMMAND_LIMIT or len(input_filelist) > OPEN_FILES_LIMIT:
+        merged_path = Path(merged_filename)
+        vrt_file_path = merged_path.with_name(f"{merged_path.stem}_temp.vrt")
+        LOGGER.info(f"Command too big or too many files to process. Creating an intermediary vrt: {vrt_file_path}")
+        # generate text file with tile names & generate vrt
+        with tempfile.NamedTemporaryFile(mode="w", delete=True) as file_list:
+            file_list.writelines([f"{tname}\n" for tname in input_filelist])
+            generate_vrt_command = f"gdalbuildvrt {vrt_file_path} -input_file_list {file_list.name}"
+            subprocess.check_call(generate_vrt_command, shell=True)
+
+        # create merged file
+        command = f"gdalwarp {gdalwarp_options} {vrt_file_path} {merged_filename}"
+        subprocess.check_call(command, shell=True)
+
+        # cleanup the vrt after the process
+        os.remove(vrt_file_path)
+    else:
+        subprocess.check_call(command, shell=True)
 
 
 def extract_bands(
