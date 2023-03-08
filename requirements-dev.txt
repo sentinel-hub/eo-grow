@@ -2,7 +2,6 @@ boto3
 deepdiff
 fs_s3fs
 ipdb
-jupyter
 moto
 mypy>=0.990
 pre-commit
@@ -10,7 +9,6 @@ pytest>=4.0.0
 pytest-cov
 pytest-lazy-fixture
 pytest-order
-requests-mock
 twine
 types-mock
 types-requests
