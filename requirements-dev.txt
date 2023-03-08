@@ -9,6 +9,7 @@ pytest>=4.0.0
 pytest-cov
 pytest-lazy-fixture
 pytest-order
+requests-mock
 twine
 types-mock
 types-requests
