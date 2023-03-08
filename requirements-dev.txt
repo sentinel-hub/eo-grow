@@ -2,7 +2,6 @@ boto3
 deepdiff
 fs_s3fs
 ipdb
-jupyter
 moto
 mypy>=0.990
 pre-commit
