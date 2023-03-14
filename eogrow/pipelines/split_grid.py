@@ -182,7 +182,7 @@ class SplitGridPipeline(Pipeline):
         """Provides features that will be transformed by the pipeline."""
         meta_features = [FeatureType.BBOX]
         if any(f_type.is_temporal() for f_type, _ in self.config.features):
-            meta_features += [FeatureType.TIMESTAMP]
+            meta_features += [FeatureType.TIMESTAMPS]
 
         return self.config.features + meta_features
 

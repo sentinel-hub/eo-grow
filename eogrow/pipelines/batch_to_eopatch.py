@@ -104,7 +104,7 @@ class BatchToEOPatchPipeline(Pipeline):
             features.append(FeatureType.META_INFO)
 
         if self.config.userdata_timestamp_reader:
-            features.append(FeatureType.TIMESTAMP)
+            features.append(FeatureType.TIMESTAMPS)
 
         return features
 

@@ -92,7 +92,7 @@ class ZipMapPipeline(Pipeline):
             if input_feature.include_bbox_and_timestamp:
                 features_to_load.add(FeatureType.BBOX)
                 if input_feature.feature[0].is_temporal():
-                    features_to_load.add(FeatureType.TIMESTAMP)
+                    features_to_load.add(FeatureType.TIMESTAMPS)
 
         load_nodes = []
         for folder_key, features in load_schema.items():
@@ -124,7 +124,7 @@ class ZipMapPipeline(Pipeline):
         save_task = SaveTask(
             save_path,
             config=self.sh_config,
-            features=[self.config.output_feature, FeatureType.BBOX, FeatureType.TIMESTAMP],
+            features=[self.config.output_feature, FeatureType.BBOX, FeatureType.TIMESTAMPS],
             compress_level=self.config.compress_level,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
         )

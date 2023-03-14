@@ -88,7 +88,7 @@ class DummyTimestampFeatureTask(EOTask):
         random_integers.sort()
         timestamps = [start_time + dt.timedelta(seconds=int(seconds)) for seconds in random_integers]
 
-        eopatch.timestamp = timestamps
+        eopatch.timestamps = timestamps
         return eopatch
 
 

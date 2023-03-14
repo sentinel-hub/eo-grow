@@ -117,10 +117,10 @@ class MosaickingTask(EOTask, metaclass=abc.ABCMeta):
         """Compute mosaic for given dates"""
         feature_type, _, new_feature_name = self.parsed_feature
 
-        eopatch.timestamp = [ts.replace(tzinfo=None) for ts in eopatch.timestamp]
+        eopatch.timestamps = [ts.replace(tzinfo=None) for ts in eopatch.timestamps]
         eopatch[(feature_type, new_feature_name)] = self.compute_mosaic(eopatch)
 
-        eopatch.timestamp = list(self.compute_mosaic_dates())
+        eopatch.timestamps = list(self.compute_mosaic_dates())
 
         return eopatch
 
@@ -141,7 +141,7 @@ class MaxNDVIMosaickingTask(MosaickingTask):
 
     def _compute_single_mosaic(self, eopatch: EOPatch, idate: int) -> np.ndarray:
         """Compute single mosaic using values of the max NDVI"""
-        array = self._find_time_indices(eopatch.timestamp, idate)
+        array = self._find_time_indices(eopatch.timestamps, idate)
         feature_type, feature_name, _ = self.parsed_feature
         feat_values = eopatch[(feature_type, feature_name)][array].astype(np.float32)
         ndvi_values = eopatch[(self.ndvi_feature_type, self.ndvi_feature_name)][array]  # type: ignore[index]
@@ -189,7 +189,7 @@ class MedianMosaickingTask(MosaickingTask):
 
     def _compute_single_mosaic(self, eopatch: EOPatch, idate: int) -> np.ndarray:
         """Compute single mosaic using the median of values"""
-        array = self._find_time_indices(eopatch.timestamp, idate)
+        array = self._find_time_indices(eopatch.timestamps, idate)
         feature_type, feature_name, _ = self.parsed_feature
 
         feat_values = eopatch[(feature_type, feature_name)][array].astype(np.float32)

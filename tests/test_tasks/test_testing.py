@@ -49,18 +49,18 @@ def test_dummy_timestamp_feature_task():
 
     assert isinstance(eopatch, EOPatch)
 
-    assert FeatureType.TIMESTAMP in eopatch
+    assert FeatureType.TIMESTAMPS in eopatch
     assert len(eopatch.get_features()) == 1
 
-    assert len(eopatch.timestamp) == timestamp_num
-    assert eopatch.timestamp == sorted(eopatch.timestamp)
-    assert eopatch.timestamp[0] >= start_time
-    assert eopatch.timestamp[-1] < dt.datetime.fromordinal(end_time.toordinal())
+    assert len(eopatch.timestamps) == timestamp_num
+    assert eopatch.timestamps == sorted(eopatch.timestamps)
+    assert eopatch.timestamps[0] >= start_time
+    assert eopatch.timestamps[-1] < dt.datetime.fromordinal(end_time.toordinal())
 
     eopatch1 = task.execute(seed=10)
     eopatch2 = task.execute(seed=10)
     assert eopatch1 == eopatch2
-    assert eopatch1.timestamp[0].isoformat() == "2020-01-01T06:02:38"
+    assert eopatch1.timestamps[0].isoformat() == "2020-01-01T06:02:38"
 
     eopatch3 = task.execute(seed=11)
     assert eopatch1 != eopatch3

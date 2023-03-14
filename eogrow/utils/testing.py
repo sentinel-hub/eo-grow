@@ -138,8 +138,8 @@ class ContentTester:
             if feature_type is FeatureType.BBOX:
                 stats[feature_type_name] = repr(eopatch.bbox)
 
-            elif feature_type is FeatureType.TIMESTAMP:
-                stats[feature_type_name] = [time.isoformat() for time in eopatch.timestamp]
+            elif feature_type is FeatureType.TIMESTAMPS:
+                stats[feature_type_name] = [time.isoformat() for time in eopatch.timestamps]
 
             else:
                 feature_stats_dict = {}

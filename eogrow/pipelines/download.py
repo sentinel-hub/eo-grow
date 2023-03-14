@@ -250,7 +250,7 @@ class DownloadPipeline(BaseDownloadPipeline):
         features: List[FeatureSpec] = [
             (FeatureType.DATA, self.config.bands_feature_name),
             FeatureType.BBOX,
-            FeatureType.TIMESTAMP,
+            FeatureType.TIMESTAMPS,
         ]
         features.extend(self.config.additional_data)
         return features
@@ -300,7 +300,7 @@ class DownloadEvalscriptPipeline(BaseDownloadPipeline):
     config: Schema
 
     def _get_output_features(self) -> List[FeatureSpec]:
-        features: List[FeatureSpec] = [FeatureType.BBOX, FeatureType.TIMESTAMP]
+        features: List[FeatureSpec] = [FeatureType.BBOX, FeatureType.TIMESTAMPS]
         features.extend(self.config.features)
         return features
 
