@@ -1,14 +1,12 @@
 """Implementation of the StorageManager class for handling project storage."""
-from typing import Dict, Literal, Optional
+from typing import Any, Dict, Literal, Optional
 
 import fs
-from fs.base import FS
 from pydantic import BaseSettings, Field
 
 from eolearn.core.utils.fs import get_aws_credentials, get_filesystem, is_s3_path
 from sentinelhub import SHConfig
 
-from ..types import AwsAclType
 from .base import EOGrowObject
 from .schemas import ManagerSchema
 
@@ -30,11 +28,8 @@ class StorageManager(EOGrowObject):
                 " with a parameter it can be read from an environmental variable."
             ),
         )
-        aws_acl: Optional[AwsAclType] = Field(
-            description=(
-                "An optional parameter to specify under what kind of access control list (ACL) objects should be saved"
-                " to an AWS S3 bucket."
-            )
+        filesystem_kwargs: Dict[str, Any] = Field(
+            default_factory=dict, description="Optional kwargs to be passed on to FS specs."
         )
         structure: Dict[str, str] = Field(
             default_factory=dict,
@@ -58,25 +53,19 @@ class StorageManager(EOGrowObject):
                 self.config.structure[folder_key] = folder_path
 
         self.sh_config = self._prepare_sh_config()
-        self.filesystem = self._prepare_filesystem()
+        self.filesystem = get_filesystem(
+            self.config.project_folder, create=True, config=self.sh_config, **self.config.filesystem_kwargs
+        )
 
     def _prepare_sh_config(self) -> SHConfig:
         """Prepares an instance of `SHConfig` containing AWS credentials. In case given AWS profile doesn't exist it
         will show a warning and return a config without AWS credentials."""
         sh_config = SHConfig(hide_credentials=True)
 
-        if self.is_on_aws() and self.config.aws_profile:
+        if self.is_on_s3() and self.config.aws_profile:
             sh_config = get_aws_credentials(aws_profile=self.config.aws_profile, config=sh_config)
 
         return sh_config
-
-    def _prepare_filesystem(self) -> FS:
-        """Prepares a filesystem object with the configuration parameters."""
-        fs_kwargs: Dict[str, str] = {}
-        if is_s3_path(self.config.project_folder) and self.config.aws_acl:
-            fs_kwargs["acl"] = self.config.aws_acl
-
-        return get_filesystem(self.config.project_folder, create=True, config=self.sh_config, **fs_kwargs)
 
     def get_folder(self, key: str, full_path: bool = False) -> str:
         """Returns the path associated with the given key in the structure config."""
@@ -99,6 +88,6 @@ class StorageManager(EOGrowObject):
         """Returns the path associated with the input_data key."""
         return self.get_folder("input_data", full_path=full_path)
 
-    def is_on_aws(self) -> bool:
+    def is_on_s3(self) -> bool:
         """Returns True if the project_folder is on S3, False otherwise."""
         return is_s3_path(self.config.project_folder)

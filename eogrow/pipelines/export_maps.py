@@ -205,7 +205,7 @@ class ExportMapsPipeline(Pipeline):
 
         If required files are copied locally and a temporary filesystem object is returned.
         """
-        make_local_copies = self.storage.is_on_aws() or self.config.force_local_copies
+        make_local_copies = self.storage.is_on_s3() or self.config.force_local_copies
 
         if not make_local_copies:
             return self.storage.filesystem, geotiff_paths

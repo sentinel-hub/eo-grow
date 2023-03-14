@@ -27,17 +27,6 @@ BoolOrAuto: TypeAlias = Union[Literal["auto"], bool]
 JsonDict: TypeAlias = Dict[str, Any]
 RawSchemaDict: TypeAlias = Dict[str, Any]
 
-AwsAclType: TypeAlias = Literal[
-    "private",
-    "public-read",
-    "public-read-write",
-    "aws-exec-read",
-    "authenticated-read",
-    "bucket-owner-read",
-    "bucket-owner-full-control",
-    "log-delivery-write",
-]
-
 
 class ProcessingType(Enum):
     RAY = "ray"

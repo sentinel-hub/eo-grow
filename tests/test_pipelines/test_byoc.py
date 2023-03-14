@@ -64,7 +64,7 @@ def run_byoc_pipeline(config_folder: str, config: str, preparation_config: str, 
         return Geometry(Polygon(MOCK_COVER_GEOM), crs=CRS.WGS84)
 
     # patch storage manager so it believes it's on aws, but only during init
-    with patch.object(StorageManager, "is_on_aws", lambda _: True):
+    with patch.object(StorageManager, "is_on_s3", lambda _: True):
         SentinelHubDownloadClient._CACHED_SESSIONS = {}
         pipeline = IngestByocTilesPipeline.from_path(config_path)
         pipeline.bucket_name = "mock-bucket"

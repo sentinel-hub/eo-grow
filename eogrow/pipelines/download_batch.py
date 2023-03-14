@@ -201,7 +201,7 @@ class BatchDownloadPipeline(Pipeline):
         )
 
         data_folder = self.storage.get_folder(self.config.output_folder_key, full_path=True).rstrip("/")
-        if not self.storage.is_on_aws():
+        if not self.storage.is_on_s3():
             raise ValueError(f"The data folder path should be on s3 bucket, got {data_folder}")
 
         return self.batch_client.create(
