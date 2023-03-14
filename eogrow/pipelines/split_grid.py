@@ -8,13 +8,14 @@ import fs
 import geopandas as gpd
 from pydantic import Field
 
-from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, OverwritePermission, SaveTask
+from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, OverwritePermission
 from sentinelhub import CRS, BBox
 from sentinelhub.geometry import Geometry
 
 from ..core.area.batch import BatchAreaManager
 from ..core.area.utm import UtmZoneAreaManager
 from ..core.pipeline import Pipeline
+from ..tasks.common import SkippableSaveTask
 from ..tasks.spatial import SpatialSliceTask
 from ..types import ExecKwargs, Feature, FeatureSpec
 from ..utils.fs import LocalFile
@@ -144,7 +145,7 @@ class SplitGridPipeline(Pipeline):
             slice_task = SpatialSliceTask(features, raise_misaligned=self.config.raise_misaligned)
             slice_node = EONode(slice_task, inputs=[load_node])
 
-            save_task = SaveTask(
+            save_task = SkippableSaveTask(
                 output_path,
                 filesystem=self.storage.filesystem,
                 features=features,
@@ -160,7 +161,7 @@ class SplitGridPipeline(Pipeline):
     ) -> ExecKwargs:
         nodes = workflow.get_nodes()
         load_node = nodes[0]
-        save_nodes = [node for node in nodes if isinstance(node.task, SaveTask)]
+        save_nodes = [node for node in nodes if isinstance(node.task, SkippableSaveTask)]
         slice_nodes = [save_node.inputs[0] for save_node in save_nodes]
 
         exec_args: ExecKwargs = {}

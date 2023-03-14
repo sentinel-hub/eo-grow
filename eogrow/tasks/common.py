@@ -3,7 +3,7 @@ from typing import Callable, List, Optional, Union
 
 import numpy as np
 
-from eolearn.core import EOPatch, EOTask
+from eolearn.core import EOPatch, EOTask, SaveTask
 from eolearn.geometry import MorphologicalOperations
 
 from ..types import Feature
@@ -49,3 +49,12 @@ class ClassFilterTask(EOTask):
 
         eopatch[(feature_type, new_feature_name)] = mask
         return eopatch
+
+
+class SkippableSaveTask(SaveTask):
+    """Same as `SaveTask` but can be skipped if the `eopatch_folder` is set to `None`."""
+
+    def execute(self, eopatch: EOPatch, *, eopatch_folder: Optional[str] = "") -> EOPatch:
+        if eopatch_folder is None:
+            return eopatch
+        return super().execute(eopatch, eopatch_folder=eopatch_folder)
