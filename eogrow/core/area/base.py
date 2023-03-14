@@ -72,10 +72,10 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
         grid_path = fs.path.combine(self.storage.get_cache_folder(), self.get_grid_cache_filename())
 
         if self.storage.filesystem.exists(grid_path):
-            return self._load_grid(grid_path)
-
-        grid = self._create_grid()
-        self._save_grid(grid, grid_path)
+            grid = self._load_grid(grid_path)
+        else:
+            grid = self._create_grid()
+            self._save_grid(grid, grid_path)
 
         if filtered and self.config.patch_names is not None:
             folder_path = self.storage.get_folder(self.config.patch_names.input_folder_key)

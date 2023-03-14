@@ -152,7 +152,8 @@ class ContentTester:
                     calculation_method = str
 
                 for feature_name in eopatch[feature_type]:
-                    feature_stats_dict[feature_name] = calculation_method(eopatch[feature_type][feature_name])
+                    feature_data = eopatch[feature_type, feature_name]  # type: ignore[index] # weird overload issue
+                    feature_stats_dict[feature_name] = calculation_method(feature_data)
 
                 stats[feature_type_name] = feature_stats_dict
 
