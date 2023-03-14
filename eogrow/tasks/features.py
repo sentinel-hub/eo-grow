@@ -6,6 +6,7 @@ from typing import List, Optional, Sequence, Tuple, Union
 import numpy as np
 
 from eolearn.core import EOPatch, EOTask, FeatureType, MapFeatureTask
+from eolearn.core.utils.parsing import parse_renamed_feature
 
 from ..types import Feature
 
@@ -47,7 +48,7 @@ class MosaickingTask(EOTask, metaclass=abc.ABCMeta):
         valid_mask: Optional[Feature] = None,
         ndvi_feature: Optional[Feature] = None,
     ):
-        self.parsed_feature = self.parse_renamed_feature(feature, allowed_feature_types={FeatureType.DATA})
+        self.parsed_feature = parse_renamed_feature(feature, allowed_feature_types={FeatureType.DATA})
         self.valid_mask_type, self.valid_mask_name = None, None
         if valid_mask is not None:
             self.valid_mask_type, self.valid_mask_name = self.parse_feature(

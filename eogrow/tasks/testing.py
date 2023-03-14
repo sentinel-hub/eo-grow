@@ -4,7 +4,7 @@ from typing import Optional, Tuple, Union
 
 import numpy as np
 
-from eolearn.core import EOPatch, EOTask, FeatureTypeSet
+from eolearn.core import EOPatch, EOTask
 from eolearn.core.utils.common import is_discrete_type
 
 from ..types import Feature, TimePeriod
@@ -29,7 +29,7 @@ class DummyRasterFeatureTask(EOTask):
         :param max_value: If feature has a discrete dtype or max_value == min_value then all feature values will be
             lesser or equal to this value. Otherwise, all features will be strictly lesser to this value.
         """
-        self.feature = self.parse_feature(feature, allowed_feature_types=FeatureTypeSet.RASTER_TYPES)
+        self.feature = self.parse_feature(feature, allowed_feature_types=lambda fty: fty.is_array())
         self.shape = shape
         self.dtype = dtype
         self.min_value = min_value

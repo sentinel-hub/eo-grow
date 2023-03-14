@@ -4,6 +4,7 @@ from typing import Callable, List, Optional, Union
 import numpy as np
 
 from eolearn.core import EOPatch, EOTask, SaveTask
+from eolearn.core.utils.parsing import parse_renamed_feature
 from eolearn.geometry import MorphologicalOperations
 
 from ..types import Feature
@@ -28,7 +29,7 @@ class ClassFilterTask(EOTask):
         """
         self.feature_name: Optional[str]
         self.new_feature_name: Optional[str]
-        self.renamed_feature = self.parse_renamed_feature(feature)
+        self.renamed_feature = parse_renamed_feature(feature)
         self.labels = labels
 
         if isinstance(morph_operation, MorphologicalOperations):
