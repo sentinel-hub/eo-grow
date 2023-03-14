@@ -95,6 +95,8 @@ def test_get_patch_list(patch_list: List[str], expected_bboxes: List[Tuple[str, 
 
     assert expected_bboxes == manager.get_patch_list()
 
+    assert expected_bboxes == manager.get_patch_list(), "Filtration fails on reading from cache."
+
 
 @pytest.mark.parametrize(
     "simplification_factor,expected_point_count", [(0, 128), (0.00001, 64), (0.0001, 25), (0.001, 10), (0.1, 5)]
