@@ -165,7 +165,7 @@ class BatchToEOPatchPipeline(Pipeline):
             raise ValueError(f"All batch files should end with .tif but found {mapping.batch_files}")
 
         feature_type, feature_name = mapping.feature
-        if not (feature_type.is_spatial() and feature_type.is_raster()):
+        if not (feature_type.is_image()):
             raise ValueError(f"Tiffs can only be read into spatial raster feature types, but {feature_type} was given.")
 
         tmp_features = []

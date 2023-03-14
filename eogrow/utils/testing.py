@@ -144,7 +144,7 @@ class ContentTester:
             else:
                 feature_stats_dict = {}
 
-                if feature_type.is_raster():
+                if feature_type.is_array():
                     calculation_method: Callable = self._calculate_numpy_stats
                 elif feature_type.is_vector():
                     calculation_method = self._calculate_vector_stats

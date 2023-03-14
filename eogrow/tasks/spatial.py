@@ -119,7 +119,7 @@ class SpatialJoinTask(EOTask):
 
             if feature_type.is_spatial():
                 feature = cast(Feature, feature)  # bbox and timestamp are discarded with above check
-                if feature_type.is_raster():
+                if feature_type.is_array():
                     bboxes: List[BBox] = [patch.bbox for patch in eopatches if feature in patch]  # type: ignore[misc]
                     joined_data = self._join_spatial_rasters(data, bboxes, bbox, self.no_data_map[feature])
                 else:
@@ -187,7 +187,7 @@ class SpatialSliceTask(EOTask):
                 if bbox is None:
                     continue
 
-                if feature_type.is_raster():
+                if feature_type.is_array():
                     sliced_data = self._slice_raster(data, main_bbox, bbox)
                 else:
                     sliced_data = self._filter_vector(data, bbox)
