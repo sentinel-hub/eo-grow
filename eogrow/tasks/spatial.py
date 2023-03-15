@@ -160,20 +160,20 @@ class SpatialSliceTask(EOTask):
         intersects_bbox = gdf.geometry.intersects(bbox.geometry)
         return gdf[intersects_bbox].copy(deep=True)
 
-    def execute(self, eopatch: EOPatch, *, bbox: Optional[BBox]) -> EOPatch:
+    def execute(self, eopatch: EOPatch, *, bbox: BBox, skip: bool = False) -> EOPatch:
         """Spatially slices given EOPatch with given bounding box.
 
-        The task allows that no bounding box for slicing is provided. In such case the task will return an EOPatch with
-        only non-spatial features.
-        """
+        Can be skipped in cases where the subbox won't be saved."""
+        if skip:
+            return eopatch
+
         main_bbox = eopatch.bbox
         if not main_bbox:
             raise ValueError("EOPatch is missing a bounding box")
-        if bbox is not None:
-            if main_bbox.crs is not bbox.crs:
-                raise ValueError("Given bbox is not in the same CRS as EOPatch bbox")
-            if not main_bbox.geometry.contains(bbox.geometry):
-                raise ValueError("Given bbox must be fully contained in EOPatch's bbox")
+        if main_bbox.crs is not bbox.crs:
+            raise ValueError("Given bbox is not in the same CRS as EOPatch bbox")
+        if not main_bbox.geometry.contains(bbox.geometry):
+            raise ValueError("Given bbox must be fully contained in EOPatch's bbox")
 
         sliced_eopatch = EOPatch(bbox=bbox)
 
@@ -184,9 +184,6 @@ class SpatialSliceTask(EOTask):
             data = eopatch[feature]
 
             if feature_type.is_spatial():
-                if bbox is None:
-                    continue
-
                 if feature_type.is_array():
                     sliced_data = self._slice_raster(data, main_bbox, bbox)
                 else:
