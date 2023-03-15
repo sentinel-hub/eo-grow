@@ -52,6 +52,7 @@ def cogify_inplace(
     quiet: bool = True,
 ) -> None:
     """Make the (geotiff) file a cog
+
     :param tiff_file: .tiff file to cogify
     :param blocksize: block size of tiled COG
     :param nodata: value to be treated as nodata, default value is None
