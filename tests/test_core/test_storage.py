@@ -114,6 +114,6 @@ def test_aws_acl(config: RawConfig):
     storage = StorageManager.from_raw_config(config)
 
     if isinstance(storage.filesystem, S3FS):
-        config_acl = config.get("filesystem_kwargs").get("acl") if config.get("filesystem_kwargs") else None
+        config_acl = config.get("filesystem_kwargs").get("acl") if "filesystem_kwargs" in config else None
         filesystem_acl = None if storage.filesystem.upload_args is None else storage.filesystem.upload_args.get("ACL")
         assert config_acl == filesystem_acl
