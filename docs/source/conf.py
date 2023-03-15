@@ -59,7 +59,7 @@ extensions = [
     "sphinx.ext.githubpages",
     "nbsphinx",
     "sphinx_rtd_theme",
-    "m2r2",
+    "sphinx_mdinclude",
     "sphinxcontrib.autodoc_pydantic",
 ]
 
