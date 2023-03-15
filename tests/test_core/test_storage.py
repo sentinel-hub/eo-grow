@@ -105,15 +105,15 @@ def test_aws_profile(aws_storage_config: RawConfig, config_profile: Optional[str
 @pytest.mark.parametrize(
     "config",
     [
-        {"project_folder": "s3://fake-bucket/", "aws_acl": "bucket-owner-full-control"},
+        {"project_folder": "s3://fake-bucket/", "filesystem_kwargs": {"acl": "bucket-owner-full-control"}},
         {"project_folder": "s3://fake-bucket/"},
-        {"project_folder": ".", "aws_acl": "public-read"},
+        {"project_folder": "."},
     ],
 )
 def test_aws_acl(config: RawConfig):
     storage = StorageManager.from_raw_config(config)
 
     if isinstance(storage.filesystem, S3FS):
-        config_acl = config.get("aws_acl")
+        config_acl = config.get("filesystem_kwargs").get("acl") if "filesystem_kwargs" in config else None
         filesystem_acl = None if storage.filesystem.upload_args is None else storage.filesystem.upload_args.get("ACL")
         assert config_acl == filesystem_acl

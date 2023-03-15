@@ -72,7 +72,7 @@ class IngestByocTilesPipeline(Pipeline):
 
     def __init__(self, config: Schema, raw_config: Optional[RawConfig] = None):
         super().__init__(config, raw_config)
-        if not self.storage.is_on_aws():
+        if not self.storage.is_on_s3():
             raise ValueError("Can only ingest for projects based on S3 storage.")
         project_folder = self.storage.config.project_folder
         self.bucket_name = project_folder.replace("s3://", "").split("/")[0]
