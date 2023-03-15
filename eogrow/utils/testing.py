@@ -15,6 +15,7 @@ from deepdiff import DeepDiff
 from fs.base import FS
 
 from eolearn.core import EOPatch, FeatureType
+from eolearn.core.eodata_io import get_filesystem_data_info
 from sentinelhub import BBox
 
 from ..core.config import collect_configs_from_path, interpret_config_from_dict
@@ -108,9 +109,9 @@ class ContentTester:
             content_path = fs.path.combine(folder, content)
 
             if self.filesystem.isdir(content_path):
-                eopatch = EOPatch.load(content_path, filesystem=self.filesystem)
-
-                if eopatch.bbox:
+                fs_data_info = get_filesystem_data_info(self.filesystem, content_path)
+                if fs_data_info.bbox is not None:
+                    eopatch = EOPatch.load(content_path, filesystem=self.filesystem)
                     stats[content] = self._calculate_eopatch_stats(eopatch)
                 else:  # Probably it is not an EOPatch folder
                     stats[content] = self._calculate_stats(folder=content_path)
@@ -152,7 +153,7 @@ class ContentTester:
                     calculation_method = str
 
                 for feature_name in eopatch[feature_type]:
-                    feature_data = eopatch[feature_type, feature_name]  # type: ignore[index] # weird overload issue
+                    feature_data = eopatch[feature_type, feature_name]
                     feature_stats_dict[feature_name] = calculation_method(feature_data)
 
                 stats[feature_type_name] = feature_stats_dict
