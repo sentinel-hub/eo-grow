@@ -5,6 +5,7 @@ import numpy as np
 from pydantic import Field, root_validator
 
 from eolearn.core import (
+    CreateEOPatchTask,
     EONode,
     EOWorkflow,
     FeatureType,
@@ -110,32 +111,27 @@ class BatchToEOPatchPipeline(Pipeline):
 
     def build_workflow(self) -> EOWorkflow:
         """Builds the workflow"""
-        userdata_node = None
+        metadata_node = EONode(CreateEOPatchTask(), name="Establish BBox")
         if self._has_userdata:
-            userdata_node = EONode(
+            metadata_node = EONode(
                 LoadUserDataTask(
                     path=self._input_folder,
                     filesystem=self.storage.filesystem,
                     userdata_feature_name=self.config.userdata_feature_name,
                     userdata_timestamp_reader=self.config.userdata_timestamp_reader,
-                )
+                ),
+                inputs=[metadata_node],
             )
 
         mapping_nodes = [
-            self._get_tiff_mapping_node(feature_mapping, userdata_node) for feature_mapping in self.config.mapping
+            self._get_tiff_mapping_node(feature_mapping, metadata_node) for feature_mapping in self.config.mapping
         ]
 
-        last_node = userdata_node
+        last_node = metadata_node
         if len(mapping_nodes) == 1:
             last_node = mapping_nodes[0]
         elif len(mapping_nodes) > 1:
             last_node = EONode(MergeEOPatchesTask(), inputs=mapping_nodes)
-
-        if last_node is None:
-            raise ValueError(
-                "At least one of `userdata_feature_name`, `userdata_timestamp_reader`, or `mapping` has to be set in"
-                " the config. This should have been caught in the validation phase, please report issue."
-            )
 
         processing_node = self.get_processing_node(last_node)
 
