@@ -70,7 +70,7 @@ class LoadUserDataTask(EOTask):
             eopatch.meta_info[self.userdata_feature_name] = userdata
 
         if self.userdata_timestamp_reader:
-            eopatch.timestamp = self._parse_timestamps(userdata, self.userdata_timestamp_reader)
+            eopatch.timestamps = self._parse_timestamps(userdata, self.userdata_timestamp_reader)
 
         return eopatch
 
@@ -99,15 +99,15 @@ class FixImportedTimeDependentFeatureTask(EOTask):
         data = data[np.newaxis, ...]
         data = np.swapaxes(data, 0, -1)
 
-        if eopatch.timestamp:
-            timeframe_num = len(eopatch.timestamp)
+        if eopatch.timestamps:
+            timeframe_num = len(eopatch.timestamps)
             if data.shape[0] != timeframe_num:  # Handling a case where data would contain some empty timeframes
                 data = data[:timeframe_num, ...]
 
-            order_mask = np.argsort(eopatch.timestamp)  # type: ignore[arg-type]
+            order_mask = np.argsort(eopatch.timestamps)  # type: ignore[arg-type]
             is_strictly_increasing = (np.diff(order_mask) > 0).all()
             if not is_strictly_increasing:
-                eopatch.timestamp = sorted(eopatch.timestamp)
+                eopatch.timestamps = sorted(eopatch.timestamps)
                 data = data[order_mask]
 
         eopatch[self.output_feature] = data

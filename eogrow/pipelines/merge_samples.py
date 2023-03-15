@@ -63,7 +63,7 @@ class MergeSamplesPipeline(Pipeline):
 
     def build_workflow(self) -> EOWorkflow:
         """Creates a workflow that outputs the requested features"""
-        features_to_load: List[FeatureSpec] = [FeatureType.TIMESTAMP] if self.config.include_timestamp else []
+        features_to_load: List[FeatureSpec] = [FeatureType.TIMESTAMPS] if self.config.include_timestamp else []
         features_to_load.extend(self.config.features_to_merge)
         load_task = LoadTask(
             self.storage.get_folder(self.config.input_folder_key),
@@ -97,8 +97,8 @@ class MergeSamplesPipeline(Pipeline):
         if self.config.include_timestamp:
             arrays = []
             for patch, sample_num in zip(patches, patch_sample_nums):
-                arrays.append(np.tile(np.array(patch.timestamp), (sample_num, 1)))
-                patch.timestamp = []
+                arrays.append(np.tile(np.array(patch.timestamps), (sample_num, 1)))
+                patch.timestamps = []
 
             self._save_array(np.concatenate(arrays, axis=0), "TIMESTAMPS")
 
@@ -117,8 +117,8 @@ class MergeSamplesPipeline(Pipeline):
         feature_array = patch[feature]
         feature_type, _ = feature
 
-        if feature_type is FeatureType.TIMESTAMP:
-            patch.timestamp = []
+        if feature_type is FeatureType.TIMESTAMPS:
+            patch.timestamps = []
             return np.array(feature_array)
 
         del patch[feature]

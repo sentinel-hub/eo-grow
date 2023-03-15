@@ -176,7 +176,7 @@ class RasterizePipeline(Pipeline):
         else:
             features = [self.vector_feature, FeatureType.BBOX]
             if self._is_temporal(self.vector_feature):
-                features.append(FeatureType.TIMESTAMP)
+                features.append(FeatureType.TIMESTAMPS)
             input_task = LoadTask(
                 self.storage.get_folder(self.config.input_folder_key),
                 filesystem=self.storage.filesystem,
@@ -262,7 +262,7 @@ class RasterizePipeline(Pipeline):
         features: List[FeatureSpec] = [FeatureType.BBOX]
 
         if self._is_temporal(self.vector_feature):
-            features.append(FeatureType.TIMESTAMP)
+            features.append(FeatureType.TIMESTAMPS)
 
         features.extend(column.output_feature for column in self.config.columns)
         return features

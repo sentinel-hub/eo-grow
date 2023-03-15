@@ -171,7 +171,7 @@ class SplitGridPipeline(Pipeline):
             split_bboxes_iter = it.chain(split_bboxes, it.repeat((None, None)))
 
             for slice_node, save_node, (subbox_name, subbox) in zip(slice_nodes, save_nodes, split_bboxes_iter):
-                patch_args[slice_node] = dict(bbox=subbox)
+                patch_args[slice_node] = dict(bbox=subbox, skip=(subbox is None))
                 patch_args[save_node] = dict(eopatch_folder=subbox_name)
 
             exec_args[orig_name] = patch_args
@@ -182,7 +182,7 @@ class SplitGridPipeline(Pipeline):
         """Provides features that will be transformed by the pipeline."""
         meta_features = [FeatureType.BBOX]
         if any(f_type.is_temporal() for f_type, _ in self.config.features):
-            meta_features += [FeatureType.TIMESTAMP]
+            meta_features += [FeatureType.TIMESTAMPS]
 
         return self.config.features + meta_features
 

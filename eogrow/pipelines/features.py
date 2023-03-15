@@ -89,7 +89,7 @@ class FeaturesPipeline(Pipeline):
 
     def _get_output_features(self) -> List[FeatureSpec]:
         """Lists all features that are to be saved upon the pipeline completion"""
-        return [(FeatureType.DATA, self.config.output_feature_name), FeatureType.BBOX, FeatureType.TIMESTAMP]
+        return [(FeatureType.DATA, self.config.output_feature_name), FeatureType.BBOX, FeatureType.TIMESTAMPS]
 
     def _get_bands_feature(self) -> Feature:
         return FeatureType.DATA, self.config.bands_feature_name
@@ -270,7 +270,7 @@ class MosaickingFeaturesPipeline(FeaturesPipeline):
             )
         mosaicking_node = EONode(mosaicking_task, inputs=[previous_node])
         return EONode(
-            CopyTask(features=[self._get_bands_feature(), FeatureType.BBOX, FeatureType.TIMESTAMP]),
+            CopyTask(features=[self._get_bands_feature(), FeatureType.BBOX, FeatureType.TIMESTAMPS]),
             inputs=[mosaicking_node],
             name="Remove non-mosaicked features",
         )

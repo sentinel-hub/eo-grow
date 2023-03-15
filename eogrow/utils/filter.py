@@ -2,15 +2,14 @@
 Utilities for filtering eopatch lists
 """
 from concurrent.futures import ThreadPoolExecutor
-from typing import Sequence, Set, Tuple, Union
+from typing import Sequence
 
 import fs
 from fs.base import FS
 from tqdm.auto import tqdm
 
 from eolearn.core import FeatureType
-from eolearn.core.eodata_io import walk_filesystem
-from eolearn.core.types import EllipsisType
+from eolearn.core.eodata_io import FilesystemDataInfo, get_filesystem_data_info
 
 from ..types import FeatureSpec, PatchList
 
@@ -21,16 +20,33 @@ def check_if_features_exist(
     features: Sequence[FeatureSpec],
 ) -> bool:
     """Checks whether an EOPatch in the given location has all specified features saved"""
-    not_seen_features: Set[Union[FeatureType, Tuple[FeatureType, Union[str, EllipsisType]]]] = set(features)
     try:
-        for ftype, name, _ in walk_filesystem(filesystem, eopatch_path, features=features):
-            if (ftype, name) in not_seen_features:
-                not_seen_features.remove((ftype, name))
-            elif ftype in not_seen_features:
-                not_seen_features.remove(ftype)
+        existing_data = get_filesystem_data_info(filesystem, eopatch_path, features)
+        meta_features = [spec for spec in features if isinstance(spec, FeatureType)]
+        regular_features = [spec for spec in features if isinstance(spec, tuple)]
+
+        if not all(_check_if_meta_feature_exists(ftype, existing_data) for ftype in meta_features):
+            return False
+
+        for ftype, fname in regular_features:
+            if ftype == FeatureType.META_INFO:
+                raise ValueError("Cannot check for a specific meta-info feature!")
+            if ftype not in existing_data.features or fname not in existing_data.features[ftype]:
+                return False
+        return True
+
     except (IOError, fs.errors.ResourceNotFound):
         return False
-    return len(not_seen_features) == 0
+
+
+def _check_if_meta_feature_exists(ftype: FeatureType, existing_data: FilesystemDataInfo) -> bool:
+    if ftype == FeatureType.BBOX and existing_data.bbox is None:
+        return False
+    if ftype == FeatureType.TIMESTAMPS and existing_data.timestamps is None:
+        return False
+    if ftype == FeatureType.META_INFO and existing_data.meta_info is None:
+        return False
+    return True
 
 
 def get_patches_with_missing_features(
