@@ -46,3 +46,8 @@ flake8 = [
 source = [
     "eogrow"
 ]
+
+[tool.coverage.report]
+omit = [
+    "*/__init__.py"
+]
