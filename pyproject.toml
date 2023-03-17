@@ -41,3 +41,13 @@ init_typed = true
 flake8 = [
     "--extend-ignore=E402"
 ]
+
+[tool.coverage.run]
+source = [
+    "eogrow"
+]
+
+[tool.coverage.report]
+omit = [
+    "*/__init__.py"
+]
