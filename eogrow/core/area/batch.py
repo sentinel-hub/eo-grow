@@ -10,8 +10,9 @@ from pydantic import Field
 
 from sentinelhub import CRS, BatchRequest, BatchRequestStatus, BatchSplitter, Geometry, SentinelHubBatch
 
+from ...utils.validators import field_validator
 from ..storage import StorageManager
-from .base import AreaSchema, BaseAreaManager, get_geometry_from_file
+from .base import AreaSchema, BaseAreaManager, area_schema_deprecation, get_geometry_from_file
 
 LOGGER = logging.getLogger(__name__)
 
@@ -24,7 +25,8 @@ class BatchAreaManager(BaseAreaManager):
     """Area manager that splits grid per UTM zones"""
 
     class Schema(BaseAreaManager.Schema):
-        area: AreaSchema
+        area: Optional[AreaSchema]
+        aoi_filename: str = None  # type: ignore[assignment]
         tiling_grid_id: int = Field(
             description="An id of one of the tiling grids predefined at Sentinel Hub Batch service."
         )
@@ -43,6 +45,8 @@ class BatchAreaManager(BaseAreaManager):
             ),
         )
 
+        _warn_and_adapt_old_config = field_validator("aoi_filename", area_schema_deprecation, pre=True)
+
     config: Schema
 
     def __init__(self, config: Schema, storage: StorageManager):
@@ -52,12 +56,10 @@ class BatchAreaManager(BaseAreaManager):
         self._injected_batch_id: Optional[str] = None
 
     def get_area_geometry(self, *, crs: CRS = CRS.WGS84) -> Geometry:
-        file_path = fs.path.join(self.storage.get_input_data_folder(), self.config.area.filename)
+        file_path = fs.path.join(self.storage.get_input_data_folder(), self.config.aoi_filename)
         return get_geometry_from_file(
             filesystem=self.storage.filesystem,
             file_path=file_path,
-            buffer=self.config.area.buffer,
-            simplification_factor=self.config.area.simplification_factor,
             geopandas_engine=self.storage.config.geopandas_backend,
         ).transform(crs)
 
@@ -117,7 +119,7 @@ class BatchAreaManager(BaseAreaManager):
             )
 
     def get_grid_cache_filename(self) -> str:
-        input_filename = fs.path.basename(self.config.area.filename)
+        input_filename = fs.path.basename(self.config.aoi_filename)
         input_filename = input_filename.rsplit(".", 1)[0]
 
         raw_params = [
