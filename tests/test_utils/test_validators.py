@@ -175,7 +175,7 @@ def test_parse_dtype(dtype_input: Union[str, type, np.dtype]):
         (
             {
                 "manager": "eogrow.core.area.BatchAreaManager",
-                "area": {"filename": "some_aoi.geojson"},
+                "aoi_filename": "some_aoi.geojson",
                 "tiling_grid_id": 0,
                 "resolution": 10,
             },

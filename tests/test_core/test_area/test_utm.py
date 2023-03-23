@@ -9,7 +9,7 @@ from eogrow.core.area import UtmZoneAreaManager
 @pytest.fixture(scope="session", name="large_area_config")
 def large_area_config_fixture():
     return {
-        "area": {"filename": "test_large_area.geojson", "buffer": 1},
+        "aoi_filename": "test_large_area.geojson",
         "patch": {"size_x": 1000000, "size_y": 1000000, "buffer_x": 0, "buffer_y": 0},
     }
 
@@ -17,7 +17,7 @@ def large_area_config_fixture():
 @pytest.fixture(scope="session", name="area_config")
 def area_config_fixture():
     return {
-        "area": {"filename": "test_area.geojson", "buffer": 0.001},
+        "aoi_filename": "test_area.geojson",
         "patch": {"size_x": 2400, "size_y": 1100, "buffer_x": 120, "buffer_y": 55},
     }
 
