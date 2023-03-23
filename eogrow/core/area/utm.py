@@ -29,7 +29,7 @@ class UtmZoneAreaManager(BaseAreaManager):
     """Area manager that splits grid per UTM zones"""
 
     class Schema(BaseAreaManager.Schema):
-        area: Optional[AreaSchema]
+        area: Optional[AreaSchema] = Field(description="DEPRECATED, use `aoi_filename` instead.")
         aoi_filename: str = None  # type: ignore[assignment]
         patch: PatchSchema
 

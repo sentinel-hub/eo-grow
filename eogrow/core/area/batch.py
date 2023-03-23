@@ -25,7 +25,7 @@ class BatchAreaManager(BaseAreaManager):
     """Area manager that splits grid per UTM zones"""
 
     class Schema(BaseAreaManager.Schema):
-        area: Optional[AreaSchema]
+        area: Optional[AreaSchema] = Field(description="DEPRECATED, use `aoi_filename` instead.")
         aoi_filename: str = None  # type: ignore[assignment]
         tiling_grid_id: int = Field(
             description="An id of one of the tiling grids predefined at Sentinel Hub Batch service."
