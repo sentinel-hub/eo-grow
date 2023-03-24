@@ -8,6 +8,7 @@ from eolearn.io import VectorImportTask
 
 from ..core.pipeline import Pipeline
 from ..types import ExecKwargs, Feature, PatchList
+from ..utils.validators import field_validator, restrict_types
 
 
 class ImportVectorPipeline(Pipeline):
@@ -20,6 +21,8 @@ class ImportVectorPipeline(Pipeline):
         clip: bool = Field(True, description="Controls whether the polygons are clipped to the EOPatch boundaries. ")
         output_feature: Feature = Field(description="The EOPatch feature to which the vector will be imported.")
         output_folder_key: str = Field(description="The folder key into which the EOPatch will be saved. ")
+
+        _restrict_output_feature = field_validator("output_feature", restrict_types([FeatureType.VECTOR_TIMELESS]))
 
     config: Schema
 
