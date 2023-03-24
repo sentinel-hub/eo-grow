@@ -6,7 +6,6 @@ from eolearn.core import EONode, EOWorkflow, FeatureType, OverwritePermission, S
 from eolearn.io import VectorImportTask
 
 from ..core.pipeline import Pipeline
-from ..tasks.import_vector import ExtractTimestampsTask
 from ..types import ExecKwargs, Feature, PatchList
 from ..utils.validators import field_validator, restrict_types
 
@@ -47,10 +46,7 @@ class ImportVectorPipeline(Pipeline):
             clip=self.config.clip,
             filesystem=self.storage.filesystem,
         )
-        previous_node = EONode(vector_import_task)
-
-        if self.config.output_feature[0].is_temporal():
-            previous_node = EONode(ExtractTimestampsTask(self.config.output_feature), inputs=[previous_node])
+        import_node = EONode(vector_import_task)
 
         save_task = SaveTask(
             path=self.storage.get_folder(self.config.output_folder_key),
@@ -59,5 +55,5 @@ class ImportVectorPipeline(Pipeline):
             compress_level=1,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
         )
-        save_node = EONode(save_task, inputs=[previous_node])
+        save_node = EONode(save_task, inputs=[import_node])
         return EOWorkflow.from_endnodes(save_node)
