@@ -1,26 +1,14 @@
 """Implements a pipeline for importing vector data from a file."""
-
-
 import fs
 from pydantic import Field
 
-from eolearn.core import EONode, EOPatch, EOTask, EOWorkflow, FeatureType, OverwritePermission, SaveTask
-from eolearn.core.constants import TIMESTAMP_COLUMN
+from eolearn.core import EONode, EOWorkflow, FeatureType, OverwritePermission, SaveTask
 from eolearn.io import VectorImportTask
 
 from ..core.pipeline import Pipeline
+from ..tasks.import_vector import ExtractTimestampsTask
 from ..types import ExecKwargs, Feature, PatchList
 from ..utils.validators import field_validator, restrict_types
-
-
-class ExtractTimestampsTask(EOTask):
-    def __init__(self, input_feature: Feature):
-        self.input_feature = input_feature
-
-    def execute(self, eopatch: EOPatch) -> EOPatch:
-        gdf = eopatch[self.input_feature]
-        eopatch.timestamps = list(gdf[TIMESTAMP_COLUMN].unique())
-        return eopatch
 
 
 class ImportVectorPipeline(Pipeline):
