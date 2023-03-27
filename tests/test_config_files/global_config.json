@@ -1,7 +1,7 @@
 {
   "area": {
     "manager": "eogrow.core.area.UtmZoneAreaManager",
-    "aoi_filename": "test_area.geojson",
+    "geometry_filename": "test_area.geojson",
     "patch":{
       "size_x": 2400,
       "size_y": 1100,

@@ -29,19 +29,19 @@ class UtmZoneAreaManager(BaseAreaManager):
     """Area manager that splits grid per UTM zones"""
 
     class Schema(BaseAreaManager.Schema):
-        area: Optional[AreaSchema] = Field(description="DEPRECATED, use `aoi_filename` instead.")
-        aoi_filename: str = None  # type: ignore[assignment]
+        area: Optional[AreaSchema] = Field(description="DEPRECATED, use `geometry_filename` instead.")
+        geometry_filename: str = None  # type: ignore[assignment]
         patch: PatchSchema
 
         offset_x: float = Field(0, description="An offset of tiling grid in horizontal dimension")
         offset_y: float = Field(0, description="An offset of tiling grid in vertical dimension")
 
-        _warn_and_adapt_old_config = field_validator("aoi_filename", area_schema_deprecation, pre=True)
+        _warn_and_adapt_old_config = field_validator("geometry_filename", area_schema_deprecation, pre=True)
 
     config: Schema
 
     def get_area_geometry(self, *, crs: CRS = CRS.WGS84) -> Geometry:
-        file_path = fs.path.join(self.storage.get_input_data_folder(), self.config.aoi_filename)
+        file_path = fs.path.join(self.storage.get_input_data_folder(), self.config.geometry_filename)
         return get_geometry_from_file(
             filesystem=self.storage.filesystem,
             file_path=file_path,
@@ -80,7 +80,7 @@ class UtmZoneAreaManager(BaseAreaManager):
         return grid
 
     def get_grid_cache_filename(self) -> str:
-        input_filename = fs.path.basename(self.config.aoi_filename)
+        input_filename = fs.path.basename(self.config.geometry_filename)
         input_filename = input_filename.rsplit(".", 1)[0]
 
         raw_params = [

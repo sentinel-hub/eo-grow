@@ -54,7 +54,7 @@ def request_mock_setup(requests_mock):
 def area_config_fixture():
     return {
         "manager": "eogrow.core.area.BatchAreaManager",
-        "aoi_filename": "test_large_area.geojson",
+        "geometry_filename": "test_large_area.geojson",
         "tiling_grid_id": 2,
         "resolution": 120,
         "tile_buffer_x": 10,

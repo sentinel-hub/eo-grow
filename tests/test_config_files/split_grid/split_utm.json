@@ -6,7 +6,7 @@
     "**common_config": "${config_path}/global_config.json",
     "area": {
       "manager": "eogrow.core.area.UtmZoneAreaManager",
-      "aoi_filename": "test_area.geojson",
+      "geometry_filename": "test_area.geojson",
       "patch":{
         "size_x": 3600,
         "size_y": 3000,
