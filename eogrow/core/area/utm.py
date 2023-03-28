@@ -2,7 +2,7 @@
 
 import logging
 from collections import defaultdict
-from typing import Dict
+from typing import Dict, Optional
 
 import fs
 import geopandas as gpd
@@ -11,8 +11,9 @@ from pydantic import Field
 
 from sentinelhub import CRS, Geometry, UtmZoneSplitter
 
+from ...utils.validators import field_validator
 from ..schemas import BaseSchema
-from .base import AreaSchema, BaseAreaManager, get_geometry_from_file
+from .base import AreaSchema, BaseAreaManager, area_schema_deprecation, get_geometry_from_file
 
 LOGGER = logging.getLogger(__name__)
 
@@ -28,21 +29,24 @@ class UtmZoneAreaManager(BaseAreaManager):
     """Area manager that splits grid per UTM zones"""
 
     class Schema(BaseAreaManager.Schema):
-        area: AreaSchema
+        area: Optional[AreaSchema] = Field(description="DEPRECATED, use `geometry_filename` instead.")
+        geometry_filename: str = Field(  # type:ignore[assignment]
+            None, description="Name of the file that defines the AoI geometry, located in the input data folder."
+        )
         patch: PatchSchema
 
         offset_x: float = Field(0, description="An offset of tiling grid in horizontal dimension")
         offset_y: float = Field(0, description="An offset of tiling grid in vertical dimension")
 
+        _warn_and_adapt_old_config = field_validator("geometry_filename", area_schema_deprecation, pre=True)
+
     config: Schema
 
     def get_area_geometry(self, *, crs: CRS = CRS.WGS84) -> Geometry:
-        file_path = fs.path.join(self.storage.get_input_data_folder(), self.config.area.filename)
+        file_path = fs.path.join(self.storage.get_input_data_folder(), self.config.geometry_filename)
         return get_geometry_from_file(
             filesystem=self.storage.filesystem,
             file_path=file_path,
-            buffer=self.config.area.buffer,
-            simplification_factor=self.config.area.simplification_factor,
             geopandas_engine=self.storage.config.geopandas_backend,
         ).transform(crs)
 
@@ -78,7 +82,7 @@ class UtmZoneAreaManager(BaseAreaManager):
         return grid
 
     def get_grid_cache_filename(self) -> str:
-        input_filename = fs.path.basename(self.config.area.filename)
+        input_filename = fs.path.basename(self.config.geometry_filename)
         input_filename = input_filename.rsplit(".", 1)[0]
 
         raw_params = [

@@ -4,9 +4,7 @@
   "**global_config": "${config_path}/global_config.json",
   "area": { // These parameters must match the content of test_project/input-data/batch_grid.gpkg grid file
     "manager": "eogrow.core.area.BatchAreaManager",
-    "area": {
-      "filename": "batch_area.geojson"
-    },
+    "geometry_filename": "batch_area.geojson",
     "tiling_grid_id": 1,
     "resolution": 10,
     "tile_buffer_x": 3,
