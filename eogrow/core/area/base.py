@@ -40,7 +40,7 @@ def area_schema_deprecation(cls: type, value: Optional[str], values: RawSchemaDi
             (
                 "Use `geometry_filename` to provide the file (e.g., geojson, gpkg) with AoI. The `area` parameter is"
                 " deprecated, and extra parameters like `buffer` and `simplification_factor` are no longer available;"
-                " should prepare the AoI geometry by themselves."
+                " users should prepare the AoI geometry by themselves."
             ),
             EODeprecationWarning,
             stacklevel=2,

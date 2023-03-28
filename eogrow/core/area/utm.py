@@ -30,7 +30,9 @@ class UtmZoneAreaManager(BaseAreaManager):
 
     class Schema(BaseAreaManager.Schema):
         area: Optional[AreaSchema] = Field(description="DEPRECATED, use `geometry_filename` instead.")
-        geometry_filename: str = None  # type: ignore[assignment]
+        geometry_filename: str = Field(  # type:ignore[assignment]
+            None, description="Name of the file that defines the AoI geometry, located in the input data folder."
+        )
         patch: PatchSchema
 
         offset_x: float = Field(0, description="An offset of tiling grid in horizontal dimension")

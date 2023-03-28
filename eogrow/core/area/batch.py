@@ -26,7 +26,9 @@ class BatchAreaManager(BaseAreaManager):
 
     class Schema(BaseAreaManager.Schema):
         area: Optional[AreaSchema] = Field(description="DEPRECATED, use `geometry_filename` instead.")
-        geometry_filename: str = None  # type: ignore[assignment]
+        geometry_filename: str = Field(  # type:ignore[assignment]
+            None, description="Name of the file that defines the AoI geometry, located in the input data folder."
+        )
         tiling_grid_id: int = Field(
             description="An id of one of the tiling grids predefined at Sentinel Hub Batch service."
         )
