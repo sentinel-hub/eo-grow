@@ -51,7 +51,7 @@ class ImportVectorPipeline(Pipeline):
         save_task = SaveTask(
             path=self.storage.get_folder(self.config.output_folder_key),
             filesystem=self.storage.filesystem,
-            features=[FeatureType.BBOX, FeatureType.TIMESTAMPS, self.config.output_feature],
+            features=[FeatureType.BBOX, self.config.output_feature],
             compress_level=1,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
         )
