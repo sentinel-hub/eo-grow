@@ -4,6 +4,7 @@ from typing import Any, Dict, Literal, Optional
 import fs
 from pydantic import BaseSettings, Field
 
+import sentinelhub
 from eolearn.core.utils.fs import get_aws_credentials, get_filesystem, is_s3_path
 from sentinelhub import SHConfig
 
@@ -60,7 +61,7 @@ class StorageManager(EOGrowObject):
     def _prepare_sh_config(self) -> SHConfig:
         """Prepares an instance of `SHConfig` containing AWS credentials. In case given AWS profile doesn't exist it
         will show a warning and return a config without AWS credentials."""
-        sh_config = SHConfig(hide_credentials=True)
+        sh_config = SHConfig(hide_credentials=True) if sentinelhub.__version__ < "3.9.0" else SHConfig()
 
         if self.is_on_s3() and self.config.aws_profile:
             sh_config = get_aws_credentials(aws_profile=self.config.aws_profile, config=sh_config)
