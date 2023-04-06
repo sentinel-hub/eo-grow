@@ -1,3 +1,116 @@
+[build-system]
+requires = ['hatchling']
+build-backend = 'hatchling.build'
+
+[tool.hatch.version]
+path = 'eogrow/__init__.py'
+
+
+[tool.hatch.build]
+exclude = ["/docs", "/tests"]
+
+[tool.hatch.build.targets.sdist]
+include = ['/README.md', '/LICENSE.md', '/eogrow']
+
+[project]
+name = "eo-grow"
+dynamic = ["version"]
+description = "Earth observation framework for scaled-up processing in Python"
+readme = "README.md"
+requires-python = ">= 3.8"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Sinergise EO research team", email = "eoresearch@sinergise.com" },
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: Unix",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
+dependencies = [
+    "click",
+    "eo-learn-core>=1.4.1",
+    "eo-learn-features>=1.4.1",
+    "eo-learn-geometry>=1.4.1",
+    "eo-learn-io>=1.4.1",
+    "eo-learn-mask>=1.4.1",
+    "eo-learn-ml-tools>=1.4.1",
+    "eo-learn-visualization>=1.4.1",
+    "fiona",
+    "fs>=2.2.0",
+    "geopandas>=0.8.1",
+    "joblib",
+    "lightgbm>=3.0.0",
+    "numpy",
+    "pandas",
+    "pydantic>=1.8.0",
+    "pyogrio",
+    "python-rapidjson",
+    "rasterio",
+    "ray[default]",
+    "scikit-learn",
+    "sentinelhub>=3.6.2",
+    "shapely>=1.8.0",
+    "typing-extensions",
+]
+
+[project.optional-dependencies]
+docs = [
+    "autodoc_pydantic",
+    "nbsphinx",
+    "sphinx",
+    "sphinx-rtd-theme>=1.0.0",
+    "sphinx_mdinclude",
+]
+dev = [
+    "boto3",
+    "build",
+    "deepdiff",
+    "fs_s3fs",
+    "ipdb",
+    "moto",
+    "mypy>=0.990",
+    "pre-commit",
+    "pytest>=4.0.0",
+    "pytest-cov",
+    "pytest-lazy-fixture",
+    "pytest-order",
+    "requests-mock",
+    "twine",
+    "types-mock",
+    "types-requests",
+    "types-setuptools",
+    "types-urllib3",
+]
+
+[project.urls]
+Homepage = "https://github.com/sentinel-hub/eo-grow"
+Documentation = "https://eo-grow.readthedocs.io"
+Issues = "https://github.com/sentinel-hub/eo-grow/issues"
+Source = "https://github.com/sentinel-hub/eo-grow"
+Forum = "https://forum.sentinel-hub.com"
+
+[project.scripts]
+eogrow = "eogrow.cli:EOGrowCli.main"
+eogrow-ray = "eogrow.cli:EOGrowCli.ray"
+eogrow-template = "eogrow.cli:EOGrowCli.make_template"
+eogrow-validate = "eogrow.cli:EOGrowCli.validate_config"
+eogrow-test = "eogrow.cli:EOGrowCli.run_test_pipeline"
+
+
 [tool.black]
 line-length = 120
 preview = true
@@ -6,14 +119,21 @@ preview = true
 profile = "black"
 known_first_party = ["sentinelhub", "eolearn"]
 known_absolute = "eogrow"
-sections = ["FUTURE","STDLIB","THIRDPARTY","FIRSTPARTY","ABSOLUTE","LOCALFOLDER"]
+sections = [
+    "FUTURE",
+    "STDLIB",
+    "THIRDPARTY",
+    "FIRSTPARTY",
+    "ABSOLUTE",
+    "LOCALFOLDER",
+]
 line_length = 120
 
 [tool.pytest.ini_options]
 log_cli_level = "INFO"
 markers = [
     "integration: marks tests that fully execute pipelines (and tend to be slow)",
-    "chain: marks tests that represent an end-to-end pipeline execution"
+    "chain: marks tests that represent an end-to-end pipeline execution",
 ]
 
 [tool.mypy]
@@ -29,25 +149,17 @@ disallow_untyped_decorators = true
 warn_unreachable = true
 strict_equality = true
 pretty = true
-plugins = [
-    "pydantic.mypy"
-]
+plugins = ["pydantic.mypy"]
 
 [tool.pydantic-mypy]
 # init_forbid_extra = true  # cant be used unless we change managers
 init_typed = true
 
 [tool.nbqa.addopts]
-flake8 = [
-    "--extend-ignore=E402"
-]
+flake8 = ["--extend-ignore=E402"]
 
 [tool.coverage.run]
-source = [
-    "eogrow"
-]
+source = ["eogrow"]
 
 [tool.coverage.report]
-omit = [
-    "*/__init__.py"
-]
+omit = ["*/__init__.py"]
