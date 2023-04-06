@@ -310,7 +310,7 @@ def run_config(
 
     :param config_path: A path to the config file
     :param output_folder_key: Type of the folder containing results of the pipeline, inferred from config if None
-    :param reset_output_folder: If True it will delete content of the folder with results before running the pipeline
+    :param reset_output_folder: Delete the content of the results folder before running the pipeline
     """
     crude_configs = collect_configs_from_path(config_path)
     raw_configs = [interpret_config_from_dict(config) for config in crude_configs]
@@ -323,7 +323,7 @@ def run_config(
         if reset_output_folder:
             if output_folder_key is None:
                 raise ValueError(
-                    "Pipeline does not have a `output_folder_key` parameter, `output_folder_key` must be set by hand."
+                    "Pipeline does not have an `output_folder_key` parameter, it must be set by hand."
                 )
             folder = pipeline.storage.get_folder(output_folder_key)
             pipeline.storage.filesystem.removetree(folder)
@@ -345,8 +345,7 @@ def compare_content(
     :param config_path: A path to the config file
     :param stats_path: A path to the file containing result statistics
     :param output_folder_key: Type of the folder containing results of the pipeline, inferred from config if missing
-    :param save_new_stats: If True then the current results are saved as the statistics. Otherwise, the saved results
-        are compared to the current ones.
+    :param save_new_stats: Save new result stats and skip the comparison
     """
     crude_configs = collect_configs_from_path(config_path)
     raw_configs = [interpret_config_from_dict(config) for config in crude_configs]
@@ -355,7 +354,7 @@ def compare_content(
         output_folder_key = output_folder_key or config.get("output_folder_key")
         if output_folder_key is None:
             raise ValueError(
-                "Pipeline does not have a `output_folder_key` parameter, `output_folder_key` must be set by hand."
+                "Pipeline does not have an `output_folder_key` parameter, it must be set by hand."
             )
 
         pipeline = load_pipeline_class(config).from_raw_config(config)
