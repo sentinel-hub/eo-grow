@@ -1,13 +1,8 @@
 import pytest
 
-from eogrow.utils.testing import compare_content, create_folder_dict, run_config
+from eogrow.utils.testing import compare_content, run_config
 
 pytestmark = pytest.mark.integration
-
-
-@pytest.fixture(scope="session", name="folders")
-def config_folder_fixture(config_folder, stats_folder):
-    return create_folder_dict(config_folder, stats_folder, "features")
 
 
 @pytest.mark.order(after="test_sampling.py::test_sampling_pipeline")
