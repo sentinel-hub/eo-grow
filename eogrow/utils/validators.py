@@ -8,7 +8,8 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Tuple
 import numpy as np
 from pydantic import BaseModel, Field, root_validator, validator
 
-from eolearn.core import FeatureParser, FeatureType
+from eolearn.core import FeatureType
+from eolearn.core.utils.parsing import parse_feature
 from sentinelhub import DataCollection
 from sentinelhub.data_collections_bands import Band, Bands, MetaBands, Unit
 
@@ -220,7 +221,7 @@ def restrict_types(
     """Validates a field representing a feature, where it restricts the possible feature types."""
 
     def validate_feature(value: Feature) -> Feature:
-        FeatureParser(features=value, allowed_feature_types=allowed_feature_types)
+        parse_feature(feature=value, allowed_feature_types=allowed_feature_types)
         return value
 
     return validate_feature
