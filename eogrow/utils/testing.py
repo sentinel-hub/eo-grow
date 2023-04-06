@@ -322,9 +322,7 @@ def run_config(
 
         if reset_output_folder:
             if output_folder_key is None:
-                raise ValueError(
-                    "Pipeline does not have an `output_folder_key` parameter, it must be set by hand."
-                )
+                raise ValueError("Pipeline does not have an `output_folder_key` parameter, it must be set by hand.")
             folder = pipeline.storage.get_folder(output_folder_key)
             pipeline.storage.filesystem.removetree(folder)
 
@@ -353,9 +351,7 @@ def compare_content(
     for config in raw_configs:
         output_folder_key = output_folder_key or config.get("output_folder_key")
         if output_folder_key is None:
-            raise ValueError(
-                "Pipeline does not have an `output_folder_key` parameter, it must be set by hand."
-            )
+            raise ValueError("Pipeline does not have an `output_folder_key` parameter, it must be set by hand.")
 
         pipeline = load_pipeline_class(config).from_raw_config(config)
         folder = pipeline.storage.get_folder(output_folder_key)
