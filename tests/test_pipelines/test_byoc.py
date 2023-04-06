@@ -11,7 +11,6 @@ Mocks:
     so we mock it to prevent `rasterio.open` to fail.
 - Most request endpoints are mocked in the `requests_mock` fixture.
 """
-import os
 from unittest.mock import patch
 
 import pytest
@@ -22,7 +21,7 @@ from sentinelhub.geometry import Geometry
 
 from eogrow.core.storage import StorageManager
 from eogrow.pipelines.byoc import IngestByocTilesPipeline
-from eogrow.pipelines.export_maps import ExportMapsPipeline
+from eogrow.utils.testing import run_config
 
 CONFIG_SUBFOLDER = "byoc"
 MOCK_COVER_GEOM = [[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]
@@ -48,17 +47,7 @@ def request_mock_setup(requests_mock):
     return requests_mock
 
 
-def run_byoc_pipeline(config_folder: str, config: str, preparation_config: str, requests_mock):
-    preparation_config_path = os.path.join(config_folder, CONFIG_SUBFOLDER, preparation_config)
-    export_pipeline = ExportMapsPipeline.from_path(preparation_config_path)
-
-    byoc_folder = export_pipeline.storage.get_folder(export_pipeline.config.output_folder_key)
-    export_pipeline.storage.filesystem.removetree(byoc_folder)
-
-    export_pipeline.run()
-
-    config_path = os.path.join(config_folder, CONFIG_SUBFOLDER, config)
-
+def run_byoc_pipeline(config_path: str, requests_mock):
     # mock tile cover geom
     def _get_tile_cover_geometry_mock(_: str) -> Geometry:
         return Geometry(Polygon(MOCK_COVER_GEOM), crs=CRS.WGS84)
@@ -79,10 +68,14 @@ def run_byoc_pipeline(config_folder: str, config: str, preparation_config: str, 
 
 
 @pytest.mark.chain
-@pytest.mark.parametrize("preparation_config, config", [("prepare_lulc_data.json", "ingest_lulc.json")])
+@pytest.mark.parametrize("preparation_config, config", [("prepare_lulc_data", "ingest_lulc")])
 @pytest.mark.order(after=["test_rasterize.py::test_rasterize_pipeline_features"])
-def test_timeless_byoc(config_folder, preparation_config, config, configured_requests_mock):
-    pipeline, requests = run_byoc_pipeline(config_folder, config, preparation_config, configured_requests_mock)
+def test_timeless_byoc(config_and_stats_paths, preparation_config, config, configured_requests_mock):
+    preparation_config_path, _ = config_and_stats_paths("byoc", preparation_config)
+    config_path, _ = config_and_stats_paths("byoc", config)
+
+    run_config(preparation_config_path)
+    pipeline, requests = run_byoc_pipeline(config_path, configured_requests_mock)
 
     auth_request = requests.pop(0)
     assert auth_request.url == "https://services.sentinel-hub.com/oauth/token"
@@ -107,10 +100,14 @@ def test_timeless_byoc(config_folder, preparation_config, config, configured_req
         assert content["sensingTime"] == pipeline.config.sensing_time.isoformat() + "Z"
 
 
-@pytest.mark.parametrize("preparation_config, config", [("prepare_bands_data.json", "ingest_bands.json")])
+@pytest.mark.parametrize("preparation_config, config", [("prepare_bands_data", "ingest_bands")])
 @pytest.mark.order(after=["test_rasterize.py::test_rasterize_pipeline_features"])
-def test_temporal_byoc(config_folder, preparation_config, config, configured_requests_mock):
-    pipeline, requests = run_byoc_pipeline(config_folder, config, preparation_config, configured_requests_mock)
+def test_temporal_byoc(config_and_stats_paths, preparation_config, config, configured_requests_mock):
+    preparation_config_path, _ = config_and_stats_paths("byoc", preparation_config)
+    config_path, _ = config_and_stats_paths("byoc", config)
+
+    run_config(preparation_config_path)
+    pipeline, requests = run_byoc_pipeline(config_path, configured_requests_mock)
 
     auth_request = requests.pop(0)
     assert auth_request.url == "https://services.sentinel-hub.com/oauth/token"

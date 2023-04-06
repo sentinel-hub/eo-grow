@@ -4,6 +4,7 @@ Module with global fixtures
 import os
 import shutil
 from tempfile import TemporaryDirectory
+from typing import Tuple
 
 import pytest
 
@@ -27,6 +28,15 @@ def config_folder_fixture():
 def stats_folder_fixture():
     """Folder with stats"""
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_stats")
+
+
+@pytest.fixture(name="config_and_stats_paths")
+def config_and_stats_paths_fixture(config_folder, stats_folder):
+    def path_getter(folder: str, experiment_name: str) -> Tuple[str, str]:
+        file = f"{experiment_name}.json"
+        return (os.path.join(config_folder, folder, file), os.path.join(stats_folder, folder, file))
+
+    return path_getter
 
 
 @pytest.fixture(name="temp_folder")

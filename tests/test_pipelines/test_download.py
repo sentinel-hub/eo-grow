@@ -1,14 +1,9 @@
 import pytest
 from pydantic import ValidationError
 
-from eogrow.utils.testing import create_folder_dict, run_and_test_pipeline
+from eogrow.utils.testing import compare_content, run_config
 
 pytestmark = pytest.mark.integration
-
-
-@pytest.fixture(scope="session", name="folders")
-def config_folder_fixture(config_folder, stats_folder):
-    return create_folder_dict(config_folder, stats_folder, "download_and_batch")
 
 
 @pytest.mark.chain
@@ -31,11 +26,14 @@ def test_preparation(storage):
         pytest.param("download_l1c_yearly", marks=pytest.mark.chain),
     ],
 )
-def test_download_pipeline(experiment_name, folders):
-    run_and_test_pipeline(experiment_name, **folders)
+def test_download_pipeline(config_and_stats_paths, experiment_name):
+    config_path, stats_path = config_and_stats_paths("download_and_batch", experiment_name)
+    run_config(config_path)
+    compare_content(config_path, stats_path)
 
 
 @pytest.mark.parametrize("experiment_name", ["download_custom_raise"])
-def test_validation_error(experiment_name, folders):
+def test_validation_error(config_and_stats_paths, experiment_name):
     with pytest.raises(ValidationError):
-        run_and_test_pipeline(experiment_name, **folders)
+        config_path, _ = config_and_stats_paths("download_and_batch", experiment_name)
+        run_config(config_path)
