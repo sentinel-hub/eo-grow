@@ -1,5 +1,0 @@
-autodoc_pydantic
-nbsphinx
-sphinx
-sphinx-rtd-theme>=1.0.0
-sphinx_mdinclude
