@@ -1,16 +1,13 @@
 import pytest
 
-from eogrow.utils.testing import create_folder_dict, run_and_test_pipeline
+from eogrow.utils.testing import compare_content, run_config
 
 pytestmark = pytest.mark.integration
 
 
-@pytest.fixture(scope="session", name="folders")
-def config_folder_fixture(config_folder, stats_folder):
-    return create_folder_dict(config_folder, stats_folder, "testing")
-
-
 @pytest.mark.chain
 @pytest.mark.parametrize("experiment_name", ["testing", "timestamps_only"])
-def test_features_pipeline(experiment_name, folders):
-    run_and_test_pipeline(experiment_name, **folders)
+def test_features_pipeline(config_and_stats_paths, experiment_name):
+    config_path, stats_path = config_and_stats_paths("testing", experiment_name)
+    run_config(config_path)
+    compare_content(config_path, stats_path)
