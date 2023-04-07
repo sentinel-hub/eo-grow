@@ -76,5 +76,5 @@ def test_batch_to_eopatch_pipeline(config_and_stats_paths, experiment_name):
             timestamp_shuffle_seed=17,
         )
 
-    run_config(config_path)
-    compare_content(config_path, stats_path)
+    output_path = run_config(config_path)
+    compare_content(output_path, stats_path)

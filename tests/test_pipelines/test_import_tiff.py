@@ -25,8 +25,8 @@ def test_import_tiff_pipeline(config_and_stats_paths, experiment_name):
     config_path, stats_path = config_and_stats_paths("import_tiff", experiment_name)
 
     prepare_dummy_input(config_path)
-    run_config(config_path)
-    compare_content(config_path, stats_path)
+    output_path = run_config(config_path)
+    compare_content(output_path, stats_path)
 
 
 def prepare_dummy_input(config_path: str) -> None:
