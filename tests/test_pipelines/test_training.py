@@ -4,7 +4,6 @@ import joblib
 import pytest
 
 from eogrow.pipelines.training import ClassificationTrainingPipeline
-from eogrow.utils.testing import run_config
 
 pytestmark = pytest.mark.integration
 
@@ -16,9 +15,9 @@ pytestmark = pytest.mark.integration
 )
 def test_training_pipeline_random_split(config_and_stats_paths, experiment_name, num_classes):
     config_path, _ = config_and_stats_paths("training", experiment_name)
-    run_config(config_path)
 
     pipeline = ClassificationTrainingPipeline.from_path(config_path)
+    pipeline.run()  # not run with `run_config` because it checks EOExecutor logs, but this one has none
     config = pipeline.config
 
     folder = pipeline.storage.get_folder("models", full_path=True)
