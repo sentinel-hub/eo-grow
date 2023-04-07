@@ -10,6 +10,7 @@ pytestmark = pytest.mark.integration
     "experiment_name",
     [
         "sampling_fraction",
+        "sampling_fraction_erosion",
         "sampling_block_number",
         "sampling_block_fraction",
         "sampling_grid",
