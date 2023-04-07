@@ -28,8 +28,8 @@ def test_preparation(storage):
 )
 def test_download_pipeline(config_and_stats_paths, experiment_name):
     config_path, stats_path = config_and_stats_paths("download_and_batch", experiment_name)
-    run_config(config_path)
-    compare_content(config_path, stats_path)
+    output_path = run_config(config_path)
+    compare_content(output_path, stats_path)
 
 
 @pytest.mark.parametrize("experiment_name", ["download_custom_raise"])

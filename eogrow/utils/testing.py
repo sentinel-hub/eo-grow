@@ -13,6 +13,7 @@ import rasterio
 import shapely.ops
 from deepdiff import DeepDiff
 from fs.base import FS
+from fs.osfs import OSFS
 
 from eolearn.core import EOPatch, FeatureType
 from eolearn.core.eodata_io import get_filesystem_data_info
@@ -305,8 +306,10 @@ def run_config(
     *,
     output_folder_key: Optional[str] = None,
     reset_output_folder: bool = True,
-) -> None:
-    """Runs a pipeline (or multiple) and checks the logs that all the executions were successful
+) -> Optional[str]:
+    """Runs a pipeline (or multiple) and checks the logs that all the executions were successful. Returns the full path
+    of the output folder (if there is one) so it can be inspected further. In case of chain configs, the output folder
+    of the last config is returned.
 
     :param config_path: A path to the config file
     :param output_folder_key: Type of the folder containing results of the pipeline, inferred from config if None
@@ -330,41 +333,34 @@ def run_config(
 
         check_pipeline_logs(pipeline)
 
+    return pipeline.storage.get_folder(output_folder_key, full_path=True) if output_folder_key else None
+
 
 def compare_content(
-    config_path: str,
+    folder_path: Optional[str],
     stats_path: str,
     *,
-    output_folder_key: Optional[str] = None,
     save_new_stats: bool = False,
 ) -> None:
-    """Compares the results from a pipeline run with the saved statistics
+    """Compares the results from a pipeline run with the saved statistics. Constructed to be coupled with `run_config`
+    hence the `Optional` input.
 
-    :param config_path: A path to the config file
+    :param folder_path: A path to the folder with contents to be compared
     :param stats_path: A path to the file containing result statistics
-    :param output_folder_key: Type of the folder containing results of the pipeline, inferred from config if missing
     :param save_new_stats: Save new result stats and skip the comparison
     """
-    crude_configs = collect_configs_from_path(config_path)
-    raw_configs = [interpret_config_from_dict(config) for config in crude_configs]
+    if folder_path is None:
+        raise ValueError("The given path is None. The pipeline likely has no `output_folder_key` parameter.")
 
-    for config in raw_configs:
-        output_folder_key = output_folder_key or config.get("output_folder_key")
-        if output_folder_key is None:
-            raise ValueError("Pipeline does not have an `output_folder_key` parameter, it must be set by hand.")
+    tester = ContentTester(OSFS("/"), folder_path)
 
-        pipeline = load_pipeline_class(config).from_raw_config(config)
-        folder = pipeline.storage.get_folder(output_folder_key)
+    if save_new_stats:
+        tester.save(stats_path)
 
-        tester = ContentTester(pipeline.storage.filesystem, folder)
-
-        if save_new_stats:
-            tester.save(stats_path)
-
-        stats_difference = tester.compare(stats_path)
-        if stats_difference:
-            stats_difference_repr = stats_difference.to_json(indent=2, sort_keys=True)
-            raise AssertionError(f"Expected and obtained stats differ:\n{stats_difference_repr}")
+    stats_difference = tester.compare(stats_path)
+    if stats_difference:
+        stats_difference_repr = stats_difference.to_json(indent=2, sort_keys=True)
+        raise AssertionError(f"Expected and obtained stats differ:\n{stats_difference_repr}")
 
 
 def run_and_test_pipeline(
