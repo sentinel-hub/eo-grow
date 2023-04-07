@@ -8,7 +8,7 @@ import fiona
 import fs
 import geopandas as gpd
 import numpy as np
-from pydantic import Field, validator
+from pydantic import Field, root_validator
 
 from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, FeatureType, LoadTask, OverwritePermission, SaveTask
 from eolearn.core.utils.parsing import parse_feature
@@ -83,27 +83,23 @@ class RasterizePipeline(Pipeline):
         _check_raster_value_values_column = ensure_exactly_one_defined("raster_value", "raster_values_column")
         _check_shape_resolution = ensure_exactly_one_defined("raster_shape", "resolution")
 
-        @validator("vector_input")
-        def _check_input(cls, vector_input: Union[Feature, str]) -> Union[Feature, str]:
+        @root_validator
+        def _check_input_output(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+            vector_input: Union[Feature, str] = values["vector_input"]
+            raster_feature: Feature = values["raster_feature"]
+            parse_feature(feature=raster_feature, allowed_feature_types=lambda ftype: ftype.is_image())
             if isinstance(vector_input, str):
-                if vector_input.lower().endswith((".geojson", ".shp", ".gpkg", ".gdb")):
+                if not vector_input.lower().endswith((".geojson", ".shp", ".gpkg", ".gdb")):
                     raise ValueError(
                         f"Input file path {vector_input} should be a GeoJSON, Shapefile, GeoPackage or GeoDataBase."
                     )
             else:
                 parse_feature(feature=vector_input, allowed_feature_types=lambda ftype: ftype.is_vector())
-            return vector_input
-
-        @validator("raster_feature")
-        def _check_output(cls, raster_feature: Feature, values: Dict[str, Any]) -> Feature:
-            parse_feature(feature=raster_feature, allowed_feature_types=lambda ftype: ftype.is_image())
-            vector_input: Union[Feature, str] = values["vector_input"]
-            if not isinstance(vector_input, str):
                 vector_ftype, _ = vector_input
                 raster_ftype, _ = raster_feature
                 if vector_ftype.is_temporal() != raster_ftype.is_temporal():
                     raise ValueError("Temporal natures of the vector input and the raster output don't match!")
-            return raster_feature
+            return values
 
     config: Schema
 
