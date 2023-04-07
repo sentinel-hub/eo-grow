@@ -60,7 +60,7 @@ class RasterizePipeline(Pipeline):
                 " or `raster_value`."
             )
         )
-        raster_feature: Feature = Field(description="A feature which should contain the newly rasterized data.")
+        output_feature: Feature = Field(description="A feature which should contain the newly rasterized data.")
         polygon_buffer: float = Field(
             0, description="The size of polygon buffering to be applied before rasterization."
         )
@@ -70,7 +70,7 @@ class RasterizePipeline(Pipeline):
         raster_shape: Optional[Tuple[int, int]] = Field(
             description="Shape of resulting raster image. Cannot be used with `resolution`."
         )
-        overlap_value: Optional[int] = Field(description="Value to write over the areas where polygons overlap.")
+        overlap_value: Optional[float] = Field(description="Value to write over the areas where polygons overlap.")
         dtype: np.dtype = Field(np.dtype("int32"), description="Numpy dtype of the output feature.")
         no_data_value: int = Field(0, description="The no_data_value argument to be passed to VectorToRasterTask")
 
@@ -106,17 +106,15 @@ class RasterizePipeline(Pipeline):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
-        raster_feature = self.config.raster_feature
-        vector_ftype = FeatureType.VECTOR if self._is_temporal(raster_feature) else FeatureType.VECTOR_TIMELESS
-
         self.filename: Optional[str] = None
         self.vector_feature: Feature
 
-        if isinstance(self.config.vector_input, str):
-            self.filename = self.config.vector_input
-            self.vector_feature = (vector_ftype, f"TEMP_{uuid.uuid4().hex}")
-        else:
+        if not isinstance(self.config.vector_input, str):
             self.vector_feature = self.config.vector_input
+        else:
+            ftype = FeatureType.VECTOR if self._is_temporal(self.config.output_feature) else FeatureType.VECTOR_TIMELESS
+            self.filename = self.config.vector_input
+            self.vector_feature = (ftype, f"TEMP_{uuid.uuid4().hex}")
 
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         filtered_patch_list = get_patches_with_missing_features(
@@ -213,7 +211,7 @@ class RasterizePipeline(Pipeline):
             inputs=[previous_node],
             task=VectorToRasterTask(
                 vector_input=self.vector_feature,
-                raster_feature=self.config.raster_feature,
+                raster_feature=self.config.output_feature,
                 values_column=self.config.raster_values_column,
                 values=self.config.raster_value,
                 buffer=self.config.polygon_buffer,
@@ -242,9 +240,8 @@ class RasterizePipeline(Pipeline):
 
     def _get_output_features(self) -> List[FeatureSpec]:
         """Lists all features that are to be saved upon the pipeline completion"""
-        features: List[FeatureSpec] = [self.config.raster_feature, FeatureType.BBOX]
-
-        if self._is_temporal(self.config.raster_feature):
+        features: List[FeatureSpec] = [self.config.output_feature, FeatureType.BBOX]
+        if self._is_temporal(self.config.output_feature):
             features.append(FeatureType.TIMESTAMPS)
 
         return features
