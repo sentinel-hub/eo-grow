@@ -4,7 +4,7 @@ import shutil
 import pytest
 
 from eogrow.core.area import CustomGridAreaManager
-from eogrow.utils.testing import compare_content, extract_output_folder, run_config
+from eogrow.utils.testing import compare_content, run_config
 
 pytestmark = pytest.mark.integration
 
@@ -32,8 +32,8 @@ def test_grid_splitting(config_and_stats_paths, preparation_config, config, batc
     config_path, stats_path = config_and_stats_paths("split_grid", config)
 
     run_config(preparation_config_path)
-    run_config(config_path, output_folder_key="output_folder")
-    compare_content(extract_output_folder(config_path, output_folder_key="output_folder"), stats_path)
+    output_path = run_config(config_path, output_folder_key="output_folder")
+    compare_content(output_path, stats_path)
 
     # check the output file is compatible with custom grid area managers
     new_area_manager = CustomGridAreaManager.from_raw_config(

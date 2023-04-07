@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from eogrow.utils.testing import compare_content, extract_output_folder, run_config
+from eogrow.utils.testing import compare_content, run_config
 
 pytestmark = pytest.mark.integration
 
@@ -28,8 +28,8 @@ def test_preparation(storage):
 )
 def test_download_pipeline(config_and_stats_paths, experiment_name):
     config_path, stats_path = config_and_stats_paths("download_and_batch", experiment_name)
-    run_config(config_path)
-    compare_content(extract_output_folder(config_path), stats_path)
+    output_path = run_config(config_path)
+    compare_content(output_path, stats_path)
 
 
 @pytest.mark.parametrize("experiment_name", ["download_custom_raise"])

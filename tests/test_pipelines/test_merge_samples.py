@@ -1,6 +1,6 @@
 import pytest
 
-from eogrow.utils.testing import compare_content, extract_output_folder, run_config
+from eogrow.utils.testing import compare_content, run_config
 
 pytestmark = pytest.mark.integration
 
@@ -13,5 +13,5 @@ pytestmark = pytest.mark.integration
 )
 def test_merge_samples_pipeline(config_and_stats_paths, experiment_name, reset_folder):
     config_path, stats_path = config_and_stats_paths("merge_samples", experiment_name)
-    run_config(config_path, reset_output_folder=reset_folder)
-    compare_content(extract_output_folder(config_path), stats_path)
+    output_path = run_config(config_path, reset_output_folder=reset_folder)
+    compare_content(output_path, stats_path)
