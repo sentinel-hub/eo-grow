@@ -4,9 +4,10 @@ import json
 import logging
 import sys
 import time
-from logging import FileHandler, Filter, Formatter, Handler, LogRecord, StreamHandler
+from logging import FileHandler, Filter, Formatter, Handler, LogRecord
 from typing import Any, List, Optional, Sequence, Union
 
+import colorlog
 import fs
 from fs.base import FS
 from fs.errors import FilesystemClosed
@@ -157,10 +158,13 @@ class LoggingManager(EOGrowObject):
 
     def _create_stdout_handler(self) -> Handler:
         """Creates a logging handler to write logs into a standard output."""
-        stdout_handler = StreamHandler(sys.stdout)
+        stdout_handler = colorlog.StreamHandler(sys.stdout)
         stdout_handler.setLevel(logging.INFO)
 
-        formatter = Formatter("%(levelname)s [%(asctime)s] %(name)s:%(lineno)d: %(message)s", datefmt="%H:%M:%S")
+        formatter = colorlog.ColoredFormatter(
+            "%(log_color)s %(levelname)s %(cyan)s[%(asctime)s] %(light_blue)s%(name)s:%(lineno)d: %(white)s%(message)s",
+            datefmt="%H:%M:%S",
+        )
         stdout_handler.setFormatter(formatter)
 
         stdout_handler.addFilter(StdoutFilter(log_packages=self.config.stdout_log_packages))
