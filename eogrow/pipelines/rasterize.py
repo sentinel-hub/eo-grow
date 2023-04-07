@@ -19,7 +19,7 @@ from ..core.schemas import BaseSchema
 from ..types import Feature, FeatureSpec, PatchList
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.fs import LocalFile
-from ..utils.validators import ensure_exactly_one_defined, field_validator, parse_dtype
+from ..utils.validators import ensure_exactly_one_defined, field_validator, parse_dtype, restrict_types
 from ..utils.vector import concat_gdf
 
 LOGGER = logging.getLogger(__name__)
@@ -51,6 +51,7 @@ class RasterOutputSchema(BaseSchema):
     _parse_dtype = field_validator("dtype", parse_dtype, pre=True)
     _check_value_values_column = ensure_exactly_one_defined("value", "values_column")
     _check_shape_resolution = ensure_exactly_one_defined("raster_shape", "resolution")
+    _check_feature_type = field_validator("feature", restrict_types(lambda ftype: ftype.is_image()))
 
 
 class Preprocessing(BaseSchema):
