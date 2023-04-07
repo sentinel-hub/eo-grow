@@ -10,16 +10,7 @@ import geopandas as gpd
 import numpy as np
 from pydantic import Field
 
-from eolearn.core import (
-    CreateEOPatchTask,
-    EONode,
-    EOWorkflow,
-    FeatureType,
-    LoadTask,
-    MergeEOPatchesTask,
-    OverwritePermission,
-    SaveTask,
-)
+from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, FeatureType, LoadTask, OverwritePermission, SaveTask
 from eolearn.geometry import VectorToRasterTask
 from eolearn.io import VectorImportTask
 
@@ -87,7 +78,7 @@ class RasterizePipeline(Pipeline):
         dataset_layer: Optional[str] = Field(
             description="Name of a layer with data to be rasterized in a multi-layer file."
         )
-        columns: List[VectorColumnSchema]
+        column: VectorColumnSchema
         preprocess_dataset: Optional[Preprocessing] = Field(
             description=(
                 "Parameters used by self.preprocess_dataset method. If set to `None` it skips the dataframe preprocess"
@@ -103,10 +94,7 @@ class RasterizePipeline(Pipeline):
 
         self.filename: Optional[str] = None
 
-        if len({self._is_temporal(c.output_feature) for c in self.config.columns}) != 1:
-            raise ValueError("All output features have to be either temporal or timeless!")
-
-        output_is_temporal = self._is_temporal(self.config.columns[0].output_feature)
+        output_is_temporal = self._is_temporal(self.config.column.output_feature)
         if isinstance(self.config.vector_input, str):
             self.filename = self._parse_input_file(self.config.vector_input)
             feature_type = FeatureType.VECTOR if output_is_temporal else FeatureType.VECTOR_TIMELESS
@@ -212,28 +200,21 @@ class RasterizePipeline(Pipeline):
     def get_rasterization_node(self, previous_node: EONode) -> EONode:
         """Builds nodes containing rasterization tasks"""
 
-        rasterization_nodes = [
-            EONode(
-                inputs=[previous_node],
-                task=VectorToRasterTask(
-                    vector_input=self.vector_feature,
-                    raster_feature=column.output_feature,
-                    values_column=column.values_column,
-                    values=column.value,
-                    buffer=column.polygon_buffer,
-                    raster_resolution=column.resolution,
-                    raster_shape=column.raster_shape,
-                    raster_dtype=np.dtype(column.dtype),
-                    no_data_value=column.no_data_value,
-                    overlap_value=column.overlap_value,
-                ),
-            )
-            for column in self.config.columns
-        ]
-
-        if len(rasterization_nodes) == 1:
-            return rasterization_nodes[0]
-        return EONode(MergeEOPatchesTask(), inputs=rasterization_nodes)
+        return EONode(
+            inputs=[previous_node],
+            task=VectorToRasterTask(
+                vector_input=self.vector_feature,
+                raster_feature=self.config.column.output_feature,
+                values_column=self.config.column.values_column,
+                values=self.config.column.value,
+                buffer=self.config.column.polygon_buffer,
+                raster_resolution=self.config.column.resolution,
+                raster_shape=self.config.column.raster_shape,
+                raster_dtype=np.dtype(self.config.column.dtype),
+                no_data_value=self.config.column.no_data_value,
+                overlap_value=self.config.column.overlap_value,
+            ),
+        )
 
     def get_postrasterization_node(self, previous_node: EONode) -> EONode:  # pylint: disable=no-self-use
         """Builds node with tasks to be applied after rasterization"""
@@ -259,12 +240,11 @@ class RasterizePipeline(Pipeline):
 
     def _get_output_features(self) -> List[FeatureSpec]:
         """Lists all features that are to be saved upon the pipeline completion"""
-        features: List[FeatureSpec] = [FeatureType.BBOX]
+        features: List[FeatureSpec] = [self.config.column.output_feature, FeatureType.BBOX]
 
         if self._is_temporal(self.vector_feature):
             features.append(FeatureType.TIMESTAMPS)
 
-        features.extend(column.output_feature for column in self.config.columns)
         return features
 
     @staticmethod
