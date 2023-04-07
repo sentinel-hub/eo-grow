@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 import geopandas as gpd
 import pytest
@@ -8,7 +9,7 @@ from eolearn.core import EONode, EOPatch, FeatureType, MapFeatureTask
 from eogrow.core.config import collect_configs_from_path, interpret_config_from_dict
 from eogrow.pipelines.rasterize import RasterizePipeline
 from eogrow.utils.meta import load_pipeline_class
-from eogrow.utils.testing import check_pipeline_logs, compare_content
+from eogrow.utils.testing import check_pipeline_logs, compare_content, run_config
 
 pytestmark = pytest.mark.integration
 
@@ -62,26 +63,24 @@ def add_vector_data(pipeline):
         eopatch.save(eopatch_folder, features=[(FeatureType.VECTOR_TIMELESS, "LULC_VECTOR")], overwrite_permission=1)
 
 
+def reset_output_folder(config_path: str) -> Optional[str]:
+    raw_config = interpret_config_from_dict(collect_configs_from_path(config_path)[0])
+    pipeline = load_pipeline_class(raw_config).from_raw_config(raw_config)
+
+    output_folder_key: Optional[str] = raw_config.get("output_folder_key")
+    if output_folder_key is not None:
+        folder = pipeline.storage.get_folder(output_folder_key)
+        pipeline.storage.filesystem.removetree(folder)
+        return pipeline.storage.get_folder(output_folder_key, full_path=True)
+
+
 @pytest.mark.parametrize("experiment_name", ["rasterize_pipeline_float"])
 def test_rasterize_pipeline(config_and_stats_paths, experiment_name):
     config_path, stats_path = config_and_stats_paths("rasterize", experiment_name)
-    crude_configs = collect_configs_from_path(config_path)
-    raw_configs = [interpret_config_from_dict(config) for config in crude_configs]
+    reset_output_folder(config_path)
 
-    first_run = True
-    for config in raw_configs:
-        pipeline = load_pipeline_class(config).from_raw_config(config)
-
-        if first_run:
-            filesystem = pipeline.storage.filesystem
-            folder = pipeline.storage.get_folder(pipeline.config.output_folder_key)
-            filesystem.removetree(folder)
-            first_run = False
-
-        pipeline.run()
-        check_pipeline_logs(pipeline)
-
-    compare_content(config_path, stats_path)
+    output_path = run_config(config_path, reset_output_folder=False)
+    compare_content(output_path, stats_path)
 
 
 @pytest.mark.chain
@@ -92,38 +91,23 @@ def test_rasterize_pipeline_preprocess(config_and_stats_paths, experiment_name):
     crude_configs = collect_configs_from_path(config_path)
     raw_configs = [interpret_config_from_dict(config) for config in crude_configs]
 
-    first_run = True
+    output_folder = reset_output_folder(config_path)
     for config in raw_configs:
         pipeline = CropRasterizePipeline.from_raw_config(config)
-
-        if first_run:
-            filesystem = pipeline.storage.filesystem
-            folder = pipeline.storage.get_folder(pipeline.config.output_folder_key)
-            filesystem.removetree(folder)
-            first_run = False
-
         pipeline.run()
         check_pipeline_logs(pipeline)
 
-    compare_content(config_path, stats_path)
+    compare_content(output_folder, stats_path)
 
 
 @pytest.mark.chain
 @pytest.mark.parametrize("experiment_name", ["rasterize_pipeline_features"])
 def test_rasterize_pipeline_features(config_and_stats_paths, experiment_name):
     config_path, stats_path = config_and_stats_paths("rasterize", experiment_name)
-    crude_configs = collect_configs_from_path(config_path)
-    raw_configs = [interpret_config_from_dict(config) for config in crude_configs]
+    raw_config = interpret_config_from_dict(collect_configs_from_path(config_path)[0])
 
-    first_run = True
-    for config in raw_configs:
-        pipeline = RasterizePipeline.from_raw_config(config)
+    first_pipeline = load_pipeline_class(raw_config).from_raw_config(raw_config)
+    add_vector_data(first_pipeline)
 
-        if first_run:
-            add_vector_data(pipeline)
-            first_run = False
-
-        pipeline.run()
-        check_pipeline_logs(pipeline)
-
-    compare_content(config_path, stats_path)
+    output_path = run_config(config_path, reset_output_folder=False)
+    compare_content(output_path, stats_path)
