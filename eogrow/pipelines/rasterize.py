@@ -52,7 +52,7 @@ class RasterizePipeline(Pipeline):
             description="In case of multi-layer files, name of the layer with data to be rasterized."
         )
         raster_value: Optional[float] = Field(
-            description="Value to be used for all rasterized polygons. Use either this or `values_column`."
+            description="Value to be used for all rasterized polygons. Use either this or `raster_values_column`."
         )
         raster_values_column: Optional[str] = Field(
             description=(
