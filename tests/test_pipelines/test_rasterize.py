@@ -1,5 +1,4 @@
 import os
-from typing import Optional
 
 import geopandas as gpd
 import pytest
@@ -63,15 +62,14 @@ def add_vector_data(pipeline):
         eopatch.save(eopatch_folder, features=[(FeatureType.VECTOR_TIMELESS, "LULC_VECTOR")], overwrite_permission=1)
 
 
-def reset_output_folder(config_path: str) -> Optional[str]:
+def reset_output_folder(config_path: str) -> str:
     raw_config = interpret_config_from_dict(collect_configs_from_path(config_path)[0])
     pipeline = load_pipeline_class(raw_config).from_raw_config(raw_config)
 
-    output_folder_key: Optional[str] = raw_config.get("output_folder_key")
-    if output_folder_key is not None:
-        folder = pipeline.storage.get_folder(output_folder_key)
-        pipeline.storage.filesystem.removetree(folder)
-        return pipeline.storage.get_folder(output_folder_key, full_path=True)
+    output_folder_key: str = raw_config["output_folder_key"]
+    folder = pipeline.storage.get_folder(output_folder_key)
+    pipeline.storage.filesystem.removetree(folder)
+    return pipeline.storage.get_folder(output_folder_key, full_path=True)
 
 
 @pytest.mark.parametrize("experiment_name", ["rasterize_pipeline_float"])
