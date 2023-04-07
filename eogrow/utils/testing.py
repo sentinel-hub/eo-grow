@@ -332,42 +332,6 @@ def run_config(
         check_pipeline_logs(pipeline)
 
 
-def compare_content(
-    config_path: str,
-    stats_path: str,
-    *,
-    output_folder_key: Optional[str] = None,
-    save_new_stats: bool = False,
-) -> None:
-    """Compares the results from a pipeline run with the saved statistics
-
-    :param config_path: A path to the config file
-    :param stats_path: A path to the file containing result statistics
-    :param output_folder_key: Type of the folder containing results of the pipeline, inferred from config if missing
-    :param save_new_stats: Save new result stats and skip the comparison
-    """
-    crude_configs = collect_configs_from_path(config_path)
-    raw_configs = [interpret_config_from_dict(config) for config in crude_configs]
-
-    for config in raw_configs:
-        output_folder_key = output_folder_key or config.get("output_folder_key")
-        if output_folder_key is None:
-            raise ValueError("Pipeline does not have an `output_folder_key` parameter, it must be set by hand.")
-
-        pipeline = load_pipeline_class(config).from_raw_config(config)
-        folder = pipeline.storage.get_folder(output_folder_key)
-
-        tester = ContentTester(pipeline.storage.filesystem, folder)
-
-        if save_new_stats:
-            tester.save(stats_path)
-
-        stats_difference = tester.compare(stats_path)
-        if stats_difference:
-            stats_difference_repr = stats_difference.to_json(indent=2, sort_keys=True)
-            raise AssertionError(f"Expected and obtained stats differ:\n{stats_difference_repr}")
-
-
 def extract_output_folder(config_path: str, output_folder_key: Optional[str] = None, full_path: bool = True) -> str:
     """Extracts the path of the pipelines output folder. A folder key can be specified manually.
 
@@ -385,7 +349,7 @@ def extract_output_folder(config_path: str, output_folder_key: Optional[str] = N
     return pipeline.storage.get_folder(output_folder_key, full_path=full_path)
 
 
-def new_compare_content(
+def compare_content(
     folder_path: str,
     stats_path: str,
     *,
