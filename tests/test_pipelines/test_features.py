@@ -1,6 +1,6 @@
 import pytest
 
-from eogrow.utils.testing import compare_content, run_config
+from eogrow.utils.testing import extract_output_folder, new_compare_content, run_config
 
 pytestmark = pytest.mark.integration
 
@@ -20,4 +20,4 @@ pytestmark = pytest.mark.integration
 def test_features_pipeline(config_and_stats_paths, experiment_name):
     config_path, stats_path = config_and_stats_paths("features", experiment_name)
     run_config(config_path)
-    compare_content(config_path, stats_path)
+    new_compare_content(extract_output_folder(config_path), stats_path)
