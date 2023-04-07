@@ -8,9 +8,6 @@
   },
   "input_folder_key": "reference",
   "output_folder_key": "maps",
-  "feature": [
-    "mask_timeless",
-    "LULC_ID"
-  ],
+  "feature": ["mask_timeless", "LULC_ID"],
   "map_dtype": "uint8"
 }

@@ -5,8 +5,6 @@
   "input_folder_key": "features_sampled",
   "output_folder_key": "predictions",
   "output_feature_name": "PREDICTION_LABELS",
-  "input_features": [
-    ["data", "FEATURES"]
-  ],
+  "input_features": [["data", "FEATURES"]],
   "model_filename": "no_filter_model.gz"
 }

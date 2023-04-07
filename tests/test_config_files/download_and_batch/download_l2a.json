@@ -8,6 +8,9 @@
   "size": [264, 121],
   "maxcc": 0.3,
   "time_difference": 120,
-  "additional_data": [["mask",  "CLM"], ["mask",  "dataMask"]],
+  "additional_data": [
+    ["mask", "CLM"],
+    ["mask", "dataMask"]
+  ],
   "workers": 2
 }

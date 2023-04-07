@@ -6,8 +6,6 @@
   "output_folder_key": "temp",
   "output_feature_name": "PREDICTION_LABELS",
   "dtype": "bool",
-  "input_features": [
-    ["data", "FEATURES"]
-  ],
+  "input_features": [["data", "FEATURES"]],
   "model_filename": "no_filter_model.gz"
 }

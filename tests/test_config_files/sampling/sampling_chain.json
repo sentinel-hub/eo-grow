@@ -5,19 +5,11 @@
   "sampling_feature_name": "LULC_ID",
   "apply_to": {
     "reference": {
-      "mask_timeless": [
-        "LULC_ID",
-        "POLYGON_ID"
-      ]
+      "mask_timeless": ["LULC_ID", "POLYGON_ID"]
     },
     "data": {
-      "data": [
-        "BANDS-S2-L1C"
-      ],
-      "mask": [
-        "dataMask",
-        "CLM"
-      ]
+      "data": ["BANDS-S2-L1C"],
+      "mask": ["dataMask", "CLM"]
     }
   },
   "fraction_of_samples": 0.03,
