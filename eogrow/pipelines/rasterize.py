@@ -152,10 +152,9 @@ class RasterizePipeline(Pipeline):
             ]
 
         dataset_gdf = concat_gdf(dataset_layers, reproject_crs=preprocess_config.reproject_crs)
-
         dataset_gdf = self.preprocess_dataset(dataset_gdf)
-
         dataset_path = self._get_dataset_path(filename)
+
         with LocalFile(dataset_path, mode="w", filesystem=self.storage.filesystem) as local_file:
             dataset_gdf.to_file(local_file.path, encoding="utf-8", driver="GPKG", engine=gpd_engine)
 
@@ -190,9 +189,7 @@ class RasterizePipeline(Pipeline):
             data_preparation_node = EONode(input_task)
 
         preprocess_node = self.get_prerasterization_node(data_preparation_node)
-
         rasterization_node = self.get_rasterization_node(preprocess_node)
-
         postprocess_node = self.get_postrasterization_node(rasterization_node)
 
         save_task = SaveTask(
@@ -236,13 +233,6 @@ class RasterizePipeline(Pipeline):
     def get_postrasterization_node(self, previous_node: EONode) -> EONode:  # pylint: disable=no-self-use
         """Builds node with tasks to be applied after rasterization"""
         return previous_node
-
-    @staticmethod
-    def _parse_input_file(value: str) -> str:
-        """Checks if given name ends with one of the supported file extensions"""
-        if not value.lower().endswith((".geojson", ".shp", ".gpkg", ".gdb")):
-            raise ValueError(f"Input file path {value} should be a GeoJSON, Shapefile, GeoPackage or GeoDataBase.")
-        return value
 
     def _get_dataset_path(self, filename: str) -> str:
         """Provides a path from where dataset should be loaded into the workflow"""
