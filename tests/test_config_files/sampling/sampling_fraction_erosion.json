@@ -1,0 +1,4 @@
+{
+  "**global_config": "${config_path}/sampling_fraction.json",
+  "erosion_dict": {"2": [3, 4], "1": [2]}  // this will remove all occurences of `4`
+}
