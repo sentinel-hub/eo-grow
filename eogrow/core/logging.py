@@ -147,7 +147,7 @@ class LoggingManager(EOGrowObject):
         )
 
         formatter = Formatter(
-            "%(levelname)s %(asctime)s %(name)s:%(lineno)d:\n\t%(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+            "%(levelname)s [%(asctime)s] %(name)s:%(lineno)d:\n\t%(message)s", datefmt="%Y-%m-%d %H:%M:%S"
         )
         file_handler.setFormatter(formatter)
 
@@ -160,7 +160,7 @@ class LoggingManager(EOGrowObject):
         stdout_handler = StreamHandler(sys.stdout)
         stdout_handler.setLevel(logging.INFO)
 
-        formatter = Formatter("%(levelname)s %(name)s:%(lineno)d: %(message)s")
+        formatter = Formatter("%(levelname)s [%(asctime)s] %(name)s:%(lineno)d: %(message)s", datefmt="%H:%M:%S")
         stdout_handler.setFormatter(formatter)
 
         stdout_handler.addFilter(StdoutFilter(log_packages=self.config.stdout_log_packages))
