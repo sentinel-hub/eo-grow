@@ -6,16 +6,10 @@ from shapely.ops import unary_union
 
 from sentinelhub import BBox
 
-from eogrow.core.config import interpret_config_from_path
 from eogrow.pipelines.import_tiff import ImportTiffPipeline
-from eogrow.utils.testing import ContentTester, check_pipeline_logs, create_folder_dict, generate_tiff_file
+from eogrow.utils.testing import compare_content, generate_tiff_file, run_config
 
 pytestmark = pytest.mark.integration
-
-
-@pytest.fixture(scope="session", name="folders")
-def config_folder_fixture(config_folder, stats_folder):
-    return create_folder_dict(config_folder, stats_folder, "import_tiff")
 
 
 @pytest.mark.parametrize(
@@ -27,19 +21,20 @@ def config_folder_fixture(config_folder, stats_folder):
         "import_tiff_resized_scale_factors",
     ],
 )
-def test_import_tiff_pipeline(folders, experiment_name):
-    # Can't use utility testing due to custom pipeline
-    config_filename = os.path.join(folders["config_folder"], f"{experiment_name}.json")
-    stat_path = os.path.join(folders["stats_folder"], f"{experiment_name}.json")
+def test_import_tiff_pipeline(config_and_stats_paths, experiment_name):
+    config_path, stats_path = config_and_stats_paths("import_tiff", experiment_name)
 
-    pipeline = ImportTiffPipeline.from_raw_config(interpret_config_from_path(config_filename))
+    prepare_dummy_input(config_path)
+    run_config(config_path)
+    compare_content(config_path, stats_path)
+
+
+def prepare_dummy_input(config_path: str) -> None:
+    pipeline = ImportTiffPipeline.from_path(config_path)
 
     filesystem = pipeline.storage.filesystem
     input_folder = pipeline.storage.get_folder(pipeline.config.tiff_folder_key)
     input_file = os.path.join(input_folder, pipeline.config.input_filename)
-
-    output_folder = pipeline.storage.get_folder(pipeline.config.output_folder_key)
-    filesystem.removetree(output_folder)
 
     bboxes = [bbox for _, bbox in pipeline.get_patch_list()]
     # one EOPatch gets left out so that we have some 'missing area', we also buffer it so that we have 'extra area'
@@ -54,10 +49,3 @@ def test_import_tiff_pipeline(folders, experiment_name):
         num_bands=1 if pipeline.config.output_feature[0].is_timeless() else 3,
         dtype=np.float32,
     )
-
-    pipeline.run()
-    check_pipeline_logs(pipeline)
-
-    tester = ContentTester(pipeline.storage.filesystem, output_folder)
-    # tester.save(stat_path)
-    assert tester.compare(stat_path) == {}
