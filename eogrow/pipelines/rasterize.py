@@ -2,15 +2,16 @@
 import logging
 import os
 import uuid
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import fiona
 import fs
 import geopandas as gpd
 import numpy as np
-from pydantic import Field
+from pydantic import Field, validator
 
 from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, FeatureType, LoadTask, OverwritePermission, SaveTask
+from eolearn.core.utils.parsing import parse_feature
 from eolearn.geometry import VectorToRasterTask
 from eolearn.io import VectorImportTask
 
@@ -19,7 +20,7 @@ from ..core.schemas import BaseSchema
 from ..types import Feature, FeatureSpec, PatchList
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.fs import LocalFile
-from ..utils.validators import ensure_exactly_one_defined, field_validator, parse_dtype, restrict_types
+from ..utils.validators import ensure_exactly_one_defined, field_validator, parse_dtype
 from ..utils.vector import concat_gdf
 
 LOGGER = logging.getLogger(__name__)
@@ -83,7 +84,28 @@ class RasterizePipeline(Pipeline):
         _parse_dtype = field_validator("dtype", parse_dtype, pre=True)
         _check_raster_value_values_column = ensure_exactly_one_defined("raster_value", "raster_values_column")
         _check_shape_resolution = ensure_exactly_one_defined("raster_shape", "resolution")
-        _check_raster_feature_type = field_validator("raster_feature", restrict_types(lambda ftype: ftype.is_image()))
+
+        @validator("vector_input")
+        def _check_input(cls, vector_input: Union[Feature, str]) -> Union[Feature, str]:
+            if isinstance(vector_input, str):
+                if vector_input.lower().endswith((".geojson", ".shp", ".gpkg", ".gdb")):
+                    raise ValueError(
+                        f"Input file path {vector_input} should be a GeoJSON, Shapefile, GeoPackage or GeoDataBase."
+                    )
+            else:
+                parse_feature(feature=vector_input, allowed_feature_types=lambda ftype: ftype.is_vector())
+            return vector_input
+
+        @validator("raster_feature")
+        def _check_output(cls, raster_feature: Feature, values: Dict[str, Any]) -> Feature:
+            parse_feature(feature=raster_feature, allowed_feature_types=lambda ftype: ftype.is_image())
+            vector_input: Union[Feature, str] = values["vector_input"]
+            if not isinstance(vector_input, str):
+                vector_ftype, _ = vector_input
+                raster_ftype, _ = raster_feature
+                if vector_ftype.is_temporal() != raster_ftype.is_temporal():
+                    raise ValueError("Temporal natures of the vector input and the raster output don't match!")
+            return raster_feature
 
     config: Schema
 
