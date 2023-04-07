@@ -345,7 +345,7 @@ def compare_content(
     """Compares the results from a pipeline run with the saved statistics. Constructed to be coupled with `run_config`
     hence the `Optional` input.
 
-    :param folder_path: A path to the folder whose contents are to be compared
+    :param folder_path: A path to the folder with contents to be compared
     :param stats_path: A path to the file containing result statistics
     :param save_new_stats: Save new result stats and skip the comparison
     """
