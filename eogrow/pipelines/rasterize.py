@@ -29,8 +29,8 @@ LOGGER = logging.getLogger(__name__)
 class Preprocessing(BaseSchema):
     reproject_crs: Optional[int] = Field(
         description=(
-            "An EPSG code of a CRS in which vector_input data will be reprojected once loaded. This parameter "
-            "is mandatory if vector_input contains multiple layers in different CRS"
+            "An EPSG code of a CRS in which vector_input data will be reprojected once loaded. Mandatory if"
+            " the input vector contains multiple layers in different CRS."
         ),
     )
 
@@ -43,23 +43,24 @@ class RasterizePipeline(Pipeline):
             description="The storage manager key pointing to the input folder for the rasterization pipeline."
         )
         output_folder_key: str = Field(
-            description="The storage manager key pointing to the output folder for the rasterization pipeline pipeline."
+            description="The storage manager key pointing to the output folder for the rasterization pipeline."
         )
         vector_input: Union[Feature, str] = Field(
             description="A filename in the input_data folder or a feature containing vector data."
         )
         dataset_layer: Optional[str] = Field(
-            description="Name of a layer with data to be rasterized in a multi-layer file."
+            description="In case of multi-layer files, name of the layer with data to be rasterized."
         )
         raster_value: Optional[float] = Field(
-            description="Value to use for all rasterized polygons. Use either this or `values_column`."
+            description="Value to be used for all rasterized polygons. Use either this or `values_column`."
         )
         raster_values_column: Optional[str] = Field(
             description=(
-                "GeoPandas dataframe column name from which to read values for geometries. Use either this or `value`."
+                "GeoPandas dataframe column from which to read rasterization values for each geometry. Use either this"
+                " or `raster_value`."
             )
         )
-        raster_feature: Feature = Field(description="Output feature of rasterization.")
+        raster_feature: Feature = Field(description="A feature which should contain the newly rasterized data.")
         polygon_buffer: float = Field(
             0, description="The size of polygon buffering to be applied before rasterization."
         )
@@ -74,10 +75,7 @@ class RasterizePipeline(Pipeline):
         no_data_value: int = Field(0, description="The no_data_value argument to be passed to VectorToRasterTask")
 
         preprocess_dataset: Optional[Preprocessing] = Field(
-            description=(
-                "Parameters used by self.preprocess_dataset method. If set to `None` it skips the dataframe preprocess"
-                " step."
-            )
+            description="Parameters used by `self.preprocess_dataset` method. Skipped if set to `None`."
         )
         compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
 
@@ -137,6 +135,7 @@ class RasterizePipeline(Pipeline):
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         if self.filename is not None and self.config.preprocess_dataset is not None:
             self.run_dataset_preprocessing(self.filename, self.config.preprocess_dataset)
+
         return super().run_procedure()
 
     def run_dataset_preprocessing(self, filename: str, preprocess_config: Preprocessing) -> None:
@@ -171,7 +170,7 @@ class RasterizePipeline(Pipeline):
             create_node = EONode(CreateEOPatchTask())
             path = self._get_dataset_path(self.filename)
             import_task = VectorImportTask(
-                self.vector_feature,
+                feature=self.vector_feature,
                 path=path,
                 filesystem=self.storage.filesystem,
                 layer=self.config.dataset_layer,
@@ -249,7 +248,7 @@ class RasterizePipeline(Pipeline):
         """Lists all features that are to be saved upon the pipeline completion"""
         features: List[FeatureSpec] = [self.config.raster_feature, FeatureType.BBOX]
 
-        if self._is_temporal(self.vector_feature):
+        if self._is_temporal(self.config.raster_feature):
             features.append(FeatureType.TIMESTAMPS)
 
         return features
