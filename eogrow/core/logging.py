@@ -49,16 +49,17 @@ class LoggingManager(EOGrowObject):
         eoexecution_ignore_packages: Tuple[str] = Field(
             (DEFAULT_PACKAGES_TOKEN,),
             description=(
-                "Names of packages for which the logs will not be written to EOExecution log files. You can reference the"
-                'defaults with "...", for example, adding another package can be done with ["...", "package_to_ignore"]'
+                "Names of packages for which the logs will not be written to EOExecution log files. You can reference"
+                ' the defaults with "...", for example, adding another package can be done with ["...", "some_package"]'
             ),
         )
 
         pipeline_ignore_packages: Tuple[str] = Field(
             (DEFAULT_PACKAGES_TOKEN,),
             description=(
-                "Names of packages for which the logs will not be written to the main pipeline log file. You can reference the"
-                'defaults with "...", for example, adding another package can be done with ["...", "package_to_ignore"]'
+                "Names of packages for which the logs will not be written to the main pipeline log file. You can"
+                ' reference the defaults with "...", for example, adding another package can be done with'
+                ' ["...", "some_package"]'
             ),
         )
         pipeline_logs_backup_interval: float = Field(
@@ -73,8 +74,8 @@ class LoggingManager(EOGrowObject):
         stdout_log_packages: Tuple[str] = Field(
             (DEFAULT_PACKAGES_TOKEN,),
             description=(
-                'Names of packages for which the logs will be written to stdout. You can reference the defaults with "...", for'
-                ' example, adding another package can be done with ["...", "package_to_display"]'
+                "Names of packages for which the logs will be written to stdout. You can reference the defaults with"
+                ' "...", for example, adding another package can be done with ["...", "package_to_display"]'
             ),
         )
 
