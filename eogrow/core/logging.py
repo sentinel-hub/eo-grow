@@ -25,7 +25,7 @@ from .config import RawConfig
 from .schemas import ManagerSchema
 from .storage import StorageManager
 
-DEFAULT_PACKAGES_TOKEN = "..."
+DEFAULT_PACKAGES_TOKEN = "..."  # fix docs if this is changed!
 
 
 class LoggingManager(EOGrowObject):
@@ -49,16 +49,16 @@ class LoggingManager(EOGrowObject):
         eoexecution_ignore_packages: Tuple[str] = Field(
             (DEFAULT_PACKAGES_TOKEN,),
             description=(
-                "Names of packages which logs will not be written to EOExecution log files. The default null value "
-                "means that a default list of packages will be used."
+                "Names of packages which logs will not be written to EOExecution log files. You can reference the"
+                'defaults with "...", for example adding another package can be done with ["...", "package_to_ignore"]'
             ),
         )
 
         pipeline_ignore_packages: Tuple[str] = Field(
             (DEFAULT_PACKAGES_TOKEN,),
             description=(
-                "Names of packages which logs will not be written to the main pipeline log file. The default null "
-                "value means that a default list of packages will be used."
+                "Names of packages which logs will not be written to the main pipeline log file. You can reference the"
+                'defaults with "...", for example adding another package can be done with ["...", "package_to_ignore"]'
             ),
         )
         pipeline_logs_backup_interval: float = Field(
@@ -73,8 +73,8 @@ class LoggingManager(EOGrowObject):
         stdout_log_packages: Tuple[str] = Field(
             (DEFAULT_PACKAGES_TOKEN,),
             description=(
-                "Names of packages which logs will be written to stdout. The default null value means that a default "
-                "list of packages will be used."
+                'Names of packages which logs will be written to stdout. You can reference the defaults with "...", for'
+                ' example adding another package can be done with ["...", "package_to_display"]'
             ),
         )
 
