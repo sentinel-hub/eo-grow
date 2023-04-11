@@ -38,49 +38,44 @@ class RasterizePipeline(Pipeline):
     """A pipeline module for rasterizing vector datasets."""
 
     class Schema(Pipeline.Schema):
-        input_folder_key: str = Field(
-            description="The storage manager key pointing to the input folder for the rasterization pipeline."
-        )
-        output_folder_key: str = Field(
-            description="The storage manager key pointing to the output folder for the rasterization pipeline."
-        )
-        vector_input: Union[Feature, str] = Field(
-            description="A filename in the input_data folder or a feature containing vector data."
-        )
-        dataset_layer: Optional[str] = Field(
-            description="In case of multi-layer files, name of the layer with data to be rasterized."
-        )
+        input_folder_key: str = Field(description="The storage manager key pointing to the input folder.")
+        output_folder_key: str = Field(description="The storage manager key pointing to the output folder.")
+        vector_input: Union[Feature, str] = Field(description="An input filename or a feature containing vector data.")
+        output_feature: Feature = Field(description="A feature which should contain the newly rasterized data.")
+
         raster_value: Optional[float] = Field(
-            description="Value to be used for all rasterized polygons. Use either this or `raster_values_column`."
+            description="Value to be used for all rasterized polygons. Cannot be used with `raster_values_column`."
         )
         raster_values_column: Optional[str] = Field(
             description=(
-                "GeoPandas dataframe column from which to read rasterization values for each geometry. Use either this"
-                " or `raster_value`."
+                "GeoPandas column for reading per-geometry rasterization values. Cannot be used with `raster_value`."
             )
         )
-        output_feature: Feature = Field(description="A feature which should contain the newly rasterized data.")
-        polygon_buffer: float = Field(
-            0, description="The size of polygon buffering to be applied before rasterization."
-        )
+        _check_raster_value_values_column = ensure_exactly_one_defined("raster_value", "raster_values_column")
+
         resolution: Optional[float] = Field(
             description="Rendering resolution in meters. Cannot be used with `raster_shape`."
         )
         raster_shape: Optional[Tuple[int, int]] = Field(
             description="Shape of resulting raster image. Cannot be used with `resolution`."
         )
-        overlap_value: Optional[float] = Field(description="Value to write over the areas where polygons overlap.")
+        _check_shape_resolution = ensure_exactly_one_defined("raster_shape", "resolution")
+
         dtype: np.dtype = Field(np.dtype("int32"), description="Numpy dtype of the output feature.")
-        no_data_value: int = Field(0, description="The no_data_value argument to be passed to VectorToRasterTask")
+        _parse_dtype = field_validator("dtype", parse_dtype, pre=True)
 
         preprocess_dataset: Optional[Preprocessing] = Field(
             description="Parameters used by `self.preprocess_dataset` method. Skipped if set to `None`."
         )
+        dataset_layer: Optional[str] = Field(
+            description="In case of multi-layer files, name of the layer with data to be rasterized."
+        )
+        polygon_buffer: float = Field(
+            0, description="The size of polygon buffering to be applied before rasterization."
+        )
+        overlap_value: Optional[float] = Field(description="Value to write over the areas where polygons overlap.")
+        no_data_value: int = Field(0, description="The no_data_value argument to be passed to VectorToRasterTask")
         compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
-
-        _parse_dtype = field_validator("dtype", parse_dtype, pre=True)
-        _check_raster_value_values_column = ensure_exactly_one_defined("raster_value", "raster_values_column")
-        _check_shape_resolution = ensure_exactly_one_defined("raster_shape", "resolution")
 
         @validator("vector_input")
         def _check_vector_input(cls, vector_input: Union[Feature, str]) -> Union[Feature, str]:
