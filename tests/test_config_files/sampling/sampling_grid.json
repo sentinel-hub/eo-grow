@@ -4,18 +4,11 @@
   "output_folder_key": "temp",
   "apply_to": {
     "reference": {
-      "mask_timeless": [
-        "LULC_ID"
-      ]
+      "mask_timeless": ["LULC_ID"]
     },
     "data": {
-      "data": [
-        "BANDS-S2-L1C"
-      ],
-      "mask": [
-        "dataMask",
-        "CLM"
-      ]
+      "data": ["BANDS-S2-L1C"],
+      "mask": ["dataMask", "CLM"]
     }
   },
   "sample_size": [30, 25],

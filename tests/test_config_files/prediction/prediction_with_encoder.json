@@ -6,9 +6,7 @@
   "output_folder_key": "temp",
   "output_feature_name": "PREDICTION_LABELS",
   "output_probability_feature_name": "PREDICTION_PROBABILITY",
-  "input_features": [
-    ["data", "FEATURES"]
-  ],
+  "input_features": [["data", "FEATURES"]],
   "label_encoder_filename": "test_encoder.gz",
   "model_filename": "filter_model.gz"
 }

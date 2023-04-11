@@ -5,10 +5,7 @@
   "sampling_feature_name": "LULC_ID",
   "apply_to": {
     "reference": {
-      "mask_timeless": [
-        "LULC_ID",
-        "POLYGON_ID"
-      ]
+      "mask_timeless": ["LULC_ID", "POLYGON_ID"]
     }
   },
   "fraction_of_samples": {
