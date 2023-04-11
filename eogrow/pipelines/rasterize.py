@@ -2,24 +2,15 @@
 import logging
 import os
 import uuid
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import fiona
 import fs
 import geopandas as gpd
 import numpy as np
-from pydantic import Field
+from pydantic import Field, validator
 
-from eolearn.core import (
-    CreateEOPatchTask,
-    EONode,
-    EOWorkflow,
-    FeatureType,
-    LoadTask,
-    MergeEOPatchesTask,
-    OverwritePermission,
-    SaveTask,
-)
+from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, FeatureType, LoadTask, OverwritePermission, SaveTask
 from eolearn.geometry import VectorToRasterTask
 from eolearn.io import VectorImportTask
 
@@ -34,39 +25,11 @@ from ..utils.vector import concat_gdf
 LOGGER = logging.getLogger(__name__)
 
 
-class VectorColumnSchema(BaseSchema):
-    """Parameter structure for individual feature / dataset column to be rasterized"""
-
-    value: Optional[float] = Field(
-        description="Value to use for all rasterized polygons. Use either this or `values_column`."
-    )
-    values_column: Optional[str] = Field(
-        description=(
-            "GeoPandas dataframe column name from which to read values for geometries. Use either this or `value`."
-        )
-    )
-    output_feature: Feature = Field(description="Output feature of rasterization.")
-    polygon_buffer: float = Field(0, description="The size of polygon buffering to be applied before rasterization.")
-    resolution: Optional[float] = Field(
-        description="Rendering resolution in meters. Cannot be used with `raster_shape`."
-    )
-    raster_shape: Optional[Tuple[int, int]] = Field(
-        description="Shape of resulting raster image. Cannot be used with `resolution`."
-    )
-    overlap_value: Optional[int] = Field(description="Value to write over the areas where polygons overlap.")
-    dtype: np.dtype = Field(np.dtype("int32"), description="Numpy dtype of the output feature.")
-    _parse_dtype = field_validator("dtype", parse_dtype, pre=True)
-    no_data_value: int = Field(0, description="The no_data_value argument to be passed to VectorToRasterTask")
-
-    _check_value_values_column = ensure_exactly_one_defined("value", "values_column")
-    _check_shape_resolution = ensure_exactly_one_defined("raster_shape", "resolution")
-
-
 class Preprocessing(BaseSchema):
     reproject_crs: Optional[int] = Field(
         description=(
-            "An EPSG code of a CRS in which vector_input data will be reprojected once loaded. This parameter "
-            "is mandatory if vector_input contains multiple layers in different CRS"
+            "An EPSG code of a CRS in which vector_input data will be reprojected once loaded. Mandatory if"
+            " the input vector contains multiple layers in different CRS."
         ),
     )
 
@@ -75,26 +38,65 @@ class RasterizePipeline(Pipeline):
     """A pipeline module for rasterizing vector datasets."""
 
     class Schema(Pipeline.Schema):
-        input_folder_key: str = Field(
-            description="The storage manager key pointing to the input folder for the rasterization pipeline."
+        input_folder_key: str = Field(description="The storage manager key pointing to the input folder.")
+        output_folder_key: str = Field(description="The storage manager key pointing to the output folder.")
+        vector_input: Union[Feature, str] = Field(description="An input filename or a feature containing vector data.")
+        output_feature: Feature = Field(description="A feature which should contain the newly rasterized data.")
+
+        raster_value: Optional[float] = Field(
+            description="Value to be used for all rasterized polygons. Cannot be used with `raster_values_column`."
         )
-        output_folder_key: str = Field(
-            description="The storage manager key pointing to the output folder for the rasterization pipeline pipeline."
-        )
-        vector_input: Union[Feature, str] = Field(
-            description="A filename in the input_data folder or a feature containing vector data."
-        )
-        dataset_layer: Optional[str] = Field(
-            description="Name of a layer with data to be rasterized in a multi-layer file."
-        )
-        columns: List[VectorColumnSchema]
-        preprocess_dataset: Optional[Preprocessing] = Field(
+        raster_values_column: Optional[str] = Field(
             description=(
-                "Parameters used by self.preprocess_dataset method. If set to `None` it skips the dataframe preprocess"
-                " step."
+                "GeoPandas column for reading per-geometry rasterization values. Cannot be used with `raster_value`."
             )
         )
+        _check_raster_value_values_column = ensure_exactly_one_defined("raster_value", "raster_values_column")
+
+        resolution: Optional[float] = Field(
+            description="Rendering resolution in meters. Cannot be used with `raster_shape`."
+        )
+        raster_shape: Optional[Tuple[int, int]] = Field(
+            description="Shape of resulting raster image. Cannot be used with `resolution`."
+        )
+        _check_shape_resolution = ensure_exactly_one_defined("raster_shape", "resolution")
+
+        dtype: np.dtype = Field(np.dtype("int32"), description="Numpy dtype of the output feature.")
+        _parse_dtype = field_validator("dtype", parse_dtype, pre=True)
+
+        preprocess_dataset: Optional[Preprocessing] = Field(
+            description="Parameters used by `self.preprocess_dataset` method. Skipped if set to `None`."
+        )
+        dataset_layer: Optional[str] = Field(
+            description="In case of multi-layer files, name of the layer with data to be rasterized."
+        )
+        polygon_buffer: float = Field(
+            0, description="The size of polygon buffering to be applied before rasterization."
+        )
+        overlap_value: Optional[float] = Field(description="Value to write over the areas where polygons overlap.")
+        no_data_value: int = Field(0, description="The no_data_value argument to be passed to VectorToRasterTask")
         compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
+
+        @validator("vector_input")
+        def _check_vector_input(cls, vector_input: Union[Feature, str]) -> Union[Feature, str]:
+            if isinstance(vector_input, str):
+                assert vector_input.lower().endswith(
+                    (".geojson", ".shp", ".gpkg", ".gdb")
+                ), f"Input file path {vector_input} should be a GeoJSON, Shapefile, GeoPackage or GeoDataBase."
+            else:
+                assert vector_input[0].is_vector(), "Only vector-like input features are allowed!"
+            return vector_input
+
+        @validator("output_feature")
+        def _check_temporal_nature_match(cls, output_feature: Feature, values: Dict[str, Any]) -> Feature:
+            assert output_feature[0].is_image(), "Only image-like output features are allowed!"
+
+            vector_input = values.get("vector_input")
+            if vector_input and not isinstance(vector_input, str):
+                assert (
+                    vector_input[0].is_temporal() == output_feature[0].is_temporal()
+                ), "Temporal natures of the vector input and the raster output must match!"
+            return output_feature
 
     config: Schema
 
@@ -102,22 +104,14 @@ class RasterizePipeline(Pipeline):
         super().__init__(*args, **kwargs)
 
         self.filename: Optional[str] = None
+        self.vector_feature: Feature
 
-        if len({self._is_temporal(c.output_feature) for c in self.config.columns}) != 1:
-            raise ValueError("All output features have to be either temporal or timeless!")
-
-        output_is_temporal = self._is_temporal(self.config.columns[0].output_feature)
-        if isinstance(self.config.vector_input, str):
-            self.filename = self._parse_input_file(self.config.vector_input)
-            feature_type = FeatureType.VECTOR if output_is_temporal else FeatureType.VECTOR_TIMELESS
-            self.vector_feature = feature_type, f"TEMP_{uuid.uuid4().hex}"
-        else:
-            if output_is_temporal != self._is_temporal(self.config.vector_input):
-                raise ValueError(
-                    "The requested output feature does not correspond to input vector feature."
-                    " Both input and output should be the same, either temporal or timeless."
-                )
+        if not isinstance(self.config.vector_input, str):
             self.vector_feature = self.config.vector_input
+        else:
+            ftype = FeatureType.VECTOR if self._is_temporal(self.config.output_feature) else FeatureType.VECTOR_TIMELESS
+            self.filename = self.config.vector_input
+            self.vector_feature = (ftype, f"TEMP_{uuid.uuid4().hex}")
 
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         filtered_patch_list = get_patches_with_missing_features(
@@ -132,6 +126,7 @@ class RasterizePipeline(Pipeline):
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         if self.filename is not None and self.config.preprocess_dataset is not None:
             self.run_dataset_preprocessing(self.filename, self.config.preprocess_dataset)
+
         return super().run_procedure()
 
     def run_dataset_preprocessing(self, filename: str, preprocess_config: Preprocessing) -> None:
@@ -147,10 +142,9 @@ class RasterizePipeline(Pipeline):
             ]
 
         dataset_gdf = concat_gdf(dataset_layers, reproject_crs=preprocess_config.reproject_crs)
-
         dataset_gdf = self.preprocess_dataset(dataset_gdf)
-
         dataset_path = self._get_dataset_path(filename)
+
         with LocalFile(dataset_path, mode="w", filesystem=self.storage.filesystem) as local_file:
             dataset_gdf.to_file(local_file.path, encoding="utf-8", driver="GPKG", engine=gpd_engine)
 
@@ -167,7 +161,7 @@ class RasterizePipeline(Pipeline):
             create_node = EONode(CreateEOPatchTask())
             path = self._get_dataset_path(self.filename)
             import_task = VectorImportTask(
-                self.vector_feature,
+                feature=self.vector_feature,
                 path=path,
                 filesystem=self.storage.filesystem,
                 layer=self.config.dataset_layer,
@@ -185,9 +179,7 @@ class RasterizePipeline(Pipeline):
             data_preparation_node = EONode(input_task)
 
         preprocess_node = self.get_prerasterization_node(data_preparation_node)
-
         rasterization_node = self.get_rasterization_node(preprocess_node)
-
         postprocess_node = self.get_postrasterization_node(rasterization_node)
 
         save_task = SaveTask(
@@ -212,39 +204,25 @@ class RasterizePipeline(Pipeline):
     def get_rasterization_node(self, previous_node: EONode) -> EONode:
         """Builds nodes containing rasterization tasks"""
 
-        rasterization_nodes = [
-            EONode(
-                inputs=[previous_node],
-                task=VectorToRasterTask(
-                    vector_input=self.vector_feature,
-                    raster_feature=column.output_feature,
-                    values_column=column.values_column,
-                    values=column.value,
-                    buffer=column.polygon_buffer,
-                    raster_resolution=column.resolution,
-                    raster_shape=column.raster_shape,
-                    raster_dtype=np.dtype(column.dtype),
-                    no_data_value=column.no_data_value,
-                    overlap_value=column.overlap_value,
-                ),
-            )
-            for column in self.config.columns
-        ]
-
-        if len(rasterization_nodes) == 1:
-            return rasterization_nodes[0]
-        return EONode(MergeEOPatchesTask(), inputs=rasterization_nodes)
+        return EONode(
+            inputs=[previous_node],
+            task=VectorToRasterTask(
+                vector_input=self.vector_feature,
+                raster_feature=self.config.output_feature,
+                values_column=self.config.raster_values_column,
+                values=self.config.raster_value,
+                buffer=self.config.polygon_buffer,
+                raster_resolution=self.config.resolution,
+                raster_shape=self.config.raster_shape,
+                raster_dtype=np.dtype(self.config.dtype),
+                no_data_value=self.config.no_data_value,
+                overlap_value=self.config.overlap_value,
+            ),
+        )
 
     def get_postrasterization_node(self, previous_node: EONode) -> EONode:  # pylint: disable=no-self-use
         """Builds node with tasks to be applied after rasterization"""
         return previous_node
-
-    @staticmethod
-    def _parse_input_file(value: str) -> str:
-        """Checks if given name ends with one of the supported file extensions"""
-        if not value.lower().endswith((".geojson", ".shp", ".gpkg", ".gdb")):
-            raise ValueError(f"Input file path {value} should be a GeoJSON, Shapefile, GeoPackage or GeoDataBase.")
-        return value
 
     def _get_dataset_path(self, filename: str) -> str:
         """Provides a path from where dataset should be loaded into the workflow"""
@@ -259,12 +237,10 @@ class RasterizePipeline(Pipeline):
 
     def _get_output_features(self) -> List[FeatureSpec]:
         """Lists all features that are to be saved upon the pipeline completion"""
-        features: List[FeatureSpec] = [FeatureType.BBOX]
-
-        if self._is_temporal(self.vector_feature):
+        features: List[FeatureSpec] = [self.config.output_feature, FeatureType.BBOX]
+        if self._is_temporal(self.config.output_feature):
             features.append(FeatureType.TIMESTAMPS)
 
-        features.extend(column.output_feature for column in self.config.columns)
         return features
 
     @staticmethod
