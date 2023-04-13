@@ -146,6 +146,9 @@ class EOGrowCli:
         Example:
             eogrow-ray cluster.yaml config_files/config.json
         """
+        if start_cluster:
+            subprocess.check_call(f"ray up -y {cluster_yaml}", shell=True)
+
         if stop_cluster and (use_screen or use_tmux):
             raise NotImplementedError("It is not clear how to combine stop flag with either screen or tmux flag")
 
@@ -165,7 +168,7 @@ class EOGrowCli:
             + "".join(f" -t {patch_index}" for patch_index in test_patches)
             + ("; " if stop_cluster else "")  # Otherwise, ray will incorrectly prepare a command for stopping a cluster
         )
-        flag_info = [("start", start_cluster), ("stop", stop_cluster), ("screen", use_screen), ("tmux", use_tmux)]
+        flag_info = ("stop", stop_cluster), ("screen", use_screen), ("tmux", use_tmux)]
         exec_flags = " ".join(f"--{flag_name}" for flag_name, use_flag in flag_info if use_flag)
 
         subprocess.check_call(f"ray exec {exec_flags} {cluster_yaml} '{cmd}'", shell=True)  # noqa B028
