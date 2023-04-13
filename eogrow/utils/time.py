@@ -4,7 +4,7 @@ Modules with time-related utilities
 import datetime as dt
 
 DATE_FORMAT = "%Y-%m-%d"
-DATETIME_FORMAT = "%Y-%m-%dT%H-%M-%SZ"
+DATETIME_FORMAT = "%Y-%m-%dT%H-%M-%S"
 LOGGING_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
