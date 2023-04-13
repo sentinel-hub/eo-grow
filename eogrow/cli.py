@@ -1,5 +1,4 @@
 """Implements the command line interface for `eo-grow`."""
-import datetime as dt
 import json
 import os
 import re
@@ -14,6 +13,7 @@ from .core.schemas import build_schema_template
 from .pipelines.testing import TestPipeline
 from .utils.general import jsonify
 from .utils.meta import collect_schema, import_object, load_pipeline_class
+from .utils.ray import get_cluster_config_path
 
 variables_option = click.option(
     "-v",
@@ -156,10 +156,8 @@ class EOGrowCli:
 
         crude_configs = collect_configs_from_path(config_filename)
         raw_configs = [interpret_config_from_dict(config) for config in crude_configs]
+        remote_path = get_cluster_config_path(config_filename)
 
-        base, ext = os.path.splitext(os.path.basename(config_filename))
-        time_str = dt.datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%SZ")
-        remote_path = f"/.synced_configs/{base}_{time_str}{ext}"
         with NamedTemporaryFile(mode="w", delete=True, suffix=".json") as local_path:
             json.dump(raw_configs, local_path)
             subprocess.check_call(f"ray rsync_up {cluster_yaml} {local_path.name!r} {remote_path!r}", shell=True)
