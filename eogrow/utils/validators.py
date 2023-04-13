@@ -14,7 +14,6 @@ from sentinelhub import DataCollection
 from sentinelhub.data_collections_bands import Band, Bands, MetaBands, Unit
 
 from ..types import Feature, RawSchemaDict, TimePeriod
-from ..utils.time import DATE_FORMAT
 from .meta import collect_schema, import_object
 
 if TYPE_CHECKING:
@@ -120,8 +119,8 @@ def parse_time_period(value: Tuple[str, str]) -> TimePeriod:
         }
         value = start_dates[kind], end_dates[kind]
 
-    start = dt.datetime.strptime(value[0], DATE_FORMAT).date()
-    end = dt.datetime.strptime(value[1], DATE_FORMAT).date()
+    start = dt.datetime.strptime(value[0], "%Y-%m-%d").date()
+    end = dt.datetime.strptime(value[1], "%Y-%m-%d").date()
     assert start <= end, "Invalid start and end dates provided. End date must follow the start date"
     return start, end
 

@@ -18,13 +18,13 @@ from eogrow.core.config import RawConfig
 
 from ..core.pipeline import Pipeline
 from ..types import JsonDict
-from ..utils.time import DATETIME_FORMAT
 from ..utils.validators import (
     ensure_defined_together,
     ensure_exactly_one_defined,
     optional_field_validator,
     parse_data_collection,
 )
+from .export_maps import TIMESTAMP_FORMAT
 
 LOGGER = logging.getLogger(__name__)
 
@@ -129,7 +129,7 @@ class IngestByocTilesPipeline(Pipeline):
         if self.config.is_temporal:
             # assumes file-system structure is equal to that of ExportMapsPipeline
             timestamp_folder = fs.path.split(folder)[1]
-            sensing_time = dt.datetime.strptime(timestamp_folder, DATETIME_FORMAT)
+            sensing_time = dt.datetime.strptime(timestamp_folder, TIMESTAMP_FORMAT)
 
         return ByocTile(folder, cover_geometry=cover_geometry, sensing_time=sensing_time)
 

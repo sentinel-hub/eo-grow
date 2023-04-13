@@ -20,7 +20,6 @@ from ..utils.fs import LocalFile
 from ..utils.general import jsonify
 from ..utils.logging import get_instance_info
 from ..utils.meta import get_package_versions
-from ..utils.time import LOGGING_DATETIME_FORMAT
 from .base import EOGrowObject
 from .config import RawConfig
 from .schemas import ManagerSchema
@@ -155,7 +154,7 @@ class LoggingManager(EOGrowObject):
         )
 
         formatter = Formatter(
-            "%(levelname)s [%(asctime)s] %(name)s:%(lineno)d:\n\t%(message)s", datefmt=LOGGING_DATETIME_FORMAT
+            "%(levelname)s [%(asctime)s] %(name)s:%(lineno)d:\n\t%(message)s", datefmt="%Y-%m-%d %H:%M:%S"
         )
         file_handler.setFormatter(formatter)
 
