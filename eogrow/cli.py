@@ -154,8 +154,8 @@ class EOGrowCli:
 
         base, ext = os.path.splitext(os.path.basename(config_filename))
         time_str = dt.datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%SZ")
-        remote_path = f"~/.synced_configs/{base}_{time_str}.{ext}"
-        with NamedTemporaryFile(mode="w", delete=True) as local_path:
+        remote_path = f"/.synced_configs/{base}_{time_str}{ext}"
+        with NamedTemporaryFile(mode="w", delete=True, suffix="json") as local_path:
             json.dump(raw_configs, local_path)
             subprocess.check_call(f"ray rsync_up {cluster_yaml} {local_path.name!r} {remote_path!r}", shell=True)
 
@@ -168,7 +168,7 @@ class EOGrowCli:
         flag_info = [("start", start_cluster), ("stop", stop_cluster), ("screen", use_screen), ("tmux", use_tmux)]
         exec_flags = " ".join(f"--{flag_name}" for flag_name, use_flag in flag_info if use_flag)
 
-        subprocess.call(f"ray exec {exec_flags} {cluster_yaml} '{cmd}'", shell=True)  # noqa B028
+        subprocess.check_call(f"ray exec {exec_flags} {cluster_yaml} '{cmd}'", shell=True)  # noqa B028
 
     @staticmethod
     @click.command()
