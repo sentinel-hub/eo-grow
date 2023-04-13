@@ -1,13 +1,15 @@
 """Implements the command line interface for `eo-grow`."""
+import datetime as dt
 import json
 import os
 import re
 import subprocess
+from tempfile import NamedTemporaryFile
 from typing import Optional, Tuple
 
 import click
 
-from .core.config import collect_configs_from_path, decode_config_list, encode_config_list, interpret_config_from_dict
+from .core.config import collect_configs_from_path, decode_config_list, interpret_config_from_dict
 from .core.schemas import build_schema_template
 from .pipelines.testing import TestPipeline
 from .utils.general import jsonify
@@ -147,10 +149,18 @@ class EOGrowCli:
         if stop_cluster and (use_screen or use_tmux):
             raise NotImplementedError("It is not clear how to combine stop flag with either screen or tmux flag")
 
-        configs = collect_configs_from_path(config_filename)
-        encoded_configs = encode_config_list(configs)
+        crude_configs = collect_configs_from_path(config_filename)
+        raw_configs = [interpret_config_from_dict(config) for config in crude_configs]
+
+        base, ext = os.path.splitext(os.path.basename(config_filename))
+        time_str = dt.datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%SZ")
+        remote_path = f"~/.synced_configs/{base}_{time_str}.{ext}"
+        with NamedTemporaryFile(mode="w", delete=True) as local_path:
+            json.dump(raw_configs, local_path)
+            subprocess.check_call(f"ray rsync_up {cluster_yaml} {local_path.name!r} {remote_path!r}", shell=True)
+
         cmd = (
-            f"{EOGrowCli._command_namespace} -e {encoded_configs}"
+            f"{EOGrowCli._command_namespace} {remote_path}"
             + "".join(f' -v "{cli_var_spec}"' for cli_var_spec in cli_variables)  # noqa B028
             + "".join(f" -t {patch_index}" for patch_index in test_patches)
             + ("; " if stop_cluster else "")  # Otherwise, ray will incorrectly prepare a command for stopping a cluster
