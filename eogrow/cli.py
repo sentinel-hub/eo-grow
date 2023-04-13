@@ -140,7 +140,9 @@ class EOGrowCli:
         cli_variables: Tuple[str],
         test_patches: Tuple[int],
     ) -> None:
-        """Command for running an eo-grow pipeline on a remote Ray cluster of AWS EC2 instances
+        """Command for running an eo-grow pipeline on a remote Ray cluster of AWS EC2 instances. The provided config is
+        fully constructed and uploaded to the cluster head in the `~/.synced_configs/` directory, where it is then
+        executed. A custom suffix is added to distinguish runs which use the same config multiple times.
 
         \b
         Example:
@@ -168,7 +170,7 @@ class EOGrowCli:
             + "".join(f" -t {patch_index}" for patch_index in test_patches)
             + ("; " if stop_cluster else "")  # Otherwise, ray will incorrectly prepare a command for stopping a cluster
         )
-        flag_info = ("stop", stop_cluster), ("screen", use_screen), ("tmux", use_tmux)]
+        flag_info = [("stop", stop_cluster), ("screen", use_screen), ("tmux", use_tmux)]
         exec_flags = " ".join(f"--{flag_name}" for flag_name, use_flag in flag_info if use_flag)
 
         subprocess.check_call(f"ray exec {exec_flags} {cluster_yaml} {cmd!r}", shell=True)  # noqa B028
