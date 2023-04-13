@@ -1,13 +1,13 @@
 """
 Modules with Ray-related utilities
 """
+import datetime as dt
 import logging
 import os
 
 import ray
 
 from ..types import BoolOrAuto
-from .time import get_timestamp_suffix
 
 LOGGER = logging.getLogger(__name__)
 
@@ -39,6 +39,6 @@ def _try_connect_to_ray() -> None:
 
 
 def get_cluster_config_path(config_filename: str) -> str:
-    timestamp = get_timestamp_suffix()
+    timestamp = dt.datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%S")
     base, ext = os.path.splitext(os.path.basename(config_filename))
     return f"~/.synced_configs/{base}_{timestamp}{ext}"
