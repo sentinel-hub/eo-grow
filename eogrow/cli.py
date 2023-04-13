@@ -8,7 +8,7 @@ from typing import Optional, Tuple
 
 import click
 
-from .core.config import collect_configs_from_path, decode_config_list, interpret_config_from_dict
+from .core.config import collect_configs_from_path, interpret_config_from_dict
 from .core.schemas import build_schema_template
 from .pipelines.testing import TestPipeline
 from .utils.general import jsonify
@@ -60,14 +60,6 @@ class EOGrowCli:
     @click.argument("config_filename_or_string", type=click.Path())
     @variables_option
     @test_patches_option
-    @click.option(
-        "-e",
-        "--encoding",
-        "encoding",
-        is_flag=True,
-        type=bool,
-        help="The string passed to method is treated as an encoded config instead of filename.",
-    )
     def main(
         config_filename_or_string: str, cli_variables: Tuple[str], test_patches: Tuple[int], encoding: bool
     ) -> None:
@@ -77,12 +69,10 @@ class EOGrowCli:
         Example:
             eogrow config_files/config.json
         """
-        if encoding:
-            raw_configs = decode_config_list(config_filename_or_string)
-        else:
-            raw_configs = collect_configs_from_path(config_filename_or_string)
 
+        raw_configs = collect_configs_from_path(config_filename_or_string)
         cli_variable_mapping = dict(_parse_cli_variable(cli_var) for cli_var in cli_variables)
+
         pipelines = []
         for raw_config in raw_configs:
             config = interpret_config_from_dict(raw_config, cli_variable_mapping)

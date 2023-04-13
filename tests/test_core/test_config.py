@@ -4,13 +4,7 @@ import os
 import pytest
 from fs.errors import ResourceNotFound
 
-from eogrow.core.config import (
-    collect_configs_from_path,
-    decode_config_list,
-    encode_config_list,
-    interpret_config_from_dict,
-    interpret_config_from_path,
-)
+from eogrow.core.config import collect_configs_from_path, interpret_config_from_dict, interpret_config_from_path
 from eogrow.utils.meta import get_os_import_path
 
 CONFIG_DICT = {
@@ -19,25 +13,6 @@ CONFIG_DICT = {
     "nested_param": {"list_param": [1, 2, {"value": 3}], "foo": {"bar": 42}},
 }
 CONFIG_LIST = [CONFIG_DICT, CONFIG_DICT]
-
-
-@pytest.mark.parametrize(
-    "config_list, expected_size",
-    [
-        ([CONFIG_DICT], 164),
-        (CONFIG_LIST, 328),
-    ],
-)
-def test_config_encode_and_encode(config_list, expected_size):
-    config_str = encode_config_list(config_list)
-    assert isinstance(config_str, str)
-    assert len(config_str) == expected_size
-
-    decoded_configs = decode_config_list(config_str)
-    assert isinstance(decoded_configs, list)
-    assert all(isinstance(config, dict) for config in decoded_configs)
-
-    assert decoded_configs == config_list
 
 
 @pytest.mark.parametrize("config_object", [CONFIG_DICT, CONFIG_LIST])
