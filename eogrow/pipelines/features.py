@@ -29,6 +29,7 @@ from ..tasks.features import (
 )
 from ..types import Feature, FeatureSpec, PatchList, TimePeriod
 from ..utils.filter import get_patches_with_missing_features
+from ..utils.time import DATE_FORMAT
 from ..utils.validators import field_validator, optional_field_validator, parse_dtype, parse_time_period
 
 LOGGER = logging.getLogger(__name__)
@@ -200,7 +201,7 @@ class InterpolationFeaturesPipeline(FeaturesPipeline):
         resample_range = None
         if self.config.interpolation:
             start, end = self.config.interpolation.time_period
-            start_time, end_time = start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
+            start_time, end_time = start.strftime(DATE_FORMAT), end.strftime(DATE_FORMAT)
             resample_range = (start_time, end_time, self.config.interpolation.resampling_period)
 
         interpolation_task = LinearInterpolationTask(

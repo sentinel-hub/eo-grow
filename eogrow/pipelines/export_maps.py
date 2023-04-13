@@ -28,10 +28,9 @@ from ..core.pipeline import Pipeline
 from ..types import ExecKwargs, Feature, PatchList
 from ..utils.eopatch_list import group_by_crs
 from ..utils.map import CogifyResamplingOptions, WarpResamplingOptions, cogify_inplace, extract_bands, merge_tiffs
+from ..utils.time import get_timestamp_suffix
 
 LOGGER = logging.getLogger(__name__)
-
-TIMESTAMP_FORMAT = "%Y-%m-%dT%H-%M-%S"
 
 
 class ExportMapsPipeline(Pipeline):
@@ -317,7 +316,7 @@ class ExportMapsPipeline(Pipeline):
             if timestamp is None:
                 output_path = fs.path.join(output_folder, self.map_name)
             else:
-                time_output_folder = fs.path.join(output_folder, timestamp.strftime(TIMESTAMP_FORMAT))
+                time_output_folder = fs.path.join(output_folder, get_timestamp_suffix())
                 self.storage.filesystem.makedirs(time_output_folder, recreate=True)
                 output_path = fs.path.join(time_output_folder, self.map_name)
 
@@ -368,7 +367,7 @@ def get_tiff_name(
     if crs is not None:
         base += f"_UTM_{crs.epsg}"
     if time is not None:
-        base += f"_{time.strftime(TIMESTAMP_FORMAT)}"
+        base += "_" + get_timestamp_suffix()
     if suffix:
         base += f"_{suffix}"
     return f"{base}.{MimeType.TIFF.extension}"
