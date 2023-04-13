@@ -171,7 +171,7 @@ class EOGrowCli:
         flag_info = ("stop", stop_cluster), ("screen", use_screen), ("tmux", use_tmux)]
         exec_flags = " ".join(f"--{flag_name}" for flag_name, use_flag in flag_info if use_flag)
 
-        subprocess.check_call(f"ray exec {exec_flags} {cluster_yaml} '{cmd}'", shell=True)  # noqa B028
+        subprocess.check_call(f"ray exec {exec_flags} {cluster_yaml} {cmd!r}", shell=True)  # noqa B028
 
     @staticmethod
     @click.command()
