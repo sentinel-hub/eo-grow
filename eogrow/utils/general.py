@@ -74,3 +74,8 @@ def large_list_repr(large_list: list) -> str:
 
     first_elements = ", ".join(map(repr, large_list[:3]))
     return f"[{first_elements}, ..., {large_list[-1]}]"
+
+
+def current_timestamp(fmt: str = "%Y-%m-%dT%H-%M-%SZ") -> str:
+    """Creates a timestamp string of the current time"""
+    return dt.datetime.utcnow().strftime(fmt)

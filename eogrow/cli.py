@@ -13,7 +13,7 @@ from .core.schemas import build_schema_template
 from .pipelines.testing import TestPipeline
 from .utils.general import jsonify
 from .utils.meta import collect_schema, import_object, load_pipeline_class
-from .utils.ray import get_cluster_config_path
+from .utils.ray import generate_cluster_config_path
 
 variables_option = click.option(
     "-v",
@@ -145,7 +145,7 @@ class EOGrowCli:
             raise NotImplementedError("It is not clear how to combine stop flag with either screen or tmux flag")
 
         raw_configs = [interpret_config_from_dict(config) for config in collect_configs_from_path(config_filename)]
-        remote_path = get_cluster_config_path(config_filename)
+        remote_path = generate_cluster_config_path(config_filename)
 
         with NamedTemporaryFile(mode="w", delete=True, suffix=".json") as local_path:
             json.dump(raw_configs, local_path)

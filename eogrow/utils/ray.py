@@ -1,15 +1,16 @@
 """
 Modules with Ray-related utilities
 """
-import datetime as dt
 import logging
 import os
 
 import ray
 
 from ..types import BoolOrAuto
+from .general import current_timestamp
 
 LOGGER = logging.getLogger(__name__)
+CLUSTER_CONFIG_DIR = "~/.synced_configs"
 
 
 def handle_ray_connection(use_ray: BoolOrAuto = "auto") -> bool:
@@ -38,7 +39,6 @@ def _try_connect_to_ray() -> None:
     LOGGER.info("Connected to an existing Ray cluster.")
 
 
-def get_cluster_config_path(config_filename: str) -> str:
-    timestamp = dt.datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%S")
-    base, ext = os.path.splitext(os.path.basename(config_filename))
-    return f"~/.synced_configs/{base}_{timestamp}{ext}"
+def generate_cluster_config_path(config_filename: str) -> str:
+    """Generate the path to the rsynced config on the cluster"""
+    return f"{CLUSTER_CONFIG_DIR}/{current_timestamp()}{os.path.basename(config_filename)}"
