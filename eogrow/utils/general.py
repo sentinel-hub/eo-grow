@@ -2,9 +2,8 @@
 A module containing general utilities that haven't been sorted in any other module
 """
 import datetime as dt
-import math
 from enum import Enum
-from typing import Tuple, Union
+from typing import Union
 
 import numpy as np
 
@@ -29,12 +28,6 @@ def jsonify(param: object) -> Union[str, list]:
         return param.value
 
     raise TypeError(f"Object of type {type(param)} is not yet supported in jsonify utility function")
-
-
-def reduce_to_coprime(number1: int, number2: int) -> Tuple[int, int]:
-    """Divides given numbers by their greatest common divisor, thus making them coprime."""
-    gcd = math.gcd(number1, number2)
-    return number1 // gcd, number2 // gcd
 
 
 def convert_to_int(values: np.ndarray, raise_diff: bool, error: float = 1e-8) -> np.ndarray:
