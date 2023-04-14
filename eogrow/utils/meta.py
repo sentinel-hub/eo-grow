@@ -4,7 +4,6 @@ Utilities for solving different problems in `eo-grow` package structure, which a
 from __future__ import annotations
 
 import importlib
-import inspect
 import re
 from typing import TYPE_CHECKING, Any, Dict, Type
 
@@ -27,7 +26,7 @@ def load_pipeline_class(config: dict) -> Type[Pipeline]:
     return pipeline_class
 
 
-def collect_schema(object_with_schema: Any) -> Type[BaseSchema]:
+def collect_schema(class_with_schema: Type) -> Type[BaseSchema]:
     """A utility that collects a schema from the given object.
 
     The object is expected to hold a unique internal class which inherits from `BaseSchema`. Example:
@@ -38,13 +37,11 @@ def collect_schema(object_with_schema: Any) -> Type[BaseSchema]:
 
     This utility would provide `MySchema`. It works also if `MyObject` inherits from a class that holds the schema.
     """
-    class_with_schema = object_with_schema if inspect.isclass(object_with_schema) else object_with_schema.__class__
-
     try:
         return class_with_schema.Schema
     except AttributeError as exception:
         raise SyntaxError(
-            f"Class {class_with_schema} is missing a schema. Each EOGrowObject class needs to contain a pydantic "
+            f"Class {class_with_schema} is missing a schema. Each `EOGrowObject` class needs to contain a pydantic "
             "model named `Schema`."
         ) from exception
 

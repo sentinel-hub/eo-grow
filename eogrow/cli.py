@@ -216,8 +216,8 @@ class EOGrowCli:
         if not force_override and template_path and os.path.isfile(template_path):
             raise FileExistsError(f"File {template_path} already exists. You can use -f to force override it.")
 
-        object_with_schema = import_object(import_path)
-        schema = collect_schema(object_with_schema)
+        class_with_schema = import_object(import_path)
+        schema = collect_schema(class_with_schema)
 
         if template_format == "open-api":
             template = schema.schema()
