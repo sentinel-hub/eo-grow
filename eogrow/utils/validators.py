@@ -51,12 +51,6 @@ def optional_field_validator(
     return validator(field, allow_reuse=allow_reuse, **kwargs)(optional_validator)
 
 
-def validate_s3_path(value: str) -> str:
-    """Validates the prefix of a S3 bucket path"""
-    assert value.startswith("s3://"), "S3 path must start with s3://"
-    return value
-
-
 def ensure_exactly_one_defined(param1: str, param2: str, allow_reuse: bool = True, **kwargs: Any) -> classmethod:
     """A root validator that makes sure only one of the two parameters is defined."""
 
