@@ -13,7 +13,7 @@ from .core.schemas import build_schema_template
 from .pipelines.testing import TestPipeline
 from .utils.general import jsonify
 from .utils.meta import collect_schema, import_object, load_pipeline_class
-from .utils.ray import generate_cluster_config_path
+from .utils.ray import generate_cluster_config_path, start_cluster_if_needed
 
 variables_option = click.option(
     "-v",
@@ -139,7 +139,7 @@ class EOGrowCli:
             eogrow-ray cluster.yaml config_files/config.json
         """
         if start_cluster:
-            subprocess.run(f"ray up -y {cluster_yaml}", shell=True)
+            start_cluster_if_needed(cluster_yaml)
 
         if stop_cluster and (use_screen or use_tmux):
             raise NotImplementedError("It is not clear how to combine stop flag with either screen or tmux flag")
