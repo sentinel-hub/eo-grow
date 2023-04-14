@@ -1,5 +1,4 @@
 """Implementation of the base Pipeline class."""
-import datetime as dt
 import logging
 import time
 import uuid
@@ -9,6 +8,7 @@ from eolearn.core import CreateEOPatchTask, EOExecutor, EONode, EOWorkflow, Load
 from eolearn.core.extra.ray import RayExecutor
 
 from ..types import ExecKwargs, PatchList, ProcessingType
+from ..utils.general import current_timestamp
 from ..utils.meta import import_object
 from ..utils.ray import handle_ray_connection
 from .area.base import BaseAreaManager
@@ -209,7 +209,7 @@ class Pipeline(EOGrowObject):
 
     def run(self) -> None:
         """The main method for pipeline execution. It sets up logging and runs the pipeline procedure."""
-        timestamp = dt.datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%SZ")
+        timestamp = current_timestamp()
         self.current_execution_name = self.get_pipeline_execution_name(timestamp)
 
         handlers = self.logging_manager.start_logging(self.current_execution_name)

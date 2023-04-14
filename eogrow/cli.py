@@ -3,15 +3,17 @@ import json
 import os
 import re
 import subprocess
+from tempfile import NamedTemporaryFile
 from typing import Optional, Tuple
 
 import click
 
-from .core.config import collect_configs_from_path, decode_config_list, encode_config_list, interpret_config_from_dict
+from .core.config import collect_configs_from_path, interpret_config_from_dict
 from .core.schemas import build_schema_template
 from .pipelines.testing import TestPipeline
 from .utils.general import jsonify
 from .utils.meta import collect_schema, import_object, load_pipeline_class
+from .utils.ray import generate_cluster_config_path, start_cluster_if_needed
 
 variables_option = click.option(
     "-v",
@@ -58,14 +60,6 @@ class EOGrowCli:
     @click.argument("config_filename_or_string", type=click.Path())
     @variables_option
     @test_patches_option
-    @click.option(
-        "-e",
-        "--encoding",
-        "encoding",
-        is_flag=True,
-        type=bool,
-        help="The string passed to method is treated as an encoded config instead of filename.",
-    )
     def main(
         config_filename_or_string: str, cli_variables: Tuple[str], test_patches: Tuple[int], encoding: bool
     ) -> None:
@@ -75,12 +69,10 @@ class EOGrowCli:
         Example:
             eogrow config_files/config.json
         """
-        if encoding:
-            raw_configs = decode_config_list(config_filename_or_string)
-        else:
-            raw_configs = collect_configs_from_path(config_filename_or_string)
 
+        raw_configs = collect_configs_from_path(config_filename_or_string)
         cli_variable_mapping = dict(_parse_cli_variable(cli_var) for cli_var in cli_variables)
+
         pipelines = []
         for raw_config in raw_configs:
             config = interpret_config_from_dict(raw_config, cli_variable_mapping)
@@ -138,27 +130,37 @@ class EOGrowCli:
         cli_variables: Tuple[str],
         test_patches: Tuple[int],
     ) -> None:
-        """Command for running an eo-grow pipeline on a remote Ray cluster of AWS EC2 instances
+        """Command for running an eo-grow pipeline on a remote Ray cluster of AWS EC2 instances. The provided config is
+        fully constructed and uploaded to the cluster head in the `~/.synced_configs/` directory, where it is then
+        executed. A custom suffix is added to distinguish runs which use the same config multiple times.
 
         \b
         Example:
             eogrow-ray cluster.yaml config_files/config.json
         """
+        if start_cluster:
+            start_cluster_if_needed(cluster_yaml)
+
         if stop_cluster and (use_screen or use_tmux):
             raise NotImplementedError("It is not clear how to combine stop flag with either screen or tmux flag")
 
-        configs = collect_configs_from_path(config_filename)
-        encoded_configs = encode_config_list(configs)
+        raw_configs = [interpret_config_from_dict(config) for config in collect_configs_from_path(config_filename)]
+        remote_path = generate_cluster_config_path(config_filename)
+
+        with NamedTemporaryFile(mode="w", delete=True, suffix=".json") as local_path:
+            json.dump(raw_configs, local_path)
+            subprocess.run(f"ray rsync_up {cluster_yaml} {local_path.name!r} {remote_path!r}", shell=True)
+
         cmd = (
-            f"{EOGrowCli._command_namespace} -e {encoded_configs}"
+            f"{EOGrowCli._command_namespace} {remote_path}"
             + "".join(f' -v "{cli_var_spec}"' for cli_var_spec in cli_variables)  # noqa B028
             + "".join(f" -t {patch_index}" for patch_index in test_patches)
             + ("; " if stop_cluster else "")  # Otherwise, ray will incorrectly prepare a command for stopping a cluster
         )
-        flag_info = [("start", start_cluster), ("stop", stop_cluster), ("screen", use_screen), ("tmux", use_tmux)]
+        flag_info = [("stop", stop_cluster), ("screen", use_screen), ("tmux", use_tmux)]
         exec_flags = " ".join(f"--{flag_name}" for flag_name, use_flag in flag_info if use_flag)
 
-        subprocess.call(f"ray exec {exec_flags} {cluster_yaml} '{cmd}'", shell=True)  # noqa B028
+        subprocess.run(f"ray exec {exec_flags} {cluster_yaml} {cmd!r}", shell=True)  # noqa B028
 
     @staticmethod
     @click.command()
