@@ -1,7 +1,6 @@
 """
 Module implementing utilities for unit testing pipeline results
 """
-import functools
 import json
 import os
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, cast
@@ -222,14 +221,13 @@ class ContentTester:
 
     def _calculate_vector_stats(self, dataframe: pd.DataFrame) -> JsonDict:
         """Calculates statistics over a vector GeoDataFrame"""  # TODO: add more statistical properties
-        rounder = functools.partial(_round_point_coords, decimals=self.decimals)
-        dataframe["geometry"] = dataframe["geometry"].apply(lambda geometry: shapely.ops.transform(rounder, geometry))
 
-        stats = {
-            "columns": list(dataframe),
-            "row_count": len(dataframe.index),
-            "crs": str(dataframe.crs),
-        }
+        def _rounder(x: float, y: float) -> Tuple[float, float]:
+            return round(x, self.decimals), round(y, self.decimals)
+
+        dataframe["geometry"] = dataframe["geometry"].apply(lambda geometry: shapely.ops.transform(_rounder, geometry))
+
+        stats = {"columns": list(dataframe), "row_count": len(dataframe.index), "crs": str(dataframe.crs)}
 
         if len(dataframe.index):
             stats["first_row"] = list(map(str, dataframe.iloc[0]))
@@ -361,75 +359,6 @@ def compare_content(
     if stats_difference:
         stats_difference_repr = stats_difference.to_json(indent=2, sort_keys=True)
         raise AssertionError(f"Expected and obtained stats differ:\n{stats_difference_repr}")
-
-
-def run_and_test_pipeline(
-    experiment_name: str,
-    *,
-    config_folder: str,
-    stats_folder: str,
-    folder_key: Optional[str] = None,
-    reset_folder: bool = True,
-    save_new_stats: bool = False,
-) -> None:
-    """A default way of testing a pipeline
-
-    :param experiment_name: Name of test experiment, which defines its config and stats filenames
-    :param config_folder: A path to folder containing the config file
-    :param stats_folder: A path to folder containing the file with expected result stats
-    :param folder_key: Type of the folder containing results of the pipeline, if missing it's inferred from config
-    :param reset_folder: If True it will delete content of the folder with results before running the pipeline
-    :param save_new_stats: If True then new file with expected result stats will be saved, potentially overwriting the
-        old one. Otherwise, the old one will be used to compare stats.
-    """
-    config_filename = os.path.join(config_folder, experiment_name + ".json")
-    expected_stats_file = os.path.join(stats_folder, experiment_name + ".json")
-
-    crude_configs = collect_configs_from_path(config_filename)
-    raw_configs = [interpret_config_from_dict(config) for config in crude_configs]
-
-    for index, config in enumerate(raw_configs):
-        output_folder_key = folder_key or config.get("output_folder_key")
-        if output_folder_key is None:
-            raise ValueError(
-                "Pipeline does not have a `output_folder_key` parameter, `folder_key` must be set by hand."
-            )
-
-        pipeline = load_pipeline_class(config).from_raw_config(config)
-
-        folder = pipeline.storage.get_folder(output_folder_key)
-        filesystem = pipeline.storage.filesystem
-
-        if reset_folder:
-            filesystem.removetree(folder)
-        pipeline.run()
-
-        check_pipeline_logs(pipeline)
-
-        if index < len(raw_configs) - 1:
-            continue
-
-        tester = ContentTester(filesystem, folder)
-
-        if save_new_stats:
-            tester.save(expected_stats_file)
-
-        stats_difference = tester.compare(expected_stats_file)
-        if stats_difference:
-            stats_difference_repr = stats_difference.to_json(indent=2, sort_keys=True)
-            raise AssertionError(f"Expected and obtained stats differ:\n{stats_difference_repr}")
-
-
-def _round_point_coords(x: float, y: float, decimals: int) -> Tuple[float, float]:
-    """Rounds coordinates of a point"""
-    return round(x, decimals), round(y, decimals)
-
-
-def create_folder_dict(config_folder: str, stats_folder: str, subfolder: Optional[str] = None) -> Dict[str, str]:
-    return {
-        "config_folder": os.path.join(config_folder, subfolder) if subfolder else config_folder,
-        "stats_folder": os.path.join(stats_folder, subfolder) if subfolder else config_folder,
-    }
 
 
 def generate_tiff_file(

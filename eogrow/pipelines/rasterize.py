@@ -13,6 +13,7 @@ from pydantic import Field, validator
 from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, FeatureType, LoadTask, OverwritePermission, SaveTask
 from eolearn.geometry import VectorToRasterTask
 from eolearn.io import VectorImportTask
+from sentinelhub import CRS
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
@@ -141,7 +142,8 @@ class RasterizePipeline(Pipeline):
                 for layer in fiona.listlayers(local_file.path)
             ]
 
-        dataset_gdf = concat_gdf(dataset_layers, reproject_crs=preprocess_config.reproject_crs)
+        reproject_crs = None if preprocess_config.reproject_crs is None else CRS(preprocess_config.reproject_crs)
+        dataset_gdf = concat_gdf(dataset_layers, reproject_crs=reproject_crs)
         dataset_gdf = self.preprocess_dataset(dataset_gdf)
         dataset_path = self._get_dataset_path(filename)
 

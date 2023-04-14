@@ -8,7 +8,7 @@ import pytest
 from eolearn.core import FeatureType
 from sentinelhub import CRS, BBox, DataCollection
 
-from eogrow.utils.general import convert_bbox_coords_to_int, convert_to_int, jsonify, large_list_repr, reduce_to_coprime
+from eogrow.utils.general import convert_bbox_coords_to_int, convert_to_int, jsonify, large_list_repr
 
 
 class MyEnum(enum.Enum):
@@ -37,20 +37,6 @@ def test_jsonify():
 
     with pytest.raises(TypeError):
         json.dumps({"some function": json.dumps}, default=jsonify)
-
-
-@pytest.mark.parametrize(
-    "number1, number2, expected_result",
-    [
-        (2, 3, (2, 3)),
-        (48, 32, (3, 2)),
-        (1, 1, (1, 1)),
-        (10**20, 10**21, (1, 10)),
-    ],
-)
-def test_reduce_to_coprime(number1, number2, expected_result):
-    result = reduce_to_coprime(number1, number2)
-    assert result == expected_result
 
 
 def test_convert_to_int():

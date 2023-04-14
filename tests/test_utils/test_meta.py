@@ -31,9 +31,9 @@ def test_load_pipeline_class_wrong_import_path():
         load_pipeline_class({"pipeline": "wrong-import-path!"})
 
 
-@pytest.mark.parametrize("object_with_schema", [Pipeline, StorageManager])
-def test_collect_schema(object_with_schema):
-    schema = collect_schema(object_with_schema)
+@pytest.mark.parametrize("class_with_schema", [Pipeline, StorageManager])
+def test_collect_schema(class_with_schema):
+    schema = collect_schema(class_with_schema)
     assert issubclass(schema, BaseSchema)
 
 
