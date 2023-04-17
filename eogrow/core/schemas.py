@@ -27,6 +27,7 @@ class PipelineSchema(BaseSchema):
     """Base schema of the Pipeline class."""
 
     pipeline: Optional[ImportPath] = Field(description="Import path to an implementation of Pipeline class.")
+    custom_name: Optional[str] = Field(description="Custom name for the pipeline for easier identification in logs.")
 
     storage: ManagerSchema = Field(description="A schema of an implementation of StorageManager class")
     validate_storage = field_validator("storage", validate_manager, pre=True)

@@ -56,6 +56,10 @@ class Pipeline(EOGrowObject):
         self.area_manager: BaseAreaManager = self._load_manager(config.area, storage=self.storage)
         self.logging_manager: LoggingManager = self._load_manager(config.logging, storage=self.storage)
 
+    @property
+    def _pipeline_name(self) -> str:
+        return self.config.custom_name or self.__class__.__name__
+
     @classmethod
     def from_raw_config(cls: Type[Self], config: RawConfig, *args: Any, **kwargs: Any) -> Self:
         """Creates an object from a dictionary by constructing a validated config and use it to create the object."""
@@ -84,7 +88,7 @@ class Pipeline(EOGrowObject):
 
     def get_pipeline_execution_name(self, pipeline_timestamp: str) -> str:
         """Returns the full name of the pipeline execution"""
-        return f"{pipeline_timestamp}-{self.__class__.__name__}-{self.pipeline_id}"
+        return f"{pipeline_timestamp}-{self._pipeline_name}-{self.pipeline_id}"
 
     def get_patch_list(self) -> PatchList:
         """Method which at the initialization prepares the list of EOPatches which will be used"""
@@ -222,7 +226,7 @@ class Pipeline(EOGrowObject):
                 pipeline_timestamp=timestamp,
             )
 
-            LOGGER.info("Running %s", self.__class__.__name__)
+            LOGGER.info("Running %s", self._pipeline_name)
 
             pipeline_start = time.time()
             finished, failed = self.run_procedure()
