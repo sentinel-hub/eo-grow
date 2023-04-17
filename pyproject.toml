@@ -80,7 +80,6 @@ dev = [
     "build",
     "deepdiff",
     "fs_s3fs",
-    "ipdb",
     "moto",
     "mypy>=0.990",
     "pre-commit",
