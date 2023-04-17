@@ -70,9 +70,9 @@ dependencies = [
 docs = [
     "autodoc_pydantic",
     "nbsphinx",
-    "sphinx",
-    "sphinx-rtd-theme>=1.0.0",
     "sphinx_mdinclude",
+    "sphinx-rtd-theme>=1.0.0",
+    "sphinx",
 ]
 dev = [
     "boto3",
@@ -83,10 +83,10 @@ dev = [
     "mypy>=0.990",
     "pre-commit",
     "pyogrio",
-    "pytest>=4.0.0",
     "pytest-cov",
     "pytest-lazy-fixture",
     "pytest-order",
+    "pytest>=4.0.0",
     "requests-mock",
     "twine",
     "types-mock",
