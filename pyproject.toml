@@ -52,8 +52,6 @@ dependencies = [
     "fiona",
     "fs>=2.2.0",
     "geopandas>=0.8.1",
-    "joblib",
-    "lightgbm>=3.0.0",
     "numpy",
     "pandas",
     "pydantic>=1.8.0",
@@ -61,7 +59,6 @@ dependencies = [
     "python-rapidjson",
     "rasterio",
     "ray[default]",
-    "scikit-learn",
     "sentinelhub>=3.6.2",
     "shapely>=1.8.0",
     "typing-extensions",
@@ -80,7 +77,6 @@ dev = [
     "build",
     "deepdiff",
     "fs_s3fs",
-    "ipdb",
     "moto",
     "mypy>=0.990",
     "pre-commit",
@@ -94,6 +90,11 @@ dev = [
     "types-requests",
     "types-setuptools",
     "types-urllib3",
+]
+ml = [
+    "joblib",
+    "lightgbm>=3.0.0",
+    "scikit-learn",
 ]
 
 [project.urls]
