@@ -60,7 +60,7 @@ class RasterizePipeline(Pipeline):
         raster_shape: Optional[Tuple[int, int]] = Field(
             description="Shape of resulting raster image. Cannot be used with `resolution`."
         )
-        _check_shape_resolution = ensure_exactly_one_defined("raster_shape", "resolution")
+        _check_shape_resolution = ensure_exactly_one_defined("resolution", "raster_shape")
 
         dtype: np.dtype = Field(np.dtype("int32"), description="Numpy dtype of the output feature.")
         _parse_dtype = field_validator("dtype", parse_dtype, pre=True)
