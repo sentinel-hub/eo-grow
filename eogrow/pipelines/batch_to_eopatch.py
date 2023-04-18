@@ -63,7 +63,7 @@ class BatchToEOPatchPipeline(Pipeline):
         )
 
         @validator("mapping")
-        def check_something_is_converted(cls, value: list, values: RawSchemaDict) -> list:
+        def check_nonempty_input(cls, value: list, values: RawSchemaDict) -> list:
             if not value:
                 params = "userdata_feature_name", "userdata_timestamp_reader"
                 assert any(
