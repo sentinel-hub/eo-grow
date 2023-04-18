@@ -47,20 +47,16 @@ dependencies = [
     "eo-learn-geometry>=1.4.1",
     "eo-learn-io>=1.4.1",
     "eo-learn-mask>=1.4.1",
-    "eo-learn-ml-tools>=1.4.1",
     "eo-learn-visualization>=1.4.1",
     "fiona",
     "fs>=2.2.0",
     "geopandas>=0.8.1",
-    "joblib",
-    "lightgbm>=3.0.0",
     "numpy",
     "pandas",
     "pydantic>=1.8.0",
     "python-rapidjson",
     "rasterio",
     "ray[default]",
-    "scikit-learn",
     "sentinelhub>=3.6.2",
     "shapely>=1.8.0",
     "typing-extensions",
@@ -93,6 +89,12 @@ dev = [
     "types-requests",
     "types-setuptools",
     "types-urllib3",
+]
+ml = [
+    "eo-learn-ml-tools>=1.4.1",
+    "joblib",
+    "lightgbm>=3.0.0",
+    "scikit-learn",
 ]
 
 [project.urls]
