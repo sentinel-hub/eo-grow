@@ -2,7 +2,7 @@
 from typing import Any, List, Optional
 
 import numpy as np
-from pydantic import Field, root_validator
+from pydantic import Field, validator
 
 from eolearn.core import (
     CreateEOPatchTask,
@@ -47,10 +47,6 @@ class BatchToEOPatchPipeline(Pipeline):
         input_folder_key: str = Field(description="Storage manager key pointing to the path with Batch results")
         output_folder_key: str = Field(description="Storage manager key pointing to where the EOPatches are saved")
 
-        mapping: List[FeatureMappingSchema] = Field(
-            description="A list of mapping from batch files into EOPatch features."
-        )
-
         userdata_feature_name: Optional[str] = Field(
             description="A name of META_INFO feature in which userdata.json would be stored."
         )
@@ -61,18 +57,23 @@ class BatchToEOPatchPipeline(Pipeline):
             ),
             example="\"[info['date'] for info in json.loads(userdata['metadata'])]\"",
         )
+
+        mapping: List[FeatureMappingSchema] = Field(
+            description="A list of mapping from batch files into EOPatch features."
+        )
+
+        @validator("mapping")
+        def check_nonempty_input(cls, value: list, values: RawSchemaDict) -> list:
+            if not value:
+                params = "userdata_feature_name", "userdata_timestamp_reader"
+                assert any(
+                    values.get(param) is not None for param in params
+                ), "At least one of `userdata_feature_name`, `userdata_timestamp_reader`, or `mapping` has to be set."
+            return value
+
         remove_batch_data: bool = Field(
             True, description="Whether to remove the raw batch data after the conversion is complete"
         )
-
-        @root_validator
-        def check_something_is_converted(cls, values: RawSchemaDict) -> RawSchemaDict:
-            """Check that the pipeline has something to do."""
-            params = "userdata_feature_name", "userdata_timestamp_reader", "mapping"
-            assert any(
-                values.get(param) is not None for param in params
-            ), "At least one of `userdata_feature_name`, `userdata_timestamp_reader`, or `mapping` has to be set."
-            return values
 
     config: Schema
 

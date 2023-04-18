@@ -4,15 +4,15 @@ from typing import List, Optional, Tuple
 
 import fs
 import numpy as np
-from pydantic import Field, root_validator
+from pydantic import Field
 
 from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, MergeEOPatchesTask, OverwritePermission, SaveTask
 
 from ..core.pipeline import Pipeline
 from ..tasks.prediction import ClassificationPredictionTask, RegressionPredictionTask
-from ..types import Feature, FeatureSpec, PatchList, RawSchemaDict
+from ..types import Feature, FeatureSpec, PatchList
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.validators import optional_field_validator, parse_dtype
+from ..utils.validators import ensure_defined_together, optional_field_validator, parse_dtype
 
 
 class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
@@ -37,28 +37,16 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         )
         _parse_dtype = optional_field_validator("dtype", parse_dtype, pre=True)
 
-        prediction_mask_folder_key: Optional[str]
         prediction_mask_feature_name: Optional[str] = Field(
             description="Name of `MASK_TIMELESS` feature which defines which areas will be predicted"
         )
+        prediction_mask_folder_key: Optional[str]
+        _ensure_mask_feature_key = ensure_defined_together("prediction_mask_feature_name", "prediction_mask_folder_key")
 
         model_folder_key: str = Field(
             description="The storage manager key pointing to the folder of the model used in the prediction pipeline."
         )
         compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
-
-        @root_validator
-        def validate_prediction_mask(cls, values: RawSchemaDict) -> RawSchemaDict:
-            """If prediction mask is defined then also its input folder has to be defined."""
-            is_mask_defined = values.get("prediction_mask_feature_name") is not None
-            is_folder_defined = values.get("prediction_mask_folder_key") is not None
-
-            if is_mask_defined:
-                assert (
-                    is_folder_defined
-                ), "Parameter prediction_mask_feature_name is defined but prediction_mask_folder_key is not."
-
-            return values
 
     config: Schema
 

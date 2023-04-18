@@ -254,7 +254,7 @@ class BlockSamplingPipeline(BaseRandomSamplingPipeline):
             )
         )
 
-        _check_fraction_number = ensure_exactly_one_defined("fraction_of_samples", "number_of_samples")
+        _check_fraction_number = ensure_exactly_one_defined("number_of_samples", "fraction_of_samples")
 
     config: Schema
 

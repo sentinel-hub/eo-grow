@@ -6,7 +6,7 @@ import inspect
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Tuple, Type, Union
 
 import numpy as np
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import BaseModel, Field, validator
 
 from eolearn.core import FeatureType
 from eolearn.core.utils.parsing import parse_feature
@@ -51,34 +51,44 @@ def optional_field_validator(
     return validator(field, allow_reuse=allow_reuse, **kwargs)(optional_validator)
 
 
-def ensure_exactly_one_defined(param1: str, param2: str, allow_reuse: bool = True, **kwargs: Any) -> classmethod:
-    """A root validator that makes sure only one of the two parameters is defined."""
+def ensure_exactly_one_defined(first_param: str, second_param: str, **kwargs: Any) -> classmethod:
+    """A validator (applied to `second_param` field) that makes sure only one of the two parameters is defined.
 
-    def ensure_exclusion(cls: type, values: RawSchemaDict) -> RawSchemaDict:
-        is_param1_defined = values.get(param1) is None
-        is_param2_defined = values.get(param2) is None
+    Make sure that the definition of `second_param` comes after `first_param˙ (in line-order).
+    """
+
+    def ensure_exclusion(cls: type, value: Optional[Any], values: RawSchemaDict) -> Optional[Any]:
+        is_param1_undefined = values.get(first_param) is None
+        is_param2_undefined = value is None
         assert (
-            is_param1_defined != is_param2_defined
-        ), f"Exactly one of parameters `{param1}` and `{param2}` has to be specified."
+            is_param1_undefined != is_param2_undefined
+        ), f"Exactly one of parameters `{first_param}` and `{second_param}` has to be specified."
 
-        return values
+        return value
 
-    return root_validator(allow_reuse=allow_reuse, **kwargs)(ensure_exclusion)
+    ensure_exclusion.__name__ = f"cannot_be_used_with_{first_param}"  # used for docbuilding purposes
+
+    return field_validator(second_param, ensure_exclusion, **kwargs)
 
 
-def ensure_defined_together(param1: str, param2: str, allow_reuse: bool = True, **kwargs: Any) -> classmethod:
-    """A root validator that makes sure that the two parameters are both (un)defined."""
+def ensure_defined_together(first_param: str, second_param: str, **kwargs: Any) -> classmethod:
+    """A validator (applied to `second_param` field) that makes sure that the two parameters are both (un)defined.
 
-    def ensure_exclusion(cls: type, values: RawSchemaDict) -> RawSchemaDict:
-        is_param1_defined = values.get(param1) is None
-        is_param2_defined = values.get(param2) is None
+    Make sure that the definition of `second_param` comes after `first_param˙ (in line-order).
+    """
+
+    def ensure_both(cls: type, value: Optional[Any], values: RawSchemaDict) -> Optional[Any]:
+        is_param1_undefined = values.get(first_param) is None
+        is_param2_undefined = value is None
         assert (
-            is_param1_defined == is_param2_defined
-        ), f"Both or neither of parameters `{param1}` and `{param2}` have to be specified."
+            is_param1_undefined == is_param2_undefined
+        ), f"Both or neither of parameters `{first_param}` and `{second_param}` have to be specified."
 
-        return values
+        return value
 
-    return root_validator(allow_reuse=allow_reuse, **kwargs)(ensure_exclusion)
+    ensure_both.__name__ = f"must_be_used_with_{first_param}"  # used for docbuilding purposes
+
+    return field_validator(second_param, ensure_both, **kwargs)
 
 
 def parse_time_period(value: Tuple[str, str]) -> TimePeriod:
