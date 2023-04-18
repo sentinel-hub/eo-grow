@@ -58,7 +58,7 @@ class Pipeline(EOGrowObject):
 
     @property
     def _pipeline_name(self) -> str:
-        return self.config.custom_name or self.__class__.__name__
+        return self.config.pipeline_name or self.__class__.__name__
 
     @classmethod
     def from_raw_config(cls: Type[Self], config: RawConfig, *args: Any, **kwargs: Any) -> Self:
