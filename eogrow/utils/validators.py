@@ -58,10 +58,10 @@ def ensure_exactly_one_defined(first_param: str, second_param: str, **kwargs: An
     """
 
     def ensure_exclusion(cls: type, value: Optional[Any], values: RawSchemaDict) -> Optional[Any]:
-        is_param1_defined = values.get(first_param) is None
-        is_param2_defined = value is None
+        is_param1_undefined = values.get(first_param) is None
+        is_param2_undefined = value is None
         assert (
-            is_param1_defined != is_param2_defined
+            is_param1_undefined != is_param2_undefined
         ), f"Exactly one of parameters `{first_param}` and `{second_param}` has to be specified."
 
         return value
@@ -78,10 +78,10 @@ def ensure_defined_together(first_param: str, second_param: str, **kwargs: Any) 
     """
 
     def ensure_both(cls: type, value: Optional[Any], values: RawSchemaDict) -> Optional[Any]:
-        is_param1_defined = values.get(first_param) is None
-        is_param2_defined = value is None
+        is_param1_undefined = values.get(first_param) is None
+        is_param2_undefined = value is None
         assert (
-            is_param1_defined == is_param2_defined
+            is_param1_undefined == is_param2_undefined
         ), f"Both or neither of parameters `{first_param}` and `{second_param}` have to be specified."
 
         return value
