@@ -57,12 +57,10 @@ class EOGrowCli:
 
     @staticmethod
     @click.command()
-    @click.argument("config_filename_or_string", type=click.Path())
+    @click.argument("config_path", type=click.Path())
     @variables_option
     @test_patches_option
-    def main(
-        config_filename_or_string: str, cli_variables: Tuple[str], test_patches: Tuple[int], encoding: bool
-    ) -> None:
+    def main(config_path: str, cli_variables: Tuple[str], test_patches: Tuple[int]) -> None:
         """Execute eo-grow pipeline using CLI.
 
         \b
@@ -70,7 +68,7 @@ class EOGrowCli:
             eogrow config_files/config.json
         """
 
-        raw_configs = collect_configs_from_path(config_filename_or_string)
+        raw_configs = collect_configs_from_path(config_path)
         cli_variable_mapping = dict(_parse_cli_variable(cli_var) for cli_var in cli_variables)
 
         pipelines = []
