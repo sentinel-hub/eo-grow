@@ -1,6 +1,6 @@
 {
   "pipeline": "eogrow.pipelines.rasterize.RasterizePipeline",
-  "input_folder_key": "reference", // This one rasterizes from a vector feature, that is added in tests
+  "input_folder_key": "reference",
   "output_folder_key": "reference",
   "vector_input": ["vector_timeless", "CROPS_VECTOR"],
   "output_feature": ["mask_timeless", "POLYGON_ID"],
