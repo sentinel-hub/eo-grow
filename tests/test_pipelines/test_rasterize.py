@@ -1,28 +1,14 @@
 import pytest
 
-from eogrow.core.config import collect_configs_from_path, interpret_config_from_dict
-from eogrow.utils.meta import load_pipeline_class
 from eogrow.utils.testing import compare_content, run_config
 
 pytestmark = pytest.mark.integration
 
 
-def reset_output_folder(config_path: str) -> str:
-    raw_config = interpret_config_from_dict(collect_configs_from_path(config_path)[0])
-    pipeline = load_pipeline_class(raw_config).from_raw_config(raw_config)
-
-    output_folder_key: str = raw_config["output_folder_key"]
-    folder = pipeline.storage.get_folder(output_folder_key)
-    pipeline.storage.filesystem.removetree(folder)
-    return pipeline.storage.get_folder(output_folder_key, full_path=True)
-
-
 @pytest.mark.parametrize("experiment_name", ["rasterize_pipeline_float"])
 def test_rasterize_pipeline(config_and_stats_paths, experiment_name):
     config_path, stats_path = config_and_stats_paths("rasterize", experiment_name)
-    reset_output_folder(config_path)
-
-    output_path = run_config(config_path, reset_output_folder=False)
+    output_path = run_config(config_path)
     compare_content(output_path, stats_path)
 
 

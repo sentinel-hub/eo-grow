@@ -37,42 +37,6 @@
             "value": 3.5
           }
         ]
-      },
-      "INT_FEATURE": {
-        "array_shape": [
-          10,
-          22,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              5,
-              7,
-              0
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              2,
-              3,
-              0
-            ],
-            "value": 3
-          }
-        ],
-        "values": [
-          {
-            "count": 208,
-            "value": 0
-          },
-          {
-            "count": 12,
-            "value": 3
-          }
-        ]
       }
     }
   },
@@ -112,42 +76,6 @@
           {
             "count": 6616,
             "value": 3.5
-          }
-        ]
-      },
-      "INT_FEATURE": {
-        "array_shape": [
-          10,
-          22,
-          1
-        ],
-        "dtype": "uint8",
-        "random_values": [
-          {
-            "position": [
-              5,
-              17,
-              0
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              4,
-              0
-            ],
-            "value": 3
-          }
-        ],
-        "values": [
-          {
-            "count": 176,
-            "value": 0
-          },
-          {
-            "count": 44,
-            "value": 3
           }
         ]
       }
