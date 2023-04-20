@@ -47,14 +47,6 @@ class EOGrowCli:
 
     _command_namespace = "eogrow"
 
-    def __init__(self, command_namespace: Optional[str] = None):
-        """
-        :param command_namespace: A namespace for calling CLI, e.g. command_namespace='eogrow' if you call commands
-            "eogrow config.json".
-        """
-        if command_namespace:
-            EOGrowCli._command_namespace = command_namespace
-
     @staticmethod
     @click.command()
     @click.argument("config_path", type=click.Path())
