@@ -60,7 +60,55 @@ In some cases the settings from a global config (or from a different config file
 
 The processed configuration will have all the logging settings from `global_config.json`, except for `"capture_warnings"`. See config language rules for config joins.
 
-## Config chains
+## Pipeline chains
+
+Pipeline chains are briefly touched in the config language docs, but only their syntax. Here we'll show two common usage patterns.
+
+### End-to-end pipeline chain
+
+In certain use-cases we have multiple pipelines, that are meant to be run in a certain succession. A great way of organizing that is via order-prefix naming, so `03_export_pipeline.json` is to be run as the third pipeline.
+
+But the user still needs to run them in the correct order and by hand. This we can automate with a simple pipeline chain that links them together:
+```
+[ // end_to_end_run.json
+  {"**download": "${config_path}/01_download.json"},
+  {"**preprocess": "${config_path}/02_preprocess_data.json"},
+  {"**predict": "${config_path}/03_use_model.json"},
+  {"**export": "${config_path}/04_export_maps.json"},
+  {"**ingest": "${config_path}/05_ingest_byoc.json"},
+]
+```
+
+A simple `eogrow end_to_end_run.json` now runs all of these pipelines one after another.
+
+### Rerunning with different parameters
+
+In experimentation we often want to run the same pipeline for multiple parameter values. With a tiny bit of boilerplate this can also be taken care of with config chains.
+
+```
+[ // run_threshold_experiments.json
+  {
+    "variables": {"threshold": 0.1},
+    "**pipeline": "${config_path}/extract_trees.json"
+  },
+  {
+    "variables": {"threshold": 0.2},
+    "**pipeline": "${config_path}/extract_trees.json"
+  },
+  {
+    "variables": {"threshold": 0.3},
+    "**pipeline": "${config_path}/extract_trees.json"
+  },
+  {
+    "variables": {"threshold": 0.4},
+    "**pipeline": "${config_path}/extract_trees.json"
+  }
+]
+```
+
+### Using variables with pipelines
+
+While there is no syntactic sugar for specifying pipeline-chain-wide variables in JSON files, one can do that through CLI. Running `eogrow end_to_end_run.json -v "year:2019"` will set the variable `year` to 2019 for all pipelines in the chain.
 
 ## Path modification via variables
 

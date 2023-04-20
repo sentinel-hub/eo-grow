@@ -25,7 +25,7 @@ Additional notes:
 - So far, config language is not completely OS-agnostic and it might not support Windows file paths.
 
 
-### Pipeline joins
+### Pipeline chains
 
 A typical configuration is a dictionary with pipeline parameters. However, it can also be a list of dictionaries. In this case each dictionary must contain parameters of a single pipeline. The order of dictionaries defines the consecutive order in which pipelines will be run. Example:
 
@@ -44,3 +44,5 @@ A typical configuration is a dictionary with pipeline parameters. However, it ca
   ...
 ]
 ```
+
+There is currently no functionality to join together two pipeline chains except by copying both explicitly.
