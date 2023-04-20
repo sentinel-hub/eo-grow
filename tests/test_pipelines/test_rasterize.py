@@ -5,8 +5,8 @@ from eogrow.utils.testing import compare_content, run_config
 pytestmark = pytest.mark.integration
 
 
-@pytest.mark.parametrize("experiment_name", ["rasterize_pipeline_float"])
-def test_rasterize_pipeline(config_and_stats_paths, experiment_name):
+@pytest.mark.parametrize("experiment_name", ["rasterize_pipeline_vector_file"])
+def test_rasterize_pipeline_vector_file(config_and_stats_paths, experiment_name):
     config_path, stats_path = config_and_stats_paths("rasterize", experiment_name)
     output_path = run_config(config_path)
     compare_content(output_path, stats_path)
