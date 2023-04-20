@@ -1,9 +1,6 @@
-import os
-
-import geopandas as gpd
 import pytest
 
-from eolearn.core import EONode, EOPatch, FeatureType, MapFeatureTask
+from eolearn.core import EONode, MapFeatureTask
 
 from eogrow.core.config import collect_configs_from_path, interpret_config_from_dict
 from eogrow.pipelines.rasterize import RasterizePipeline
@@ -34,32 +31,6 @@ class CropRasterizePipeline(RasterizePipeline):
     def get_prerasterization_node(self, previous_node: EONode) -> EONode:
         """Applies mapping between names and crop ids"""
         return EONode(CropPreprocessTask(self.vector_feature, self.vector_feature), inputs=[previous_node])
-
-
-def add_vector_data(pipeline):
-    """Adds a vector feature to existing eopatches"""
-    LULC_MAP = {
-        "no data": 0,
-        "cultivated land": 1,
-        "grassland": 3,
-        "shrubland": 4,
-        "water": 5,
-        "artificial surface": 8,
-        "bareland": 9,
-    }
-    vector_data = os.path.join(pipeline.storage.get_input_data_folder(full_path=True), "test_area_lulc.geojson")
-    vector_data = gpd.read_file(vector_data, encoding="utf-8")
-
-    vector_data["LULC_ID"] = vector_data["LULC"].apply(lambda lulc_name: LULC_MAP[lulc_name])
-    vector_data["LULC_POLYGON_ID"] = vector_data.index + 1
-
-    for eopatch_name, _ in pipeline.get_patch_list():
-        eopatch_folder = os.path.join(pipeline.storage.get_folder("reference", full_path=True), eopatch_name)
-
-        eopatch = EOPatch.load(eopatch_folder, lazy_loading=True)
-        eopatch.vector_timeless["LULC_VECTOR"] = vector_data
-
-        eopatch.save(eopatch_folder, features=[(FeatureType.VECTOR_TIMELESS, "LULC_VECTOR")], overwrite_permission=1)
 
 
 def reset_output_folder(config_path: str) -> str:
@@ -99,13 +70,11 @@ def test_rasterize_pipeline_preprocess(config_and_stats_paths, experiment_name):
 
 
 @pytest.mark.chain
-@pytest.mark.parametrize("experiment_name", ["rasterize_pipeline_vector_feature"])
-def test_rasterize_pipeline_vector_feature(config_and_stats_paths, experiment_name):
-    config_path, stats_path = config_and_stats_paths("rasterize", experiment_name)
-    raw_config = interpret_config_from_dict(collect_configs_from_path(config_path)[0])
+@pytest.mark.parametrize("preparation_config, config", [("prepare_vector_data", "rasterize_pipeline_vector_feature")])
+def test_rasterize_pipeline_vector_feature(config_and_stats_paths, preparation_config, config):
+    preparation_config_path, _ = config_and_stats_paths("rasterize", preparation_config)
+    config_path, stats_path = config_and_stats_paths("rasterize", config)
 
-    first_pipeline = load_pipeline_class(raw_config).from_raw_config(raw_config)
-    add_vector_data(first_pipeline)
-
+    run_config(preparation_config_path, reset_output_folder=False)
     output_path = run_config(config_path, reset_output_folder=False)
     compare_content(output_path, stats_path)
