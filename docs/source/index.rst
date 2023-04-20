@@ -5,4 +5,5 @@
     :caption: Documentation content:
 
     config-language
+    common-design-patterns
     reference/eogrow
