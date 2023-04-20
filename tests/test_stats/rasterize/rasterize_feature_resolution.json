@@ -81,9 +81,116 @@
             "value": 9
           }
         ]
+      },
+      "POLYGON_ID": {
+        "array_shape": [
+          121,
+          264,
+          1
+        ],
+        "basic_stats": {
+          "max": 327,
+          "mean": 11.40449,
+          "median": 0.0,
+          "min": 0
+        },
+        "counts": {
+          "infinite": 0,
+          "nan": 0
+        },
+        "dtype": "int32",
+        "histogram": {
+          "counts": [
+            30027,
+            11,
+            693,
+            0,
+            124,
+            386,
+            567,
+            136
+          ],
+          "edges": [
+            0.0,
+            40.875,
+            81.75,
+            122.625,
+            163.5,
+            204.375,
+            245.25,
+            286.125,
+            327.0
+          ]
+        },
+        "random_values": [
+          {
+            "position": [
+              37,
+              47,
+              0
+            ],
+            "value": 248
+          },
+          {
+            "position": [
+              36,
+              36,
+              0
+            ],
+            "value": 245
+          },
+          {
+            "position": [
+              64,
+              45,
+              0
+            ],
+            "value": 90
+          },
+          {
+            "position": [
+              0,
+              4,
+              0
+            ],
+            "value": 111
+          },
+          {
+            "position": [
+              34,
+              94,
+              0
+            ],
+            "value": 320
+          }
+        ],
+        "subsample_basic_stats": {
+          "max": 327,
+          "mean": 11.74734,
+          "median": 0.0,
+          "min": 0
+        }
       }
     },
     "vector_timeless": {
+      "CROPS_VECTOR": {
+        "columns": [
+          "CROP_TYPE",
+          "POLYGON_ID",
+          "DATE",
+          "ORIGIN",
+          "geometry"
+        ],
+        "crs": "EPSG:32638",
+        "first_row": [
+          "grape",
+          "325",
+          "2018",
+          "AZE_20190408_BEYLEQAN_UZUM",
+          "POLYGON ((729842.0717 4390099.1694, 729826.1966 4390081.7069, 729840.4842 4390064.2443, 729825.1383 4390048.3693, 729791.2716 4390080.6485, 729824.08 4390115.5736, 729842.0717 4390099.1694))"
+        ],
+        "row_count": 29
+      },
       "LULC_VECTOR": {
         "columns": [
           "LULC",
@@ -186,9 +293,116 @@
             "value": 9
           }
         ]
+      },
+      "POLYGON_ID": {
+        "array_shape": [
+          121,
+          264,
+          1
+        ],
+        "basic_stats": {
+          "max": 334,
+          "mean": 42.86069,
+          "median": 0.0,
+          "min": 0
+        },
+        "counts": {
+          "infinite": 0,
+          "nan": 0
+        },
+        "dtype": "int32",
+        "histogram": {
+          "counts": [
+            26047,
+            37,
+            1013,
+            710,
+            414,
+            537,
+            1355,
+            1831
+          ],
+          "edges": [
+            0.0,
+            41.75,
+            83.5,
+            125.25,
+            167.0,
+            208.75,
+            250.5,
+            292.25,
+            334.0
+          ]
+        },
+        "random_values": [
+          {
+            "position": [
+              35,
+              128,
+              0
+            ],
+            "value": 193
+          },
+          {
+            "position": [
+              19,
+              254,
+              0
+            ],
+            "value": 133
+          },
+          {
+            "position": [
+              80,
+              33,
+              0
+            ],
+            "value": 113
+          },
+          {
+            "position": [
+              49,
+              85,
+              0
+            ],
+            "value": 115
+          },
+          {
+            "position": [
+              84,
+              253,
+              0
+            ],
+            "value": 272
+          }
+        ],
+        "subsample_basic_stats": {
+          "max": 334,
+          "mean": 38.81653,
+          "median": 0.0,
+          "min": 0
+        }
       }
     },
     "vector_timeless": {
+      "CROPS_VECTOR": {
+        "columns": [
+          "CROP_TYPE",
+          "POLYGON_ID",
+          "DATE",
+          "ORIGIN",
+          "geometry"
+        ],
+        "crs": "EPSG:32638",
+        "first_row": [
+          "cotton",
+          "246",
+          "2016-2017",
+          "AZE_20180612_BEYLAGAN",
+          "POLYGON ((729653.39426 4391256.10021, 729780.28537 4391145, 729550.30127 4391145, 729653.39426 4391256.10021))"
+        ],
+        "row_count": 32
+      },
       "LULC_VECTOR": {
         "columns": [
           "LULC",
