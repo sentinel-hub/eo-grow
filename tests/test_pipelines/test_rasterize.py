@@ -82,7 +82,7 @@ def test_rasterize_pipeline(config_and_stats_paths, experiment_name):
 
 
 @pytest.mark.chain
-@pytest.mark.order(before="test_rasterize_pipeline_features")
+@pytest.mark.order(before="test_rasterize_pipeline_vector_feature")
 @pytest.mark.parametrize("experiment_name", ["rasterize_pipeline"])
 def test_rasterize_pipeline_preprocess(config_and_stats_paths, experiment_name):
     config_path, stats_path = config_and_stats_paths("rasterize", experiment_name)
@@ -99,8 +99,8 @@ def test_rasterize_pipeline_preprocess(config_and_stats_paths, experiment_name):
 
 
 @pytest.mark.chain
-@pytest.mark.parametrize("experiment_name", ["rasterize_pipeline_features"])
-def test_rasterize_pipeline_features(config_and_stats_paths, experiment_name):
+@pytest.mark.parametrize("experiment_name", ["rasterize_pipeline_vector_feature"])
+def test_rasterize_pipeline_vector_feature(config_and_stats_paths, experiment_name):
     config_path, stats_path = config_and_stats_paths("rasterize", experiment_name)
     raw_config = interpret_config_from_dict(collect_configs_from_path(config_path)[0])
 
