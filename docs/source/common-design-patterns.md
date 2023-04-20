@@ -1,3 +1,5 @@
+# Common Design Patterns
+
 ## Global config
 
 Most of the configuration files have a lot in common. This tends to be especially true for fields describing managers:
