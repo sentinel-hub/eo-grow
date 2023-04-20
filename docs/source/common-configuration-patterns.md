@@ -42,7 +42,7 @@ How fine grained you want to get is usually project-specific. Spreading it too t
 
 ### Adjusting settings from the global config
 
-In some cases the settings from a global config (or from a different config file that you are importing) need to be overriden. Imagine that a pipeline produces a ton of useless warnings, and you only wish to ignore them for that specific pipeline.
+In some cases the settings from a global config (or from a different config file that you are importing) need to be overridden. Imagine that a pipeline produces a ton of useless warnings, and you only wish to ignore them for that specific pipeline.
 
 ```
 { // export.json
