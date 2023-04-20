@@ -1,4 +1,4 @@
-# Common Design Patterns
+# Common Configuration Patterns
 
 ## Global config
 
@@ -167,6 +167,3 @@ A similar specific-paths mechanism can also be achieved by modifying the storage
 }
 ```
 While that is sufficient for many cases, in very rich folder structures variables might be less error prone.
-
-
-## Working in Jupyter
