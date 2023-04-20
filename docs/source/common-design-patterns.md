@@ -1,4 +1,4 @@
-# Global config
+## Global config
 
 Most of the configuration files have a lot in common. This tends to be especially true for fields describing managers:
 - `area`
@@ -38,7 +38,7 @@ This keeps pipeline configs shorter and more readable. One can also use multiple
 
 How fine grained you want to get is usually project-specific. Spreading it too thinly makes it harder to follow what precisely will be in the end config.
 
-## Adjusting settings from the global config
+### Adjusting settings from the global config
 
 In some cases the settings from a global config (or from a different config file that you are importing) need to be overriden. Imagine that a pipeline produces a ton of useless warnings, and you only wish to ignore them for that specific pipeline.
 
@@ -58,9 +58,9 @@ In some cases the settings from a global config (or from a different config file
 
 The processed configuration will have all the logging settings from `global_config.json`, except for `"capture_warnings"`. See config language rules for config joins.
 
-# Config chains
+## Config chains
 
-# Path modification via variables
+## Path modification via variables
 
 In some cases one wants fine grained control over path specifications. The following is a simplified example of how one can provide separate download paths for a large amount of batch pipelines.
 
@@ -119,4 +119,4 @@ A similar specific-paths mechanism can also be achieved by modifying the storage
 While that is sufficient for many cases, in very rich folder structures variables might be less error prone.
 
 
-# Working in Jupyter
+## Working in Jupyter
