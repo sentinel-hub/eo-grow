@@ -58,7 +58,7 @@ In some cases, the settings from a global config (or from a different config fil
 }
 ```
 
-The processed configuration will have all the logging settings from `global_config.json`, except for `"capture_warnings"`. See [config language rules](config-language) for config joins.
+The processed configuration will have all the logging settings from `global_config.json`, except for `"capture_warnings"`. See [config language rules](config-language.html) for config joins.
 
 ## Pipeline chains
 
