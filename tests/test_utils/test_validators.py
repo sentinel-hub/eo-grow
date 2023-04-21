@@ -10,11 +10,13 @@ from eolearn.core import FeatureType
 from sentinelhub import DataCollection
 from sentinelhub.data_collections_bands import Band, MetaBands, Unit
 
+from eogrow.core.pipeline import Pipeline
 from eogrow.core.schemas import BaseSchema, ManagerSchema
 from eogrow.types import Feature, RawSchemaDict
 from eogrow.utils.validators import (
     ensure_defined_together,
     ensure_exactly_one_defined,
+    ensure_storage_key_presence,
     field_validator,
     optional_field_validator,
     parse_data_collection,
@@ -135,6 +137,22 @@ def test_ensure_defined_together():
     assert schema4.param1 is None and schema4.param2 is None
     with pytest.raises(ValidationError):
         DummySchema2()
+
+
+def test_ensure_storage_key_presence(config):
+    class DummySchema(Pipeline.Schema):
+        folder_key: str
+        _check_folder_key_presence = ensure_storage_key_presence("folder_key")
+
+    existing_key = list(config["storage"]["structure"].keys())[0]
+    DummySchema(folder_key=existing_key, **config)
+
+    # input_data should always work
+    DummySchema(folder_key="input_data", **config)
+
+    non_existing_key = "i_do_not_exist"
+    with pytest.raises(ValidationError):
+        DummySchema(folder_key=non_existing_key, **config)
 
 
 @pytest.mark.parametrize(
