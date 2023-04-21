@@ -16,7 +16,7 @@ repos:
     rev: "v3.0.0-alpha.6"
     hooks:
       - id: prettier
-        exclude: "tests/(test_stats)/"
+        exclude: "tests/(test_stats|test_project)/"
         types_or: [json]
 
   - repo: https://github.com/psf/black
