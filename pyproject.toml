@@ -105,11 +105,11 @@ Source = "https://github.com/sentinel-hub/eo-grow"
 Forum = "https://forum.sentinel-hub.com"
 
 [project.scripts]
-eogrow = "eogrow.cli:EOGrowCli.main"
-eogrow-ray = "eogrow.cli:EOGrowCli.ray"
-eogrow-template = "eogrow.cli:EOGrowCli.make_template"
-eogrow-validate = "eogrow.cli:EOGrowCli.validate_config"
-eogrow-test = "eogrow.cli:EOGrowCli.run_test_pipeline"
+eogrow = "eogrow.cli:run_pipeline"
+eogrow-ray = "eogrow.cli:run_pipeline_on_cluster"
+eogrow-template = "eogrow.cli:make_template"
+eogrow-validate = "eogrow.cli:validate_config"
+eogrow-test = "eogrow.cli:run_test_pipeline"
 
 [tool.black]
 line-length = 120
