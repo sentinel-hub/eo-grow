@@ -5,7 +5,7 @@ from eogrow.utils.testing import compare_content, run_config
 pytestmark = pytest.mark.integration
 
 
-@pytest.mark.order(after="test_rasterize.py::test_rasterize_pipeline")
+@pytest.mark.order(after="test_rasterize.py::test_rasterize_feature_with_resolution")
 @pytest.mark.parametrize(
     "experiment_name",
     [

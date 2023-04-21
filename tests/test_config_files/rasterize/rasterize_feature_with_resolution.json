@@ -1,11 +1,13 @@
 {
   "pipeline": "eogrow.pipelines.rasterize.RasterizePipeline",
-  "**global_config": "${config_path}/../global_config.json",
-  "input_folder_key": "reference", // This one rasterizes from a vector feature, that is added in tests
+  "input_folder_key": "reference",
   "output_folder_key": "reference",
   "vector_input": ["vector_timeless", "LULC_VECTOR"],
+  "output_feature": ["mask_timeless", "LULC_ID"],
+  "raster_values_column": "LULC_ID",
   "resolution": 10,
   "overlap_value": 0,
   "dtype": "int16",
-  "workers": 2
+  "workers": 2,
+  "**global_config": "${config_path}/../global_config.json"
 }

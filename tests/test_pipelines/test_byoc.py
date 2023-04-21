@@ -69,7 +69,7 @@ def run_byoc_pipeline(config_path: str, requests_mock):
 
 @pytest.mark.chain
 @pytest.mark.parametrize("preparation_config, config", [("prepare_lulc_data", "ingest_lulc")])
-@pytest.mark.order(after=["test_rasterize.py::test_rasterize_pipeline_features"])
+@pytest.mark.order(after=["test_rasterize.py::test_rasterize_feature_with_resolution"])
 def test_timeless_byoc(config_and_stats_paths, preparation_config, config, configured_requests_mock):
     preparation_config_path, _ = config_and_stats_paths("byoc", preparation_config)
     config_path, _ = config_and_stats_paths("byoc", config)
@@ -101,7 +101,7 @@ def test_timeless_byoc(config_and_stats_paths, preparation_config, config, confi
 
 
 @pytest.mark.parametrize("preparation_config, config", [("prepare_bands_data", "ingest_bands")])
-@pytest.mark.order(after=["test_rasterize.py::test_rasterize_pipeline_features"])
+@pytest.mark.order(after=["test_rasterize.py::test_rasterize_feature_with_resolution"])
 def test_temporal_byoc(config_and_stats_paths, preparation_config, config, configured_requests_mock):
     preparation_config_path, _ = config_and_stats_paths("byoc", preparation_config)
     config_path, _ = config_and_stats_paths("byoc", config)
