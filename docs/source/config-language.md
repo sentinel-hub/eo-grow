@@ -45,4 +45,4 @@ A typical configuration is a dictionary with pipeline parameters. However, it ca
 ]
 ```
 
-There is currently no functionality to join together two pipeline chains except by copying both explicitly.
+There is currently no functionality to merge multiple pipeline chains, except by manually concatenating their contents into a single file.

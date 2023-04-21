@@ -7,7 +7,7 @@ Most of the configuration files have a lot in common. This tends to be especiall
 - `storage`
 - `logging`
 
-From our experience it is sometimes easiest to create a so called *global configuration*, which contains all such fields.
+From our experience, it is sometimes easiest to create a so-called *global configuration*, which contains all such fields.
 
 ```
 {  // global_config.json
@@ -36,13 +36,13 @@ This is then used in pipeline configurations.
 }
 ```
 
-This keeps pipeline configs shorter and more readable. One can also use multiple such files, for instance one for each manager. This makes it easy to have pipelines that work on different resolutions, where we just switch between `"**area_config": "${config_path}/area_10m.json"` and `"**area_config": "${config_path}/area_30m.json"`.
+This keeps pipeline configs shorter and more readable. One can also use multiple such files, for instance one for each manager. This makes it easy to have pipelines that work on different resolutions, where it's possible to just switch between `"**area_config": "${config_path}/area_10m.json"` and `"**area_config": "${config_path}/area_30m.json"`.
 
-How fine grained you want to get is usually project-specific. Spreading it too thinly makes it harder to follow what precisely will be in the end config.
+How fine-grained your config structure becomes is usually project-specific. Spreading it too thinly makes it harder to follow what precisely will be in the end config.
 
 ### Adjusting settings from the global config
 
-In some cases the settings from a global config (or from a different config file that you are importing) need to be overridden. Imagine that a pipeline produces a ton of useless warnings, and you only wish to ignore them for that specific pipeline.
+In some cases, the settings from a global config (or from a different config file that you are importing) need to be overridden. Imagine that a pipeline produces a ton of useless warnings, and you only wish to ignore them for that specific pipeline.
 
 ```
 { // export.json
@@ -62,11 +62,11 @@ The processed configuration will have all the logging settings from `global_conf
 
 ## Pipeline chains
 
-Pipeline chains are briefly touched in the config language docs, but only their syntax. Here we'll show two common usage patterns.
+Pipeline chains are briefly touched in the config language docs, but only at the syntax level. Here we'll show two common usage patterns.
 
 ### End-to-end pipeline chain
 
-In certain use-cases we have multiple pipelines, that are meant to be run in a certain succession. A great way of organizing that is via order-prefix naming, so `03_export_pipeline.json` is to be run as the third pipeline.
+In certain use cases we have multiple pipelines that are meant to be run in a certain succession. A great way of organizing that is via order-prefix naming, so `03_export_pipeline.json` is to be run as the third pipeline.
 
 But the user still needs to run them in the correct order and by hand. This we can automate with a simple pipeline chain that links them together:
 ```
@@ -143,7 +143,7 @@ In some cases one wants fine grained control over path specifications. The follo
 }
 ```
 
-We now just need to provide the variables when running the config. This can be done either through the CLI via `eogrow batch_download.json -v "year:2019" -v "quarter:Q1"` or (for increased reproducibility) create configs which just specify the variables:
+We now just need to provide the variables when running the config. This can be done either through the CLI via `eogrow batch_download.json -v "year:2019" -v "quarter:Q1"` or (for increased reproducibility) create configs with the variables specified in advance:
 
 ```
 { // batch_download_2019_Q4.json
@@ -152,9 +152,9 @@ We now just need to provide the variables when running the config. This can be d
 }
 ```
 
-In such cases we advise you do not provide any variables in the core pipeline configuration (i.e. "batch_download.json") so that the config parsing fails if not all variables are specified. Otherwise you risk typo-specific problems such as specifying a value for `"yaer"` which won't override the `"year"` variable (and you download data for 2019 instead of 2020).
+In such cases, we advise you do not provide any variables in the core pipeline configuration (i.e. "batch_download.json") so that the config parsing fails if not all variables are specified. Otherwise you risk typo-specific problems such as specifying a value for `"yaer"` which won't override the `"year"` variable (and you download data for 2019 instead of 2020).
 
-A similar specific-paths mechanism can also be achieved by modifying the storage manager directly:
+A similar specific-paths mechanism can also be achieved by modifying the storage manager directly from the final config:
 ```
 { // batch_download_2019_Q4.json
   "**pipeline": "${config_path}/batch_download.json",
@@ -166,4 +166,4 @@ A similar specific-paths mechanism can also be achieved by modifying the storage
   }
 }
 ```
-While that is sufficient for many cases, in very rich folder structures variables might be less error prone.
+While that is sufficient for many cases and more explicit, variables are preffered and might be less error-prone in case of complex folder structures.
