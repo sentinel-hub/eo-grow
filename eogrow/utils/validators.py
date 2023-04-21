@@ -94,12 +94,10 @@ def ensure_defined_together(first_param: str, second_param: str, **kwargs: Any) 
 def ensure_storage_key_presence(key: str, **kwargs: Any) -> classmethod:
     """A field validator that makes sure that the specified storage key is present in the storage structure."""
 
-    def validate_storage_key(cls: type, key: str, values: RawSchemaDict) -> str:
-        storage = values.get("storage")
-        assert storage is not None, "Storage schema not found in the config!"
-
-        storage_keys = list(storage.structure.keys()) + ["input_data"]
-        assert key in storage_keys, f"Couldn't find storage key {key!r} in the storage structure!"
+    def validate_storage_key(cls: type, key: Optional[str], values: RawSchemaDict) -> Optional[str]:
+        if key is not None:
+            storage_keys = list(values["storage"].structure.keys()) + ["input_data"]
+            assert key in storage_keys, f"Couldn't find storage key {key!r} in the storage structure!"
         return key
 
     return field_validator(key, validate_storage_key, **kwargs)
