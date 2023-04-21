@@ -139,20 +139,19 @@ def test_ensure_defined_together():
         DummySchema2()
 
 
-def test_ensure_storage_key_presence(config):
+@pytest.mark.parametrize(
+    "folder_key,raises_error", [("data", False), ("input_data", False), (None, False), ("i_do_not_exist", True)]
+)
+def test_ensure_storage_key_presence(config, folder_key, raises_error):
     class DummySchema(Pipeline.Schema):
-        folder_key: str
+        folder_key: Optional[str]
         _check_folder_key_presence = ensure_storage_key_presence("folder_key")
 
-    existing_key = list(config["storage"]["structure"].keys())[0]
-    DummySchema(folder_key=existing_key, **config)
-
-    # input_data should always work
-    DummySchema(folder_key="input_data", **config)
-
-    non_existing_key = "i_do_not_exist"
-    with pytest.raises(ValidationError):
-        DummySchema(folder_key=non_existing_key, **config)
+    if not raises_error:
+        DummySchema(folder_key=folder_key, **config)
+    else:
+        with pytest.raises(ValidationError):
+            DummySchema(folder_key=folder_key, **config)
 
 
 @pytest.mark.parametrize(
