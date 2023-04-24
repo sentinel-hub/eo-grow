@@ -10,11 +10,13 @@ from eolearn.core import FeatureType
 from sentinelhub import DataCollection
 from sentinelhub.data_collections_bands import Band, MetaBands, Unit
 
+from eogrow.core.pipeline import Pipeline
 from eogrow.core.schemas import BaseSchema, ManagerSchema
 from eogrow.types import Feature, RawSchemaDict
 from eogrow.utils.validators import (
     ensure_defined_together,
     ensure_exactly_one_defined,
+    ensure_storage_key_presence,
     field_validator,
     optional_field_validator,
     parse_data_collection,
@@ -135,6 +137,31 @@ def test_ensure_defined_together():
     assert schema4.param1 is None and schema4.param2 is None
     with pytest.raises(ValidationError):
         DummySchema2()
+
+
+@pytest.mark.parametrize(
+    "folder_key,raises_error", [("input_data", False), ("i_exist", False), ("i_do_not_exist", True), (None, False)]
+)
+def test_ensure_storage_key_presence(config, folder_key, raises_error):
+    class DummySchema(Pipeline.Schema):
+        folder_key: Optional[str]
+        _check_folder_key_presence = ensure_storage_key_presence("folder_key")
+
+    config["storage"]["structure"] = {"i_exist": "foobar"}
+    if not raises_error:
+        DummySchema(folder_key=folder_key, **config)
+    else:
+        with pytest.raises(ValidationError):
+            DummySchema(folder_key=folder_key, **config)
+
+
+def test_ensure_storage_key_presence_optional_precedence(config):
+    class DummySchema(Pipeline.Schema):
+        folder_key: str
+        _check_folder_key_presence = ensure_storage_key_presence("folder_key")
+
+    with pytest.raises(ValidationError):
+        DummySchema(folder_key=None, **config)
 
 
 @pytest.mark.parametrize(
