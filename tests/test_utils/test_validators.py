@@ -140,13 +140,14 @@ def test_ensure_defined_together():
 
 
 @pytest.mark.parametrize(
-    "folder_key,raises_error", [("data", False), ("input_data", False), (None, False), ("i_do_not_exist", True)]
+    "folder_key,raises_error", [("input_data", False), ("i_exist", False), ("i_do_not_exist", True), (None, False)]
 )
 def test_ensure_storage_key_presence(config, folder_key, raises_error):
     class DummySchema(Pipeline.Schema):
         folder_key: Optional[str]
         _check_folder_key_presence = ensure_storage_key_presence("folder_key")
 
+    config["storage"]["structure"] = {"i_exist": "foobar"}
     if not raises_error:
         DummySchema(folder_key=folder_key, **config)
     else:
