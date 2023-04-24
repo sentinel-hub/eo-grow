@@ -155,6 +155,15 @@ def test_ensure_storage_key_presence(config, folder_key, raises_error):
             DummySchema(folder_key=folder_key, **config)
 
 
+def test_ensure_storage_key_presence_optional_precedence(config):
+    class DummySchema(Pipeline.Schema):
+        folder_key: str
+        _check_folder_key_presence = ensure_storage_key_presence("folder_key")
+
+    with pytest.raises(ValidationError):
+        DummySchema(folder_key=None, **config)
+
+
 @pytest.mark.parametrize(
     "time_period,year,expected_start_date,expected_end_date",
     [
