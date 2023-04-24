@@ -96,8 +96,11 @@ def ensure_storage_key_presence(key: str, **kwargs: Any) -> classmethod:
 
     def validate_storage_key(cls: type, key: Optional[str], values: RawSchemaDict) -> Optional[str]:
         if key is not None:
-            storage_keys = list(values["storage"].structure.keys()) + ["input_data"]
-            assert key in storage_keys, f"Couldn't find storage key {key!r} in the storage structure!"
+            predefined_keys = ["input_data", "logs", "cache"]
+            assert (
+                key in values["storage"].structure or key in predefined_keys
+            ), f"Couldn't find storage key {key!r} in the storage structure!"
+
         return key
 
     return field_validator(key, validate_storage_key, **kwargs)
