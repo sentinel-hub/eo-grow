@@ -69,8 +69,6 @@ class Schema(Pipeline.Schema):
 Certain types do not provide direct parsing capabilities (for instance `numpy.dtype` or `datetime`). In such cases you can use **pre-validators**, which means that the validator will be applied before `pydantic` checks that the type is right (check [here](https://docs.pydantic.dev/usage/validators/#pre-and-per-item-validators) for more info). This is done by setting the `pre` flag of validators to `True`. The `field_validator` and `optional_field_validator` utilities also allow this setting, so you can do:
 
 ```python
-from typing import Optional
-import numpy as np
 from eogrow.core.schemas import BaseSchema
 from eogrow.utils.validators import optional_field_validator, parse_dtype
 
