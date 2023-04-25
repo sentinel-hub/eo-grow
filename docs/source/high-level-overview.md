@@ -16,7 +16,7 @@ The configurable objects can be further separated into instances of:
 
 ## Schemas
 
-The `Schema` is in general a [`pydantic` model](https://docs.pydantic.dev/usage/models/), but with some project specific constrains and additions. It is best to always inherit from `EOGrowObject.Schema` to ensure a suitable pydantic configuration of the models.
+The `Schema` is in general a [pydantic model](https://docs.pydantic.dev/usage/models/), but with some project specific constrains and additions. It is best to always inherit from `EOGrowObject.Schema` to ensure a suitable pydantic configuration of the models.
 
 The `EOGrow.Schema` model:
 
@@ -28,7 +28,7 @@ In case you are inheriting from a `Manger` or a `Pipeline` class, it is heavily 
 
 ### Validators
 
-You can use any kind of [`pydantic` validators](https://docs.pydantic.dev/usage/validators/) to verify the data in your schema. You can find some existing utility functions in `eogrow.utils.validators`:
+You can use any kind of [pydantic validators](https://docs.pydantic.dev/usage/validators/) to verify the data in your schema. You can find some existing utility functions in `eogrow.utils.validators`:
 
 - `field_validator` / `optional_field_validator` for wrapping callables defined elsewhere,
 - `ensure_exactly_one_defined` and `ensure_defined_together` for linking together parameters that can be `None`,
