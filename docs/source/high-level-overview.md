@@ -102,33 +102,11 @@ All area managers provide the following functionalities for development:
 
 #### UTM Zone Area Manager
 
-The `UtmZoneAreaManager` is probably the most commonly used area manager and most intuitive to work with. The user-provided geometry is split into patches of the user-provided size. If the AOI spans multiple UTM zones, the patches are grouped per zone. Here is what the user-provided configuration looks like:
-
-```json
-{
-  "geometry_filename": <str>
-  "patch": {
-    "size_x": <int>,
-    "size_y": <int>,
-    "buffer_x": <float>,
-    "buffer_y": <float>
-  },
-  "offset_x": <float>,
-  "offset_y": <float>
-}
-```
+The `UtmZoneAreaManager` is probably the most commonly used area manager and most intuitive to work with. The user-provided geometry is split into patches of the user-provided size. If the AOI spans multiple UTM zones, the patches are grouped per zone. Read the [API docs](reference/eogrow.core.area.utm.html#eogrow.core.area.utm.UtmZoneAreaManager.Schema) on the `UTMZoneAreaManager` for more info.
 
 #### Custom Grid Area Manager
 
-For users which have a very specific way of splitting the AOI in mind, we provide the `CustomGridAreaManager`, which accepts a grid file of an already split AOI. The user only needs to provide the grid file folder key and name, along with the `name_column` parameter, which points to the column containing the patch names to be used. The folder key by default points to the `input_data` location, but could be any other location defined by the storage structure.
-
-```json
-{
-  "grid_folder_key": <str>,
-  "grid_filename": <str>,
-  "name_column": <str>
-}
-```
+For users which have a very specific way of splitting the AOI in mind, we provide the `CustomGridAreaManager`, which accepts a grid file of an already split AOI. The user only needs to provide the grid file folder key and name, along with the `name_column` parameter, which points to the column containing the patch names to be used. The folder key by default points to the `input_data` location, but could be any other location defined by the storage structure. Read the [API docs](reference/eogrow.core.area.custom_grid.html#eogrow.core.area.custom_grid.CustomGridAreaManager.Schema) on the `CustomGridAreaManager` for more info.
 
 #### Batch Area Manager
 
@@ -136,18 +114,7 @@ For users working with [Sentinel Hub Batch API](https://docs.sentinel-hub.com/ap
 
 The interface of the `BatchAreaManager` relies heavily on the predefined configuration options defined for the Batch API, so be sure to provide sensible values for the parameters. For example, the `tiling_grid_id` and `resolution` parameters should correspond to values stated in the [docs](https://docs.sentinel-hub.com/api/latest/api/batch/#tiling-grids).
 
-For existing projects involving Batch API, it is possible to provide the `batch_id` parameter, which will search for existing grids corresponding to the batch request. If the `batch_id` is not provided (this is by default), the `BatchAreaManager` will generate a new batch job with the given parameters.
-
-```json
-{
-  "geometry_filename": <str>,
-  "tiling_grid_id": <int>,
-  "resolution": <float>,
-  "tile_buffer_x": <int>,
-  "tile_buffer_y": <int>,
-  "batch_id": <str|None>
-}
-```
+For existing projects involving Batch API, it is possible to provide the `batch_id` parameter, which will search for existing grids corresponding to the batch request. If the `batch_id` is not provided (this is by default), the `BatchAreaManager` will generate a new batch job with the given parameters. Read the [API docs](reference/eogrow.core.area.batch.html#eogrow.core.area.batch.BatchAreaManager.Schema) on the `BatchAreaManager` for more info.
 
 ### Logging Manager
 
@@ -181,24 +148,7 @@ The following sections expand on each item in the list above.
 
 ### Defining the Pipeline Schema
 
-The configuration schema of the `Pipeline` class already has some pre-defined parameters which need to be provided for execution. Besides the expected area, storage, and logging manager schemas, these are:
-
-```json
-{
-  "pipeline": <str: import path to an implementation of the Pipeline class>,
-  "pipeline_name": <str|None: custom pipeline name>,
-  "workers": <int: number of workers for parallel execution of workflows>,
-  "use_ray": <bool|None: run the pipeline locally or on A ray cluster>,
-  "test_subset": <list(int)|list(str)|None: a list of patch indices and/or names for execution>,
-  "skip_existing": <bool: skip already processed patches>,
-
-  "area": <AreaManager>,
-  "storage": <StorageManager>,
-  "logging": <LoggingManager>
-}
-```
-
-For a more detailed description of the parameters, you can [read the API docs](https://eo-grow.readthedocs.io/en/latest/reference/eogrow.core.pipeline.html#eogrow.core.pipeline.Pipeline.Schema).
+The configuration schema of the `Pipeline` class already has some pre-defined parameters which need to be provided for execution in addition to the managers. A full list of the parameters and their detailed descriptions can be found in the [pipeline schema API docs](reference/eogrow.core.pipeline.html#eogrow.core.pipeline.Pipeline.Schema).
 
 Building a custom pipeline is straighforward, you only need to provide a suitable nested subclass of `Pipeline.Schema`, which must always be named `Schema`, as shown below:
 
