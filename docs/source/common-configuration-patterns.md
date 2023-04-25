@@ -1,5 +1,38 @@
 # Common Configuration Patterns
 
+## Using config templates
+
+When you need to write a config for a pipeline, you can avoid rummaging through documentation by using the template command `eogrow-template`.
+
+Invoking `eogrow-template "eogrow.pipelines.zipmap.ZipMapPipeline" "zipmap.json"` creates a file with the content:
+```json
+{
+  "pipeline": "eogrow.pipelines.zipmap.ZipMapPipeline",
+  "pipeline_name": "<< Optional[str] >>",
+  "workers": "<< 1 : int >>",
+  "use_ray": "<< 'auto' : Union[Literal['auto'], bool] >>",
+  "input_features": {
+    "<< type >>": "List[InputFeatureSchema]",
+    "<< nested schema >>": "<class 'eogrow.pipelines.zipmap.InputFeatureSchema'>",
+    "<< sub-template >>": {
+      "feature": "<< Tuple[FeatureType, str] >>",
+      "folder_key": "<< str >>",
+      "include_bbox_and_timestamp": "<< True : bool >>"
+    }
+  },
+  ...
+}
+```
+You can now remove any parameters you do not need and fill out the rest.
+
+Parameter values are of form `"<< default : type >>"`, or `"<< default : type // description >>"` if you use the `--add-description` flag.
+
+The parameters are in order of definition, causing `ZipMap` specific parameters come at the end (we switched the order a bit in the example).
+
+In cases of nested schema, you get the output as the above for `"input_features"` which tells you what the type of the nesting is, and the template for the nested pydantic model.
+
+For managers the template does not provide a schema directly, but the functionality is not restricted to pipelines, you can also invoke `eogrow-template "eogrow.core.logging.LoggingManager" "logging_manager.json"` to get templates for the logging manager.
+
 ## Global config
 
 Most of the configuration files have a lot in common. This tends to be especially true for fields describing managers:
