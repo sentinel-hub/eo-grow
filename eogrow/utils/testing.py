@@ -1,7 +1,6 @@
 """
 Module implementing utilities for unit testing pipeline results
 """
-import functools
 import json
 import os
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, cast
@@ -13,8 +12,10 @@ import rasterio
 import shapely.ops
 from deepdiff import DeepDiff
 from fs.base import FS
+from fs.osfs import OSFS
 
 from eolearn.core import EOPatch, FeatureType
+from eolearn.core.eodata_io import get_filesystem_data_info
 from sentinelhub import BBox
 
 from ..core.config import collect_configs_from_path, interpret_config_from_dict
@@ -108,9 +109,9 @@ class ContentTester:
             content_path = fs.path.combine(folder, content)
 
             if self.filesystem.isdir(content_path):
-                eopatch = EOPatch.load(content_path, filesystem=self.filesystem)
-
-                if eopatch.bbox:
+                fs_data_info = get_filesystem_data_info(self.filesystem, content_path)
+                if fs_data_info.bbox is not None:
+                    eopatch = EOPatch.load(content_path, filesystem=self.filesystem)
                     stats[content] = self._calculate_eopatch_stats(eopatch)
                 else:  # Probably it is not an EOPatch folder
                     stats[content] = self._calculate_stats(folder=content_path)
@@ -138,13 +139,13 @@ class ContentTester:
             if feature_type is FeatureType.BBOX:
                 stats[feature_type_name] = repr(eopatch.bbox)
 
-            elif feature_type is FeatureType.TIMESTAMP:
-                stats[feature_type_name] = [time.isoformat() for time in eopatch.timestamp]
+            elif feature_type is FeatureType.TIMESTAMPS:
+                stats[feature_type_name] = [time.isoformat() for time in eopatch.timestamps]
 
             else:
                 feature_stats_dict = {}
 
-                if feature_type.is_raster():
+                if feature_type.is_array():
                     calculation_method: Callable = self._calculate_numpy_stats
                 elif feature_type.is_vector():
                     calculation_method = self._calculate_vector_stats
@@ -152,7 +153,8 @@ class ContentTester:
                     calculation_method = str
 
                 for feature_name in eopatch[feature_type]:
-                    feature_stats_dict[feature_name] = calculation_method(eopatch[feature_type][feature_name])
+                    feature_data = eopatch[feature_type, feature_name]
+                    feature_stats_dict[feature_name] = calculation_method(feature_data)
 
                 stats[feature_type_name] = feature_stats_dict
 
@@ -219,14 +221,13 @@ class ContentTester:
 
     def _calculate_vector_stats(self, dataframe: pd.DataFrame) -> JsonDict:
         """Calculates statistics over a vector GeoDataFrame"""  # TODO: add more statistical properties
-        rounder = functools.partial(_round_point_coords, decimals=self.decimals)
-        dataframe["geometry"] = dataframe["geometry"].apply(lambda geometry: shapely.ops.transform(rounder, geometry))
 
-        stats = {
-            "columns": list(dataframe),
-            "row_count": len(dataframe.index),
-            "crs": str(dataframe.crs),
-        }
+        def _rounder(x: float, y: float) -> Tuple[float, float]:
+            return round(x, self.decimals), round(y, self.decimals)
+
+        dataframe["geometry"] = dataframe["geometry"].apply(lambda geometry: shapely.ops.transform(_rounder, geometry))
+
+        stats = {"columns": list(dataframe), "row_count": len(dataframe.index), "crs": str(dataframe.crs)}
 
         if len(dataframe.index):
             stats["first_row"] = list(map(str, dataframe.iloc[0]))
@@ -298,73 +299,66 @@ def check_pipeline_logs(pipeline: Pipeline) -> None:
     assert load_names(pipeline.storage.filesystem, finished_filename), "No executions finished"
 
 
-def run_and_test_pipeline(
-    experiment_name: str,
+def run_config(
+    config_path: str,
     *,
-    config_folder: str,
-    stats_folder: str,
-    folder_key: Optional[str] = None,
-    reset_folder: bool = True,
-    save_new_stats: bool = False,
-) -> None:
-    """A default way of testing a pipeline
+    output_folder_key: Optional[str] = None,
+    reset_output_folder: bool = True,
+) -> Optional[str]:
+    """Runs a pipeline (or multiple) and checks the logs that all the executions were successful. Returns the full path
+    of the output folder (if there is one) so it can be inspected further. In case of chain configs, the output folder
+    of the last config is returned.
 
-    :param experiment_name: Name of test experiment, which defines its config and stats filenames
-    :param config_folder: A path to folder containing the config file
-    :param stats_folder: A path to folder containing the file with expected result stats
-    :param folder_key: Type of the folder containing results of the pipeline, if missing it's inferred from config
-    :param reset_folder: If True it will delete content of the folder with results before running the pipeline
-    :param save_new_stats: If True then new file with expected result stats will be saved, potentially overwriting the
-        old one. Otherwise, the old one will be used to compare stats.
+    :param config_path: A path to the config file
+    :param output_folder_key: Type of the folder containing results of the pipeline, inferred from config if None
+    :param reset_output_folder: Delete the content of the results folder before running the pipeline
     """
-    config_filename = os.path.join(config_folder, experiment_name + ".json")
-    expected_stats_file = os.path.join(stats_folder, experiment_name + ".json")
-
-    crude_configs = collect_configs_from_path(config_filename)
+    crude_configs = collect_configs_from_path(config_path)
     raw_configs = [interpret_config_from_dict(config) for config in crude_configs]
 
-    for index, config in enumerate(raw_configs):
-        output_folder_key = folder_key or config.get("output_folder_key")
-        if output_folder_key is None:
-            raise ValueError(
-                "Pipeline does not have a `output_folder_key` parameter, `folder_key` must be set by hand."
-            )
+    for config in raw_configs:
+        output_folder_key = output_folder_key or config.get("output_folder_key")
 
         pipeline = load_pipeline_class(config).from_raw_config(config)
 
-        folder = pipeline.storage.get_folder(output_folder_key)
-        filesystem = pipeline.storage.filesystem
+        if reset_output_folder:
+            if output_folder_key is None:
+                raise ValueError("Pipeline does not have an `output_folder_key` parameter, it must be set by hand.")
+            folder = pipeline.storage.get_folder(output_folder_key)
+            pipeline.storage.filesystem.removetree(folder)
 
-        if reset_folder:
-            filesystem.removetree(folder)
         pipeline.run()
 
         check_pipeline_logs(pipeline)
 
-        if index < len(raw_configs) - 1:
-            continue
-
-        tester = ContentTester(filesystem, folder)
-
-        if save_new_stats:
-            tester.save(expected_stats_file)
-
-        stats_difference = tester.compare(expected_stats_file)
-        if stats_difference:
-            stats_difference_repr = stats_difference.to_json(indent=2, sort_keys=True)
-            raise AssertionError(f"Expected and obtained stats differ:\n{stats_difference_repr}")
+    return pipeline.storage.get_folder(output_folder_key, full_path=True) if output_folder_key else None
 
 
-def _round_point_coords(x: float, y: float, decimals: int) -> Tuple[float, float]:
-    """Rounds coordinates of a point"""
-    return round(x, decimals), round(y, decimals)
+def compare_content(
+    folder_path: Optional[str],
+    stats_path: str,
+    *,
+    save_new_stats: bool = False,
+) -> None:
+    """Compares the results from a pipeline run with the saved statistics. Constructed to be coupled with `run_config`
+    hence the `Optional` input.
 
+    :param folder_path: A path to the folder with contents to be compared
+    :param stats_path: A path to the file containing result statistics
+    :param save_new_stats: Save new result stats and skip the comparison
+    """
+    if folder_path is None:
+        raise ValueError("The given path is None. The pipeline likely has no `output_folder_key` parameter.")
 
-def create_folder_dict(config_folder: str, stats_folder: str, subfolder: Optional[str] = None) -> Dict[str, str]:
-    return {
-        "config_folder": os.path.join(config_folder, subfolder) if subfolder else config_folder,
-        "stats_folder": os.path.join(stats_folder, subfolder) if subfolder else config_folder,
-    }
+    tester = ContentTester(OSFS("/"), folder_path)
+
+    if save_new_stats:
+        tester.save(stats_path)
+
+    stats_difference = tester.compare(stats_path)
+    if stats_difference:
+        stats_difference_repr = stats_difference.to_json(indent=2, sort_keys=True)
+        raise AssertionError(f"Expected and obtained stats differ:\n{stats_difference_repr}")
 
 
 def generate_tiff_file(

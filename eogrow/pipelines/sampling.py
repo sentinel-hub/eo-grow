@@ -9,7 +9,7 @@ from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, MergeEOPatch
 from eolearn.geometry import MorphologicalOperations, MorphologicalStructFactory
 from eolearn.ml_tools import BlockSamplingTask, FractionSamplingTask, GridSamplingTask
 
-from eogrow.utils.validators import ensure_exactly_one_defined
+from eogrow.utils.validators import ensure_exactly_one_defined, ensure_storage_key_presence
 
 from ..core.pipeline import Pipeline
 from ..tasks.common import ClassFilterTask
@@ -22,6 +22,8 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
 
     class Schema(Pipeline.Schema):
         output_folder_key: str = Field(description="The storage manager key pointing to the pipeline output folder.")
+        _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
+
         apply_to: Dict[str, Dict[FeatureType, List[str]]] = Field(
             description=(
                 "A dictionary defining which features to sample, its structure is "
@@ -94,7 +96,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
 
             load_features.append(FeatureType.BBOX)
             if any(FeatureType(feature_type).is_temporal() for feature_type in features):
-                load_features.append(FeatureType.TIMESTAMP)
+                load_features.append(FeatureType.TIMESTAMPS)
 
             load_task = LoadTask(
                 self.storage.get_folder(folder_name),
@@ -148,7 +150,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
             output_features.append(mask_of_samples_feature)
 
         if any(feature_type.is_temporal() for feature_type, _, _ in features_to_sample):
-            output_features.append(FeatureType.TIMESTAMP)
+            output_features.append(FeatureType.TIMESTAMPS)
         return output_features
 
 
@@ -254,7 +256,7 @@ class BlockSamplingPipeline(BaseRandomSamplingPipeline):
             )
         )
 
-        _check_fraction_number = ensure_exactly_one_defined("fraction_of_samples", "number_of_samples")
+        _check_fraction_number = ensure_exactly_one_defined("number_of_samples", "fraction_of_samples")
 
     config: Schema
 

@@ -28,6 +28,7 @@ from ..core.pipeline import Pipeline
 from ..types import ExecKwargs, Feature, PatchList
 from ..utils.eopatch_list import group_by_crs
 from ..utils.map import CogifyResamplingOptions, WarpResamplingOptions, cogify_inplace, extract_bands, merge_tiffs
+from ..utils.validators import ensure_storage_key_presence
 
 LOGGER = logging.getLogger(__name__)
 
@@ -41,11 +42,13 @@ class ExportMapsPipeline(Pipeline):
         input_folder_key: str = Field(
             description="The storage manager key pointing to the input folder for the export maps pipeline."
         )
+        _ensure_input_folder_key = ensure_storage_key_presence("input_folder_key")
         output_folder_key: str = Field(
             description=(
                 "The storage manager key pointing to the output folder for the maps in the export maps pipeline."
             )
         )
+        _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
 
         feature: Feature
         map_name: Optional[str] = Field(regex=r".+\." + MimeType.TIFF.extension + r"?\b")  # noqa
@@ -205,7 +208,7 @@ class ExportMapsPipeline(Pipeline):
 
         If required files are copied locally and a temporary filesystem object is returned.
         """
-        make_local_copies = self.storage.is_on_aws() or self.config.force_local_copies
+        make_local_copies = self.storage.is_on_s3() or self.config.force_local_copies
 
         if not make_local_copies:
             return self.storage.filesystem, geotiff_paths
@@ -267,10 +270,10 @@ class ExportMapsPipeline(Pipeline):
     def _extract_num_bands_and_timestamps(self, eopatch_name: str) -> Tuple[int, List[dt.datetime]]:
         """Loads an eopatch to get information about number of bands and the timestamps."""
         path = fs.path.join(self.storage.get_folder(self.config.input_folder_key), eopatch_name)
-        patch = EOPatch.load(path, (FeatureType.TIMESTAMP, self.config.feature), filesystem=self.storage.filesystem)
+        patch = EOPatch.load(path, (FeatureType.TIMESTAMPS, self.config.feature), filesystem=self.storage.filesystem)
         if self.config.band_indices is not None:
-            return len(self.config.band_indices), patch.timestamp
-        return patch[self.config.feature].shape[-1], patch.timestamp
+            return len(self.config.band_indices), patch.timestamps
+        return patch[self.config.feature].shape[-1], patch.timestamps
 
     @staticmethod
     def _execute_split_jobs(jobs: List["SplitTiffsJob"]) -> None:

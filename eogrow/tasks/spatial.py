@@ -119,7 +119,7 @@ class SpatialJoinTask(EOTask):
 
             if feature_type.is_spatial():
                 feature = cast(Feature, feature)  # bbox and timestamp are discarded with above check
-                if feature_type.is_raster():
+                if feature_type.is_array():
                     bboxes: List[BBox] = [patch.bbox for patch in eopatches if feature in patch]  # type: ignore[misc]
                     joined_data = self._join_spatial_rasters(data, bboxes, bbox, self.no_data_map[feature])
                 else:
@@ -160,20 +160,20 @@ class SpatialSliceTask(EOTask):
         intersects_bbox = gdf.geometry.intersects(bbox.geometry)
         return gdf[intersects_bbox].copy(deep=True)
 
-    def execute(self, eopatch: EOPatch, *, bbox: Optional[BBox]) -> EOPatch:
+    def execute(self, eopatch: EOPatch, *, bbox: BBox, skip: bool = False) -> EOPatch:
         """Spatially slices given EOPatch with given bounding box.
 
-        The task allows that no bounding box for slicing is provided. In such case the task will return an EOPatch with
-        only non-spatial features.
-        """
+        Can be skipped in cases where the subbox won't be saved."""
+        if skip:
+            return eopatch
+
         main_bbox = eopatch.bbox
         if not main_bbox:
             raise ValueError("EOPatch is missing a bounding box")
-        if bbox is not None:
-            if main_bbox.crs is not bbox.crs:
-                raise ValueError("Given bbox is not in the same CRS as EOPatch bbox")
-            if not main_bbox.geometry.contains(bbox.geometry):
-                raise ValueError("Given bbox must be fully contained in EOPatch's bbox")
+        if main_bbox.crs is not bbox.crs:
+            raise ValueError("Given bbox is not in the same CRS as EOPatch bbox")
+        if not main_bbox.geometry.contains(bbox.geometry):
+            raise ValueError("Given bbox must be fully contained in EOPatch's bbox")
 
         sliced_eopatch = EOPatch(bbox=bbox)
 
@@ -184,10 +184,7 @@ class SpatialSliceTask(EOTask):
             data = eopatch[feature]
 
             if feature_type.is_spatial():
-                if bbox is None:
-                    continue
-
-                if feature_type.is_raster():
+                if feature_type.is_array():
                     sliced_data = self._slice_raster(data, main_bbox, bbox)
                 else:
                     sliced_data = self._filter_vector(data, bbox)
@@ -216,10 +213,10 @@ def get_array_slices(
     :param resolution: A working resolution in CRS units.
     :param size: A working size.
     :param raise_misaligned: Whether to raise an error if the slice would be pixel misaligned the initial array.
-    :param limit_x: If provided it will clip the horizontal slice to a given interval, should be used to clip slice_bbox
-    to bbox.
+    :param limit_x: If provided it will clip the horizontal slice to a given interval, should be used to clip
+        slice_bbox to bbox.
     :param limit_y: If provided it will clip the vertical slice to a given interval, should be used to clip slice_bbox
-    to bbox.
+        to bbox.
     :return: A slice over horizontal direction and a slice over vertical direction.
     """
     raster_upper_left = np.array([bbox.min_x, bbox.max_y])

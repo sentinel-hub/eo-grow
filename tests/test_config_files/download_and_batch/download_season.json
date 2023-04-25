@@ -10,8 +10,8 @@
     "collection_type": "Sentinel-2",
     "bands": "SENTINEL2_L1C",
     "metabands": [
-      {"name": "CLM", "units": ["DN"], "output_types": ["uint8"]},
-      {"name": "dataMask", "units": ["DN"], "output_types": ["bool"]}
+      { "name": "CLM", "units": ["DN"], "output_types": ["uint8"] },
+      { "name": "dataMask", "units": ["DN"], "output_types": ["bool"] }
     ],
     "has_cloud_coverage": true
   },
@@ -20,6 +20,9 @@
   "resolution": 10,
   "maxcc": 0.3,
   "time_difference": 120,
-  "additional_data": [["mask",  "CLM"], ["mask",  "dataMask"]],
+  "additional_data": [
+    ["mask", "CLM"],
+    ["mask", "dataMask"]
+  ],
   "workers": 2
 }

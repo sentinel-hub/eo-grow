@@ -23,6 +23,7 @@ from sklearn.preprocessing import LabelEncoder
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
+from ..utils.validators import ensure_storage_key_presence
 
 LOGGER = logging.getLogger(__name__)
 
@@ -45,9 +46,11 @@ class BaseTrainingPipeline(Pipeline, metaclass=abc.ABCMeta):
 
     class Schema(Pipeline.Schema):
         input_folder_key: str = Field(description="The storage manager key pointing to the model training data.")
+        _ensure_input_folder_key = ensure_storage_key_presence("input_folder_key")
         model_folder_key: str = Field(
             description="The storage manager key pointing to the folder where the model will be saved."
         )
+        _ensure_model_folder_key = ensure_storage_key_presence("model_folder_key")
 
         train_features: List[str] = Field(
             description="A list of feature filenames to join into training features in the given order."

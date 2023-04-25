@@ -2,75 +2,83 @@
   "eopatch-id-0-col-0-row-0": {
     "bbox": "BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS('32638'))",
     "mask_timeless": {
-      "CROP_ID": {
+      "LULC_ID": {
         "array_shape": [
           121,
           264,
           1
         ],
-        "dtype": "int32",
+        "dtype": "int16",
         "random_values": [
           {
             "position": [
-              21,
-              107,
-              0
-            ],
-            "value": 14
-          },
-          {
-            "position": [
-              61,
-              37,
+              26,
+              231,
               0
             ],
             "value": 4
           },
           {
             "position": [
-              33,
-              31,
+              89,
+              66,
               0
             ],
             "value": 5
           },
           {
             "position": [
-              111,
-              35,
-              0
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              58,
-              2,
+              76,
+              17,
               0
             ],
             "value": 1
+          },
+          {
+            "position": [
+              70,
+              255,
+              0
+            ],
+            "value": 9
+          },
+          {
+            "position": [
+              93,
+              7,
+              0
+            ],
+            "value": 3
           }
         ],
         "values": [
           {
-            "count": 29638,
+            "count": 11952,
             "value": 0
           },
           {
-            "count": 817,
+            "count": 5059,
             "value": 1
           },
           {
-            "count": 400,
+            "count": 2571,
+            "value": 3
+          },
+          {
+            "count": 71,
             "value": 4
           },
           {
-            "count": 953,
+            "count": 461,
             "value": 5
           },
           {
-            "count": 136,
-            "value": 14
+            "count": 11345,
+            "value": 8
+          },
+          {
+            "count": 485,
+            "value": 9
           }
         ]
       },
@@ -163,80 +171,126 @@
           "min": 0
         }
       }
+    },
+    "vector_timeless": {
+      "CROPS_VECTOR": {
+        "columns": [
+          "CROP_TYPE",
+          "POLYGON_ID",
+          "DATE",
+          "ORIGIN",
+          "geometry"
+        ],
+        "crs": "EPSG:32638",
+        "first_row": [
+          "grape",
+          "325",
+          "2018",
+          "AZE_20190408_BEYLEQAN_UZUM",
+          "POLYGON ((729842.0717 4390099.1694, 729826.1966 4390081.7069, 729840.4842 4390064.2443, 729825.1383 4390048.3693, 729791.2716 4390080.6485, 729824.08 4390115.5736, 729842.0717 4390099.1694))"
+        ],
+        "row_count": 29
+      },
+      "LULC_VECTOR": {
+        "columns": [
+          "LULC",
+          "LULC_ID",
+          "LULC_POLYGON_ID",
+          "area",
+          "geometry"
+        ],
+        "crs": "EPSG:32638",
+        "first_row": [
+          "grassland",
+          "3",
+          "1578",
+          "1840.039114634673",
+          "POLYGON ((729816.7383 4390051.8453, 729824.26496 4390045, 729808.41241 4390045, 729816.7383 4390051.8453))"
+        ],
+        "row_count": 1255
+      }
     }
   },
   "eopatch-id-1-col-0-row-1": {
     "bbox": "BBox(((729480.0, 4391145.0), (732120.0, 4392355.0)), crs=CRS('32638'))",
     "mask_timeless": {
-      "CROP_ID": {
+      "LULC_ID": {
         "array_shape": [
           121,
           264,
           1
         ],
-        "dtype": "int32",
+        "dtype": "int16",
         "random_values": [
           {
             "position": [
-              7,
-              52,
+              116,
+              238,
               0
             ],
-            "value": 14
+            "value": 4
+          },
+          {
+            "position": [
+              66,
+              169,
+              0
+            ],
+            "value": 5
+          },
+          {
+            "position": [
+              84,
+              214,
+              0
+            ],
+            "value": 1
           },
           {
             "position": [
               85,
-              239,
+              110,
               0
             ],
-            "value": 4
+            "value": 9
           },
           {
             "position": [
-              57,
-              28,
+              72,
+              190,
               0
             ],
-            "value": 5
-          },
-          {
-            "position": [
-              112,
-              40,
-              0
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              27,
-              135,
-              0
-            ],
-            "value": 1
+            "value": 3
           }
         ],
         "values": [
           {
-            "count": 25328,
+            "count": 5287,
             "value": 0
           },
           {
-            "count": 2137,
+            "count": 14004,
             "value": 1
           },
           {
-            "count": 756,
+            "count": 2623,
+            "value": 3
+          },
+          {
+            "count": 43,
             "value": 4
           },
           {
-            "count": 1892,
+            "count": 2362,
             "value": 5
           },
           {
-            "count": 1831,
-            "value": 14
+            "count": 7237,
+            "value": 8
+          },
+          {
+            "count": 388,
+            "value": 9
           }
         ]
       },
@@ -328,6 +382,44 @@
           "median": 0.0,
           "min": 0
         }
+      }
+    },
+    "vector_timeless": {
+      "CROPS_VECTOR": {
+        "columns": [
+          "CROP_TYPE",
+          "POLYGON_ID",
+          "DATE",
+          "ORIGIN",
+          "geometry"
+        ],
+        "crs": "EPSG:32638",
+        "first_row": [
+          "cotton",
+          "246",
+          "2016-2017",
+          "AZE_20180612_BEYLAGAN",
+          "POLYGON ((729653.39426 4391256.10021, 729780.28537 4391145, 729550.30127 4391145, 729653.39426 4391256.10021))"
+        ],
+        "row_count": 32
+      },
+      "LULC_VECTOR": {
+        "columns": [
+          "LULC",
+          "LULC_ID",
+          "LULC_POLYGON_ID",
+          "area",
+          "geometry"
+        ],
+        "crs": "EPSG:32638",
+        "first_row": [
+          "artificial surface",
+          "8",
+          "433",
+          "101310.4319195405",
+          "POLYGON ((731044.5075 4391171.7596, 731053.4864 4391176.1618, 731068.0653 4391185.4633, 731074.3112 4391185.9634, 731074.6962 4391185.183, 731085.5872 4391186.055, 731091.5772 4391186.5346, 731112.8361 4391161.3157, 731114.4383 4391158.9893, 731114.9831 4391158.1982, 731124.07253 4391145, 731065.40568 4391145, 731044.5075 4391171.7596))"
+        ],
+        "row_count": 548
       }
     }
   }

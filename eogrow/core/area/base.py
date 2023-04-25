@@ -1,5 +1,6 @@
 """Implementation of the base AreaManager."""
 import logging
+import warnings
 from abc import ABCMeta, abstractmethod
 from typing import Dict, Literal, Optional
 
@@ -9,9 +10,10 @@ import geopandas as gpd
 import shapely.ops
 from pydantic import Field
 
+from eolearn.core.exceptions import EODeprecationWarning
 from sentinelhub import CRS, BBox, Geometry
 
-from ...types import PatchList
+from ...types import PatchList, RawSchemaDict
 from ...utils.eopatch_list import load_names
 from ...utils.fs import LocalFile
 from ..base import EOGrowObject
@@ -29,6 +31,23 @@ class AreaSchema(BaseSchema):
     simplification_factor: Optional[float] = Field(
         description="Tolerance factor (in CRS units) for simplifying the buffered area geometry before splitting it.",
     )
+
+
+def area_schema_deprecation(cls: type, value: Optional[str], values: RawSchemaDict) -> str:
+    """Warns and reconfigures when `area` is used instead of `geometry_filename`."""
+    if values.get("area") is not None:
+        warnings.warn(
+            (
+                "Use `geometry_filename` to provide the file (e.g., geojson, gpkg) with AoI. The `area` parameter is"
+                " deprecated, and extra parameters like `buffer` and `simplification_factor` are no longer available;"
+                " users should prepare the AoI geometry by themselves."
+            ),
+            EODeprecationWarning,
+            stacklevel=2,
+        )
+        return values["area"].filename
+    assert value is not None, "Specify the `geometry_filename` parameter."
+    return value
 
 
 class PatchListSchema(BaseSchema):
@@ -72,10 +91,10 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
         grid_path = fs.path.combine(self.storage.get_cache_folder(), self.get_grid_cache_filename())
 
         if self.storage.filesystem.exists(grid_path):
-            return self._load_grid(grid_path)
-
-        grid = self._create_grid()
-        self._save_grid(grid, grid_path)
+            grid = self._load_grid(grid_path)
+        else:
+            grid = self._create_grid()
+            self._save_grid(grid, grid_path)
 
         if filtered and self.config.patch_names is not None:
             folder_path = self.storage.get_folder(self.config.patch_names.input_folder_key)
@@ -148,22 +167,10 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
 
 
 def get_geometry_from_file(
-    filesystem: fs.base.FS,
-    file_path: str,
-    buffer: Optional[float],
-    simplification_factor: Optional[float],
-    geopandas_engine: Literal["fiona", "pyogrio"] = "fiona",
+    filesystem: fs.base.FS, file_path: str, geopandas_engine: Literal["fiona", "pyogrio"] = "fiona"
 ) -> Geometry:
     """Provides a single geometry object of entire AOI"""
     with LocalFile(file_path, mode="r", filesystem=filesystem) as local_file:
         area_df = gpd.read_file(local_file.path, engine=geopandas_engine)
-
-    area_shape = shapely.ops.unary_union(area_df.geometry)
-
-    if buffer is not None:
-        area_shape = area_shape.buffer(buffer)
-
-    if simplification_factor is not None:
-        area_shape = area_shape.simplify(simplification_factor, preserve_topology=True)
-
-    return Geometry(area_shape, CRS(area_df.crs))
+        area_shape = shapely.ops.unary_union(area_df.geometry)
+        return Geometry(area_shape, CRS(area_df.crs))

@@ -3,15 +3,17 @@ Module defining common validators for schemas and validator wrappers
 """
 import datetime as dt
 import inspect
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Tuple, Type, Union
 
 import numpy as np
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import BaseModel, Field, validator
 
+from eolearn.core import FeatureType
+from eolearn.core.utils.parsing import parse_feature
 from sentinelhub import DataCollection
 from sentinelhub.data_collections_bands import Band, Bands, MetaBands, Unit
 
-from ..types import RawSchemaDict, TimePeriod
+from ..types import Feature, RawSchemaDict, TimePeriod
 from .meta import collect_schema, import_object
 
 if TYPE_CHECKING:
@@ -49,40 +51,59 @@ def optional_field_validator(
     return validator(field, allow_reuse=allow_reuse, **kwargs)(optional_validator)
 
 
-def validate_s3_path(value: str) -> str:
-    """Validates the prefix of a S3 bucket path"""
-    assert value.startswith("s3://"), "S3 path must start with s3://"
-    return value
+def ensure_exactly_one_defined(first_param: str, second_param: str, **kwargs: Any) -> classmethod:
+    """A validator (applied to `second_param` field) that makes sure only one of the two parameters is defined.
 
+    Make sure that the definition of `second_param` comes after `first_param˙ (in line-order).
+    """
 
-def ensure_exactly_one_defined(param1: str, param2: str, allow_reuse: bool = True, **kwargs: Any) -> classmethod:
-    """A root validator that makes sure only one of the two parameters is defined."""
-
-    def ensure_exclusion(cls: type, values: RawSchemaDict) -> RawSchemaDict:
-        is_param1_defined = values.get(param1) is None
-        is_param2_defined = values.get(param2) is None
+    def ensure_exclusion(cls: type, value: Optional[Any], values: RawSchemaDict) -> Optional[Any]:
+        is_param1_undefined = values.get(first_param) is None
+        is_param2_undefined = value is None
         assert (
-            is_param1_defined != is_param2_defined
-        ), f"Exactly one of parameters `{param1}` and `{param2}` has to be specified."
+            is_param1_undefined != is_param2_undefined
+        ), f"Exactly one of parameters `{first_param}` and `{second_param}` has to be specified."
 
-        return values
+        return value
 
-    return root_validator(allow_reuse=allow_reuse, **kwargs)(ensure_exclusion)
+    ensure_exclusion.__name__ = f"cannot_be_used_with_{first_param}"  # used for docbuilding purposes
+
+    return field_validator(second_param, ensure_exclusion, **kwargs)
 
 
-def ensure_defined_together(param1: str, param2: str, allow_reuse: bool = True, **kwargs: Any) -> classmethod:
-    """A root validator that makes sure that the two parameters are both (un)defined."""
+def ensure_defined_together(first_param: str, second_param: str, **kwargs: Any) -> classmethod:
+    """A validator (applied to `second_param` field) that makes sure that the two parameters are both (un)defined.
 
-    def ensure_exclusion(cls: type, values: RawSchemaDict) -> RawSchemaDict:
-        is_param1_defined = values.get(param1) is None
-        is_param2_defined = values.get(param2) is None
+    Make sure that the definition of `second_param` comes after `first_param˙ (in line-order).
+    """
+
+    def ensure_both(cls: type, value: Optional[Any], values: RawSchemaDict) -> Optional[Any]:
+        is_param1_undefined = values.get(first_param) is None
+        is_param2_undefined = value is None
         assert (
-            is_param1_defined == is_param2_defined
-        ), f"Both or neither of parameters `{param1}` and `{param2}` have to be specified."
+            is_param1_undefined == is_param2_undefined
+        ), f"Both or neither of parameters `{first_param}` and `{second_param}` have to be specified."
 
-        return values
+        return value
 
-    return root_validator(allow_reuse=allow_reuse, **kwargs)(ensure_exclusion)
+    ensure_both.__name__ = f"must_be_used_with_{first_param}"  # used for docbuilding purposes
+
+    return field_validator(second_param, ensure_both, **kwargs)
+
+
+def ensure_storage_key_presence(key: str, **kwargs: Any) -> classmethod:
+    """A field validator that makes sure that the specified storage key is present in the storage structure."""
+
+    def validate_storage_key(cls: type, key: Optional[str], values: RawSchemaDict) -> Optional[str]:
+        if key is not None:
+            predefined_keys = ["input_data", "logs", "cache"]
+            assert (
+                key in values["storage"].structure or key in predefined_keys
+            ), f"Couldn't find storage key {key!r} in the storage structure!"
+
+        return key
+
+    return field_validator(key, validate_storage_key, **kwargs)
 
 
 def parse_time_period(value: Tuple[str, str]) -> TimePeriod:
@@ -150,8 +171,7 @@ class BandSchema(BaseModel):
 
 
 class DataCollectionSchema(BaseModel):
-    """Schema used in parsing DataCollection objects. Any extra parameters are passed to the definition as `**params`.
-    """
+    """Schema used in parsing DataCollection objects. Extra parameters are passed to the definition as `**params`."""
 
     name: str = Field(
         "Name of the data collection. When defining BYOC collections use `BYOC_` prefix and for Batch collections use"
@@ -212,3 +232,15 @@ def parse_data_collection(value: Union[str, dict, DataCollection]) -> DataCollec
         return DataCollection.define_batch(collection_id, **params)
 
     return DataCollection.define(name, **params)
+
+
+def restrict_types(
+    allowed_feature_types: Union[Iterable[FeatureType], Callable[[FeatureType], bool]]
+) -> Callable[[Feature], Feature]:
+    """Validates a field representing a feature, where it restricts the possible feature types."""
+
+    def validate_feature(value: Feature) -> Feature:
+        parse_feature(feature=value, allowed_feature_types=allowed_feature_types)
+        return value
+
+    return validate_feature

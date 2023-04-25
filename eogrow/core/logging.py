@@ -4,9 +4,10 @@ import json
 import logging
 import sys
 import time
-from logging import FileHandler, Filter, Formatter, Handler, LogRecord, StreamHandler
-from typing import Any, List, Optional, Sequence, Union
+from logging import FileHandler, Filter, Formatter, Handler, LogRecord
+from typing import Any, List, Optional, Sequence, Tuple, Union
 
+import colorlog
 import fs
 from fs.base import FS
 from fs.errors import FilesystemClosed
@@ -23,6 +24,8 @@ from .base import EOGrowObject
 from .config import RawConfig
 from .schemas import ManagerSchema
 from .storage import StorageManager
+
+DEFAULT_PACKAGES_TOKEN = "..."  # fix docs if this is changed!
 
 
 class LoggingManager(EOGrowObject):
@@ -43,18 +46,21 @@ class LoggingManager(EOGrowObject):
                 "with larger number of EOPatches the recommended option is False."
             ),
         )
-        eoexecution_ignore_packages: Optional[List[str]] = Field(
+        eoexecution_ignore_packages: Tuple[str] = Field(
+            (DEFAULT_PACKAGES_TOKEN,),
             description=(
-                "Names of packages which logs will not be written to EOExecution log files. The default null value "
-                "means that a default list of packages will be used."
-            )
+                "Names of packages for which the logs will not be written to EOExecution log files. You can reference"
+                ' the defaults with "...", for example, adding another package can be done with ["...", "some_package"]'
+            ),
         )
 
-        pipeline_ignore_packages: Optional[List[str]] = Field(
+        pipeline_ignore_packages: Tuple[str] = Field(
+            (DEFAULT_PACKAGES_TOKEN,),
             description=(
-                "Names of packages which logs will not be written to the main pipeline log file. The default null "
-                "value means that a default list of packages will be used."
-            )
+                "Names of packages for which the logs will not be written to the main pipeline log file. You can"
+                ' reference the defaults with "...", for example, adding another package can be done with'
+                ' ["...", "some_package"]'
+            ),
         )
         pipeline_logs_backup_interval: float = Field(
             60,
@@ -65,11 +71,12 @@ class LoggingManager(EOGrowObject):
         )
 
         show_logs: bool = Field(False, description="Shows basic pipeline execution logs at stdout.")
-        stdout_log_packages: Optional[List[str]] = Field(
+        stdout_log_packages: Tuple[str] = Field(
+            (DEFAULT_PACKAGES_TOKEN,),
             description=(
-                "Names of packages which logs will be written to stdout. The default null value means that a default "
-                "list of packages will be used."
-            )
+                "Names of packages for which the logs will be written to stdout. You can reference the defaults with"
+                ' "...", for example, adding another package can be done with ["...", "package_to_display"]'
+            ),
         )
 
         capture_warnings: bool = Field(
@@ -147,7 +154,7 @@ class LoggingManager(EOGrowObject):
         )
 
         formatter = Formatter(
-            "%(levelname)s %(asctime)s %(name)s:%(lineno)d:\n\t%(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+            "%(levelname)s [%(asctime)s] %(name)s:%(lineno)d:\n\t%(message)s", datefmt="%Y-%m-%d %H:%M:%S"
         )
         file_handler.setFormatter(formatter)
 
@@ -157,10 +164,13 @@ class LoggingManager(EOGrowObject):
 
     def _create_stdout_handler(self) -> Handler:
         """Creates a logging handler to write logs into a standard output."""
-        stdout_handler = StreamHandler(sys.stdout)
+        stdout_handler = colorlog.StreamHandler(sys.stdout)
         stdout_handler.setLevel(logging.INFO)
 
-        formatter = Formatter("%(levelname)s %(name)s:%(lineno)d: %(message)s")
+        formatter = colorlog.ColoredFormatter(
+            "%(log_color)s %(levelname)s %(cyan)s[%(asctime)s] %(light_blue)s%(name)s:%(lineno)d: %(white)s%(message)s",
+            datefmt="%H:%M:%S",
+        )
         stdout_handler.setFormatter(formatter)
 
         stdout_handler.addFilter(StdoutFilter(log_packages=self.config.stdout_log_packages))
@@ -329,13 +339,13 @@ class StdoutFilter(Filter):
         "sentinelhub.api.batch",
     )
 
-    def __init__(self, *args: Any, log_packages: Optional[Sequence[str]] = None, **kwargs: Any):
+    def __init__(self, *args: Any, log_packages: Sequence[str], **kwargs: Any):
         """
         :param log_packages: Names of packages which logs to include.
         """
         super().__init__(*args, **kwargs)
 
-        self.log_packages = self.DEFAULT_LOG_PACKAGES if log_packages is None else log_packages
+        self.log_packages = _parse_packages(log_packages, self.DEFAULT_LOG_PACKAGES)
 
     def filter(self, record: LogRecord) -> bool:
         """Shows only logs from eo-grow type packages and high-importance logs"""
@@ -357,13 +367,13 @@ class LogFileFilter(Filter):
         "boto3",
     )
 
-    def __init__(self, *args: Any, ignore_packages: Optional[Sequence[str]] = None, **kwargs: Any):
+    def __init__(self, *args: Any, ignore_packages: Sequence[str], **kwargs: Any):
         """
         :param ignore_packages: Names of packages which logs will be ignored.
         """
         super().__init__(*args, **kwargs)
 
-        self.ignore_packages = self.DEFAULT_IGNORE_PACKAGES if ignore_packages is None else tuple(ignore_packages)
+        self.ignore_packages = _parse_packages(ignore_packages, self.DEFAULT_IGNORE_PACKAGES)
 
     def filter(self, record: LogRecord) -> bool:
         """Shows everything from the main thread and process except logs from packages that are on the ignore list.
@@ -389,14 +399,27 @@ class EOExecutionFilter(Filter):
         "fiona._env",
     )
 
-    def __init__(self, ignore_packages: Optional[Sequence[str]] = None, *args: Any, **kwargs: Any):
+    def __init__(self, *args: Any, ignore_packages: Sequence[str], **kwargs: Any):
         """
         :param ignore_packages: Names of packages which logs will be ignored.
         """
         super().__init__(*args, **kwargs)
 
-        self.ignore_packages = self.DEFAULT_IGNORE_PACKAGES if ignore_packages is None else tuple(ignore_packages)
+        self.ignore_packages = _parse_packages(ignore_packages, self.DEFAULT_IGNORE_PACKAGES)
 
     def filter(self, record: LogRecord) -> bool:
         """Ignores logs from certain low-level packages"""
         return not record.name.startswith(self.ignore_packages)
+
+
+def _parse_packages(log_packages: Sequence[str], default_packages: Sequence[str]) -> Tuple[str, ...]:
+    """Builds a tuple of unique package names to be logged/ignored. If the placeholder for default packages is
+    present, those are added as well.
+
+    Since many handlers use the `startswith` method we return a tuple (a better alternative is frozenset).
+    """
+    unique_packages = set(log_packages)
+    if DEFAULT_PACKAGES_TOKEN in unique_packages:
+        unique_packages.remove(DEFAULT_PACKAGES_TOKEN)
+        unique_packages.update(default_packages)
+    return tuple(unique_packages)

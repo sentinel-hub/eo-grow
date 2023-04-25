@@ -24,7 +24,13 @@ from ..core.area.batch import BatchAreaManager
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..types import TimePeriod
-from ..utils.validators import field_validator, optional_field_validator, parse_data_collection, parse_time_period
+from ..utils.validators import (
+    ensure_storage_key_presence,
+    field_validator,
+    optional_field_validator,
+    parse_data_collection,
+    parse_time_period,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -65,6 +71,7 @@ class BatchDownloadPipeline(Pipeline):
         output_folder_key: str = Field(
             description="Storage manager key pointing to the path where batch results will be saved."
         )
+        _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
 
         inputs: List[InputDataSchema]
         evalscript_path: str
@@ -201,7 +208,7 @@ class BatchDownloadPipeline(Pipeline):
         )
 
         data_folder = self.storage.get_folder(self.config.output_folder_key, full_path=True).rstrip("/")
-        if not self.storage.is_on_aws():
+        if not self.storage.is_on_s3():
             raise ValueError(f"The data folder path should be on s3 bucket, got {data_folder}")
 
         return self.batch_client.create(

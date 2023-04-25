@@ -6,19 +6,23 @@ import numpy as np
 import pytest
 from pydantic import ValidationError
 
+from eolearn.core import FeatureType
 from sentinelhub import DataCollection
 from sentinelhub.data_collections_bands import Band, MetaBands, Unit
 
+from eogrow.core.pipeline import Pipeline
 from eogrow.core.schemas import BaseSchema, ManagerSchema
-from eogrow.types import RawSchemaDict
+from eogrow.types import Feature, RawSchemaDict
 from eogrow.utils.validators import (
     ensure_defined_together,
     ensure_exactly_one_defined,
+    ensure_storage_key_presence,
     field_validator,
     optional_field_validator,
     parse_data_collection,
     parse_dtype,
     parse_time_period,
+    restrict_types,
     validate_manager,
 )
 
@@ -136,6 +140,31 @@ def test_ensure_defined_together():
 
 
 @pytest.mark.parametrize(
+    "folder_key,raises_error", [("input_data", False), ("i_exist", False), ("i_do_not_exist", True), (None, False)]
+)
+def test_ensure_storage_key_presence(config, folder_key, raises_error):
+    class DummySchema(Pipeline.Schema):
+        folder_key: Optional[str]
+        _check_folder_key_presence = ensure_storage_key_presence("folder_key")
+
+    config["storage"]["structure"] = {"i_exist": "foobar"}
+    if not raises_error:
+        DummySchema(folder_key=folder_key, **config)
+    else:
+        with pytest.raises(ValidationError):
+            DummySchema(folder_key=folder_key, **config)
+
+
+def test_ensure_storage_key_presence_optional_precedence(config):
+    class DummySchema(Pipeline.Schema):
+        folder_key: str
+        _check_folder_key_presence = ensure_storage_key_presence("folder_key")
+
+    with pytest.raises(ValidationError):
+        DummySchema(folder_key=None, **config)
+
+
+@pytest.mark.parametrize(
     "time_period,year,expected_start_date,expected_end_date",
     [
         ("yearly", 2020, "2020-01-01", "2020-12-31"),
@@ -173,7 +202,7 @@ def test_parse_dtype(dtype_input: Union[str, type, np.dtype]):
         (
             {
                 "manager": "eogrow.core.area.BatchAreaManager",
-                "area": {"filename": "some_aoi.geojson"},
+                "geometry_filename": "some_aoi.geojson",
                 "tiling_grid_id": 0,
                 "resolution": 10,
             },
@@ -267,3 +296,45 @@ def test_parse_collection_from_dict():
     assert collection.catalog_id == "byoc-test"
     assert collection.bands == (Band("Band1", (Unit.DN,), (np.float32,)), Band("Band2", (Unit.REFLECTANCE,), (bool,)))
     assert collection.is_byoc is True
+
+
+class DummyFeatureSchema(BaseSchema):
+    temporal_feature: Feature
+    _check_temporal_feature = field_validator(
+        "temporal_feature", restrict_types([ftype for ftype in FeatureType if ftype.is_temporal()])
+    )
+
+    mask_like_feature: Optional[Feature]
+    _check_mask_feature = optional_field_validator(
+        "mask_like_feature", restrict_types([FeatureType.MASK, FeatureType.MASK_TIMELESS])
+    )
+
+    feature_3d: Optional[Feature]
+    _check_3d_feature = optional_field_validator(
+        "feature_3d", restrict_types([ftype for ftype in FeatureType if ftype.ndim() == 3])
+    )
+
+
+@pytest.mark.parametrize(
+    "valid_config",
+    [
+        dict(temporal_feature=("scalar", "foobar")),
+        dict(temporal_feature=("data", "foo"), mask_like_feature=("mask", "bar")),
+        dict(temporal_feature=("vector", "foo"), feature_3d=("data_timeless", "bar")),
+    ],
+)
+def test_restricted_features_valid(valid_config):
+    DummyFeatureSchema(**valid_config)
+
+
+@pytest.mark.parametrize(
+    "invalid_config",
+    [
+        dict(temporal_feature=("vector_timeless", "foobar")),
+        dict(temporal_feature=("data", "foo"), mask_like_feature=("data_timeless", "bar")),
+        dict(temporal_feature=("mask", "foo"), feature_3d=("data", "bar")),
+    ],
+)
+def test_restricted_features_invalid(invalid_config):
+    with pytest.raises(ValidationError):
+        DummyFeatureSchema(**invalid_config)

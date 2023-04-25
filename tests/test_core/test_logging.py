@@ -60,7 +60,7 @@ def test_logging_with_eoexecutor(fs_loader, logs_handler_factory, workers, multi
             logs_folder="logs-folder",
             filesystem=temp_fs,
             logs_handler_factory=logs_handler_factory,
-            logs_filter=EOExecutionFilter(),
+            logs_filter=EOExecutionFilter(ignore_packages=["..."]),
         )
         executor.run(workers=workers, multiprocess=multiprocess)
         executor.make_report(include_logs=False)

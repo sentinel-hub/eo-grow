@@ -7,6 +7,9 @@
   "bands_feature_name": "BANDS-S2-L1C",
   "resolution": 10,
   "maxcc": 0.3,
-  "additional_data": [["mask",  "CLM"], ["mask",  "dataMask"]],
+  "additional_data": [
+    ["mask", "CLM"],
+    ["mask", "dataMask"]
+  ],
   "workers": 2
 }

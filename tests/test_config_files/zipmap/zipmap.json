@@ -9,7 +9,7 @@
   ],
   "zipmap_import_path": "eogrow.utils.zipmap.map_values",
   "params_model": "eogrow.utils.zipmap.MapParams",
-  "params": {"mapping": {"1": 2, "3": 5}, "default": 0, "dtype": "uint16"},
+  "params": { "mapping": { "1": 2, "3": 5 }, "default": 0, "dtype": "uint16" },
   "output_folder_key": "temp",
   "output_feature": ["mask_timeless", "LULC_ID_MAPPED"]
 }

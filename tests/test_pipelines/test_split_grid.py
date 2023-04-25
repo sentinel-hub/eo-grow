@@ -4,14 +4,9 @@ import shutil
 import pytest
 
 from eogrow.core.area import CustomGridAreaManager
-from eogrow.utils.testing import create_folder_dict, run_and_test_pipeline
+from eogrow.utils.testing import compare_content, run_config
 
 pytestmark = pytest.mark.integration
-
-
-@pytest.fixture(scope="session", name="folders")
-def folders_fixture(config_folder, stats_folder):
-    return create_folder_dict(config_folder, stats_folder, "split_grid")
 
 
 @pytest.fixture(scope="session", name="batch_grid")
@@ -28,9 +23,17 @@ def batch_grid_fixture(project_folder):
     return cache_grid_path
 
 
-@pytest.mark.parametrize("experiment_name", ["split_batch", pytest.param("split_utm", marks=pytest.mark.chain)])
-def test_grid_splitting(experiment_name, folders, batch_grid, test_storage_manager):
-    run_and_test_pipeline(experiment_name, **folders, folder_key="output_folder")
+@pytest.mark.parametrize(
+    "preparation_config, config",
+    [("dummy_data_batch", "split_batch"), pytest.param("dummy_data_utm", "split_utm", marks=pytest.mark.chain)],
+)
+def test_grid_splitting(config_and_stats_paths, preparation_config, config, batch_grid, test_storage_manager):
+    preparation_config_path, _ = config_and_stats_paths("split_grid", preparation_config)
+    config_path, stats_path = config_and_stats_paths("split_grid", config)
+
+    run_config(preparation_config_path)
+    output_path = run_config(config_path, output_folder_key="output_folder")
+    compare_content(output_path, stats_path)
 
     # check the output file is compatible with custom grid area managers
     new_area_manager = CustomGridAreaManager.from_raw_config(

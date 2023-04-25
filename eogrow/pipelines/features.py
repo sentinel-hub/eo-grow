@@ -29,7 +29,13 @@ from ..tasks.features import (
 )
 from ..types import Feature, FeatureSpec, PatchList, TimePeriod
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.validators import field_validator, optional_field_validator, parse_dtype, parse_time_period
+from ..utils.validators import (
+    ensure_storage_key_presence,
+    field_validator,
+    optional_field_validator,
+    parse_dtype,
+    parse_time_period,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -52,9 +58,11 @@ class FeaturesPipeline(Pipeline):
         input_folder_key: str = Field(
             description="The storage manager key pointing to the input folder for the features pipeline."
         )
+        _ensure_input_folder_key = ensure_storage_key_presence("input_folder_key")
         output_folder_key: str = Field(
             description="The storage manager key pointing to the output folder for the features pipeline."
         )
+        _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
 
         bands_feature_name: str = Field(description="Name of data feature containing band data")
 
@@ -89,7 +97,7 @@ class FeaturesPipeline(Pipeline):
 
     def _get_output_features(self) -> List[FeatureSpec]:
         """Lists all features that are to be saved upon the pipeline completion"""
-        return [(FeatureType.DATA, self.config.output_feature_name), FeatureType.BBOX, FeatureType.TIMESTAMP]
+        return [(FeatureType.DATA, self.config.output_feature_name), FeatureType.BBOX, FeatureType.TIMESTAMPS]
 
     def _get_bands_feature(self) -> Feature:
         return FeatureType.DATA, self.config.bands_feature_name
@@ -270,7 +278,7 @@ class MosaickingFeaturesPipeline(FeaturesPipeline):
             )
         mosaicking_node = EONode(mosaicking_task, inputs=[previous_node])
         return EONode(
-            CopyTask(features=[self._get_bands_feature(), FeatureType.BBOX, FeatureType.TIMESTAMP]),
+            CopyTask(features=[self._get_bands_feature(), FeatureType.BBOX, FeatureType.TIMESTAMPS]),
             inputs=[mosaicking_node],
             name="Remove non-mosaicked features",
         )

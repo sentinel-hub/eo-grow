@@ -65,6 +65,8 @@ Running pipelines is easiest by using the CLI provided by **`eo-grow`**. For all
 
 ## Documentation
 
+For more information on the package visit [readthedocs](https://eo-grow.readthedocs.io/en/latest/).
+
 Explanatory examples can be found [here](https://github.com/sentinel-hub/eo-grow/tree/main/examples).
 
 More details on the config language used by **`eo-grow`** can be found [here](https://github.com/sentinel-hub/eo-grow/tree/main/docs/source/config-language.md).

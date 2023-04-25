@@ -8,17 +8,19 @@ import fs
 import geopandas as gpd
 from pydantic import Field
 
-from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, OverwritePermission, SaveTask
+from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, OverwritePermission
 from sentinelhub import CRS, BBox
 from sentinelhub.geometry import Geometry
 
 from ..core.area.batch import BatchAreaManager
 from ..core.area.utm import UtmZoneAreaManager
 from ..core.pipeline import Pipeline
+from ..tasks.common import SkippableSaveTask
 from ..tasks.spatial import SpatialSliceTask
 from ..types import ExecKwargs, Feature, FeatureSpec
 from ..utils.fs import LocalFile
 from ..utils.grid import split_bbox
+from ..utils.validators import ensure_storage_key_presence
 
 LOGGER = logging.getLogger(__name__)
 
@@ -36,12 +38,17 @@ class SplitGridPipeline(Pipeline):
         input_folder_key: str = Field(
             description="A storage manager key pointing to the folder where the data will be loaded from."
         )
+        _ensure_input_folder_key = ensure_storage_key_presence("input_folder_key")
         eopatch_output_folder_key: str = Field(
             description="A storage manager key pointing to the folder where the data will be saved."
         )
+        _ensure_eopatch_output_folder_key = ensure_storage_key_presence("eopatch_output_folder_key")
+
         grid_output_folder_key: str = Field(
             description="A storage manager key of where to save the resulting split grid."
         )
+        _ensure_grid_output_folder_key = ensure_storage_key_presence("grid_output_folder_key")
+
         subsplit_grid_filename: str = Field(
             description="Filename of new grid, which can be used in `CustomAreaManager`.", regex=r"^.+\.gpkg$"
         )
@@ -144,7 +151,7 @@ class SplitGridPipeline(Pipeline):
             slice_task = SpatialSliceTask(features, raise_misaligned=self.config.raise_misaligned)
             slice_node = EONode(slice_task, inputs=[load_node])
 
-            save_task = SaveTask(
+            save_task = SkippableSaveTask(
                 output_path,
                 filesystem=self.storage.filesystem,
                 features=features,
@@ -160,7 +167,7 @@ class SplitGridPipeline(Pipeline):
     ) -> ExecKwargs:
         nodes = workflow.get_nodes()
         load_node = nodes[0]
-        save_nodes = [node for node in nodes if isinstance(node.task, SaveTask)]
+        save_nodes = [node for node in nodes if isinstance(node.task, SkippableSaveTask)]
         slice_nodes = [save_node.inputs[0] for save_node in save_nodes]
 
         exec_args: ExecKwargs = {}
@@ -170,7 +177,7 @@ class SplitGridPipeline(Pipeline):
             split_bboxes_iter = it.chain(split_bboxes, it.repeat((None, None)))
 
             for slice_node, save_node, (subbox_name, subbox) in zip(slice_nodes, save_nodes, split_bboxes_iter):
-                patch_args[slice_node] = dict(bbox=subbox)
+                patch_args[slice_node] = dict(bbox=subbox, skip=(subbox is None))
                 patch_args[save_node] = dict(eopatch_folder=subbox_name)
 
             exec_args[orig_name] = patch_args
@@ -181,7 +188,7 @@ class SplitGridPipeline(Pipeline):
         """Provides features that will be transformed by the pipeline."""
         meta_features = [FeatureType.BBOX]
         if any(f_type.is_temporal() for f_type, _ in self.config.features):
-            meta_features += [FeatureType.TIMESTAMP]
+            meta_features += [FeatureType.TIMESTAMPS]
 
         return self.config.features + meta_features
 

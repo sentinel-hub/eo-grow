@@ -1,5 +1,4 @@
 """Implementation of the base Pipeline class."""
-import datetime as dt
 import logging
 import time
 import uuid
@@ -9,6 +8,7 @@ from eolearn.core import CreateEOPatchTask, EOExecutor, EONode, EOWorkflow, Load
 from eolearn.core.extra.ray import RayExecutor
 
 from ..types import ExecKwargs, PatchList, ProcessingType
+from ..utils.general import current_timestamp
 from ..utils.meta import import_object
 from ..utils.ray import handle_ray_connection
 from .area.base import BaseAreaManager
@@ -31,7 +31,7 @@ class Pipeline(EOGrowObject):
         - collecting input arguments (either from command line or as an initialization parameter) and parsing them
         - preparing a list of patches
         - preparing execution arguments
-        - monitoring the pipeline and reporting
+        - running the pipeline, monitoring, and reporting
     """
 
     class Schema(PipelineSchema):
@@ -55,6 +55,10 @@ class Pipeline(EOGrowObject):
 
         self.area_manager: BaseAreaManager = self._load_manager(config.area, storage=self.storage)
         self.logging_manager: LoggingManager = self._load_manager(config.logging, storage=self.storage)
+
+    @property
+    def _pipeline_name(self) -> str:
+        return self.config.pipeline_name or self.__class__.__name__
 
     @classmethod
     def from_raw_config(cls: Type[Self], config: RawConfig, *args: Any, **kwargs: Any) -> Self:
@@ -84,7 +88,7 @@ class Pipeline(EOGrowObject):
 
     def get_pipeline_execution_name(self, pipeline_timestamp: str) -> str:
         """Returns the full name of the pipeline execution"""
-        return f"{pipeline_timestamp}-{self.__class__.__name__}-{self.pipeline_id}"
+        return f"{pipeline_timestamp}-{self._pipeline_name}-{self.pipeline_id}"
 
     def get_patch_list(self) -> PatchList:
         """Method which at the initialization prepares the list of EOPatches which will be used"""
@@ -209,7 +213,7 @@ class Pipeline(EOGrowObject):
 
     def run(self) -> None:
         """The main method for pipeline execution. It sets up logging and runs the pipeline procedure."""
-        timestamp = dt.datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%SZ")
+        timestamp = current_timestamp()
         self.current_execution_name = self.get_pipeline_execution_name(timestamp)
 
         handlers = self.logging_manager.start_logging(self.current_execution_name)
@@ -222,7 +226,7 @@ class Pipeline(EOGrowObject):
                 pipeline_timestamp=timestamp,
             )
 
-            LOGGER.info("Running %s", self.__class__.__name__)
+            LOGGER.info("Running %s", self._pipeline_name)
 
             pipeline_start = time.time()
             finished, failed = self.run_procedure()

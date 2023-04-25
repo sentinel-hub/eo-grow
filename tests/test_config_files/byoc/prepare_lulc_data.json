@@ -1,11 +1,13 @@
 {
-  "pipeline": "eogrow.pipelines.export_maps.IngestByocTilesPipeline",
+  "pipeline": "eogrow.pipelines.export_maps.ExportMapsPipeline",
   "**global_config": "${config_path}/../global_config.json",
+  "storage": {
+    "structure": {
+      "maps": "maps/LULC_ID"
+    }
+  },
   "input_folder_key": "reference",
   "output_folder_key": "maps",
-  "feature": [
-    "mask_timeless",
-    "LULC_ID"
-  ],
+  "feature": ["mask_timeless", "LULC_ID"],
   "map_dtype": "uint8"
 }

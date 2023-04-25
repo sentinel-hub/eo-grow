@@ -15,7 +15,7 @@ from eogrow.utils.filter import check_if_features_exist, get_patches_with_missin
 
 BUCKET_NAME = "mocked-test-bucket"
 PATCH_NAMES = [f"eopatch{i}" for i in range(5)]
-REAL_FEATURES = [FeatureType.BBOX, FeatureType.TIMESTAMP, (FeatureType.DATA, "data"), (FeatureType.MASK, "mask")]
+REAL_FEATURES = [FeatureType.BBOX, FeatureType.TIMESTAMPS, (FeatureType.DATA, "data"), (FeatureType.MASK, "mask")]
 MISSING_FEATURES = [FeatureType.META_INFO, (FeatureType.DATA, "no_data"), (FeatureType.MASK_TIMELESS, "mask")]
 
 
@@ -27,11 +27,10 @@ def _prepare_fs(filesystem, eopatch):
 
 @pytest.fixture(name="eopatch", scope="session")
 def eopatch_fixture():
-    eopatch = EOPatch()
+    eopatch = EOPatch(bbox=BBox((1, 2, 3, 4), CRS.WGS84))
     eopatch.mask["mask"] = np.zeros((2, 3, 3, 2), dtype=np.int16)
     eopatch.data["data"] = np.zeros((2, 3, 3, 2), dtype=np.int16)
-    eopatch.timestamp = [datetime.datetime(2017, 1, 1, 10, 4, 7), datetime.datetime(2017, 1, 4, 10, 14, 5)]
-    eopatch.bbox = BBox((1, 2, 3, 4), CRS.WGS84)
+    eopatch.timestamps = [datetime.datetime(2017, 1, 1, 10, 4, 7), datetime.datetime(2017, 1, 4, 10, 14, 5)]
     eopatch.scalar["my scalar with spaces"] = np.array([[1, 2, 3], [1, 2, 3]])
     eopatch.scalar_timeless["my timeless scalar with spaces"] = np.array([1, 2, 3])
     return eopatch

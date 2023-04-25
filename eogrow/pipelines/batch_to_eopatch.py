@@ -2,9 +2,10 @@
 from typing import Any, List, Optional
 
 import numpy as np
-from pydantic import Field, root_validator
+from pydantic import Field, validator
 
 from eolearn.core import (
+    CreateEOPatchTask,
     EONode,
     EOWorkflow,
     FeatureType,
@@ -23,7 +24,7 @@ from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
 from ..types import ExecKwargs, Feature, FeatureSpec, PatchList, RawSchemaDict
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.validators import optional_field_validator, parse_dtype
+from ..utils.validators import ensure_storage_key_presence, optional_field_validator, parse_dtype
 
 
 class FeatureMappingSchema(BaseSchema):
@@ -44,11 +45,9 @@ class FeatureMappingSchema(BaseSchema):
 class BatchToEOPatchPipeline(Pipeline):
     class Schema(Pipeline.Schema):
         input_folder_key: str = Field(description="Storage manager key pointing to the path with Batch results")
+        _ensure_input_folder_key = ensure_storage_key_presence("input_folder_key")
         output_folder_key: str = Field(description="Storage manager key pointing to where the EOPatches are saved")
-
-        mapping: List[FeatureMappingSchema] = Field(
-            description="A list of mapping from batch files into EOPatch features."
-        )
+        _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
 
         userdata_feature_name: Optional[str] = Field(
             description="A name of META_INFO feature in which userdata.json would be stored."
@@ -60,18 +59,23 @@ class BatchToEOPatchPipeline(Pipeline):
             ),
             example="\"[info['date'] for info in json.loads(userdata['metadata'])]\"",
         )
+
+        mapping: List[FeatureMappingSchema] = Field(
+            description="A list of mapping from batch files into EOPatch features."
+        )
+
+        @validator("mapping")
+        def check_nonempty_input(cls, value: list, values: RawSchemaDict) -> list:
+            if not value:
+                params = "userdata_feature_name", "userdata_timestamp_reader"
+                assert any(
+                    values.get(param) is not None for param in params
+                ), "At least one of `userdata_feature_name`, `userdata_timestamp_reader`, or `mapping` has to be set."
+            return value
+
         remove_batch_data: bool = Field(
             True, description="Whether to remove the raw batch data after the conversion is complete"
         )
-
-        @root_validator
-        def check_something_is_converted(cls, values: RawSchemaDict) -> RawSchemaDict:
-            """Check that the pipeline has something to do."""
-            params = "userdata_feature_name", "userdata_timestamp_reader", "mapping"
-            assert any(
-                values.get(param) is not None for param in params
-            ), "At least one of `userdata_feature_name`, `userdata_timestamp_reader`, or `mapping` has to be set."
-            return values
 
     config: Schema
 
@@ -104,38 +108,33 @@ class BatchToEOPatchPipeline(Pipeline):
             features.append(FeatureType.META_INFO)
 
         if self.config.userdata_timestamp_reader:
-            features.append(FeatureType.TIMESTAMP)
+            features.append(FeatureType.TIMESTAMPS)
 
         return features
 
     def build_workflow(self) -> EOWorkflow:
         """Builds the workflow"""
-        userdata_node = None
+        metadata_node = EONode(CreateEOPatchTask(), name="Establish BBox")
         if self._has_userdata:
-            userdata_node = EONode(
+            metadata_node = EONode(
                 LoadUserDataTask(
                     path=self._input_folder,
                     filesystem=self.storage.filesystem,
                     userdata_feature_name=self.config.userdata_feature_name,
                     userdata_timestamp_reader=self.config.userdata_timestamp_reader,
-                )
+                ),
+                inputs=[metadata_node],
             )
 
         mapping_nodes = [
-            self._get_tiff_mapping_node(feature_mapping, userdata_node) for feature_mapping in self.config.mapping
+            self._get_tiff_mapping_node(feature_mapping, metadata_node) for feature_mapping in self.config.mapping
         ]
 
-        last_node = userdata_node
+        last_node = metadata_node
         if len(mapping_nodes) == 1:
             last_node = mapping_nodes[0]
         elif len(mapping_nodes) > 1:
             last_node = EONode(MergeEOPatchesTask(), inputs=mapping_nodes)
-
-        if last_node is None:
-            raise ValueError(
-                "At least one of `userdata_feature_name`, `userdata_timestamp_reader`, or `mapping` has to be set in"
-                " the config. This should have been caught in the validation phase, please report issue."
-            )
 
         processing_node = self.get_processing_node(last_node)
 
@@ -165,7 +164,7 @@ class BatchToEOPatchPipeline(Pipeline):
             raise ValueError(f"All batch files should end with .tif but found {mapping.batch_files}")
 
         feature_type, feature_name = mapping.feature
-        if not (feature_type.is_spatial() and feature_type.is_raster()):
+        if not (feature_type.is_image()):
             raise ValueError(f"Tiffs can only be read into spatial raster feature types, but {feature_type} was given.")
 
         tmp_features = []

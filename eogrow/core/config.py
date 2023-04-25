@@ -1,7 +1,5 @@
 """Implements functions that transform raw dictionaries/JSON files according to the config language of eo-grow."""
-import base64
 import copy
-import json
 import os
 import re
 from functools import reduce
@@ -12,29 +10,10 @@ import rapidjson
 
 from eolearn.core.utils.fs import get_base_filesystem_and_path, get_full_path, join_path
 
-from ..utils.general import jsonify
 from ..utils.meta import get_os_import_path
 
 CrudeConfig = NewType("CrudeConfig", dict)
 RawConfig = NewType("RawConfig", dict)
-
-
-def encode_config_list(configs: List[CrudeConfig]) -> str:
-    """Dumps a list of configs into a json and the encodes it with base64
-
-    :return: A base64-encoded string
-    """
-    json_string = json.dumps(configs, default=jsonify)
-    return base64.b64encode(json_string.encode()).decode()
-
-
-def decode_config_list(encoded_config_list: str) -> List[CrudeConfig]:
-    """Provides a list of config objects by decoding a base64-encoded string."""
-    decoded_string = base64.b64decode(encoded_config_list.encode()).decode()
-    decoded_list = json.loads(decoded_string)
-    if not isinstance(decoded_list, list):
-        raise ValueError(f"Encoding does not represent a list of configs. Got {type(decoded_list)}.")
-    return decoded_list
 
 
 def collect_configs_from_path(path: str, used_config_paths: Optional[Set[str]] = None) -> List[CrudeConfig]:

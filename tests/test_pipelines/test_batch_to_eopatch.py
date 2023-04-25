@@ -9,16 +9,10 @@ from fs.base import FS
 
 from sentinelhub import BBox
 
-from eogrow.core.config import interpret_config_from_path
 from eogrow.pipelines.batch_to_eopatch import BatchToEOPatchPipeline
-from eogrow.utils.testing import ContentTester, check_pipeline_logs, create_folder_dict, generate_tiff_file
+from eogrow.utils.testing import compare_content, generate_tiff_file, run_config
 
 pytestmark = pytest.mark.integration
-
-
-@pytest.fixture(scope="session", name="folders")
-def config_folder_fixture(config_folder, stats_folder):
-    return create_folder_dict(config_folder, stats_folder, "download_and_batch")
 
 
 def prepare_batch_files(
@@ -55,12 +49,10 @@ def prepare_batch_files(
 @pytest.mark.parametrize(
     "experiment_name", [pytest.param("batch_to_eopatch", marks=pytest.mark.chain), "batch_to_eopatch_no_userdata"]
 )
-def test_batch_to_eopatch_pipeline(folders, experiment_name):
-    # Can't use utility testing due to custom pipeline
-    config_filename = os.path.join(folders["config_folder"], experiment_name + ".json")
-    stat_path = os.path.join(folders["stats_folder"], experiment_name + ".json")
+def test_batch_to_eopatch_pipeline(config_and_stats_paths, experiment_name):
+    config_path, stats_path = config_and_stats_paths("download_and_batch", experiment_name)
 
-    pipeline = BatchToEOPatchPipeline.from_raw_config(interpret_config_from_path(config_filename))
+    pipeline = BatchToEOPatchPipeline.from_path(config_path)
 
     filesystem = pipeline.storage.filesystem
     input_folder = pipeline.storage.get_folder(pipeline.config.input_folder_key)
@@ -84,9 +76,5 @@ def test_batch_to_eopatch_pipeline(folders, experiment_name):
             timestamp_shuffle_seed=17,
         )
 
-    pipeline.run()
-    check_pipeline_logs(pipeline)
-
-    tester = ContentTester(pipeline.storage.filesystem, output_folder)
-    # tester.save(stat_path)
-    assert tester.compare(stat_path) == {}
+    output_path = run_config(config_path)
+    compare_content(output_path, stats_path)

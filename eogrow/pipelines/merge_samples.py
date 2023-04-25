@@ -11,6 +11,7 @@ from eolearn.core.utils.fs import get_full_path
 
 from ..core.pipeline import Pipeline
 from ..types import Feature, FeatureSpec
+from ..utils.validators import ensure_storage_key_presence
 
 LOGGER = logging.getLogger(__name__)
 
@@ -22,9 +23,12 @@ class MergeSamplesPipeline(Pipeline):
         input_folder_key: str = Field(
             description="The storage manager key pointing to the input folder for the merge samples."
         )
+        _ensure_input_folder_key = ensure_storage_key_presence("input_folder_key")
         output_folder_key: str = Field(
             description="The storage manager key pointing to the output folder for the merge samples pipeline."
         )
+        _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
+
         features_to_merge: List[Feature] = Field(
             description="Dictionary of all features for which samples are to be merged."
         )
@@ -63,7 +67,7 @@ class MergeSamplesPipeline(Pipeline):
 
     def build_workflow(self) -> EOWorkflow:
         """Creates a workflow that outputs the requested features"""
-        features_to_load: List[FeatureSpec] = [FeatureType.TIMESTAMP] if self.config.include_timestamp else []
+        features_to_load: List[FeatureSpec] = [FeatureType.TIMESTAMPS] if self.config.include_timestamp else []
         features_to_load.extend(self.config.features_to_merge)
         load_task = LoadTask(
             self.storage.get_folder(self.config.input_folder_key),
@@ -97,8 +101,8 @@ class MergeSamplesPipeline(Pipeline):
         if self.config.include_timestamp:
             arrays = []
             for patch, sample_num in zip(patches, patch_sample_nums):
-                arrays.append(np.tile(np.array(patch.timestamp), (sample_num, 1)))
-                patch.timestamp = []
+                arrays.append(np.tile(np.array(patch.timestamps), (sample_num, 1)))
+                patch.timestamps = []
 
             self._save_array(np.concatenate(arrays, axis=0), "TIMESTAMPS")
 
@@ -117,8 +121,8 @@ class MergeSamplesPipeline(Pipeline):
         feature_array = patch[feature]
         feature_type, _ = feature
 
-        if feature_type is FeatureType.TIMESTAMP:
-            patch.timestamp = []
+        if feature_type is FeatureType.TIMESTAMPS:
+            patch.timestamps = []
             return np.array(feature_array)
 
         del patch[feature]

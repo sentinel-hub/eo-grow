@@ -1,35 +1,27 @@
-[
-  {
-    "**create_dummy_data": "${config_path}/dummy_data_utm.json"
-  },
-  {
-    "**common_config": "${config_path}/global_config.json",
-    "area": {
-      "manager": "eogrow.core.area.UtmZoneAreaManager",
-      "area":{
-        "filename": "test_area.geojson",
-        "buffer": 0.01
-      },
-      "patch":{
-        "size_x": 3600,
-        "size_y": 3000,
-        "buffer_x": 120,
-        "buffer_y": 50
-      },
-      "offset_x": 100,
-      "offset_y": 20
+{
+  "**common_config": "${config_path}/global_config.json",
+  "area": {
+    "manager": "eogrow.core.area.UtmZoneAreaManager",
+    "geometry_filename": "test_area.geojson",
+    "patch": {
+      "size_x": 3600,
+      "size_y": 3000,
+      "buffer_x": 120,
+      "buffer_y": 50
     },
-    "split_x": 2,
-    "split_y": 1,
-    "features": [
-      ["mask", "dataMask"],
-      ["mask_timeless", "REF"],
-      ["label", "LABELS"]
-    ],
-    "input_folder_key": "input_folder",
-    "eopatch_output_folder_key": "output_folder",
-    "subsplit_grid_filename": "new_grid.gpkg",
-    "prune": false,
-    "grid_output_folder_key": "temp"
-  }
-]
+    "offset_x": 100,
+    "offset_y": 20
+  },
+  "split_x": 2,
+  "split_y": 1,
+  "features": [
+    ["mask", "dataMask"],
+    ["mask_timeless", "REF"],
+    ["label", "LABELS"]
+  ],
+  "input_folder_key": "input_folder",
+  "eopatch_output_folder_key": "output_folder",
+  "subsplit_grid_filename": "new_grid.gpkg",
+  "prune": false,
+  "grid_output_folder_key": "temp"
+}

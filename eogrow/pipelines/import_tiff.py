@@ -14,7 +14,7 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..types import Feature, PatchList
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.validators import optional_field_validator, parse_dtype
+from ..utils.validators import ensure_storage_key_presence, optional_field_validator, parse_dtype
 
 
 class ResizeSchema(BaseSchema):
@@ -37,10 +37,13 @@ class ResizeSchema(BaseSchema):
 class ImportTiffPipeline(Pipeline):
     class Schema(Pipeline.Schema):
         output_folder_key: str = Field(description="The storage manager key of the output folder.")
+        _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
+
         tiff_folder_key: str = Field(
             "input_data",
             description="The storage manager key of the folder containing the tiff. Defaults to the input-data folder.",
         )
+        _ensure_tiff_folder_key = ensure_storage_key_presence("tiff_folder_key")
         input_filename: str = Field(description="Name of tiff file to import.")
         output_feature: Feature = Field(description="Feature containing the imported tiff information.")
         no_data_value: float = Field(

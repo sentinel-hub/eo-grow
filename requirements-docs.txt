@@ -1,6 +1,0 @@
-autodoc_pydantic
-jinja2==3.0.3
-m2r2
-nbsphinx
-sphinx
-sphinx-rtd-theme>=1.0.0

@@ -21,6 +21,7 @@ from ..types import JsonDict
 from ..utils.validators import (
     ensure_defined_together,
     ensure_exactly_one_defined,
+    ensure_storage_key_presence,
     optional_field_validator,
     parse_data_collection,
 )
@@ -34,6 +35,8 @@ class IngestByocTilesPipeline(Pipeline):
 
     class Schema(Pipeline.Schema):
         byoc_tile_folder_key: str
+        _ensure_byoc_tile_folder_key = ensure_storage_key_presence("byoc_tile_folder_key")
+
         file_glob_pattern: str = Field("**/*.tiff", description="Pattern used to obtain the TIFF files to use")
 
         new_collection_name: Optional[str] = Field(description="Used for defining a new BYOC collection.")
@@ -63,6 +66,8 @@ class IngestByocTilesPipeline(Pipeline):
             raise AssertionError("Sensing time should be set for timeless BYOC collections.")
 
         cover_geometry_folder_key: Optional[str] = Field(description="Folder for supplying a custom cover geometry.")
+        _ensure_cover_geometry_folder_key = ensure_storage_key_presence("cover_geometry_folder_key")
+
         cover_geometry: Optional[str] = Field(description="Specifies a geometry file describing the cover geometry.")
         _ensure_cover_geometry = ensure_defined_together("cover_geometry_folder_key", "cover_geometry")
 
@@ -72,7 +77,7 @@ class IngestByocTilesPipeline(Pipeline):
 
     def __init__(self, config: Schema, raw_config: Optional[RawConfig] = None):
         super().__init__(config, raw_config)
-        if not self.storage.is_on_aws():
+        if not self.storage.is_on_s3():
             raise ValueError("Can only ingest for projects based on S3 storage.")
         project_folder = self.storage.config.project_folder
         self.bucket_name = project_folder.replace("s3://", "").split("/")[0]
@@ -139,7 +144,7 @@ class IngestByocTilesPipeline(Pipeline):
         with rasterio.open(full_path) as tiff_data:
             tiff_bounds = tiff_data.bounds
             tiff_crs = CRS(tiff_data.crs.to_epsg())
-        tiff_poly = BBox([tiff_bounds.left, tiff_bounds.bottom, tiff_bounds.right, tiff_bounds.top], tiff_crs).geometry
+        tiff_poly = BBox((tiff_bounds.left, tiff_bounds.bottom, tiff_bounds.right, tiff_bounds.top), tiff_crs).geometry
 
         cover_poly = self._get_cover_geometry(tiff_crs)
         final_poly = tiff_poly.intersection(cover_poly) if cover_poly else tiff_poly

@@ -6,7 +6,7 @@
   "model_filename": "no_filter_model.gz",
   "train_features": ["FEATURES"],
   "train_reference": "LULC_ID",
-  "train_test_split" : {
+  "train_test_split": {
     "random_state": 42,
     "train_size": 0.8
   },

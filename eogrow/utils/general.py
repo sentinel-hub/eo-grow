@@ -2,9 +2,8 @@
 A module containing general utilities that haven't been sorted in any other module
 """
 import datetime as dt
-import math
 from enum import Enum
-from typing import Tuple, Union
+from typing import Union
 
 import numpy as np
 
@@ -29,12 +28,6 @@ def jsonify(param: object) -> Union[str, list]:
         return param.value
 
     raise TypeError(f"Object of type {type(param)} is not yet supported in jsonify utility function")
-
-
-def reduce_to_coprime(number1: int, number2: int) -> Tuple[int, int]:
-    """Divides given numbers by their greatest common divisor, thus making them coprime."""
-    gcd = math.gcd(number1, number2)
-    return number1 // gcd, number2 // gcd
 
 
 def convert_to_int(values: np.ndarray, raise_diff: bool, error: float = 1e-8) -> np.ndarray:
@@ -62,8 +55,8 @@ def convert_bbox_coords_to_int(bbox: BBox, error: float = 1e-8) -> BBox:
     """Converts bounding box coordinates to integers by removing numerical errors. If the difference is larger than a
     numerical error it raises an error."""
     coords = np.array(list(bbox))
-    fixed_coords = convert_to_int(coords, raise_diff=True, error=error)
-    return BBox(tuple(fixed_coords), crs=bbox.crs)
+    min_x, min_y, max_x, max_y = convert_to_int(coords, raise_diff=True, error=error)
+    return BBox((min_x, min_y, max_x, max_y), crs=bbox.crs)
 
 
 def large_list_repr(large_list: list) -> str:
@@ -74,3 +67,8 @@ def large_list_repr(large_list: list) -> str:
 
     first_elements = ", ".join(map(repr, large_list[:3]))
     return f"[{first_elements}, ..., {large_list[-1]}]"
+
+
+def current_timestamp(fmt: str = "%Y-%m-%dT%H-%M-%SZ") -> str:
+    """Creates a timestamp string of the current time"""
+    return dt.datetime.utcnow().strftime(fmt)
