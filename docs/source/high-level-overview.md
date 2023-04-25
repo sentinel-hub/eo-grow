@@ -167,3 +167,100 @@ With the above settings the stdout logs will include `cool_package`, `cooler_pac
 `__main__`, `root`, `sentinelhub.api.batch`.
 
 ## Pipelines
+
+A `Pipeline` is an object focused towards executing a specific workflow over a collection of patches. It represents the interface for managing the data and logging with the use of [managers](#managers), as well as contains instructions for execution in the form of pipeline-specific tasks.
+
+The basic parts of writing a custom `Pipeline` class usually consist of the following:
+
+- defining the pipeline schema
+- building the workflow
+- constructing execution arguments (optional)
+- providing filtering logic (optional)
+
+The following sections expand on each item in the list above.
+
+### Defining the Pipeline Schema
+
+The configuration schema of the `Pipeline` class already has some pre-defined parameters which need to be provided for execution. Besides the expected area, storage, and logging manager schemas, these are:
+
+```json
+{
+  "pipeline": <str: import path to an implementation of the Pipeline class>,
+  "pipeline_name": <str|None: custom pipeline name>,
+  "workers": <int: number of workers for parallel execution of workflows>,
+  "use_ray": <bool|None: run the pipeline locally or on A ray cluster>,
+  "test_subset": <list(int)|list(str)|None: a list of patch indices and/or names for execution>,
+  "skip_existing": <bool: skip already processed patches>,
+
+  "area": <AreaManager>,
+  "storage": <StorageManager>,
+  "logging": <LoggingManager>
+}
+```
+
+For a more detailed description of the parameters, you can [read the API docs](https://eo-grow.readthedocs.io/en/latest/reference/eogrow.core.pipeline.html#eogrow.core.pipeline.Pipeline.Schema).
+
+Building a custom object as a subclass of `EOGrowObject` is straighforward, you only need to provide a suitable nested subclass of `EOGrowObject.Schema`, which must always be named `Schema`. For example, a subclass of `Pipeline` should contain a nested subclass of `Pipeline.Schema`, as shown below.
+
+```python
+# example of how to write a custom pipeline
+class MyPipeline(Pipeline):
+
+    class Schema(Pipeline.Schema):
+        extra_field: str = "beep"
+        ...
+
+    # this line informs type-checkers that the type of `config` is no longer `Pipeline.Schema`
+    # but it is now `MyPipeline.Schema`
+    config: Schema
+
+    def custom_method():
+        ...
+    ...
+```
+
+### Building the Workflow
+
+All pipelines expect an implementation of the `build_workflow` method, where the tasks for running specific work are defined and grouped into a workflow. Usually this consists of (but is not limited to) simple, linearly connected tasks, usually in the form of:
+
+1. Load patch
+2. Perform specific task
+3. Save patch and/or results
+
+### Constructing Execution Arguments
+
+In some cases, a task requires additional information at runtime, which can be unique per patch, such as the load/save location of a patch, or a specific bbox used to create a patch at the beginning of a pipeline.
+
+For the specific examples mentioned above, the execution argument building step have already been implemented, meaning that for simple pipelines with simple tasks this particular step is optional.
+
+However, in cases where a custom task requires an extra parameter at runtime, it can be provided by updating the `get_execution_arguments()` method of the `Pipeline` class. The method must set the arguments for each task which expects them, for all patches.
+
+```python
+def get_execution_arguments(self, workflow, patch_list):
+    exec_kwargs = {}
+    nodes = workflow.get_nodes()
+    for name, bbox in patch_list:
+        patch_args = {}
+
+        for node in nodes:
+            if isinstance(node.task, MyCustomTask):
+                patch_args[node] = dict(**custom_kwargs)
+
+        exec_kwargs[name] = patch_args
+    return exec_kwargs
+```
+
+### Providing Filtering Logic
+
+Filtering logic is an optional part of the pipeline class and provides information on which patches to skip, in case they have already been processed. This is controlled via the `skip_existing` parameter in the [pipeline schema](#defining-the-pipeline-schema).
+
+The filtering logic can be provided with the `filter_patch_list()` method and depends very much on the what the user's definiton of "already processed" is. It could simply mean an existing patch directory in the storage, but it could depend on wheter some expected output is present or not.
+
+Most commonly this boils down to checking for feature presence for all eopatches, and returning a list of patches where some/all features are missing. For this specific case we provide a utility method `get_patches_with_missing_features()` under `eogrow.utils.fitler. The utility usage could look along the lines of:
+
+```python
+def filter_patch_list(self, patch_list):
+    return get_patches_with_missing_features(filesystem, patches_folder, patch_list, features)
+```
+
+where the `features` parameter defines the list of features which must be present if the patch is to be skipped.
