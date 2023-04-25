@@ -113,4 +113,19 @@ While the folder-key approach appears limiting at first, it turns out to be flex
 
 ### Logging Manager
 
+The logging manager ensures that logging handlers are set up and configured correctly. It allows adjusting which packages to log to files, which to stdout, and which to ignore. It is unlikely you'll ever need to access any of it's methods directly. Use the standard `LOGGER = logging.getLogger(__name__)` for logging.
+
+Settings that reference packages to ignore/show have a collection of default packages. One can reference them in the configuration with `"..."`.
+
+```json
+{
+    "manager": "eogrow.core.logging.LoggingManager",
+    "show_logs": true,
+    "stdout_log_packages": ["...", "cool_package", "cooler_package"]
+}
+```
+
+With the above settings the stdout logs will include `cool_package`, `cooler_package`, and also all of the default packages `eogrow`,
+`__main__`, `root`, `sentinelhub.api.batch`.
+
 ## Pipelines
