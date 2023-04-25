@@ -109,7 +109,64 @@ Notable attributes/methods are:
 
 While the folder-key approach appears limiting at first, it turns out to be flexible enough for the majority of cases. For more advanced use see [common configuration patterns](common-configuration-patterns.html).
 
-### Area Manager
+### Area Managers
+
+The Area Manager is a manager that takes care of how the area-of-interest (AOI) is loaded and how it is split into chunks to be processed by `eo-grow`. There are several pre-defined area managers available in the project, focusing on the few most common use cases for providing AOI specifications.
+
+All area managers provide the following functionalities for development:
+
+- `get_patch_list()`, for obtaining the list of patch names and corresponding bboxes
+- `get_area_geometry()`, for obtaining the dissolved geometry of the AOI
+- `get_grid(filtered = True|False)`, for obtaining the split AOI in the form of a grid
+
+#### UTM Zone Area Manager
+
+The `UtmZoneAreaManager` is probably the most commonly used area manager and most intuitive to work with. The user-provided geometry is split into patches of the user-provided size. If the AOI spans multiple UTM zones, the patches are grouped per zone. Here is what the user-provided configuration looks like:
+
+```json
+{
+  "geometry_filename": <str>,
+  "patch": {
+    "size_x": <int>,
+    "size_y": <int>,
+    "buffer_x": <float>,
+    "buffer_y": <float>
+  },
+  "offset_x": <float>,
+  "offset_y": <float>
+}
+```
+
+#### Custom Grid Area Manager
+
+For users which have a very specific way of splitting the AOI in mind, we provide the `CustomGridAreaManager`, which accepts a grid file of an already split AOI. The user only needs to provide the grid file folder key and name, along with the `name_column` parameter, which points to the column containing the patch names to be used. The folder key by default points to the `input_data` location, but could be any other location defined by the storage structure.
+
+```json
+{
+  "grid_folder_key": <str>,
+  "grid_filename": <str>,
+  "name_column": <str>
+}
+```
+
+#### Batch Area Manager
+
+For users working with [Sentinel Hub Batch API](https://docs.sentinel-hub.com/api/latest/api/batch/), we have prepared the `BatchAreaManager`, which splits the area according to [Sentinel Hub tiling grids](https://docs.sentinel-hub.com/api/latest/api/batch/#tiling-grids). This area manager is meant for larger projects focusing on larger areas.
+
+The interface of the `BatchAreaManager` relies heavily on the predefined configuration options defined for the Batch API, so be sure to provide sensible values for the parameters. For example, the `tiling_grid_id` and `resolution` parameters should correspond to values stated in the [docs](https://docs.sentinel-hub.com/api/latest/api/batch/#tiling-grids).
+
+For existing projects involving Batch API, it is possible to provide the `batch_id` parameter, which will search for existing grids corresponding to the batch request. If the `batch_id` is not provided (this is by default), the `BatchAreaManager` will generate a new batch job with the given parameters.
+
+```json
+{
+  "geometry_filename": <str>,
+  "tiling_grid_id": <int>,
+  "resolution": <float>,
+  "tile_buffer_x": <int>,
+  "tile_buffer_y": <int>,
+  "batch_id": <str|None>
+}
+```
 
 ### Logging Manager
 
