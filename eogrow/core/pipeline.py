@@ -31,7 +31,7 @@ class Pipeline(EOGrowObject):
         - collecting input arguments (either from command line or as an initialization parameter) and parsing them
         - preparing a list of patches
         - preparing execution arguments
-        - monitoring the pipeline and reporting
+        - running the pipeline, monitoring, and reporting
     """
 
     class Schema(PipelineSchema):

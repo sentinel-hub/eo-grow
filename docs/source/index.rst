@@ -6,4 +6,5 @@
 
     config-language
     common-configuration-patterns
+    high-level-overview
     reference/eogrow

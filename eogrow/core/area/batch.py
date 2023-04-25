@@ -22,7 +22,7 @@ class MissingBatchIdError(ValueError):
 
 
 class BatchAreaManager(BaseAreaManager):
-    """Area manager that splits grid per UTM zones"""
+    """Area manager that splits the area according to the Sentinel Hub Batch tiling grids."""
 
     class Schema(BaseAreaManager.Schema):
         area: Optional[AreaSchema] = Field(description="DEPRECATED, use `geometry_filename` instead.")
