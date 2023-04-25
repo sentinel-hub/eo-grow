@@ -200,7 +200,7 @@ The configuration schema of the `Pipeline` class already has some pre-defined pa
 
 For a more detailed description of the parameters, you can [read the API docs](https://eo-grow.readthedocs.io/en/latest/reference/eogrow.core.pipeline.html#eogrow.core.pipeline.Pipeline.Schema).
 
-Building a custom object as a subclass of `EOGrowObject` is straighforward, you only need to provide a suitable nested subclass of `EOGrowObject.Schema`, which must always be named `Schema`. For example, a subclass of `Pipeline` should contain a nested subclass of `Pipeline.Schema`, as shown below.
+Building a custom pipeline is straighforward, you only need to provide a suitable nested subclass of `Pipeline.Schema`, which must always be named `Schema`, as shown below:
 
 ```python
 # example of how to write a custom pipeline
