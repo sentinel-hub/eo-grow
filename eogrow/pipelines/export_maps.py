@@ -28,6 +28,7 @@ from ..core.pipeline import Pipeline
 from ..types import ExecKwargs, Feature, PatchList
 from ..utils.eopatch_list import group_by_crs
 from ..utils.map import CogifyResamplingOptions, WarpResamplingOptions, cogify_inplace, extract_bands, merge_tiffs
+from ..utils.validators import ensure_storage_key_presence
 
 LOGGER = logging.getLogger(__name__)
 
@@ -41,11 +42,13 @@ class ExportMapsPipeline(Pipeline):
         input_folder_key: str = Field(
             description="The storage manager key pointing to the input folder for the export maps pipeline."
         )
+        _ensure_input_folder_key = ensure_storage_key_presence("input_folder_key")
         output_folder_key: str = Field(
             description=(
                 "The storage manager key pointing to the output folder for the maps in the export maps pipeline."
             )
         )
+        _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
 
         feature: Feature
         map_name: Optional[str] = Field(regex=r".+\." + MimeType.TIFF.extension + r"?\b")  # noqa

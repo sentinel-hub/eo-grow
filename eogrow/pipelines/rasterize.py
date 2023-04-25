@@ -20,7 +20,7 @@ from ..core.schemas import BaseSchema
 from ..types import Feature, FeatureSpec, PatchList
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.fs import LocalFile
-from ..utils.validators import ensure_exactly_one_defined, field_validator, parse_dtype
+from ..utils.validators import ensure_exactly_one_defined, ensure_storage_key_presence, field_validator, parse_dtype
 from ..utils.vector import concat_gdf
 
 LOGGER = logging.getLogger(__name__)
@@ -40,7 +40,10 @@ class RasterizePipeline(Pipeline):
 
     class Schema(Pipeline.Schema):
         input_folder_key: str = Field(description="The storage manager key pointing to the input folder.")
+        _ensure_input_folder_key = ensure_storage_key_presence("input_folder_key")
         output_folder_key: str = Field(description="The storage manager key pointing to the output folder.")
+        _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
+
         vector_input: Union[Feature, str] = Field(description="An input filename or a feature containing vector data.")
         output_feature: Feature = Field(description="A feature which should contain the newly rasterized data.")
 
