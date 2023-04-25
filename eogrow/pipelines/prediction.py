@@ -12,7 +12,12 @@ from ..core.pipeline import Pipeline
 from ..tasks.prediction import ClassificationPredictionTask, RegressionPredictionTask
 from ..types import Feature, FeatureSpec, PatchList
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.validators import ensure_defined_together, optional_field_validator, parse_dtype
+from ..utils.validators import (
+    ensure_defined_together,
+    ensure_storage_key_presence,
+    optional_field_validator,
+    parse_dtype,
+)
 
 
 class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
@@ -22,6 +27,7 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         input_folder_key: str = Field(
             description="The storage manager key pointing to the input folder of the model input data."
         )
+        _ensure_input_folder_key = ensure_storage_key_presence("input_folder_key")
         input_features: List[Feature] = Field(
             description=(
                 "List of features of form `[(feature_type, feature_name)]` specifying which features are model input in"
@@ -32,6 +38,8 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         output_folder_key: str = Field(
             description="The storage manager key pointing to the output folder for the prediction pipeline."
         )
+        _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
+
         dtype: Optional[np.dtype] = Field(
             description="Casts the result to desired type. Uses predictor output type by default."
         )
@@ -46,6 +54,7 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         model_folder_key: str = Field(
             description="The storage manager key pointing to the folder of the model used in the prediction pipeline."
         )
+        _ensure_model_folder_key = ensure_storage_key_presence("model_folder_key")
         compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
 
     config: Schema

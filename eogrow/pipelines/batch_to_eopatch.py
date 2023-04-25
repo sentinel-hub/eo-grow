@@ -24,7 +24,7 @@ from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
 from ..types import ExecKwargs, Feature, FeatureSpec, PatchList, RawSchemaDict
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.validators import optional_field_validator, parse_dtype
+from ..utils.validators import ensure_storage_key_presence, optional_field_validator, parse_dtype
 
 
 class FeatureMappingSchema(BaseSchema):
@@ -45,7 +45,9 @@ class FeatureMappingSchema(BaseSchema):
 class BatchToEOPatchPipeline(Pipeline):
     class Schema(Pipeline.Schema):
         input_folder_key: str = Field(description="Storage manager key pointing to the path with Batch results")
+        _ensure_input_folder_key = ensure_storage_key_presence("input_folder_key")
         output_folder_key: str = Field(description="Storage manager key pointing to where the EOPatches are saved")
+        _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
 
         userdata_feature_name: Optional[str] = Field(
             description="A name of META_INFO feature in which userdata.json would be stored."

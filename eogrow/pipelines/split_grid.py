@@ -20,6 +20,7 @@ from ..tasks.spatial import SpatialSliceTask
 from ..types import ExecKwargs, Feature, FeatureSpec
 from ..utils.fs import LocalFile
 from ..utils.grid import split_bbox
+from ..utils.validators import ensure_storage_key_presence
 
 LOGGER = logging.getLogger(__name__)
 
@@ -37,12 +38,17 @@ class SplitGridPipeline(Pipeline):
         input_folder_key: str = Field(
             description="A storage manager key pointing to the folder where the data will be loaded from."
         )
+        _ensure_input_folder_key = ensure_storage_key_presence("input_folder_key")
         eopatch_output_folder_key: str = Field(
             description="A storage manager key pointing to the folder where the data will be saved."
         )
+        _ensure_eopatch_output_folder_key = ensure_storage_key_presence("eopatch_output_folder_key")
+
         grid_output_folder_key: str = Field(
             description="A storage manager key of where to save the resulting split grid."
         )
+        _ensure_grid_output_folder_key = ensure_storage_key_presence("grid_output_folder_key")
+
         subsplit_grid_filename: str = Field(
             description="Filename of new grid, which can be used in `CustomAreaManager`.", regex=r"^.+\.gpkg$"
         )

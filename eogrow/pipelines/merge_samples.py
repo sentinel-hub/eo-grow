@@ -11,6 +11,7 @@ from eolearn.core.utils.fs import get_full_path
 
 from ..core.pipeline import Pipeline
 from ..types import Feature, FeatureSpec
+from ..utils.validators import ensure_storage_key_presence
 
 LOGGER = logging.getLogger(__name__)
 
@@ -22,9 +23,12 @@ class MergeSamplesPipeline(Pipeline):
         input_folder_key: str = Field(
             description="The storage manager key pointing to the input folder for the merge samples."
         )
+        _ensure_input_folder_key = ensure_storage_key_presence("input_folder_key")
         output_folder_key: str = Field(
             description="The storage manager key pointing to the output folder for the merge samples pipeline."
         )
+        _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
+
         features_to_merge: List[Feature] = Field(
             description="Dictionary of all features for which samples are to be merged."
         )

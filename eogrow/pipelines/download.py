@@ -30,6 +30,7 @@ from ..types import ExecKwargs, Feature, FeatureSpec, PatchList, ProcessingType,
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import (
     ensure_exactly_one_defined,
+    ensure_storage_key_presence,
     field_validator,
     optional_field_validator,
     parse_data_collection,
@@ -76,6 +77,7 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
         output_folder_key: str = Field(
             description="Storage manager key pointing to the path where downloaded EOPatches will be saved."
         )
+        _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
 
         compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
         threads_per_worker: Optional[int] = Field(

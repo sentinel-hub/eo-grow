@@ -12,7 +12,7 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.testing import DummyRasterFeatureTask, DummyTimestampFeatureTask
 from ..types import ExecKwargs, Feature, PatchList, TimePeriod
-from ..utils.validators import field_validator, parse_dtype, parse_time_period
+from ..utils.validators import ensure_storage_key_presence, field_validator, parse_dtype, parse_time_period
 
 Self = TypeVar("Self", bound="TestPipeline")
 LOGGER = logging.getLogger(__name__)
@@ -86,6 +86,8 @@ class DummyDataPipeline(Pipeline):
 
     class Schema(Pipeline.Schema):
         output_folder_key: str = Field(description="The storage manager key pointing to the pipeline output folder.")
+        _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
+
         seed: Optional[int] = Field(description="A randomness seed.")
 
         raster_features: List[RasterFeatureSchema] = Field(

@@ -9,7 +9,7 @@ from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, MergeEOPatch
 from eolearn.geometry import MorphologicalOperations, MorphologicalStructFactory
 from eolearn.ml_tools import BlockSamplingTask, FractionSamplingTask, GridSamplingTask
 
-from eogrow.utils.validators import ensure_exactly_one_defined
+from eogrow.utils.validators import ensure_exactly_one_defined, ensure_storage_key_presence
 
 from ..core.pipeline import Pipeline
 from ..tasks.common import ClassFilterTask
@@ -22,6 +22,8 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
 
     class Schema(Pipeline.Schema):
         output_folder_key: str = Field(description="The storage manager key pointing to the pipeline output folder.")
+        _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
+
         apply_to: Dict[str, Dict[FeatureType, List[str]]] = Field(
             description=(
                 "A dictionary defining which features to sample, its structure is "
