@@ -256,7 +256,7 @@ Filtering logic is an optional part of the pipeline class and provides informati
 
 The filtering logic can be provided with the `filter_patch_list()` method and depends very much on the what the user's definiton of "already processed" is. It could simply mean an existing patch directory in the storage, but it could depend on wheter some expected output is present or not.
 
-Most commonly this boils down to checking for feature presence for all eopatches, and returning a list of patches where some/all features are missing. For this specific case we provide a utility method `get_patches_with_missing_features()` under `eogrow.utils.fitler. The utility usage could look along the lines of:
+Most commonly this boils down to checking for feature presence for all eopatches, and returning a list of patches where some/all features are missing. For this specific case we provide a utility method `get_patches_with_missing_features()` under `eogrow.utils.filter. The utility usage could look along the lines of:
 
 ```python
 def filter_patch_list(self, patch_list):
