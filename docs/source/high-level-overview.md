@@ -1,4 +1,4 @@
-# High level overview
+# High Level Overview
 
 The two main categories of `eo-grow` building blocks are:
 
@@ -9,29 +9,10 @@ Each `EOGrowObject` is initialized with a `Schema` object. The `Schema` is saved
 
 The configurable objects can be further separated into instances of:
 
-- `Manager`, a helper class with a limited scope.
-- `Pipeline`, a class for execution
+- `Manager`, a helper class with a limited scope,
+- `Pipeline`, a class for execution.
 
 `Manager` classes are used to build configurations for specific aspects of the pipeline, such as area, storage, or logging, while the `Pipeline` class accepts the full configuration (pipeline specific + all managers) and contains methods of execution.
-
-Building a custom object as a subclass of `EOGrowObject` is straighforward, you only need to provide a suitable nested subclass of `EOGrowObject.Schema`, which must always be named `Schema`. For example, a subclass of `Pipeline` should contain a nested subclass of `Pipeline.Schema`, as shown below.
-
-```python
-# example of how to write a custom pipeline
-class MyPipeline(Pipeline):
-
-    class Schema(Pipeline.Schema):
-        extra_field: str = "beep"
-        ...
-
-    # this line informs type-checkers that the type of `config` is no longer `Pipeline.Schema`
-    # but it is now `MyPipeline.Schema`
-    config: Schema
-
-    def custom_method():
-        ...
-    ...
-```
 
 ## Schemas
 
@@ -81,7 +62,7 @@ Other predefined parsers are and `parse_time_period` and `parse_data_collection`
 
 ## Managers
 
-Managers are helper-classes of pipelines that focus on a single role.
+Managers are helper-classes of pipelines that focus on a single role. Each manager is defined through a `Schema` configuration, where the configuration fields are specific to the manager at hand. This section focuses on different managers used by the `Pipeline` class and how to work with them. In the [pipelines](#pipelines) section we will then touch on how to connect all these managers to create and run a custom pipeline.
 
 ### Storage Manager
 
@@ -92,10 +73,10 @@ The storage manager takes care of data storage and works both with local storage
   "manager": "eogrow.core.storage.StorageManager",
   "project_folder": "some_path/project_root_folder",
   "structure": {
-      "data": "s2_downloaded_data",
-      "reference": "reference",
-      "models": "lgbm_models/built-up-detectors/models",
-      "results": "built-up-predictions",
+    "data": "s2_downloaded_data",
+    "reference": "reference",
+    "models": "lgbm_models/built-up-detectors/models",
+    "results": "built-up-predictions"
   }
 }
 ```
@@ -103,9 +84,9 @@ The storage manager takes care of data storage and works both with local storage
 To avoid keeping track of absolute paths, the storage manager utilizes a `key: path` mapping, which is specified as the `structure` parameter. Pipelines then operate with `input_folder_key="data"` instead of `input_path="some_path/project_root_folder/s2_downloaded_data"`. The approach is also much more resilient to typos.
 
 Notable attributes/methods are:
+
 - `filesystem` attribute, which can be used inside pipelines for IO.
 - `get_folder` which, given a folder-key, provides the path in the `filesystem` to the desired folder.
-
 
 While the folder-key approach appears limiting at first, it turns out to be flexible enough for the majority of cases. For more advanced use see [common configuration patterns](common-configuration-patterns.html).
 
@@ -125,7 +106,7 @@ The `UtmZoneAreaManager` is probably the most commonly used area manager and mos
 
 ```json
 {
-  "geometry_filename": <str>,
+  "geometry_filename": <str>
   "patch": {
     "size_x": <int>,
     "size_y": <int>,
@@ -176,9 +157,9 @@ Settings that reference packages to ignore/show have a collection of default pac
 
 ```json
 {
-    "manager": "eogrow.core.logging.LoggingManager",
-    "show_logs": true,
-    "stdout_log_packages": ["...", "cool_package", "cooler_package"]
+  "manager": "eogrow.core.logging.LoggingManager",
+  "show_logs": true,
+  "stdout_log_packages": ["...", "cool_package", "cooler_package"]
 }
 ```
 
