@@ -1,17 +1,41 @@
 # High level overview
 
-The two main categories of `eo-grow` objects are:
+The two main categories of `eo-grow` building blocks are:
+
 - configurable objects (subclasses of `EOGrowObject`)
-- configuration objects (subclasses of `EOGrowObject.Schema`)
+- configuration schemas (subclasses of `EOGrowObject.Schema`)
 
-Each `EOGrowObject` is initialized with a value of type `Schema`, and has an attribute `config: Schema` that stores the configuration information.
+Each `EOGrowObject` is initialized with a `Schema` object. The `Schema` is saved to the object as an attribute `config: Schema` which stores the configuration information.
 
-The configurable objects can be further separated into:
+The configurable objects can be further separated into instances of:
+
+- `Manager`, a helper class with a limited scope.
 - `Pipeline`, a class for execution
-- `Manager`, a helper class that focuses on a single aspect such as storage/logging/area-splitting.
 
+Here is the overview so far
 
-It is intended that when one subclasses `EOGrowObject` they also provide a suitable nested subclass of `EOGrowObject.Schema`. This also means that a subclass of `Pipeline` should contain a subclass of `Pipeline.Schema`. The nested schema class must always be named `Schema`.
+```mermaid
+flowchart TD
+    A[eo-grow] -->B(configurable objects)
+    A[eo-grow] -->C(configuration schemas)
+    B --> D{Manager}
+    B --> E{Pipeline}
+    C -.->|initialization| B
+```
+
+`Manager` classes are used to build configurations for specific aspects of the pipeline, such as area, storage, or logging, while the `Pipeline` class accepts the full configuration (pipeline specific + all managers) and contains methods of execution.
+
+```mermaid
+classDiagram
+    class Pipeline{
+      +custom parameters
+      +AreaManager()
+      +StorageManager()
+      +LoggingManager()
+    }
+```
+
+Building a custom object as a subclass of `EOGrowObject` is straighforward, you only need to provide a suitable nested subclass of `EOGrowObject.Schema`, which must always be named `Schema`. For example, a subclass of `Pipeline` should contain a nested subclass of `Pipeline.Schema`, as shown below.
 
 ```python
 # example of how to write a custom pipeline
@@ -29,28 +53,41 @@ class MyPipeline(Pipeline):
         ...
     ...
 ```
+
 ## Schemas
 
-The `Schema` is in general a [`pydantic` model](https://docs.pydantic.dev/usage/models/), but it is best to always inherit from `EOGrowObject.Schema` to ensure a suitable pydantic configuration of the models. The `EOGrow.Schema` model:
-- rejects any additional parameters that are not listed
-- does not allow mutation
-- validates default values
+The `Schema` is in general a [`pydantic` model](https://docs.pydantic.dev/usage/models/), but with some project specific constrains and additions. It is best to always inherit from `EOGrowObject.Schema` to ensure a suitable pydantic configuration of the models.
 
-In case you are sub-classing a manger or pipeline, it is heavily advised to let `Schema` be a subclass of the superclass schema (type-checkers should warn you about it).
+The `EOGrow.Schema` model:
+
+- rejects any additional parameters that are not listed,
+- does not allow mutation,
+- validates default values.
+
+In case you are inheriting from a `Manger` or a `Pipeline` class, it is heavily advised to let `Schema` be a subclass of the superclass schema (type-checkers should warn you about it).
 
 ### Validators
 
-You can use any kind of [`pydantic` validators](https://docs.pydantic.dev/usage/validators/) to verify the data in your schema. You can find some utility functions in `eogrow.utils.validators`:
-- `field_validator` / `optional_field_validator` for wrapping callables defined elsewhere
-- `ensure_exactly_one_defined` and `ensure_defined_together` for linking together parameters that can be `None`
-- `ensure_storage_key_presence` for checking that storage keys are defined in the storage manager (see section on [managers](#managers))
-- `restrict_types` to restrict which feature types are allowed on a field that defines a feature
+You can use any kind of [`pydantic` validators](https://docs.pydantic.dev/usage/validators/) to verify the data in your schema. You can find some existing utility functions in `eogrow.utils.validators`:
+
+- `field_validator` / `optional_field_validator` for wrapping callables defined elsewhere,
+- `ensure_exactly_one_defined` and `ensure_defined_together` for linking together parameters that can be `None`,
+- `ensure_storage_key_presence` for checking that storage keys are defined in the storage manager (see section on [managers](#managers)),
+- `restrict_types` to restrict which feature types are allowed on a field that defines a feature.
 
 Root validators can also be used, but are discouraged in the main `eo-grow` repository as they clutter the documentation pages.
 
+For example, a storage key presence could be validated in the following way:
+
+```python
+class Schema(Pipeline.Schema):
+    folder_key: str = "check_if_i_exist"
+    _check_folder_key_presence = ensure_storage_key_presence("folder_key")
+```
+
 ### Parsers
 
-Certain types do not provide direct parsing capabilities (for instance `numpy.dtype`). In such cases you can use **pre-validators**, which means that the validator will be applied before `pydantic` checks that the type is right. This is done by setting the `pre` flag of validators to `True`. The `field_validator` and `optional_field_validator` utilities also allow this setting, so you can do:
+Certain types do not provide direct parsing capabilities (for instance `numpy.dtype` or `datetime`). In such cases you can use **pre-validators**, which means that the validator will be applied before `pydantic` checks that the type is right (check [here](https://docs.pydantic.dev/usage/validators/#pre-and-per-item-validators) for more info). This is done by setting the `pre` flag of validators to `True`. The `field_validator` and `optional_field_validator` utilities also allow this setting, so you can do:
 
 ```python
 from typing import Optional
@@ -72,8 +109,6 @@ Managers are helper-classes of pipelines that focus on a single role.
 ### Storage Manager
 
 Takes care of managing data storage and works both with local storage and Amazon S3.
-
-
 
 ### Area Manager
 
