@@ -66,7 +66,7 @@ Managers are helper-classes of pipelines that focus on a single role. Each manag
 
 ### Storage Manager
 
-The storage manager takes care of data storage and works both with local storage and Amazon S3. It's primary purpose is to provide correct filesystem objects and filepaths in said filesystem.
+The storage manager takes care of data storage and works both with local storage and Amazon S3. It's primary purpose is to provide correct filesystem objects and filepaths in said filesystem. A basic overview of the `StorageManager` schema can be found below, for more information visit [the API docs](reference/eogrow.core.storage.html#eogrow.core.storage.StorageManager.Schema)
 
 ```json
 {
