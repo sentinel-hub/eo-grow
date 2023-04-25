@@ -5,11 +5,11 @@ build-backend = 'hatchling.build'
 [tool.hatch.version]
 path = 'eogrow/__init__.py'
 
-[tool.hatch.build]
-exclude = ["/docs", "/tests"]
-
 [tool.hatch.build.targets.sdist]
 include = ['/README.md', '/LICENSE.md', '/eogrow']
+
+[tool.hatch.build.targets.wheel]
+include = ['/eogrow']
 
 [project]
 name = "eo-grow"
