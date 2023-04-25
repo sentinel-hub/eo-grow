@@ -87,7 +87,29 @@ Managers are helper-classes of pipelines that focus on a single role.
 
 ### Storage Manager
 
-Takes care of managing data storage and works both with local storage and Amazon S3.
+The storage manager takes care of data storage and works both with local storage and Amazon S3. It's primary purpose is to provide correct filesystem objects and filepaths in said filesystem.
+
+```json
+{
+  "manager": "eogrow.core.storage.StorageManager",
+  "project_folder": "some_path/project_root_folder",
+  "structure": {
+      "data": "s2_downloaded_data",
+      "reference": "reference",
+      "models": "lgbm_models/built-up-detectors/models",
+      "results": "built-up-predictions",
+  }
+}
+```
+
+To avoid keeping track of absolute paths, the storage manager utilizes a `key: path` mapping, which is specified as the `structure` parameter. Pipelines then operate with `input_folder_key="data"` instead of `input_path="some_path/project_root_folder/s2_downloaded_data"`. The approach is also much more resilient to typos.
+
+Notable attributes/methods are:
+- `filesystem` attribute, which can be used inside pipelines for IO.
+- `get_folder` which, given a folder-key, provides the path in the `filesystem` to the desired folder.
+
+
+While the folder-key approach appears limiting at first, it turns out to be flexible enough for the majority of cases. For more advanced use see [common configuration patterns](common-configuration-patterns.html).
 
 ### Area Manager
 
