@@ -26,7 +26,7 @@ LOGGER = logging.getLogger(__name__)
 
 class InputFeatureSchema(BaseSchema):
     feature: Feature = Field(description="Which features to load from folder.")
-    folder_key: str = Field("The storage manager key pointing to the folder from which to load data.")
+    folder_key: str = Field(description="The storage manager key pointing to the folder from which to load data.")
     include_bbox_and_timestamp = Field(
         True,
         description="Auto loads BBOX and (if the features is temporal) TIMESTAMP.",
