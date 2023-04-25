@@ -26,7 +26,7 @@ class PatchSchema(BaseSchema):
 
 
 class UtmZoneAreaManager(BaseAreaManager):
-    """Area manager that splits grid per UTM zones"""
+    """Area manager that splits the area per UTM zone"""
 
     class Schema(BaseAreaManager.Schema):
         area: Optional[AreaSchema] = Field(description="DEPRECATED, use `geometry_filename` instead.")
