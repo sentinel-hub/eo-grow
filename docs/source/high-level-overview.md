@@ -135,12 +135,17 @@ With the above settings the stdout logs will include `cool_package`, `cooler_pac
 
 ## Pipelines
 
-A `Pipeline` is an object focused towards executing a specific workflow over a collection of patches. It represents the interface for managing the data and logging with the use of [managers](#managers), as well as contains instructions for execution in the form of pipeline-specific tasks.
+A `Pipeline` is an object focused towards executing a specific `EOWorkflow` over a collection of patches. It represents the interface for managing the data and logging with the use of [managers](#managers), as well as contains instructions for execution in the form of pipeline-specific tasks.
 
-The basic parts of writing a custom `Pipeline` class usually consist of the following:
+The `Pipeline` class has multiple _run_ methods that appear to have a similar functionality:
+- `run` is the main execution method. It sets up logging and error handlers around `run_procedure`. _It is not meant to be changed._
+- `run_procedure` contains instructions on what the pipeline does. By default it creates a workflow with `build_workflow` and runs `run_execution`. _Override if you need the pipeline to also process things outside of an EOWorkflow (e.g. combine results)._
+- `run_execution` takes care of logging and execution of the workflow. _It is not meant to be changed._
+- `build_workflow` is a method that builds an `EOWorkflow` that the pipeline executes. _This is the method you usually want to implement._
 
+In fact, when writing a custom pipeline, the majority of cases only need the following:
 - defining the pipeline schema
-- building the workflow
+- defining a custom `build_workflow` method
 - constructing execution arguments (optional)
 - providing filtering logic (optional)
 
@@ -171,32 +176,32 @@ class MyPipeline(Pipeline):
 
 ### Building the Workflow
 
-All pipelines expect an implementation of the `build_workflow` method, where the tasks for running specific work are defined and grouped into a workflow. Usually this consists of (but is not limited to) simple, linearly connected tasks, usually in the form of:
+All pipelines expect an implementation of the `build_workflow` method, where the tasks for running specific work are defined and grouped into a workflow. Many workflows tend to be of form:
 
 1. Load patch
-2. Perform specific task
+2. Perform specific tasks
 3. Save patch and/or results
+
+You can however load from multiple locations, merge patches, process and filter data, save some features and output some others. Anything you can do in `eo-learn` you can do here (but on a larger scale).
 
 ### Constructing Execution Arguments
 
 In some cases, a task requires additional information at runtime, which can be unique per patch, such as the load/save location of a patch, or a specific bbox used to create a patch at the beginning of a pipeline.
 
-For the specific examples mentioned above, the execution argument building step have already been implemented, meaning that for simple pipelines with simple tasks this particular step is optional.
+By default the method `get_execution_arguments` already configures execution arguments for `SaveTask`, `LoadTask`, and `CreateEOPatchTask` with the area manager data.
 
-However, in cases where a custom task requires an extra parameter at runtime, it can be provided by updating the `get_execution_arguments()` method of the `Pipeline` class. The method must set the arguments for each task which expects them, for all patches.
+However, in cases where a custom task requires an extra parameter at runtime, it can be provided by updating the `get_execution_arguments` method of the `Pipeline` class. The method must set the arguments for each task which expects them, for all patches.
 
 ```python
 def get_execution_arguments(self, workflow, patch_list):
-    exec_kwargs = {}
+    exec_kwargs = super().get_execution_arguments(workflow, patch_list)
     nodes = workflow.get_nodes()
-    for name, bbox in patch_list:
-        patch_args = {}
 
+    for patch_name, patch_args in exec_args.items():
         for node in nodes:
             if isinstance(node.task, MyCustomTask):
-                patch_args[node] = dict(**custom_kwargs)
+                patch_args[node] = my_custom_kwargs
 
-        exec_kwargs[name] = patch_args
     return exec_kwargs
 ```
 
