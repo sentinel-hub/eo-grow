@@ -12,28 +12,7 @@ The configurable objects can be further separated into instances of:
 - `Manager`, a helper class with a limited scope.
 - `Pipeline`, a class for execution
 
-Here is the overview so far
-
-```mermaid
-flowchart TD
-    A[eo-grow] -->B(configurable objects)
-    A[eo-grow] -->C(configuration schemas)
-    B --> D{Manager}
-    B --> E{Pipeline}
-    C -.->|initialization| B
-```
-
 `Manager` classes are used to build configurations for specific aspects of the pipeline, such as area, storage, or logging, while the `Pipeline` class accepts the full configuration (pipeline specific + all managers) and contains methods of execution.
-
-```mermaid
-classDiagram
-    class Pipeline{
-      +custom parameters
-      +AreaManager()
-      +StorageManager()
-      +LoggingManager()
-    }
-```
 
 Building a custom object as a subclass of `EOGrowObject` is straighforward, you only need to provide a suitable nested subclass of `EOGrowObject.Schema`, which must always be named `Schema`. For example, a subclass of `Pipeline` should contain a nested subclass of `Pipeline.Schema`, as shown below.
 
