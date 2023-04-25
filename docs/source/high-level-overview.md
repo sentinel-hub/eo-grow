@@ -138,12 +138,14 @@ With the above settings the stdout logs will include `cool_package`, `cooler_pac
 A `Pipeline` is an object focused towards executing a specific `EOWorkflow` over a collection of patches. It represents the interface for managing the data and logging with the use of [managers](#managers), as well as contains instructions for execution in the form of pipeline-specific tasks.
 
 The `Pipeline` class has multiple _run_ methods that appear to have a similar functionality:
+
 - `run` is the main execution method. It sets up logging and error handlers around `run_procedure`. _It is not meant to be changed._
 - `run_procedure` contains instructions on what the pipeline does. By default, it creates a workflow with `build_workflow` and runs `run_execution`. _Override if you need the pipeline to also process things outside of an EOWorkflow (e.g. combine results)._
 - `run_execution` takes care of logging and execution of the workflow. _It is not meant to be changed._
 - `build_workflow` is a method that builds an `EOWorkflow` that the pipeline executes. _This is the method you usually want to implement._
 
 In fact, when writing a custom pipeline, the majority of cases only need the following:
+
 - defining the pipeline schema
 - defining a custom `build_workflow` method
 - constructing execution arguments (optional)
@@ -176,7 +178,7 @@ class MyPipeline(Pipeline):
 
 ### Building the Workflow
 
-All pipelines expect an implementation of the `build_workflow` method, where the tasks for running specific work are defined and grouped into a workflow. Many workflows tend to be of theform:
+All pipelines expect an implementation of the `build_workflow` method, where the tasks for running specific work are defined and grouped into a workflow. Many workflows tend to be of the form:
 
 1. Load patch
 2. Perform specific tasks
