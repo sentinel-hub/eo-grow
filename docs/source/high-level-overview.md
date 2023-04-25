@@ -139,7 +139,7 @@ A `Pipeline` is an object focused towards executing a specific `EOWorkflow` over
 
 The `Pipeline` class has multiple _run_ methods that appear to have a similar functionality:
 - `run` is the main execution method. It sets up logging and error handlers around `run_procedure`. _It is not meant to be changed._
-- `run_procedure` contains instructions on what the pipeline does. By default it creates a workflow with `build_workflow` and runs `run_execution`. _Override if you need the pipeline to also process things outside of an EOWorkflow (e.g. combine results)._
+- `run_procedure` contains instructions on what the pipeline does. By default, it creates a workflow with `build_workflow` and runs `run_execution`. _Override if you need the pipeline to also process things outside of an EOWorkflow (e.g. combine results)._
 - `run_execution` takes care of logging and execution of the workflow. _It is not meant to be changed._
 - `build_workflow` is a method that builds an `EOWorkflow` that the pipeline executes. _This is the method you usually want to implement._
 
@@ -176,7 +176,7 @@ class MyPipeline(Pipeline):
 
 ### Building the Workflow
 
-All pipelines expect an implementation of the `build_workflow` method, where the tasks for running specific work are defined and grouped into a workflow. Many workflows tend to be of form:
+All pipelines expect an implementation of the `build_workflow` method, where the tasks for running specific work are defined and grouped into a workflow. Many workflows tend to be of theform:
 
 1. Load patch
 2. Perform specific tasks
@@ -188,7 +188,7 @@ You can however load from multiple locations, merge patches, process and filter 
 
 In some cases, a task requires additional information at runtime, which can be unique per patch, such as the load/save location of a patch, or a specific bbox used to create a patch at the beginning of a pipeline.
 
-By default the method `get_execution_arguments` already configures execution arguments for `SaveTask`, `LoadTask`, and `CreateEOPatchTask` with the area manager data.
+By default, the method `get_execution_arguments` already configures execution arguments for `SaveTask`, `LoadTask`, and `CreateEOPatchTask` with the area manager data.
 
 However, in cases where a custom task requires an extra parameter at runtime, it can be provided by updating the `get_execution_arguments` method of the `Pipeline` class. The method must set the arguments for each task which expects them, for all patches.
 
@@ -209,9 +209,9 @@ def get_execution_arguments(self, workflow, patch_list):
 
 Filtering logic is an optional part of the pipeline class and provides information on which patches to skip, in case they have already been processed. This is controlled via the `skip_existing` parameter in the [pipeline schema](#defining-the-pipeline-schema).
 
-The filtering logic can be provided with the `filter_patch_list()` method and depends very much on the what the user's definiton of "already processed" is. It could simply mean an existing patch directory in the storage, but it could depend on wheter some expected output is present or not.
+The filtering logic can be provided with the `filter_patch_list` method and depends very much on the what the user's definiton of "already processed" is. It could simply mean an existing patch directory in the storage, but it could depend on wheter some expected output is present or not.
 
-Most commonly this boils down to checking for feature presence for all eopatches, and returning a list of patches where some/all features are missing. For this specific case we provide a utility method `get_patches_with_missing_features()` under `eogrow.utils.filter. The utility usage could look along the lines of:
+Most commonly this boils down to checking for feature presence for all eopatches, and returning a list of patches where some/all features are missing. For this specific case we provide a utility method `get_patches_with_missing_features` under `eogrow.utils.filter. The utility usage could look along the lines of:
 
 ```python
 def filter_patch_list(self, patch_list):
