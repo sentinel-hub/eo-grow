@@ -40,7 +40,7 @@ test_patches_option = click.option(
 @click.argument("config_path", type=click.Path())
 @variables_option
 @test_patches_option
-def run_pipeline(config_path: str, cli_variables: Tuple[str], test_patches: Tuple[int]) -> None:
+def run_pipeline(config_path: str, cli_variables: Tuple[str, ...], test_patches: Tuple[int, ...]) -> None:
     """Execute eo-grow pipeline using CLI.
 
     \b
@@ -105,8 +105,8 @@ def run_pipeline_on_cluster(
     stop_cluster: bool,
     use_screen: bool,
     use_tmux: bool,
-    cli_variables: Tuple[str],
-    test_patches: Tuple[int],
+    cli_variables: Tuple[str, ...],
+    test_patches: Tuple[int, ...],
 ) -> None:
     """Command for running an eo-grow pipeline on a remote Ray cluster of AWS EC2 instances. The provided config is
     fully constructed and uploaded to the cluster head in the `~/.synced_configs/` directory, where it is then
