@@ -15,7 +15,8 @@
     "manager": "eogrow.core.logging.LoggingManager",
     "save_logs": true,
     "show_logs": true,
-    "capture_warnings": false
+    "capture_warnings": false,
+    "pipeline_ignore_packages": ["...", "annoying-hypothethical-package"]
   },
   "storage": {
     "manager": "eogrow.core.storage.StorageManager",

@@ -46,7 +46,7 @@ class LoggingManager(EOGrowObject):
                 "with larger number of EOPatches the recommended option is False."
             ),
         )
-        eoexecution_ignore_packages: Tuple[str] = Field(
+        eoexecution_ignore_packages: Tuple[str, ...] = Field(
             (DEFAULT_PACKAGES_TOKEN,),
             description=(
                 "Names of packages for which the logs will not be written to EOExecution log files. You can reference"
@@ -54,7 +54,7 @@ class LoggingManager(EOGrowObject):
             ),
         )
 
-        pipeline_ignore_packages: Tuple[str] = Field(
+        pipeline_ignore_packages: Tuple[str, ...] = Field(
             (DEFAULT_PACKAGES_TOKEN,),
             description=(
                 "Names of packages for which the logs will not be written to the main pipeline log file. You can"
@@ -71,7 +71,7 @@ class LoggingManager(EOGrowObject):
         )
 
         show_logs: bool = Field(False, description="Shows basic pipeline execution logs at stdout.")
-        stdout_log_packages: Tuple[str] = Field(
+        stdout_log_packages: Tuple[str, ...] = Field(
             (DEFAULT_PACKAGES_TOKEN,),
             description=(
                 "Names of packages for which the logs will be written to stdout. You can reference the defaults with"
