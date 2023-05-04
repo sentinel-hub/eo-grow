@@ -127,6 +127,8 @@ def run_pipeline_on_cluster(
 
     with NamedTemporaryFile(mode="w", delete=True, suffix=".json") as local_path:
         json.dump(raw_configs, local_path)
+        local_path.flush()  # without this the sync can happen before the file content is written
+
         subprocess.run(f"ray rsync_up {cluster_yaml} {local_path.name!r} {remote_path!r}", shell=True)
 
     cmd = (
