@@ -170,7 +170,7 @@ class FeaturesPipeline(Pipeline):
         """Builds a node for constructing Normalized Difference Indices"""
 
         for name, (id1, id2) in self.config.ndis.items():
-            ndi_task = NormalizedDifferenceIndexTask(self._get_bands_feature(), (FeatureType.DATA, name), [id1, id2])
+            ndi_task = NormalizedDifferenceIndexTask(self._get_bands_feature(), (FeatureType.DATA, name), (id1, id2))
             previous_node = EONode(ndi_task, inputs=[previous_node])
 
         return previous_node
