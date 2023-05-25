@@ -177,7 +177,7 @@ def merge_tiffs(
         gdalwarp_options += f" -r {warp_resampling}"
 
     if nodata is not None:
-        gdalwarp_options += f' -dstnodata "{nodata}"'  # noqa B028
+        gdalwarp_options += f' -dstnodata "{nodata}"'  # B028
 
     if dtype is not None:
         gdalwarp_options += f" -ot {GDAL_DTYPE_SETTINGS[dtype]}"

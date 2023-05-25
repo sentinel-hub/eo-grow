@@ -33,7 +33,7 @@ class AreaSchema(BaseSchema):
     )
 
 
-def area_schema_deprecation(cls: type, value: Optional[str], values: RawSchemaDict) -> str:
+def area_schema_deprecation(cls: type, value: Optional[str], values: RawSchemaDict) -> str:  # noqa: ARG001
     """Warns and reconfigures when `area` is used instead of `geometry_filename`."""
     if values.get("area") is not None:
         warnings.warn(

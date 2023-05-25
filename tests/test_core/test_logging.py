@@ -40,7 +40,7 @@ def _create_new_s3_fs():
 @pytest.mark.parametrize(
     "logs_handler_factory", [EOExecutionHandler, functools.partial(RegularBackupHandler, backup_interval=0.01)]
 )
-@pytest.mark.parametrize("workers, multiprocess", [(1, False), (3, False), (3, True)])
+@pytest.mark.parametrize(("workers", "multiprocess"), [(1, False), (3, False), (3, True)])
 def test_logging_with_eoexecutor(fs_loader, logs_handler_factory, workers, multiprocess):
     """Run EOExecutor and check if reporting and logging was successful"""
     if fs_loader is _create_new_s3_fs and multiprocess:

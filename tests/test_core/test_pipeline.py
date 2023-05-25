@@ -51,7 +51,7 @@ def test_pipeline_execution(simple_config_filename: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "test_subset, expected_result",
+    ("test_subset", "expected_result"),
     [
         ([], []),
         (

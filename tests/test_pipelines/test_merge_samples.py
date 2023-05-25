@@ -5,10 +5,10 @@ from eogrow.utils.testing import compare_content, run_config
 pytestmark = pytest.mark.integration
 
 
-@pytest.mark.chain
+@pytest.mark.chain()
 @pytest.mark.order(after="test_features.py::test_features_pipeline")
 @pytest.mark.parametrize(
-    "experiment_name, reset_folder",
+    ("experiment_name", "reset_folder"),
     [("merge_features_samples", True), ("merge_reference_samples", False)],
 )
 def test_merge_samples_pipeline(config_and_stats_paths, experiment_name, reset_folder):

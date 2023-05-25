@@ -82,7 +82,7 @@ def test_get_grid_caching(storage: StorageManager) -> None:
 
 
 @pytest.mark.parametrize(
-    "patch_list, expected_bboxes",
+    ("patch_list", "expected_bboxes"),
     [
         ([], []),
         (None, list(zip(DummyAreaManager.NAMES, DummyAreaManager.BBOXES))),

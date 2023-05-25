@@ -149,16 +149,16 @@ select = [
     "G",   # logging format
     "PIE", # flake8-pie
     "T20", # print statements
-    # "PT",  # pytest style
+    "PT",  # pytest style
     "RET", # returns
-    # "SLF", # private member access
+    "SLF", # private member access
     "SIM", # simplifications
-    # "ARG", # unused arguments
-    # "PD",  # pandas
-    # "PGH", # pygrep hooks (useless noqa comments, eval statements etc.)
-    # "FLY", # flynt
-    # "RUF", # ruff rules
-    # "NPY", # numpy
+    "ARG", # unused arguments
+    "PD",  # pandas
+    "PGH", # pygrep hooks (useless noqa comments, eval statements etc.)
+    "FLY", # flynt
+    "RUF", # ruff rules
+    "NPY", # numpy
     # "I",   # isort
     # "UP",  # pyupgrade
     # "FA",  # checks where future import of annotations would make types nicer

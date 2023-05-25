@@ -19,6 +19,8 @@ from .meta import collect_schema, import_object
 if TYPE_CHECKING:
     from ..core.schemas import ManagerSchema
 
+# ruff: noqa: ARG001
+
 
 def field_validator(field: str, validator_fun: Callable, allow_reuse: bool = True, **kwargs: Any) -> classmethod:
     """Sugared syntax for the `validator` decorator of `pydantic`"""

@@ -50,7 +50,7 @@ def request_mock_setup(requests_mock):
     return requests_mock
 
 
-@pytest.fixture(scope="function", name="area_config")
+@pytest.fixture(name="area_config")
 def area_config_fixture():
     return {
         "manager": "eogrow.core.area.BatchAreaManager",
@@ -76,8 +76,9 @@ def test_no_batch_id_error(storage, area_config):
         manager.get_grid()
 
 
-@pytest.mark.integration
-def test_grid(storage, area_config, configured_requests_mock):
+@pytest.mark.integration()
+@pytest.mark.usefixtures("configured_requests_mock")
+def test_grid(storage, area_config):
     manager = BatchAreaManager.from_raw_config(area_config, storage)
 
     bboxes = [BBox((0, 0, 1, 1), CRS.WGS84), BBox((1, 1, 2, 2), CRS.WGS84), BBox((0, 0, 1, 1), CRS(3035))]

@@ -14,6 +14,8 @@ from ..types import BoolOrAuto, ImportPath
 from ..utils.validators import field_validator, validate_manager
 from .base import EOGrowObject
 
+# ruff: noqa: SLF001
+
 BaseSchema = EOGrowObject.Schema
 
 

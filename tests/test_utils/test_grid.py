@@ -7,12 +7,12 @@ from eogrow.utils.grid import split_bbox
 
 
 @pytest.mark.parametrize(
-    "bbox, split_x, split_y, buffer_x, buffer_y",
-    (
-        [BBox((10, 10, 20, 20), CRS.WGS84), 2, 3, 0, 0],
-        [BBox((1000, 500, 2000, 800), CRS(32612)), 5, 2, 50, 100],
-        [BBox((0.3, 5.2, 12.234, 7.2315), CRS.WGS84), 1, 3, 0.2, 0],
-    ),
+    ("bbox", "split_x", "split_y", "buffer_x", "buffer_y"),
+    [
+        (BBox((10, 10, 20, 20), CRS.WGS84), 2, 3, 0, 0),
+        (BBox((1000, 500, 2000, 800), CRS(32612)), 5, 2, 50, 100),
+        (BBox((0.3, 5.2, 12.234, 7.2315), CRS.WGS84), 1, 3, 0.2, 0),
+    ],
 )
 def test_split_bbox_basics(bbox: BBox, split_x: int, split_y: int, buffer_x: float, buffer_y: float) -> None:
     """Checks that the split produces correct amount of bboxes and that the geometries cover the original."""

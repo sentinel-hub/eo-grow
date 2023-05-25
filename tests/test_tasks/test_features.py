@@ -9,13 +9,13 @@ ZEROES = np.zeros((1, 100, 100))
 ONES = np.ones((1, 100, 100))
 NOT_SYMMETRICAL = np.array([x % 3 == 0 for x in range(1000)]).reshape(10, 10, 10)
 MIX = np.concatenate([np.zeros((10000)), np.ones((10000))])
-np.random.shuffle(MIX)
+np.random.default_rng().shuffle(MIX)
 MIX.reshape(2, 100, 100)
 MIX_BOOL = MIX.astype(bool)
 
 
 @pytest.mark.parametrize(
-    "threshold, test_cases",
+    ("threshold", "test_cases"),
     [
         (0.0, [(ZEROES, False), (NOT_SYMMETRICAL, True), (MIX, True), (MIX_BOOL, True), (ONES, True)]),
         (0.49, [(ZEROES, False), (NOT_SYMMETRICAL, False), (MIX, True), (MIX_BOOL, True), (ONES, True)]),
