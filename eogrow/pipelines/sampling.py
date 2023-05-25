@@ -47,14 +47,12 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
 
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """Filter output EOPatches that have already been processed"""
-        filtered_patch_list = get_patches_with_missing_features(
+        return get_patches_with_missing_features(
             self.storage.filesystem,
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
             self._get_output_features(),
         )
-
-        return filtered_patch_list
 
     def build_workflow(self) -> EOWorkflow:
         """Creates workflow that is divided into the following sub-parts:

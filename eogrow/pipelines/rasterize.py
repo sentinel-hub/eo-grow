@@ -118,14 +118,12 @@ class RasterizePipeline(Pipeline):
             self.vector_feature = (ftype, f"TEMP_{uuid.uuid4().hex}")
 
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
-        filtered_patch_list = get_patches_with_missing_features(
+        return get_patches_with_missing_features(
             self.storage.filesystem,
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
             self._get_output_features(),
         )
-
-        return filtered_patch_list
 
     def run_procedure(self) -> Tuple[List[str], List[str]]:
         if self.filename is not None and self.config.preprocess_dataset is not None:

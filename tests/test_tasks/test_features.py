@@ -23,7 +23,7 @@ MIX_BOOL = MIX.astype(bool)
         (1.0, [(ZEROES, False), (NOT_SYMMETRICAL, False), (MIX, False), (MIX_BOOL, False), (ONES, False)]),
     ],
 )
-def test_ValidDataFractionPredicate(threshold: float, test_cases: List[Tuple[np.ndarray, bool]]) -> None:
+def test_valid_data_fraction_predicate(threshold: float, test_cases: List[Tuple[np.ndarray, bool]]) -> None:
     test_predicate = ValidDataFractionPredicate(threshold)
     for case in test_cases:
         assert test_predicate(case[0]) == case[1]

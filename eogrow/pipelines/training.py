@@ -101,9 +101,7 @@ class BaseTrainingPipeline(Pipeline, metaclass=abc.ABCMeta):
         features, reference = self.preprocess_data(features, reference)
 
         data_split = self.train_test_split(features, reference)
-        prepared_data = dict(zip(["features_train", "features_test", "reference_train", "reference_test"], data_split))
-
-        return prepared_data
+        return dict(zip(["features_train", "features_test", "reference_train", "reference_test"], data_split))
 
     def _collect_features(self) -> np.ndarray:
         """Prepares features"""

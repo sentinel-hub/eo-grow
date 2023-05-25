@@ -133,26 +133,26 @@ line_length = 120
 line-length = 120
 target-version = "py38"
 select = [
-    # "F",   # pyflakes
-    # "E",   # pycodestyle
-    # "W",   # pycodestyle
-    # "C90", # mccabe
-    # "N",   # naming
-    # "YTT", # flake-2020
-    # "B",   # bugbear
-    # "A",   # built-ins
-    # "COM", # commas
-    # "C4",  # comprehensions
-    # "T10", # debugger statements
-    # "ISC", # implicit string concatenation
-    # "ICN", # import conventions
-    # "G",   # logging format
-    # "PIE", # flake8-pie
-    # "T20", # print statements
+    "F",   # pyflakes
+    "E",   # pycodestyle
+    "W",   # pycodestyle
+    "C90", # mccabe
+    "N",   # naming
+    "YTT", # flake-2020
+    "B",   # bugbear
+    "A",   # built-ins
+    "COM", # commas
+    "C4",  # comprehensions
+    "T10", # debugger statements
+    "ISC", # implicit string concatenation
+    "ICN", # import conventions
+    "G",   # logging format
+    "PIE", # flake8-pie
+    "T20", # print statements
     # "PT",  # pytest style
-    # "RET", # returns
+    "RET", # returns
     # "SLF", # private member access
-    # "SIM", # simplifications
+    "SIM", # simplifications
     # "ARG", # unused arguments
     # "PD",  # pandas
     # "PGH", # pygrep hooks (useless noqa comments, eval statements etc.)
@@ -179,6 +179,7 @@ ignore = [
     "A003",   # complains when ATTRIBUTES shadow builtins, we have objects that implement `filter` and such
     "COM812", # trailing comma missing, fights with black
     "PD011",  # suggests `.to_numpy` instead of `.values`, also does this for non-pandas objects...
+    "N805", # complains about first arguments not being self, but pydantic validators are like that...
     # potentially fixable
     "B904",  # want `raise ... from None` instead of just `raise ...`
     "B028",  # always demands a stacklevel argument when warning

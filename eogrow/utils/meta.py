@@ -22,8 +22,7 @@ def load_pipeline_class(config: dict) -> Type[Pipeline]:
     if pipeline_class_name is None:
         raise ValueError(f"Config file is missing `{_PIPELINE_PARAM_NAME}` parameter, don't know which pipeline to use")
 
-    pipeline_class = import_object(pipeline_class_name)
-    return pipeline_class
+    return import_object(pipeline_class_name)
 
 
 def collect_schema(class_with_schema: Type) -> Type[BaseSchema]:

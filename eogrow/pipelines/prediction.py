@@ -70,15 +70,12 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
 
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """EOPatches are filtered according to existence of specified output features"""
-
-        filtered_patch_list = get_patches_with_missing_features(
+        return get_patches_with_missing_features(
             self.storage.filesystem,
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
             self._get_output_features(),
         )
-
-        return filtered_patch_list
 
     def build_workflow(self) -> EOWorkflow:
         """Workflow handling the prediction for eopatches.
