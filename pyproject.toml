@@ -223,7 +223,13 @@ plugins = ["pydantic.mypy"]
 init_typed = true
 
 [tool.nbqa.addopts]
-flake8 = ["--extend-ignore=E402"]
+ruff = ["--extend-ignore=E402,T201,B015,B018,NPY002,UP,FA"]
+# E402 -> imports on top
+# T201 -> print found
+# B015 & B018 -> useless expression (used to show values in ipynb)
+# NPY002 -> use RNG instead of old numpy.random
+# UP -> suggestions for new-style classes (future import might confuse readers)
+# FA -> necessary future annotations import
 
 [tool.coverage.run]
 source = ["eogrow"]
