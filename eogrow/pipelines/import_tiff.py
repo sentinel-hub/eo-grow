@@ -63,13 +63,12 @@ class ImportTiffPipeline(Pipeline):
 
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """EOPatches are filtered according to existence of new features."""
-        filtered_patch_list = get_patches_with_missing_features(
+        return get_patches_with_missing_features(
             self.storage.filesystem,
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
             [self.config.output_feature, FeatureType.BBOX],
         )
-        return filtered_patch_list
 
     def build_workflow(self) -> EOWorkflow:
         create_eopatch_node = EONode(CreateEOPatchTask())

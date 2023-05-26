@@ -83,8 +83,7 @@ class Pipeline(EOGrowObject):
         if manager_config.manager is None:
             raise ValueError("Unable to load manager, field `manager` specifying it's class is missing.")
         manager_class = import_object(manager_config.manager)
-        manager = manager_class(manager_config, **manager_params)
-        return manager
+        return manager_class(manager_config, **manager_params)
 
     def get_pipeline_execution_name(self, pipeline_timestamp: str) -> str:
         """Returns the full name of the pipeline execution"""

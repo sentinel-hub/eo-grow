@@ -15,7 +15,7 @@ def dummy_eopatch() -> EOPatch:
 
 
 @pytest.mark.parametrize(
-    "feature_type, shape, dtype, min_value, max_value",
+    ("feature_type", "shape", "dtype", "min_value", "max_value"),
     [
         (FeatureType.DATA, (10, 20, 21, 5), np.float32, -3, -1),
         (FeatureType.DATA_TIMELESS, (20, 21, 1), int, -10, 5),

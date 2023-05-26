@@ -73,14 +73,12 @@ class ZipMapPipeline(Pipeline):
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """EOPatches are filtered according to existence of new features"""
         # Note: does not catch missing BBox or Timestamp
-        filtered_patch_list = get_patches_with_missing_features(
+        return get_patches_with_missing_features(
             self.storage.filesystem,
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
             [self.config.output_feature],
         )
-
-        return filtered_patch_list
 
     def get_load_nodes(self) -> List[EONode]:
         """Prepare all nodes with load tasks."""

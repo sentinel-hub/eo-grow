@@ -117,11 +117,13 @@ def test_ensure_defined_together():
         _check_params = ensure_defined_together("param1", "param2")
 
     schema1 = DummySchema()
-    assert schema1.param1 is None and schema1.param2 is None
+    assert schema1.param1 is None
+    assert schema1.param2 is None
     schema2 = DummySchema(param1=2, param2=7.8)
-    assert schema2.param1 == 2 and schema2.param2 == 7.8
+    assert schema2.param1 == 2
+    assert schema2.param2 == 7.8
+
     with pytest.raises(ValidationError):
-        DummySchema()
         DummySchema(param1=0)
     with pytest.raises(ValidationError):
         DummySchema(param2=2.5)
@@ -132,15 +134,17 @@ def test_ensure_defined_together():
         _check_params = ensure_defined_together("param1", "param2")
 
     schema3 = DummySchema2(param2="0.87")
-    assert schema3.param1 == 2 and schema3.param2 == 0.87
+    assert schema3.param1 == 2
+    assert schema3.param2 == 0.87
     schema4 = DummySchema2(param1=None)
-    assert schema4.param1 is None and schema4.param2 is None
+    assert schema4.param1 is None
+    assert schema4.param2 is None
     with pytest.raises(ValidationError):
         DummySchema2()
 
 
 @pytest.mark.parametrize(
-    "folder_key,raises_error", [("input_data", False), ("i_exist", False), ("i_do_not_exist", True), (None, False)]
+    ("folder_key", "raises_error"), [("input_data", False), ("i_exist", False), ("i_do_not_exist", True), (None, False)]
 )
 def test_ensure_storage_key_presence(config, folder_key, raises_error):
     class DummySchema(Pipeline.Schema):
@@ -165,7 +169,7 @@ def test_ensure_storage_key_presence_optional_precedence(config):
 
 
 @pytest.mark.parametrize(
-    "time_period,year,expected_start_date,expected_end_date",
+    ("time_period", "year", "expected_start_date", "expected_end_date"),
     [
         ("yearly", 2020, "2020-01-01", "2020-12-31"),
         ("Q2", 2021, "2021-04-01", "2021-06-30"),
@@ -194,7 +198,7 @@ def test_parse_dtype(dtype_input: Union[str, type, np.dtype]):
 
 
 @pytest.mark.parametrize(
-    "manager_input, succeeds",
+    ("manager_input", "succeeds"),
     [
         ("eogrow.core.area.UtmZoneAreaManager", False),  # not a dict
         ({"wrong_field", "eogrow.core.area.UtmZoneAreaManager"}, False),
@@ -243,7 +247,7 @@ def test_validate_manager(manager_input: RawSchemaDict, succeeds: bool):
 
 
 @pytest.mark.parametrize(
-    "collection_input, is_byoc, is_batch",
+    ("collection_input", "is_byoc", "is_batch"),
     [
         ("SENTINEL2_L2A", False, False),
         ("SENTINEL3_SLSTR", False, False),

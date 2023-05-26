@@ -61,7 +61,7 @@ class MergeSamplesPipeline(Pipeline):
 
         result_patches = [cast(EOPatch, result.outputs.get(self._OUTPUT_NAME)) for result in results]
 
-        self.merge_and_save_features(result_patches, patch_names=successful)
+        self.merge_and_save_features(result_patches)
 
         return successful, failed
 
@@ -77,7 +77,7 @@ class MergeSamplesPipeline(Pipeline):
         output_task = OutputTask(name=self._OUTPUT_NAME)
         return EOWorkflow(linearly_connect_tasks(load_task, output_task))
 
-    def merge_and_save_features(self, patches: List[EOPatch], patch_names: List[str]) -> None:
+    def merge_and_save_features(self, patches: List[EOPatch]) -> None:
         """Merges features from EOPatches and saves data"""
         patch_sample_nums = None
 

@@ -6,7 +6,6 @@ import rasterio
 from fs.base import FS
 from fs.tempfs import TempFS
 from numpy.testing import assert_array_almost_equal
-from pytest import approx
 
 from eolearn.core import EOPatch, FeatureType
 from eolearn.io import ExportToTiffTask
@@ -48,14 +47,14 @@ class TestCogify:
         return filesystem.getsyspath("output.tif")
 
     @pytest.mark.parametrize("dtype", GDAL_DTYPE_SETTINGS)
-    @pytest.mark.parametrize("block", (1024, 128))
-    @pytest.mark.parametrize("nodata", (None, 0, 11))
+    @pytest.mark.parametrize("block", [1024, 128])
+    @pytest.mark.parametrize("nodata", [None, 0, 11])
     def test_cogify(self, input_path: str, output_path: str, nodata: Optional[float], dtype: str, block: int) -> None:
         cogify(input_path, output_path, nodata=nodata, dtype=dtype, blocksize=block, overwrite=True)
         self._test_output_file(output_path, nodata, dtype, block)
 
     @pytest.mark.parametrize(
-        "dtype, resampling", [("float32", "AVERAGE"), ("int16", "MODE"), ("float32", "BILINEAR"), ("uint8", None)]
+        ("dtype", "resampling"), [("float32", "AVERAGE"), ("int16", "MODE"), ("float32", "BILINEAR"), ("uint8", None)]
     )
     def test_cogify_resampling(
         self, input_path: str, output_path: str, dtype: str, resampling: CogifyResamplingOptions
@@ -63,9 +62,9 @@ class TestCogify:
         cogify(input_path, output_path, dtype=dtype, resampling=resampling, overwrite=True)
         self._test_output_file(output_path, None, dtype, 1024)
 
-    @pytest.mark.parametrize("dtype", ("float32", "uint8"))
-    @pytest.mark.parametrize("block", (1024, 128))
-    @pytest.mark.parametrize("nodata", (None, 11))
+    @pytest.mark.parametrize("dtype", ["float32", "uint8"])
+    @pytest.mark.parametrize("block", [1024, 128])
+    @pytest.mark.parametrize("nodata", [None, 11])
     def test_cogify_inplace(self, input_path: str, nodata: Optional[float], dtype: str, block: int) -> None:
         cogify_inplace(input_path, nodata=nodata, dtype=dtype, blocksize=block)
         self._test_output_file(input_path, nodata, dtype, block)
@@ -75,7 +74,8 @@ class TestCogify:
         with rasterio.open(path) as src:
             assert src.block_shapes[0] == (blocksize, blocksize)
             for tiff_dtype, tiff_nodata in zip(src.dtypes, src.nodatavals):
-                assert tiff_dtype == dtype and tiff_nodata == nodata
+                assert tiff_dtype == dtype
+                assert tiff_nodata == nodata
                 assert len(set(src.block_shapes)) == 1, "tiff has multiple blocksizes"
 
 
@@ -100,7 +100,7 @@ class TestMerge:
         return output
 
     @pytest.mark.parametrize(
-        "nodata, dtype",
+        ("nodata", "dtype"),
         [
             (None, "float32"),
             (0, "float32"),
@@ -116,7 +116,8 @@ class TestMerge:
 
         with rasterio.open(output_path) as src:
             for tiff_dtype, tiff_nodata in zip(src.dtypes, src.nodatavals):
-                assert tiff_dtype == dtype and tiff_nodata == approx(nodata)
+                assert tiff_dtype == dtype
+                assert tiff_nodata == pytest.approx(nodata)
             output = np.moveaxis(src.read(), 0, -1)
             assert_array_almost_equal(output, self._expected_output(nodata))
 

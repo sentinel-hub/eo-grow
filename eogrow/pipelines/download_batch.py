@@ -262,7 +262,7 @@ class BatchDownloadPipeline(Pipeline):
                 f"{self.area_manager.config.batch_id} but {self.__class__.__name__} is using batch request with ID "
                 f"{request_id}. Make sure that you use the same IDs."
             )
-        self.area_manager._injected_batch_id = request_id
+        self.area_manager._injected_batch_id = request_id  # noqa: SLF001
 
         self.area_manager.get_grid()  # this caches the grid for later use
 

@@ -22,8 +22,7 @@ def load_pipeline_class(config: dict) -> Type[Pipeline]:
     if pipeline_class_name is None:
         raise ValueError(f"Config file is missing `{_PIPELINE_PARAM_NAME}` parameter, don't know which pipeline to use")
 
-    pipeline_class = import_object(pipeline_class_name)
-    return pipeline_class
+    return import_object(pipeline_class_name)
 
 
 def collect_schema(class_with_schema: Type) -> Type[BaseSchema]:
@@ -73,8 +72,10 @@ def get_os_import_path(import_path: str) -> str:
     """
     module_spec = importlib.util.find_spec(import_path)
     if module_spec is not None and module_spec.origin is not None:
+        if module_spec.origin == "frozen":  # python 3.11 optimizations preload certain core modules
+            raise ValueError(f"Given import path {import_path!r} belongs to a 'frozen' module, no path available.")
         return module_spec.origin
-    raise ValueError(f"Given import path {import_path} not found")
+    raise ValueError(f"Given import path {import_path!r} not found")
 
 
 def get_package_versions() -> Dict[str, str]:

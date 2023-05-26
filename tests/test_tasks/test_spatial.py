@@ -8,7 +8,7 @@ from eogrow.tasks.spatial import get_array_slices
 
 
 @pytest.mark.parametrize(
-    "input_params, expected",
+    ("input_params", "expected"),
     [
         pytest.param(
             {
