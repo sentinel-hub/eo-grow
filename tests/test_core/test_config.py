@@ -116,7 +116,7 @@ def test_cyclic_config_error(temp_folder):
             interpret_config_from_path(path)
 
 
-CONFIG_WITH_IMPORT_PATHS = {"eogrow": "${import_path:eogrow}/xy", "other": ["${import_path:os.path}"]}
+CONFIG_WITH_IMPORT_PATHS = {"eogrow": "${import_path:eogrow}/xy", "other": ["${import_path:pytest}"]}
 
 
 def test_parsing_import_paths():
@@ -124,7 +124,7 @@ def test_parsing_import_paths():
 
     expected_dict = {
         "eogrow": os.path.dirname(get_os_import_path("eogrow")) + "/xy",
-        "other": [os.path.dirname(get_os_import_path("os.path"))],
+        "other": [os.path.dirname(get_os_import_path("pytest"))],
     }
     assert config == expected_dict
 
