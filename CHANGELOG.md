@@ -1,10 +1,10 @@
 
-## [Version 1.5.1] - 2023-5-3
+## [Version 1.5.1] - 2023-05-03
 
 - Fix bug in `LoggingManager.Schema` where `Tuple[str]` was used instead of `Tuple[str, ...]` for certain fields, preventing parsing of correct configurations.
 
 
-## [Version 1.5.0] - 2023-4-25
+## [Version 1.5.0] - 2023-04-25
 
 - (**code-breaking**) Simplified `RasterizePipeline` and improve rasterization of temporal vectors.
 - (**code-breaking**) Area managers no longer offer AOI modification in the `area` parameter. It has been replaced with a simpler `filename` field. We added a rerouting parser, so old configs should work for a while longer.
@@ -25,7 +25,7 @@
 - Various minor improvements.
 
 
-## [Version 1.4.0] - 2023-1-26
+## [Version 1.4.0] - 2023-01-26
 
 - (**code-breaking**) Large changes to area managers. See PR https://github.com/sentinel-hub/eo-grow/pull/168
     * EOPatch manager functionality was merged to area managers. EOPatch managers were removed.
@@ -63,13 +63,13 @@
 - Improvements to CI, added pre-commit hooks to the repository
 
 
-## [Version 1.3.1] - 2022-31-8
+## [Version 1.3.1] - 2022-31-08
 
 - BYOC ingestion pipeline is better at handling CRS objects
 - Becaue `pydantic` now type-checks default factories two custom factories `list_factory` and `dict_factory` have been added, because using just `list` currently clashes with fields of kind `List[int]`.
 
 
-## [Version 1.3.0] - 2022-30-8
+## [Version 1.3.0] - 2022-30-08
 
 - Added `IngestByocTiles` pipeline, which creates or updates a BYOC collection from maps exported via `ExportMapsPipeline`.
 - Greatly improved `DataCollection` parser, which can now parse `DataCollectionSchema` objects instead of just names.
@@ -82,7 +82,7 @@
 - `RasterizePipeline` now has an additional `raster_shape` parameter.
 
 
-## [Version 1.2.0] - 2022-27-7
+## [Version 1.2.0] - 2022-27-07
 
 - Fixed a bug in `BatchToEOPatchPipeline` where temporal dimension of some imported features could be reversed. Memory-optimization functionalities have been reverted.
 - Improved the way `filesystem` object is passed to EOTasks in EOWorkflows. These changes are a consequence of changes in `eo-learn==1.2.0`.
@@ -93,7 +93,7 @@
 - Improvements in code-style checkers and CI.
 
 
-## [Version 1.1.1] - 2022-14-6
+## [Version 1.1.1] - 2022-14-06
 
 - Support session sharing in download pipelines.
 - Improved `BatchAreaManager` bounding boxes.
@@ -104,7 +104,7 @@
 - Many minor improvements and fixes in code, tests, and documentation.
 
 
-## [Version 1.1.0] - 2022-3-5
+## [Version 1.1.0] - 2022-03-05
 
 - Large changes in config objects and schemas:
   * replaced `Config` object with config utility functions `collect_configs_from_path`, `interpret_config_from_dict`, and `interpret_config_from_path`,
@@ -142,6 +142,6 @@
 - Many minor improvements and fixes in code, tests, and documentation.
 
 
-## [Version 1.0.0] - 2022-2-10
+## [Version 1.0.0] - 2022-02-10
 
 First release of the `eo-grow` package.
