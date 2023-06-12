@@ -70,26 +70,6 @@ def run_pipeline(config_path: str, cli_variables: Tuple[str, ...], test_patches:
     "--start", "start_cluster", is_flag=True, type=bool, help="Starts the cluster if it is not currently running."
 )
 @click.option(
-    "--stop",
-    "stop_cluster",
-    is_flag=True,
-    type=bool,
-    help=(
-        "Stops the cluster if after running the pipeline. In order for this to work got to AWS console "
-        "-> IAM -> Roles -> select ray-autoscaler-v1 role and attach IAMReadOnlyAccess policy."
-    ),
-)
-@click.option(
-    "--screen",
-    "use_screen",
-    is_flag=True,
-    type=bool,
-    help=(
-        "Run the cluster in a detached mode using screen software. Use Ctrl+A+D to detach any time, "
-        "even when running a pipeline or a Jupyter notebook. Use Ctrl+D to terminate the remote screen."
-    ),
-)
-@click.option(
     "--tmux",
     "use_tmux",
     is_flag=True,
@@ -102,8 +82,6 @@ def run_pipeline_on_cluster(
     config_path: str,
     cluster_yaml: str,
     start_cluster: bool,
-    stop_cluster: bool,
-    use_screen: bool,
     use_tmux: bool,
     cli_variables: Tuple[str, ...],
     test_patches: Tuple[int, ...],
@@ -119,9 +97,6 @@ def run_pipeline_on_cluster(
     if start_cluster:
         start_cluster_if_needed(cluster_yaml)
 
-    if stop_cluster and (use_screen or use_tmux):
-        raise NotImplementedError("It is not clear how to combine stop flag with either screen or tmux flag")
-
     raw_configs = [interpret_config_from_dict(config) for config in collect_configs_from_path(config_path)]
     remote_path = generate_cluster_config_path(config_path)
 
@@ -135,10 +110,8 @@ def run_pipeline_on_cluster(
         f"eogrow {remote_path}"
         + "".join(f' -v "{cli_var_spec}"' for cli_var_spec in cli_variables)  # B028
         + "".join(f" -t {patch_index}" for patch_index in test_patches)
-        + ("; " if stop_cluster else "")  # Otherwise, ray will incorrectly prepare a command for stopping a cluster
     )
-    flag_info = [("stop", stop_cluster), ("screen", use_screen), ("tmux", use_tmux)]
-    exec_flags = " ".join(f"--{flag_name}" for flag_name, use_flag in flag_info if use_flag)
+    exec_flags = "--tmux" if use_tmux else ""
 
     subprocess.run(f"ray exec {exec_flags} {cluster_yaml} {cmd!r}", shell=True)  # B028
 
