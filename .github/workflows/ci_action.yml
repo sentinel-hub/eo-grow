@@ -100,7 +100,11 @@ jobs:
           sentinelhub.config \
             --sh_client_id "${{ secrets.SH_CLIENT_ID }}" \
             --sh_client_secret "${{ secrets.SH_CLIENT_SECRET }}"
-          pytest -m "chain or not integration" --cov --cov-report=term --cov-report=xml
+          if [ ${{ github.event_name }} == 'push' ]; then
+            pytest -m "chain or not integration" --cov --cov-report=term --cov-report=xml
+          else
+            pytest -m "chain or not integration"
+          fi
 
       - name: Upload code coverage
         if: ${{ matrix.full_test_suite && github.event_name == 'push' }}
