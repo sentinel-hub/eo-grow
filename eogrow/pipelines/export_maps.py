@@ -327,7 +327,7 @@ class ExportMapsPipeline(Pipeline):
             fs.copy.copy_file(filesystem, map_path, self.storage.filesystem, output_path)
             filesystem.remove(map_path)
 
-        LOGGER.info("Merged maps are saved in %s", get_full_path(self.storage.filesystem, output_folder))
+        LOGGER.info("Merged maps saved to %s", get_full_path(self.storage.filesystem, output_path))
 
         if isinstance(filesystem, TempFS):
             filesystem.close()
