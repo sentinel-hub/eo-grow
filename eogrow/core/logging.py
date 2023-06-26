@@ -2,7 +2,6 @@
 import contextlib
 import json
 import logging
-import os
 import sys
 import time
 from logging import FileHandler, Filter, Formatter, Handler, LogRecord
@@ -151,11 +150,11 @@ class LoggingManager(EOGrowObject):
 
     def _add_cluster_config_to_logs(self, logs_folder: str) -> None:
         """If it detects a synced `cluster.yaml` file, it will copy it to the logs folder."""
-        if os.path.exists(CLUSTER_FILE_LOCATION):
-            os_folder, os_file = fs.path.split(CLUSTER_FILE_LOCATION)
-            fs.copy.copy_file(
-                OSFS(os_folder), os_file, self.storage.filesystem, fs.path.join(logs_folder, "cluster.yaml")
-            )
+        os_folder, os_file = fs.path.split(CLUSTER_FILE_LOCATION)
+        os_fs = OSFS(os_folder)
+        assert os_fs.exists(os_file)
+        if os_fs.exists(os_file):
+            fs.copy.copy_file(os_fs, os_file, self.storage.filesystem, fs.path.join(logs_folder, "cluster.yaml"))
 
     def _create_file_handler(self, pipeline_execution_name: str) -> Handler:
         """Creates a logging handler to write a pipeline log to a file."""
