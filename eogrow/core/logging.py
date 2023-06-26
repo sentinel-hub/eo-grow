@@ -152,7 +152,6 @@ class LoggingManager(EOGrowObject):
         """If it detects a synced `cluster.yaml` file, it will copy it to the logs folder."""
         os_folder, os_file = fs.path.split(CLUSTER_FILE_LOCATION)
         os_fs = OSFS(os_folder)
-        assert os_fs.exists(os_file)
         if os_fs.exists(os_file):
             fs.copy.copy_file(os_fs, os_file, self.storage.filesystem, fs.path.join(logs_folder, "cluster.yaml"))
 
