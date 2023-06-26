@@ -151,7 +151,8 @@ class LoggingManager(EOGrowObject):
 
     def _add_cluster_config_to_logs(self, logs_folder: str) -> None:
         """If it detects a synced `cluster.yaml` file, it will copy it to the logs folder."""
-        if os.path.exists(CLUSTER_FILE_LOCATION_ON_HEAD):
+        os_path = CLUSTER_FILE_LOCATION_ON_HEAD.replace("~", os.path.expanduser("~"))
+        if os.path.exists(os_path):
             os_folder, os_file = fs.path.split(CLUSTER_FILE_LOCATION_ON_HEAD)
             os_fs = OSFS(os_folder)  # the file is on the head node, might not be visible in storage.filesystem
             fs.copy.copy_file(os_fs, os_file, self.storage.filesystem, fs.path.join(logs_folder, "cluster.yaml"))
