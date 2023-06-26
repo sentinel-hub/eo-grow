@@ -2,6 +2,7 @@
 import contextlib
 import json
 import logging
+import os
 import sys
 import time
 from logging import FileHandler, Filter, Formatter, Handler, LogRecord
@@ -9,8 +10,10 @@ from typing import Any, List, Optional, Sequence, Tuple, Union
 
 import colorlog
 import fs
+import fs.copy
 from fs.base import FS
 from fs.errors import FilesystemClosed
+from fs.osfs import OSFS
 from pydantic import Field
 
 from eolearn.core.utils.fs import join_path, unpickle_fs
@@ -148,12 +151,11 @@ class LoggingManager(EOGrowObject):
 
     def _add_cluster_config_to_logs(self, logs_folder: str) -> None:
         """If it detects a synced `cluster.yaml` file, it will copy it to the logs folder."""
-        global_logger = logging.getLogger()
-        filesystem = self.storage.filesystem
-        global_logger.info("Trying to copy to %s", logs_folder)
-        if filesystem.exists(CLUSTER_FILE_LOCATION):
-            global_logger.info("Executing copy", logs_folder)
-            filesystem.copy(CLUSTER_FILE_LOCATION, fs.path.join(logs_folder, "cluster.yaml"))
+        if os.path.exists(CLUSTER_FILE_LOCATION):
+            os_folder, os_file = fs.path.split(CLUSTER_FILE_LOCATION)
+            fs.copy.copy_file(
+                OSFS(os_folder), os_file, self.storage.filesystem, fs.path.join(logs_folder, "cluster.yaml")
+            )
 
     def _create_file_handler(self, pipeline_execution_name: str) -> Handler:
         """Creates a logging handler to write a pipeline log to a file."""
