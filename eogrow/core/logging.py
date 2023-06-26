@@ -20,12 +20,14 @@ from ..utils.fs import LocalFile
 from ..utils.general import jsonify
 from ..utils.logging import get_instance_info
 from ..utils.meta import get_package_versions
+from ..utils.ray import CLUSTER_CONFIG_DIR
 from .base import EOGrowObject
 from .config import RawConfig
 from .schemas import ManagerSchema
 from .storage import StorageManager
 
 DEFAULT_PACKAGES_TOKEN = "..."  # fix docs if this is changed!
+CLUSTER_FILE_LOCATION = fs.path.join(CLUSTER_CONFIG_DIR, "cluster.yaml")
 
 
 class LoggingManager(EOGrowObject):
@@ -119,6 +121,7 @@ class LoggingManager(EOGrowObject):
         if self.config.save_logs:
             logs_folder = self.get_pipeline_logs_folder(pipeline_execution_name)
             self.storage.filesystem.makedirs(logs_folder, recreate=True)
+            self._add_cluster_config_to_logs(logs_folder)
 
         global_logger = logging.getLogger()
         global_logger.setLevel(logging.DEBUG)
@@ -142,6 +145,12 @@ class LoggingManager(EOGrowObject):
             logging.captureWarnings(True)
 
         return new_handlers
+
+    def _add_cluster_config_to_logs(self, logs_folder: str) -> None:
+        """If it detects a synced `cluster.yaml` file, it will copy it to the logs folder."""
+        filesystem = self.storage.filesystem
+        if filesystem.exists(CLUSTER_FILE_LOCATION):
+            filesystem.copy(CLUSTER_FILE_LOCATION, fs.path.join(logs_folder, "cluster.yaml"))
 
     def _create_file_handler(self, pipeline_execution_name: str) -> Handler:
         """Creates a logging handler to write a pipeline log to a file."""

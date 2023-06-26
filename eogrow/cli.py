@@ -105,6 +105,7 @@ def run_pipeline_on_cluster(
         local_path.flush()  # without this the sync can happen before the file content is written
 
         subprocess.run(f"ray rsync_up {cluster_yaml} {local_path.name!r} {remote_path!r}", shell=True)
+        subprocess.run(f"ray rsync_up {cluster_yaml} {cluster_yaml!r} {cluster_yaml!r}", shell=True)
 
     cmd = (
         f"eogrow {remote_path}"
