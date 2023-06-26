@@ -9,6 +9,7 @@ from typing import Optional, Tuple
 import click
 
 from .core.config import collect_configs_from_path, interpret_config_from_dict
+from .core.logging import CLUSTER_FILE_LOCATION
 from .core.schemas import build_schema_template
 from .pipelines.testing import TestPipeline
 from .utils.general import jsonify
@@ -105,7 +106,7 @@ def run_pipeline_on_cluster(
         local_path.flush()  # without this the sync can happen before the file content is written
 
         subprocess.run(f"ray rsync_up {cluster_yaml} {local_path.name!r} {remote_path!r}", shell=True)
-        subprocess.run(f"ray rsync_up {cluster_yaml} {cluster_yaml!r} {cluster_yaml!r}", shell=True)
+        subprocess.run(f"ray rsync_up {cluster_yaml} {cluster_yaml!r} {CLUSTER_FILE_LOCATION!r}", shell=True)
 
     cmd = (
         f"eogrow {remote_path}"
