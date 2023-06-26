@@ -29,7 +29,7 @@ from .schemas import ManagerSchema
 from .storage import StorageManager
 
 DEFAULT_PACKAGES_TOKEN = "..."  # fix docs if this is changed!
-CLUSTER_FILE_LOCATION = fs.path.join(CLUSTER_CONFIG_DIR, "cluster.yaml")
+CLUSTER_FILE_LOCATION_ON_HEAD = fs.path.join(CLUSTER_CONFIG_DIR, "cluster.yaml")
 
 
 class LoggingManager(EOGrowObject):
@@ -150,8 +150,8 @@ class LoggingManager(EOGrowObject):
 
     def _add_cluster_config_to_logs(self, logs_folder: str) -> None:
         """If it detects a synced `cluster.yaml` file, it will copy it to the logs folder."""
-        os_folder, os_file = fs.path.split(CLUSTER_FILE_LOCATION)
-        os_fs = OSFS(os_folder)
+        os_folder, os_file = fs.path.split(CLUSTER_FILE_LOCATION_ON_HEAD)
+        os_fs = OSFS(os_folder)  # the file is on the head node, might not be visible in storage.filesystem
         if os_fs.exists(os_file):
             fs.copy.copy_file(os_fs, os_file, self.storage.filesystem, fs.path.join(logs_folder, "cluster.yaml"))
 
