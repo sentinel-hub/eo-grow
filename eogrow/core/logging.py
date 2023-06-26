@@ -148,8 +148,11 @@ class LoggingManager(EOGrowObject):
 
     def _add_cluster_config_to_logs(self, logs_folder: str) -> None:
         """If it detects a synced `cluster.yaml` file, it will copy it to the logs folder."""
+        global_logger = logging.getLogger()
         filesystem = self.storage.filesystem
+        global_logger.info("Trying to copy to %s", logs_folder)
         if filesystem.exists(CLUSTER_FILE_LOCATION):
+            global_logger.info("Executing copy", logs_folder)
             filesystem.copy(CLUSTER_FILE_LOCATION, fs.path.join(logs_folder, "cluster.yaml"))
 
     def _create_file_handler(self, pipeline_execution_name: str) -> Handler:
