@@ -2,6 +2,7 @@
 import contextlib
 import json
 import logging
+import os
 import sys
 import time
 from logging import FileHandler, Filter, Formatter, Handler, LogRecord
@@ -9,8 +10,10 @@ from typing import Any, List, Optional, Sequence, Tuple, Union
 
 import colorlog
 import fs
+import fs.copy
 from fs.base import FS
 from fs.errors import FilesystemClosed
+from fs.osfs import OSFS
 from pydantic import Field
 
 from eolearn.core.utils.fs import join_path, unpickle_fs
@@ -20,12 +23,14 @@ from ..utils.fs import LocalFile
 from ..utils.general import jsonify
 from ..utils.logging import get_instance_info
 from ..utils.meta import get_package_versions
+from ..utils.ray import CLUSTER_CONFIG_DIR
 from .base import EOGrowObject
 from .config import RawConfig
 from .schemas import ManagerSchema
 from .storage import StorageManager
 
 DEFAULT_PACKAGES_TOKEN = "..."  # fix docs if this is changed!
+CLUSTER_FILE_LOCATION_ON_HEAD = fs.path.join(CLUSTER_CONFIG_DIR, "cluster.yaml")
 
 
 class LoggingManager(EOGrowObject):
@@ -119,6 +124,7 @@ class LoggingManager(EOGrowObject):
         if self.config.save_logs:
             logs_folder = self.get_pipeline_logs_folder(pipeline_execution_name)
             self.storage.filesystem.makedirs(logs_folder, recreate=True)
+            self._add_cluster_config_to_logs(logs_folder)
 
         global_logger = logging.getLogger()
         global_logger.setLevel(logging.DEBUG)
@@ -142,6 +148,14 @@ class LoggingManager(EOGrowObject):
             logging.captureWarnings(True)
 
         return new_handlers
+
+    def _add_cluster_config_to_logs(self, logs_folder: str) -> None:
+        """If it detects a synced `cluster.yaml` file, it will copy it to the logs folder."""
+        os_path = CLUSTER_FILE_LOCATION_ON_HEAD.replace("~", os.path.expanduser("~"))
+        if os.path.exists(os_path):
+            os_folder, os_file = fs.path.split(CLUSTER_FILE_LOCATION_ON_HEAD)
+            os_fs = OSFS(os_folder)  # the file is on the head node, might not be visible in storage.filesystem
+            fs.copy.copy_file(os_fs, os_file, self.storage.filesystem, fs.path.join(logs_folder, "cluster.yaml"))
 
     def _create_file_handler(self, pipeline_execution_name: str) -> Handler:
         """Creates a logging handler to write a pipeline log to a file."""
