@@ -1,6 +1,8 @@
 """Implements pipelines used for data preparation in testing."""
+from __future__ import annotations
+
 import logging
-from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
+from typing import Any, List, Optional, Tuple, TypeVar, dict
 
 import numpy as np
 from pydantic import Field
@@ -33,11 +35,11 @@ class TestPipeline(Pipeline):
     }
 
     @classmethod
-    def with_defaults(cls: Type[Self], config: RawConfig) -> Self:
+    def with_defaults(cls: type[Self], config: RawConfig) -> Self:
         config = recursive_config_join(config, cls._DEFAULT_CONFIG_PARAMS)  # type: ignore[assignment]
         return cls.from_raw_config(config)
 
-    def run_procedure(self) -> Tuple[List, List]:
+    def run_procedure(self) -> tuple[list, list]:
         """Performs basic tests of managers"""
         if self.storage.filesystem.exists("/"):
             LOGGER.info("Project folder %s exists", self.storage.config.project_folder)
@@ -100,7 +102,7 @@ class DummyDataPipeline(Pipeline):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
-        self._nodes_to_configs_map: Dict[EONode, FeatureSchema] = {}
+        self._nodes_to_configs_map: dict[EONode, FeatureSchema] = {}
 
     def build_workflow(self) -> EOWorkflow:
         """Creates a workflow with tasks that generate different types of features and tasks that join and save the
@@ -138,7 +140,7 @@ class DummyDataPipeline(Pipeline):
         save_task = SaveTask(
             self.storage.get_folder(self.config.output_folder_key),
             filesystem=self.storage.filesystem,
-            overwrite_permission=OverwritePermission.OVERWRITE_PATCH,
+            overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
         )
         save_node = EONode(save_task, inputs=[previous_node])
 

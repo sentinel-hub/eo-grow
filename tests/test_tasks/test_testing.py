@@ -19,12 +19,13 @@ def dummy_eopatch() -> EOPatch:
     [
         (FeatureType.DATA, (10, 20, 21, 5), np.float32, -3, -1),
         (FeatureType.DATA_TIMELESS, (20, 21, 1), int, -10, 5),
-        (FeatureType.MASK, (4, 4, 6, 7), np.uint8, 3, 3),
+        (FeatureType.MASK, (10, 4, 6, 7), np.uint8, 3, 3),
         (FeatureType.LABEL, (10, 17), bool, 0, 1),
         (FeatureType.SCALAR_TIMELESS, (100,), float, 5, np.inf),
     ],
 )
 def test_dummy_raster_feature_task(dummy_eopatch, feature_type, shape, dtype, min_value, max_value):
+    dummy_eopatch.timestamps = ["2011-08-12"] * 10
     feature = feature_type, "FEATURE"
     task = DummyRasterFeatureTask(feature, shape=shape, dtype=dtype, min_value=min_value, max_value=max_value)
     eopatch = task.execute(dummy_eopatch)
@@ -32,7 +33,7 @@ def test_dummy_raster_feature_task(dummy_eopatch, feature_type, shape, dtype, mi
     assert isinstance(eopatch, EOPatch)
 
     assert feature in eopatch
-    assert len(eopatch.get_features()) == 2
+    assert len(eopatch.get_features()) == 3
 
     data = eopatch[feature]
     assert data.shape == shape
