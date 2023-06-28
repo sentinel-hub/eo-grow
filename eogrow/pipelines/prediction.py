@@ -1,4 +1,6 @@
 """Implements a base prediction pipeline and a LGBM specialized classification and regression pipelines."""
+from __future__ import annotations
+
 import abc
 from typing import List, Optional, Tuple
 
@@ -60,7 +62,7 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
     config: Schema
 
     @abc.abstractmethod
-    def _get_output_features(self) -> List[FeatureSpec]:
+    def _get_output_features(self) -> list[FeatureSpec]:
         """Lists all features that are to be saved upon the pipeline completion"""
 
     @property
@@ -137,7 +139,7 @@ class RegressionPredictionPipeline(BasePredictionPipeline):
 
     config: Schema
 
-    def _get_output_features(self) -> List[FeatureSpec]:
+    def _get_output_features(self) -> list[FeatureSpec]:
         return [FeatureType.BBOX, (FeatureType.DATA_TIMELESS, self.config.output_feature_name)]
 
     def _get_prediction_node(self, previous_node: EONode) -> EONode:
@@ -169,8 +171,8 @@ class ClassificationPredictionPipeline(BasePredictionPipeline):
 
     config: Schema
 
-    def _get_output_features(self) -> List[FeatureSpec]:
-        features: List[FeatureSpec] = [FeatureType.BBOX, (FeatureType.MASK_TIMELESS, self.config.output_feature_name)]
+    def _get_output_features(self) -> list[FeatureSpec]:
+        features: list[FeatureSpec] = [FeatureType.BBOX, (FeatureType.MASK_TIMELESS, self.config.output_feature_name)]
         if self.config.output_probability_feature_name:
             features.append((FeatureType.DATA_TIMELESS, self.config.output_probability_feature_name))
         return features
@@ -193,6 +195,6 @@ class ClassificationPredictionPipeline(BasePredictionPipeline):
         return EONode(prediction_task, inputs=[previous_node])
 
 
-def _optional_typed_feature(ftype: FeatureType, fname: Optional[str]) -> Optional[Feature]:
+def _optional_typed_feature(ftype: FeatureType, fname: str | None) -> Feature | None:
     """Constructs a typed feature if possible"""
     return (ftype, fname) if fname is not None else None

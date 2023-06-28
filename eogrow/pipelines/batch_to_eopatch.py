@@ -1,4 +1,6 @@
 """Pipeline for conversion of batch results to EOPatches."""
+from __future__ import annotations
+
 from typing import Any, List, Optional
 
 import numpy as np
@@ -96,9 +98,9 @@ class BatchToEOPatchPipeline(Pipeline):
             self._get_output_features(),
         )
 
-    def _get_output_features(self) -> List[FeatureSpec]:
+    def _get_output_features(self) -> list[FeatureSpec]:
         """Lists all features that the pipeline outputs."""
-        features: List[FeatureSpec] = [FeatureType.BBOX]
+        features: list[FeatureSpec] = [FeatureType.BBOX]
         features.extend(feature_mapping.feature for feature_mapping in self.config.mapping)
 
         if self.config.userdata_feature_name:
@@ -155,7 +157,7 @@ class BatchToEOPatchPipeline(Pipeline):
 
         return EOWorkflow.from_endnodes(cleanup_node or save_node)
 
-    def _get_tiff_mapping_node(self, mapping: FeatureMappingSchema, previous_node: Optional[EONode]) -> EONode:
+    def _get_tiff_mapping_node(self, mapping: FeatureMappingSchema, previous_node: EONode | None) -> EONode:
         """Prepares tasks and dependencies that convert tiff files into an EOPatch feature"""
         if not all(batch_file.endswith(".tif") for batch_file in mapping.batch_files):
             raise ValueError(f"All batch files should end with .tif but found {mapping.batch_files}")
@@ -205,7 +207,7 @@ class BatchToEOPatchPipeline(Pipeline):
 
     @staticmethod
     def _get_feature_merge_node(
-        previous_node: EONode, input_features: List[Feature], output_feature: Feature
+        previous_node: EONode, input_features: list[Feature], output_feature: Feature
     ) -> EONode:
         """Merges input features into a single output feature and removes input features. In case there is a single
         input feature this method just renames it into the output feature. This way it avoids memory duplication that
@@ -248,7 +250,7 @@ class BatchToEOPatchPipeline(Pipeline):
 
         return exec_args
 
-    def _get_all_batch_files(self) -> List[str]:
+    def _get_all_batch_files(self) -> list[str]:
         """Provides a list of batch files used in this pipeline"""
         files = [file for feature_mapping in self.config.mapping for file in feature_mapping.batch_files]
 

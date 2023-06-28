@@ -1,9 +1,11 @@
 """Defines pipelines for ingesting and modifying BYOC collections."""
+from __future__ import annotations
+
 import datetime
 import datetime as dt
 import logging
 from collections import defaultdict
-from typing import Dict, List, Optional, Tuple, cast
+from typing import Dict, Optional, cast
 
 import fs
 import geopandas as gpd
@@ -75,13 +77,13 @@ class IngestByocTilesPipeline(Pipeline):
 
     config: Schema
 
-    def __init__(self, config: Schema, raw_config: Optional[RawConfig] = None):
+    def __init__(self, config: Schema, raw_config: RawConfig | None = None):
         super().__init__(config, raw_config)
         if not self.storage.is_on_s3():
             raise ValueError("Can only ingest for projects based on S3 storage.")
         project_folder = self.storage.config.project_folder
         self.bucket_name = project_folder.replace("s3://", "").split("/")[0]
-        self._cover_geometry_df: Optional[gpd.GeoDataFrame] = None
+        self._cover_geometry_df: gpd.GeoDataFrame | None = None
 
     def get_byoc_collection(self, byoc_client: SentinelHubBYOC) -> JsonDict:
         """Obtains information about the existing collection or creates a new one."""
@@ -96,7 +98,7 @@ class IngestByocTilesPipeline(Pipeline):
             response = byoc_client.get_collection(existing_collection)
         return response
 
-    def get_tile_paths(self) -> Dict[str, List[str]]:
+    def get_tile_paths(self) -> dict[str, list[str]]:
         """Collects the folders and filenames of .tiff files to be ingested.
 
         Paths are relative to bucket, not project.
@@ -109,7 +111,7 @@ class IngestByocTilesPipeline(Pipeline):
 
         return dict(folder_to_filename_map)
 
-    def _get_tiff_paths(self) -> List[str]:
+    def _get_tiff_paths(self) -> list[str]:
         """Collects the paths to .tiff files to ingest. Paths are relative to bucket, not project."""
         folder = self.storage.get_folder(key=self.config.byoc_tile_folder_key)
         filesystem = self.storage.filesystem
@@ -123,7 +125,7 @@ class IngestByocTilesPipeline(Pipeline):
         absolute_path = fs.path.combine(self.config.storage.project_folder, relative_path)  # type: ignore[attr-defined]
         return absolute_path.replace(f"s3://{self.bucket_name}/", "")  # removes s3://<bucket-name>/
 
-    def _prepare_tile(self, folder: str, tiff_paths: List[str]) -> Optional[ByocTile]:
+    def _prepare_tile(self, folder: str, tiff_paths: list[str]) -> ByocTile | None:
         """Collects all required metainfo to create a BYOC tile for the given folder."""
         some_tiff = fs.path.join(folder, tiff_paths[0])
         cover_geometry = self._get_tile_cover_geometry(some_tiff)
@@ -150,7 +152,7 @@ class IngestByocTilesPipeline(Pipeline):
         final_poly = tiff_poly.intersection(cover_poly) if cover_poly else tiff_poly
         return Geometry(final_poly, crs=tiff_crs)
 
-    def _get_cover_geometry(self, crs: CRS) -> Optional[Geometry]:
+    def _get_cover_geometry(self, crs: CRS) -> Geometry | None:
         """Lazy-loads the cover geometry of whole area, reprojecting (and combining) in desired CRS on call."""
         if self.config.cover_geometry is None or self.config.cover_geometry_folder_key is None:
             return None
@@ -163,7 +165,7 @@ class IngestByocTilesPipeline(Pipeline):
 
         return self._cover_geometry_df.to_crs(crs.pyproj_crs()).unary_union
 
-    def run_procedure(self) -> Tuple[List[str], List[str]]:
+    def run_procedure(self) -> tuple[list[str], list[str]]:
         """Runs the procedure.
 
         1. Creates or loads the collection,

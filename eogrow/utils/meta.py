@@ -37,7 +37,7 @@ def collect_schema(class_with_schema: type) -> type[BaseSchema]:
     This utility would provide `MySchema`. It works also if `MyObject` inherits from a class that holds the schema.
     """
     try:
-        return class_with_schema.Schema
+        return class_with_schema.Schema  # type: ignore[attr-defined]
     except AttributeError as exception:
         raise SyntaxError(
             f"Class {class_with_schema} is missing a schema. Each `EOGrowObject` class needs to contain a pydantic "

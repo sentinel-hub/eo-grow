@@ -29,7 +29,7 @@ class TestPipeline(Pipeline):
         class Config:
             extra = "allow"
 
-    _DEFAULT_CONFIG_PARAMS = {
+    _DEFAULT_CONFIG_PARAMS = {  # noqa: RUF012
         "pipeline": "eogrow.pipelines.testing.TestPipeline",
         "logging": {"manager": "eogrow.logging.LoggingManager", "show_logs": True},
     }

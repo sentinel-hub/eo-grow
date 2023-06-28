@@ -1,6 +1,9 @@
 """Download pipeline that works with Sentinel Hub batch service."""
+from __future__ import annotations
+
 import logging
-from typing import Any, DefaultDict, Dict, List, Literal, Optional, Tuple
+from collections import defaultdict
+from typing import Any, List, Literal, Optional
 
 from pydantic import Field
 
@@ -131,7 +134,7 @@ class BatchDownloadPipeline(Pipeline):
 
         self.batch_client = SentinelHubBatch(config=self.sh_config)
 
-    def run_procedure(self) -> Tuple[List[str], List[str]]:
+    def run_procedure(self) -> tuple[list[str], list[str]]:
         """Procedure that uses Sentinel Hub batch service to download data to an S3 bucket."""
         batch_request = self._create_or_collect_batch_request()
 
@@ -268,8 +271,8 @@ class BatchDownloadPipeline(Pipeline):
 
     @staticmethod
     def _get_tile_names_from_results(
-        results: DefaultDict[BatchTileStatus, List[Dict]], tile_status: BatchTileStatus
-    ) -> List[str]:
+        results: defaultdict[BatchTileStatus, list[dict]], tile_status: BatchTileStatus
+    ) -> list[str]:
         """Collects tile names from a dictionary of batch tile results ordered by status"""
         tile_list = results[tile_status]
         return [tile["name"] for tile in tile_list]

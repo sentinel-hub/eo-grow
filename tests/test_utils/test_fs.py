@@ -24,7 +24,7 @@ def test_local_file(always_copy):
         assert tmp_file_still_exists is not always_copy
 
         with LocalFile("path/to/file/data.json", mode="r", filesystem=filesystem, always_copy=always_copy) as test_file:
-            with open(test_file.path, "r") as fp:
+            with open(test_file.path) as fp:
                 result = json.load(fp)
 
         assert result == {}
@@ -67,7 +67,7 @@ def test_copies_between_local_and_remote(always_copy):
             with filesystem.open(remote_path, "w") as fp:
                 json.dump(new_content, fp)
             test_file.copy_to_local()
-            with open(test_file.path, "r") as fp:
+            with open(test_file.path) as fp:
                 result = json.load(fp)
             assert result == new_content
 
@@ -103,7 +103,7 @@ def test_local_folder(always_copy, workers, walker):
                     continue
 
                 file_path = os.path.join(test_folder.path, filename)
-                with open(file_path, "r") as fp:
+                with open(file_path) as fp:
                     result = json.load(fp)
                     assert result == {"value": index}
 
