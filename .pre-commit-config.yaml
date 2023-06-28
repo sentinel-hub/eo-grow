@@ -13,7 +13,7 @@ repos:
       - id: debug-statements
 
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: "v3.0.0-alpha.6"
+    rev: "v3.0.0-alpha.9-for-vscode"
     hooks:
       - id: prettier
         exclude: "tests/(test_stats|test_project)/"
@@ -26,7 +26,7 @@ repos:
         language_version: python3
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "v0.0.269"
+    rev: "v0.0.275"
     hooks:
       - id: ruff
 
