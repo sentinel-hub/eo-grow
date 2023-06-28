@@ -1,7 +1,9 @@
 """Implements tasks needed for calculating features in FeaturesPipeline."""
+from __future__ import annotations
+
 import abc
 from datetime import date, datetime, time, timedelta
-from typing import List, Optional, Sequence, Tuple, Union
+from typing import Sequence
 
 import numpy as np
 
@@ -44,9 +46,9 @@ class MosaickingTask(EOTask, metaclass=abc.ABCMeta):
     def __init__(
         self,
         feature: Feature,
-        dates: Union[List[date], Tuple[date, date, int]],
-        valid_mask: Optional[Feature] = None,
-        ndvi_feature: Optional[Feature] = None,
+        dates: list[date] | tuple[date, date, int],
+        valid_mask: Feature | None = None,
+        ndvi_feature: Feature | None = None,
     ):
         self.parsed_feature = parse_renamed_feature(feature, allowed_feature_types={FeatureType.DATA})
         self.valid_mask_type, self.valid_mask_name = None, None
@@ -61,7 +63,7 @@ class MosaickingTask(EOTask, metaclass=abc.ABCMeta):
             )
         self.dates = self._get_dates(dates)
 
-    def _get_dates(self, dates: Union[List[date], Tuple[date, date, int]]) -> np.ndarray:
+    def _get_dates(self, dates: list[date] | tuple[date, date, int]) -> np.ndarray:
         """Set dates either from list of dates or a tuple (start_date, end_date, n_mosaics)"""
         if all(isinstance(d, (date, datetime)) for d in dates):
             return np.array(dates)
@@ -88,7 +90,7 @@ class MosaickingTask(EOTask, metaclass=abc.ABCMeta):
         edges.append(end)
         return np.array(edges)
 
-    def _find_time_indices(self, timestamps: Sequence[date], index: int) -> Tuple[np.ndarray, ...]:
+    def _find_time_indices(self, timestamps: Sequence[date], index: int) -> tuple[np.ndarray, ...]:
         """Compute indices of images to use for mosaicking"""
         if index == 1:
             array = np.where((np.array(timestamps) <= self.dates[index]))
@@ -100,11 +102,11 @@ class MosaickingTask(EOTask, metaclass=abc.ABCMeta):
             )
         return array
 
-    def compute_mosaic_dates(self) -> np.ndarray:
+    def compute_mosaic_dates(self) -> list[datetime]:
         """Compute dates of corresponding mosaics"""
         # calculate centers of date edges
         delta = self.dates[1:] - self.dates[:-1]
-        return self.dates[:-1] + delta / 2
+        return list(self.dates[:-1] + delta / 2)
 
     @abc.abstractmethod
     def _compute_single_mosaic(self, eopatch: EOPatch, idate: int) -> np.ndarray:
@@ -117,13 +119,12 @@ class MosaickingTask(EOTask, metaclass=abc.ABCMeta):
     def execute(self, eopatch: EOPatch) -> EOPatch:
         """Compute mosaic for given dates"""
         feature_type, _, new_feature_name = self.parsed_feature
+        output_patch = EOPatch(bbox=eopatch.bbox, timestamps=self.compute_mosaic_dates())
 
         eopatch.timestamps = [ts.replace(tzinfo=None) for ts in eopatch.timestamps]
-        eopatch[(feature_type, new_feature_name)] = self.compute_mosaic(eopatch)
+        output_patch[feature_type, new_feature_name] = self.compute_mosaic(eopatch)
 
-        eopatch.timestamps = list(self.compute_mosaic_dates())
-
-        return eopatch
+        return output_patch
 
 
 class MaxNDVIMosaickingTask(MosaickingTask):
@@ -134,9 +135,9 @@ class MaxNDVIMosaickingTask(MosaickingTask):
     def __init__(
         self,
         feature: Feature,
-        dates: Union[List[date], Tuple[date, date, int]],
+        dates: list[date] | tuple[date, date, int],
         ndvi_feature: Feature,
-        valid_mask: Optional[Feature] = None,
+        valid_mask: Feature | None = None,
     ):
         super().__init__(feature, dates, ndvi_feature=ndvi_feature, valid_mask=valid_mask)
 
@@ -168,7 +169,7 @@ class MaxNDVIMosaickingTask(MosaickingTask):
                 mosaic = feat_values[0]
             else:
                 indices = np.nanargmax(ndvi_values, axis=0).squeeze(axis=-1)
-                ixgrid: Tuple[np.ndarray, ...] = np.ix_(np.arange(timeframes), np.arange(height), np.arange(width))
+                ixgrid: tuple[np.ndarray, ...] = np.ix_(np.arange(timeframes), np.arange(height), np.arange(width))
                 mosaic = feat_values[indices, ixgrid[1], ixgrid[2], :].squeeze(axis=0)
 
             mosaic[np.broadcast_to(mask_nan_slices[0], mosaic.shape)] = np.nan
@@ -183,8 +184,8 @@ class MedianMosaickingTask(MosaickingTask):
     def __init__(
         self,
         feature: Feature,
-        dates: Union[List[date], Tuple[date, date, int]],
-        valid_mask: Optional[Feature] = None,
+        dates: list[date] | tuple[date, date, int],
+        valid_mask: Feature | None = None,
     ):
         super().__init__(feature, dates, valid_mask=valid_mask)
 

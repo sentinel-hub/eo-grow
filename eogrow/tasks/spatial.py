@@ -1,5 +1,7 @@
 """Tasks for spatial operations on EOPatches, used in grid-switching."""
-from typing import Dict, List, Optional, Tuple, Union, cast
+from __future__ import annotations
+
+from typing import cast
 
 import numpy as np
 from geopandas import GeoDataFrame
@@ -19,9 +21,9 @@ class SpatialJoinTask(EOTask):
 
     def __init__(
         self,
-        features: List[FeatureSpec],
-        no_data_map: Dict[Feature, float],
-        unique_columns_map: Dict[Feature, List[str]],
+        features: list[FeatureSpec],
+        no_data_map: dict[Feature, float],
+        unique_columns_map: dict[Feature, list[str]],
         raise_misaligned: bool = True,
     ):
         self.features = self.parse_features(features)
@@ -30,7 +32,7 @@ class SpatialJoinTask(EOTask):
         self.raise_misaligned = raise_misaligned
 
     def _join_spatial_rasters(
-        self, rasters: List[np.ndarray], bboxes: List[BBox], joined_bbox: BBox, no_data_value: float
+        self, rasters: list[np.ndarray], bboxes: list[BBox], joined_bbox: BBox, no_data_value: float
     ) -> np.ndarray:
         """Joins all rasters into a single new rasters."""
         if len({raster.dtype for raster in rasters}) != 1:
@@ -53,7 +55,7 @@ class SpatialJoinTask(EOTask):
 
         return joined_raster
 
-    def _get_resolution(self, rasters: List[np.ndarray], bboxes: List[BBox]) -> np.ndarray:
+    def _get_resolution(self, rasters: list[np.ndarray], bboxes: list[BBox]) -> np.ndarray:
         """Checks that resolutions of given geospatial rasters don't differ more than a rounding error."""
         resolutions = []
 
@@ -86,7 +88,7 @@ class SpatialJoinTask(EOTask):
         return np.full(shape, no_data_value, dtype=sample_raster.dtype)
 
     @staticmethod
-    def _join_vector_data(dataframes: List[GeoDataFrame], unique_columns: Optional[List[str]]) -> GeoDataFrame:
+    def _join_vector_data(dataframes: list[GeoDataFrame], unique_columns: list[str] | None) -> GeoDataFrame:
         """Joins dataframes and optionally drops duplicated rows."""
         joined_dataframe = concat_gdf(dataframes)
         if unique_columns:
@@ -120,7 +122,7 @@ class SpatialJoinTask(EOTask):
             if feature_type.is_spatial():
                 feature = cast(Feature, feature)  # bbox and timestamp are discarded with above check
                 if feature_type.is_array():
-                    bboxes: List[BBox] = [patch.bbox for patch in eopatches if feature in patch]  # type: ignore[misc]
+                    bboxes: list[BBox] = [patch.bbox for patch in eopatches if feature in patch]  # type: ignore[misc]
                     joined_data = self._join_spatial_rasters(data, bboxes, bbox, self.no_data_map[feature])
                 else:
                     joined_data = self._join_vector_data(data, self.unique_columns_map.get(feature))
@@ -141,7 +143,7 @@ class SpatialJoinTask(EOTask):
 class SpatialSliceTask(EOTask):
     """Spatially slices given EOPatch to create a new one."""
 
-    def __init__(self, features: List[FeatureSpec], raise_misaligned: bool = True):
+    def __init__(self, features: list[FeatureSpec], raise_misaligned: bool = True):
         self.features = self.parse_features(features)
         self.raise_misaligned = raise_misaligned
 
@@ -175,7 +177,7 @@ class SpatialSliceTask(EOTask):
         if not main_bbox.geometry.contains(bbox.geometry):
             raise ValueError("Given bbox must be fully contained in EOPatch's bbox")
 
-        sliced_eopatch = EOPatch(bbox=bbox)
+        sliced_eopatch = EOPatch(bbox=bbox, timestamps=eopatch.timestamps)
 
         for feature in self.features:
             feature_type, _ = feature
@@ -200,12 +202,12 @@ def get_array_slices(
     bbox: BBox,
     slice_bbox: BBox,
     *,
-    resolution: Optional[Union[np.ndarray, Tuple[float, float]]] = None,
-    size: Optional[Union[np.ndarray, Tuple[int, int]]] = None,
+    resolution: None | np.ndarray | tuple[float, float] = None,
+    size: None | np.ndarray | tuple[int, int] = None,
     raise_misaligned: bool = True,
-    limit_x: Optional[Tuple[int, int]] = None,
-    limit_y: Optional[Tuple[int, int]] = None,
-) -> Tuple[slice, slice]:
+    limit_x: None | tuple[int, int] = None,
+    limit_y: None | tuple[int, int] = None,
+) -> tuple[slice, slice]:
     """Slicing taken from eolearn.io.ImportFromTiffTask.
 
     :param bbox: A bounding box of initial array.
@@ -224,7 +226,7 @@ def get_array_slices(
     if size is not None and resolution is None:
         width, height = size
         raster_lower_right = np.array([bbox.max_x, bbox.min_y])
-        resolution = np.abs((raster_upper_left - raster_lower_right)) / (width, height)
+        resolution = np.abs(raster_upper_left - raster_lower_right) / (width, height)
     elif size is None and resolution is not None:
         resolution = np.array(resolution)
     else:
