@@ -1,6 +1,7 @@
 """Area manager implementation for custom grids."""
+from __future__ import annotations
+
 import logging
-from typing import Dict
 
 import fs
 import geopandas as gpd
@@ -31,7 +32,7 @@ class CustomGridAreaManager(BaseAreaManager):
 
     config: Schema
 
-    def _create_grid(self) -> Dict[CRS, gpd.GeoDataFrame]:
+    def _create_grid(self) -> dict[CRS, gpd.GeoDataFrame]:
         grid_path = fs.path.combine(self.storage.get_folder(self.config.grid_folder_key), self.config.grid_filename)
         grid = self._load_grid(grid_path)
 

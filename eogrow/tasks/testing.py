@@ -1,6 +1,7 @@
 """Tasks used to generate test data."""
+from __future__ import annotations
+
 import datetime as dt
-from typing import Optional, Tuple, Union
 
 import numpy as np
 
@@ -16,8 +17,8 @@ class DummyRasterFeatureTask(EOTask):
     def __init__(
         self,
         feature: Feature,
-        shape: Tuple[int, ...],
-        dtype: Union[np.dtype, type],
+        shape: tuple[int, ...],
+        dtype: np.dtype | type,
         min_value: float = 0,
         max_value: float = 1,
     ):
@@ -57,7 +58,7 @@ class DummyRasterFeatureTask(EOTask):
         array = (self.max_value - self.min_value) * array + self.min_value
         return array.astype(self.dtype)
 
-    def execute(self, eopatch: EOPatch, seed: Optional[int] = None) -> EOPatch:
+    def execute(self, eopatch: EOPatch, seed: int | None = None) -> EOPatch:
         """Generates a raster feature randomly with a given seed."""
         rng = np.random.default_rng(seed)
 
@@ -76,7 +77,7 @@ class DummyTimestampFeatureTask(EOTask):
         self.time_interval = tuple(map(_ensure_datetime, time_interval))
         self.timestamp_num = timestamp_num
 
-    def execute(self, eopatch: EOPatch, seed: Optional[int] = None) -> EOPatch:
+    def execute(self, eopatch: EOPatch, seed: int | None = None) -> EOPatch:
         """Generates timestamps randomly with a given seed."""
         rng = np.random.default_rng(seed)
 

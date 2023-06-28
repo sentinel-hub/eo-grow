@@ -1,7 +1,8 @@
 """Tasks used to transform Sentinel Hub Batch results into EOPatches."""
+from __future__ import annotations
+
 import concurrent.futures
 import json
-from typing import List, Optional
 
 import fs
 import numpy as np
@@ -22,8 +23,8 @@ class LoadUserDataTask(EOTask):
         self,
         path: str,
         filesystem: FS,
-        userdata_feature_name: Optional[str] = None,
-        userdata_timestamp_reader: Optional[str] = None,
+        userdata_feature_name: str | None = None,
+        userdata_timestamp_reader: str | None = None,
     ):
         """
         :param path: A path to folder containing the tiles, relative to the filesystem object.
@@ -56,7 +57,7 @@ class LoadUserDataTask(EOTask):
 
         return [parse_time(time_string, force_datetime=True, ignoretz=True) for time_string in time_strings]
 
-    def execute(self, eopatch: Optional[EOPatch] = None, *, folder: str = "") -> EOPatch:
+    def execute(self, eopatch: EOPatch | None = None, *, folder: str = "") -> EOPatch:
         """Adds metadata to the given EOPatch
 
         :param eopatch: Name of the eopatch to process
@@ -117,7 +118,7 @@ class FixImportedTimeDependentFeatureTask(EOTask):
 class DeleteFilesTask(EOTask):
     """Delete files"""
 
-    def __init__(self, path: str, filesystem: FS, filenames: List[str]):
+    def __init__(self, path: str, filesystem: FS, filenames: list[str]):
         """
         :param path: A path to folder containing the files to be deleted, relative to filesystem object.
         :param filesystem: A filesystem object
