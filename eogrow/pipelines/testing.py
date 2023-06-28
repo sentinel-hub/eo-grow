@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, List, Optional, Tuple, TypeVar, dict
+from typing import Any, List, Optional, Tuple, TypeVar
 
 import numpy as np
 from pydantic import Field
