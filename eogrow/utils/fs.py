@@ -1,9 +1,11 @@
 """
 Module containing utilities for working with filesystems
 """
+from __future__ import annotations
+
 import abc
 import os
-from typing import Any, Dict, Optional, TypeVar
+from typing import Any, TypeVar
 
 import fs
 import fs.copy
@@ -31,8 +33,8 @@ class BaseLocalObject(metaclass=abc.ABCMeta):
         path: str,
         *,
         mode: str = "r",
-        filesystem: Optional[FS] = None,
-        config: Optional[SHConfig] = None,
+        filesystem: FS | None = None,
+        config: SHConfig | None = None,
         always_copy: bool = False,
         **temp_fs_kwargs: Any,
     ):
@@ -112,7 +114,7 @@ class BaseLocalObject(metaclass=abc.ABCMeta):
             self._ensure_remote_location()
             self._copy_to_remote()
 
-    def _add_tempfs_identifier(self, temp_fs_kwargs: Dict[str, Any]) -> None:
+    def _add_tempfs_identifier(self, temp_fs_kwargs: dict[str, Any]) -> None:
         """Adds an identifier name that will be used as a suffix of a temporary local folder. This is helpful for
         debugging purposes."""
         if "identifier" in temp_fs_kwargs:
@@ -163,10 +165,10 @@ class LocalFolder(BaseLocalObject):
         self,
         path: str,
         *args: Any,
-        filesystem: Optional[FS] = None,
-        config: Optional[SHConfig] = None,
-        walker: Optional[Walker] = None,
-        workers: Optional[int] = None,
+        filesystem: FS | None = None,
+        config: SHConfig | None = None,
+        walker: Walker | None = None,
+        workers: int | None = None,
         **kwargs: Any,
     ):
         """

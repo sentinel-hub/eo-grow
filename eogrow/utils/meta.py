@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import importlib
 import re
-from typing import TYPE_CHECKING, Any, Dict, Type
+from typing import TYPE_CHECKING, Any
 
 from packaging.requirements import Requirement
 
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 _PIPELINE_PARAM_NAME = "pipeline"
 
 
-def load_pipeline_class(config: dict) -> Type[Pipeline]:
+def load_pipeline_class(config: dict) -> type[Pipeline]:
     """Given a config object it loads the pipeline class referenced in the config"""
     pipeline_class_name = config.get(_PIPELINE_PARAM_NAME)
     if pipeline_class_name is None:
@@ -25,7 +25,7 @@ def load_pipeline_class(config: dict) -> Type[Pipeline]:
     return import_object(pipeline_class_name)
 
 
-def collect_schema(class_with_schema: Type) -> Type[BaseSchema]:
+def collect_schema(class_with_schema: type) -> type[BaseSchema]:
     """A utility that collects a schema from the given object.
 
     The object is expected to hold a unique internal class which inherits from `BaseSchema`. Example:
@@ -78,7 +78,7 @@ def get_os_import_path(import_path: str) -> str:
     raise ValueError(f"Given import path {import_path!r} not found")
 
 
-def get_package_versions() -> Dict[str, str]:
+def get_package_versions() -> dict[str, str]:
     """A utility function that provides dependency package versions
 
     :return: A dictionary with versions
