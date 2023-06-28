@@ -1,6 +1,8 @@
 """Implements a pipeline to construct features for training/prediction."""
+from __future__ import annotations
+
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import numpy as np
 from pydantic import Field
@@ -92,7 +94,7 @@ class FeaturesPipeline(Pipeline):
             self._get_output_features(),
         )
 
-    def _get_output_features(self) -> List[FeatureSpec]:
+    def _get_output_features(self) -> list[FeatureSpec]:
         """Lists all features that are to be saved upon the pipeline completion"""
         return [(FeatureType.DATA, self.config.output_feature_name), FeatureType.BBOX, FeatureType.TIMESTAMPS]
 

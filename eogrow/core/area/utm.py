@@ -1,8 +1,10 @@
 """Area manager implementation for automated UTM CRS grids."""
 
+from __future__ import annotations
+
 import logging
 from collections import defaultdict
-from typing import Dict, Optional
+from typing import Optional
 
 import fs
 import geopandas as gpd
@@ -50,7 +52,7 @@ class UtmZoneAreaManager(BaseAreaManager):
             geopandas_engine=self.storage.config.geopandas_backend,
         ).transform(crs)
 
-    def _create_grid(self) -> Dict[CRS, GeoDataFrame]:
+    def _create_grid(self) -> dict[CRS, GeoDataFrame]:
         """Uses UtmZoneSplitter to create a grid"""
         area_geometry = self.get_area_geometry()
         LOGGER.info("Splitting area geometry into UTM zone grid")

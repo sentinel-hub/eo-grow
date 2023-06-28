@@ -1,7 +1,7 @@
 """
 Module containing utilities for working with vector data
 """
-from typing import List, Optional, Union
+from __future__ import annotations
 
 import geopandas as gpd
 import pandas as pd
@@ -11,7 +11,7 @@ from shapely.geometry import MultiPolygon, Polygon
 from sentinelhub import CRS
 
 
-def concat_gdf(dataframe_list: List[GeoDataFrame], reproject_crs: Optional[CRS] = None) -> GeoDataFrame:
+def concat_gdf(dataframe_list: list[GeoDataFrame], reproject_crs: CRS | None = None) -> GeoDataFrame:
     """Concatenates together multiple GeoDataFrames, all in the same CRS
 
     There exists pandas.concat but no geopandas.concat. Therefore, this function implements it.
@@ -34,7 +34,7 @@ def concat_gdf(dataframe_list: List[GeoDataFrame], reproject_crs: Optional[CRS] 
     return gpd.GeoDataFrame(pd.concat(dataframe_list, ignore_index=True), crs=dataframe_list[0].crs)
 
 
-def count_points(geometry: Union[Polygon, MultiPolygon]) -> int:
+def count_points(geometry: Polygon | MultiPolygon) -> int:
     """Counts a number of points for a given geometry, both from exterior and interiors"""
     if isinstance(geometry, MultiPolygon):
         return sum(count_points(subgeometry) for subgeometry in geometry.geoms)

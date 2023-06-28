@@ -1,8 +1,10 @@
 """Implements a pipeline for rasterizing vector datasets."""
+from __future__ import annotations
+
 import logging
 import os
 import uuid
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 import fiona
 import fs
@@ -82,7 +84,7 @@ class RasterizePipeline(Pipeline):
         compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
 
         @validator("vector_input")
-        def _check_vector_input(cls, vector_input: Union[Feature, str]) -> Union[Feature, str]:
+        def _check_vector_input(cls, vector_input: Feature | str) -> Feature | str:
             if isinstance(vector_input, str):
                 assert vector_input.lower().endswith(
                     (".geojson", ".shp", ".gpkg", ".gdb")
@@ -107,7 +109,7 @@ class RasterizePipeline(Pipeline):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
-        self.filename: Optional[str] = None
+        self.filename: str | None = None
         self.vector_feature: Feature
 
         if not isinstance(self.config.vector_input, str):
@@ -125,7 +127,7 @@ class RasterizePipeline(Pipeline):
             self._get_output_features(),
         )
 
-    def run_procedure(self) -> Tuple[List[str], List[str]]:
+    def run_procedure(self) -> tuple[list[str], list[str]]:
         if self.filename is not None and self.config.preprocess_dataset is not None:
             self.run_dataset_preprocessing(self.filename, self.config.preprocess_dataset)
 
@@ -238,9 +240,9 @@ class RasterizePipeline(Pipeline):
 
         return fs.path.combine(folder, filename)
 
-    def _get_output_features(self) -> List[FeatureSpec]:
+    def _get_output_features(self) -> list[FeatureSpec]:
         """Lists all features that are to be saved upon the pipeline completion"""
-        features: List[FeatureSpec] = [self.config.output_feature, FeatureType.BBOX]
+        features: list[FeatureSpec] = [self.config.output_feature, FeatureType.BBOX]
         if self._is_temporal(self.config.output_feature):
             features.append(FeatureType.TIMESTAMPS)
 

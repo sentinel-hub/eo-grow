@@ -1,6 +1,8 @@
 """Defines task needed in prediction pipelines."""
+from __future__ import annotations
+
 import abc
-from typing import Any, Callable, List, Optional, Tuple, Union, cast
+from typing import Any, Callable, cast
 
 import fs
 import joblib
@@ -21,10 +23,10 @@ class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
         *,
         model_path: str,
         filesystem: FS,
-        input_features: List[Feature],
+        input_features: list[Feature],
         mask_feature: Feature,
         output_feature: Feature,
-        output_dtype: Optional[np.dtype],
+        output_dtype: np.dtype | None,
         mp_lock: bool,
     ):
         """
@@ -74,7 +76,7 @@ class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
         return self._model
 
     def apply_predictor(
-        self, predictor: Callable, processed_features: np.ndarray, return_on_empty: Optional[np.ndarray] = None
+        self, predictor: Callable, processed_features: np.ndarray, return_on_empty: np.ndarray | None = None
     ) -> np.ndarray:
         """Helper function that applies the predictor according to the mp_lock settings"""
         if processed_features.shape[0] == 0 and return_on_empty is not None:
@@ -93,9 +95,7 @@ class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
         """Runs the model prediction on given features and adds them to the eopatch. Must reverse mask beforehand."""
 
     @staticmethod
-    def transform_to_feature_form(
-        predictions: np.ndarray, mask: np.ndarray, no_value: Union[float, int] = 0
-    ) -> np.ndarray:
+    def transform_to_feature_form(predictions: np.ndarray, mask: np.ndarray, no_value: float | int = 0) -> np.ndarray:
         """Transforms an array of predictions into an EOPatch suitable array, making sure to reverse the masking"""
         full_predictions = np.full((*mask.shape, predictions.shape[-1]), dtype=predictions.dtype, fill_value=no_value)
         full_predictions[mask, :] = predictions
@@ -110,8 +110,7 @@ class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
         mask = mask.astype(bool)
 
         preprocessed_features = self.process_data(eopatch, mask)
-        eopatch = self.add_predictions(eopatch, preprocessed_features, mask)
-        return eopatch
+        return self.add_predictions(eopatch, preprocessed_features, mask)
 
 
 class ClassificationPredictionTask(BasePredictionTask):
@@ -120,8 +119,8 @@ class ClassificationPredictionTask(BasePredictionTask):
     def __init__(
         self,
         *,
-        label_encoder_filename: Optional[str],
-        output_probability_feature: Optional[Feature] = None,
+        label_encoder_filename: str | None,
+        output_probability_feature: Feature | None = None,
         **kwargs: Any,
     ):
         """
@@ -175,7 +174,7 @@ class RegressionPredictionTask(BasePredictionTask):
     def __init__(
         self,
         *,
-        clip_predictions: Optional[Tuple[float, float]],
+        clip_predictions: tuple[float, float] | None,
         **kwargs: Any,
     ):
         """

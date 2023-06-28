@@ -4,8 +4,10 @@ Module defining a base pipeline schema and custom fields
 For each pipeline a separate schema has to be defined which inherits from PipelineSchema. Such schema should be placed
 as an internal class of the implemented pipeline class
 """
+from __future__ import annotations
+
 from inspect import isclass
-from typing import List, Optional, Type, Union
+from typing import List, Optional, Union
 
 from pydantic import BaseModel, Field
 from pydantic.fields import ModelField
@@ -69,9 +71,9 @@ class PipelineSchema(BaseSchema):
 
 
 def build_schema_template(
-    schema: Type[BaseModel],
+    schema: type[BaseModel],
     required_only: bool = False,
-    pipeline_import_path: Optional[str] = None,
+    pipeline_import_path: str | None = None,
     add_descriptions: bool = False,
 ) -> dict:
     rec_flags: dict = dict(required_only=required_only, add_descriptions=add_descriptions)  # type is needed
@@ -103,7 +105,7 @@ def build_schema_template(
     return template
 
 
-def _field_description(field: ModelField, description: Optional[str]) -> str:
+def _field_description(field: ModelField, description: str | None) -> str:
     description = f" // {description}" if description else ""
     field_type = repr(field._type_display())
     default = repr(field.default) + " : " if field.default else ""

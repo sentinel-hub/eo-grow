@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import logging
 from collections import defaultdict
-from typing import Any, DefaultDict, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional
 
 from pydantic import Field, validator
 
@@ -54,7 +56,7 @@ class ZipMapPipeline(Pipeline):
         )
 
         @validator("params")
-        def parse_params(cls, v: Dict[str, Any], values: Dict[str, Any]) -> Dict[str, Any]:
+        def parse_params(cls, v: dict[str, Any], values: dict[str, Any]) -> dict[str, Any]:
             """Parse the parameters according to model, but returning as a dictionary to allow `**kwargs` passing."""
             if values.get("params_model"):
                 params_model: BaseSchema = import_object(values["params_model"])
@@ -80,9 +82,9 @@ class ZipMapPipeline(Pipeline):
             [self.config.output_feature],
         )
 
-    def get_load_nodes(self) -> List[EONode]:
+    def get_load_nodes(self) -> list[EONode]:
         """Prepare all nodes with load tasks."""
-        load_schema: DefaultDict[str, Set[FeatureSpec]] = defaultdict(set)
+        load_schema: defaultdict[str, set[FeatureSpec]] = defaultdict(set)
         for input_feature in self.config.input_features:
             features_to_load = load_schema[input_feature.folder_key]
             features_to_load.add(input_feature.feature)

@@ -1,9 +1,10 @@
 """
 A module containing general utilities that haven't been sorted in any other module
 """
+from __future__ import annotations
+
 import datetime as dt
 from enum import Enum
-from typing import Union
 
 import numpy as np
 
@@ -11,7 +12,7 @@ from sentinelhub import BBox, DataCollection
 from sentinelhub.data_collections import DataCollectionDefinition
 
 
-def jsonify(param: object) -> Union[str, list]:
+def jsonify(param: object) -> str | list:
     """Transforms an object into a normal string."""
     if isinstance(param, set):
         return list(param)

@@ -1,6 +1,8 @@
 """
 Utilities for filtering eopatch lists
 """
+from __future__ import annotations
+
 from concurrent.futures import ThreadPoolExecutor
 from typing import Sequence
 

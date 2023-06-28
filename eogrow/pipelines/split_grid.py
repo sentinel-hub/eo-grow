@@ -1,8 +1,10 @@
 """Implements a pipeline that creates a finer grid and splits EOPatches accordingly."""
+from __future__ import annotations
+
 import itertools as it
 import logging
 from collections import defaultdict
-from typing import Dict, List, Literal, Tuple, Union
+from typing import List, Literal, Tuple, Union
 
 import fs
 import geopandas as gpd
@@ -78,7 +80,7 @@ class SplitGridPipeline(Pipeline):
 
     config: Schema
 
-    def run_procedure(self) -> Tuple[List, List]:
+    def run_procedure(self) -> tuple[list[str], list[str]]:
         buffer_x, buffer_y = self._get_buffer()
 
         patch_list = self.get_patch_list()
@@ -111,8 +113,8 @@ class SplitGridPipeline(Pipeline):
         return finished, failed
 
     def _keep_intersecting(
-        self, area: Geometry, area_cache: Dict[CRS, Geometry], split_bboxes: List[NamedBBox]
-    ) -> List[NamedBBox]:
+        self, area: Geometry, area_cache: dict[CRS, Geometry], split_bboxes: list[NamedBBox]
+    ) -> list[NamedBBox]:
         """Assumes all bboxes in a split share the same CRS. Only keeps the ones that intersect the AOI."""
         if not split_bboxes:
             return []
@@ -124,7 +126,7 @@ class SplitGridPipeline(Pipeline):
 
         return [bbox for bbox in split_bboxes if _intersects_area(bbox, area_cache[crs])]
 
-    def _get_buffer(self) -> Tuple[float, float]:
+    def _get_buffer(self) -> tuple[float, float]:
         """Infers buffer from AreaManager schemas if possible."""
         if self.config.buffer != "auto":
             return self.config.buffer
@@ -163,7 +165,7 @@ class SplitGridPipeline(Pipeline):
         return EOWorkflow.from_endnodes(*processing_nodes)
 
     def get_execution_arguments(  # type: ignore[override]
-        self, workflow: EOWorkflow, bbox_splits: List[Tuple[NamedBBox, List[NamedBBox]]]
+        self, workflow: EOWorkflow, bbox_splits: list[tuple[NamedBBox, list[NamedBBox]]]
     ) -> ExecKwargs:
         nodes = workflow.get_nodes()
         load_node = nodes[0]
@@ -172,7 +174,7 @@ class SplitGridPipeline(Pipeline):
 
         exec_args: ExecKwargs = {}
         for (orig_name, _), split_bboxes in bbox_splits:
-            patch_args: Dict[EONode, Dict[str, object]] = {load_node: dict(eopatch_folder=orig_name)}
+            patch_args: dict[EONode, dict[str, object]] = {load_node: dict(eopatch_folder=orig_name)}
             # Since some bboxes might get filtered out, the remaining slice and save nodes should get None arguments
             split_bboxes_iter = it.chain(split_bboxes, it.repeat((None, None)))
 
@@ -184,7 +186,7 @@ class SplitGridPipeline(Pipeline):
 
         return exec_args
 
-    def _get_features(self) -> List[FeatureSpec]:
+    def _get_features(self) -> list[FeatureSpec]:
         """Provides features that will be transformed by the pipeline."""
         meta_features = [FeatureType.BBOX]
         if any(f_type.is_temporal() for f_type, _ in self.config.features):
@@ -192,7 +194,7 @@ class SplitGridPipeline(Pipeline):
 
         return self.config.features + meta_features
 
-    def save_new_grid(self, bbox_splits: List[Tuple[NamedBBox, List[NamedBBox]]]) -> None:
+    def save_new_grid(self, bbox_splits: list[tuple[NamedBBox, list[NamedBBox]]]) -> None:
         """Organizes BBoxes into multiple GeoDataFrames that are then saved as layers of a GPKG file."""
         crs_groups = defaultdict(list)
         for _, new_bboxes in bbox_splits:
