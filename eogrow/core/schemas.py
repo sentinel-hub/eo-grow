@@ -10,7 +10,6 @@ from inspect import isclass
 from typing import List, Optional, Union
 
 from pydantic import BaseModel, Field
-from pydantic.fields import ModelField
 
 from ..types import BoolOrAuto, ImportPath
 from ..utils.validators import field_validator, validate_manager
@@ -105,7 +104,7 @@ def build_schema_template(
     return template
 
 
-def _field_description(field: ModelField, description: str | None) -> str:
+def _field_description(field, description: str | None) -> str:
     description = f" // {description}" if description else ""
     field_type = repr(field._type_display())
     default = repr(field.default) + " : " if field.default else ""
