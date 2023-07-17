@@ -49,7 +49,7 @@ class InputDataSchema(BaseSchema):
     )
     _validate_data_collection = field_validator("data_collection", parse_data_collection, pre=True)
 
-    time_period: Optional[TimePeriod]
+    time_period: Optional[TimePeriod] = None
     _validate_time_period = optional_field_validator("time_period", parse_time_period, pre=True)
 
     resampling_type: ResamplingType = Field(

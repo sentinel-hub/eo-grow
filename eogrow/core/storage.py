@@ -4,7 +4,8 @@ from __future__ import annotations
 from typing import Any, ClassVar, Dict, Literal, Optional
 
 import fs
-from pydantic import BaseSettings, Field
+from pydantic import Field
+from pydantic_settings import BaseSettings
 
 import sentinelhub
 from eolearn.core.utils.fs import get_aws_credentials, get_filesystem, is_s3_path
@@ -25,7 +26,7 @@ class StorageManager(EOGrowObject):
             ),
         )
         aws_profile: Optional[str] = Field(
-            env="AWS_PROFILE",
+            validation_alias="AWS_PROFILE",
             description=(
                 "The AWS profile with credentials needed to access the S3 buckets. In case the profile isn't specified"
                 " with a parameter it can be read from an environmental variable."

@@ -95,7 +95,7 @@ class DummyDataPipeline(Pipeline):
         raster_features: List[RasterFeatureSchema] = Field(
             default_factory=list, description="A list of raster features to be generated."
         )
-        timestamp_feature: Optional[TimestampFeatureSchema]
+        timestamp_feature: Optional[TimestampFeatureSchema] = None
 
     config: Schema
 

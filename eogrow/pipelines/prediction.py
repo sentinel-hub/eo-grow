@@ -50,7 +50,7 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         prediction_mask_feature_name: Optional[str] = Field(
             description="Name of `MASK_TIMELESS` feature which defines which areas will be predicted"
         )
-        prediction_mask_folder_key: Optional[str]
+        prediction_mask_folder_key: Optional[str] = None
         _ensure_mask_feature_key = ensure_defined_together("prediction_mask_feature_name", "prediction_mask_folder_key")
 
         model_folder_key: str = Field(
@@ -160,7 +160,7 @@ class RegressionPredictionPipeline(BasePredictionPipeline):
 class ClassificationPredictionPipeline(BasePredictionPipeline):
     class Schema(BasePredictionPipeline.Schema):
         output_feature_name: str
-        output_probability_feature_name: Optional[str]
+        output_probability_feature_name: Optional[str] = None
 
         model_filename: str = Field(description="A filename of a classification model to be used for prediction.")
         label_encoder_filename: Optional[str] = Field(
