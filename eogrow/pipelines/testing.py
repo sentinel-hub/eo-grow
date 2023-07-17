@@ -5,7 +5,7 @@ import logging
 from typing import Any, List, Optional, Tuple, TypeVar
 
 import numpy as np
-from pydantic import Field
+from pydantic import ConfigDict, Field
 
 from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, MergeEOPatchesTask, OverwritePermission, SaveTask
 
@@ -26,8 +26,7 @@ class TestPipeline(Pipeline):
     """
 
     class Schema(Pipeline.Schema):
-        class Config:
-            extra = "allow"
+        model_config = ConfigDict(extra="allow")
 
     _DEFAULT_CONFIG_PARAMS = {  # noqa: RUF012
         "pipeline": "eogrow.pipelines.testing.TestPipeline",

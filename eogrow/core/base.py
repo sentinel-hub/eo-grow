@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any, TypeVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from .config import RawConfig, interpret_config_from_path
 
@@ -16,13 +16,7 @@ class EOGrowObject:
     class Schema(BaseModel):
         """A pydantic parsing/validation schema describing the shape of input parameters."""
 
-        class Config:
-            """Forbids unspecified fields and validates default values as well."""
-
-            extra = "forbid"
-            validate_all = True
-            allow_mutation = False
-            arbitrary_types_allowed = True
+        model_config = ConfigDict(extra="forbid", validate_default=True, frozen=True, arbitrary_types_allowed=True)
 
     config: Schema
 

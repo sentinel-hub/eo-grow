@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Any, ClassVar, Dict, Literal, Optional
 
 import fs
-from pydantic import Field
+from pydantic import ConfigDict, Field
 from pydantic_settings import BaseSettings
 
 import sentinelhub
@@ -43,9 +43,7 @@ class StorageManager(EOGrowObject):
             "fiona", description="Which backend is used for IO operations when using geopandas."
         )
 
-        class Config(ManagerSchema.Config):
-            case_sensitive = True
-            env_prefix = "eogrow_"
+        model_config = ConfigDict(case_sensitive=True, env_prefix="eogrow_")
 
     config: Schema
 

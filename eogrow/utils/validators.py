@@ -8,7 +8,7 @@ import inspect
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Tuple, Union
 
 import numpy as np
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, validator
 
 from eolearn.core import FeatureType
 from eolearn.core.utils.parsing import parse_feature
@@ -187,10 +187,10 @@ class DataCollectionSchema(BaseModel):
     metabands: Union[None, str, Tuple[BandSchema, ...]] = Field(
         None, description="Name of predefined collection in `MetaBands` or custom specification via `BandSchema`."
     )
-
-    class Config:
-        extra = "allow"  # in order to pass on arbitrary parameters but keep definition shorter
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(
+        extra="allow",  # in order to pass on arbitrary parameters but keep definition shorter
+        arbitrary_types_allowed=True,
+    )
 
 
 def _bands_parser(
