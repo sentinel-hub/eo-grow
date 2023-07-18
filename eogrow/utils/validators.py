@@ -42,9 +42,9 @@ def optional_field_validator(
     # In order to propagate the pydantic python magic we need a bit of python magic ourselves
     additional_args = inspect.getfullargspec(validator_fun).args[1:]
 
-    def optional_validator(value, values, config, field):  # type: ignore[no-untyped-def]
+    def optional_validator(value, values):  # type: ignore[no-untyped-def]
         if value is not None:
-            all_kwargs = {"values": values, "config": config, "field": field}
+            all_kwargs = {"values": values}
             kwargs = {k: v for k, v in all_kwargs.items() if k in additional_args}
             return validator_fun(value, **kwargs)
         return None
