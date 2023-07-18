@@ -51,14 +51,15 @@ class ImportTiffPipeline(Pipeline):
         no_data_value: float = Field(
             np.nan, description="Value assigned to undefined pixels, e.g. outside of given input image."
         )
-        dtype: Optional[np.dtype] = Field(description="Custom dtype for the imported feature.")
+        dtype: Optional[np.dtype] = Field(None, description="Custom dtype for the imported feature.")
         _parse_dtype = optional_field_validator("dtype", parse_dtype, pre=True)
         use_vsi: bool = Field(
             True,
             description="Whether to use the VSI for reading. Enabled by default as a remote filesystem is assumed.",
         )
         resize: Optional[ResizeSchema] = Field(
-            description="Settings for SpatialResizeTask applied at the end. When omitted resizing is not performed."
+            None,
+            description="Settings for SpatialResizeTask applied at the end. When omitted resizing is not performed.",
         )
 
     config: Schema

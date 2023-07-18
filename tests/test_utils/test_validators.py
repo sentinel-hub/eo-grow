@@ -44,13 +44,13 @@ class DummySchema(BaseSchema):
     int_field: int
     _check_int_field = field_validator("int_field", is_large_enough)
 
-    opt_int_field: Optional[int]
+    opt_int_field: Optional[int] = None
     _check_opt_int_field = optional_field_validator("opt_int_field", is_large_enough)
 
     field_to_parse: float = "3"  # Defaults also go through parsers!
     _parse_field = field_validator("field_to_parse", parse_float, pre=True)
 
-    opt_field_to_parse: Optional[float]
+    opt_field_to_parse: Optional[float] = None
     _parse_opt_field = field_validator("opt_field_to_parse", parse_float, pre=True)
     _check_opt_field = optional_field_validator("opt_field_to_parse", is_large_enough)  # multiple validators
 
@@ -88,8 +88,8 @@ def test_field_validator():
 
 def test_ensure_exactly_one_defined():
     class DummySchema(BaseSchema):
-        param1: Optional[int]
-        param2: Optional[float]
+        param1: Optional[int] = None
+        param2: Optional[float] = None
         _check_params = ensure_exactly_one_defined("param1", "param2")
 
     assert DummySchema(param1=0).param1 == 0
@@ -101,7 +101,7 @@ def test_ensure_exactly_one_defined():
 
     class DummySchema2(BaseSchema):
         param1: Optional[int] = 2
-        param2: Optional[float]
+        param2: Optional[float] = None
         _check_params = ensure_exactly_one_defined("param1", "param2")
 
     assert DummySchema2().param1 == 2
@@ -112,8 +112,8 @@ def test_ensure_exactly_one_defined():
 
 def test_ensure_defined_together():
     class DummySchema(BaseSchema):
-        param1: Optional[int]
-        param2: Optional[float]
+        param1: Optional[int] = None
+        param2: Optional[float] = None
         _check_params = ensure_defined_together("param1", "param2")
 
     schema1 = DummySchema()
@@ -130,7 +130,7 @@ def test_ensure_defined_together():
 
     class DummySchema2(BaseSchema):
         param1: Optional[int] = 2
-        param2: Optional[float]
+        param2: Optional[float] = None
         _check_params = ensure_defined_together("param1", "param2")
 
     schema3 = DummySchema2(param2="0.87")
@@ -308,12 +308,12 @@ class DummyFeatureSchema(BaseSchema):
         "temporal_feature", restrict_types([ftype for ftype in FeatureType if ftype.is_temporal()])
     )
 
-    mask_like_feature: Optional[Feature]
+    mask_like_feature: Optional[Feature] = None
     _check_mask_feature = optional_field_validator(
         "mask_like_feature", restrict_types([FeatureType.MASK, FeatureType.MASK_TIMELESS])
     )
 
-    feature_3d: Optional[Feature]
+    feature_3d: Optional[Feature] = None
     _check_3d_feature = optional_field_validator(
         "feature_3d", restrict_types([ftype for ftype in FeatureType if ftype.ndim() == 3])
     )

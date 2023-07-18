@@ -89,7 +89,7 @@ class DummyDataPipeline(Pipeline):
         output_folder_key: str = Field(description="The storage manager key pointing to the pipeline output folder.")
         _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
 
-        seed: Optional[int] = Field(description="A randomness seed.")
+        seed: Optional[int] = Field(None, description="A randomness seed.")
 
         raster_features: List[RasterFeatureSchema] = Field(
             default_factory=list, description="A list of raster features to be generated."

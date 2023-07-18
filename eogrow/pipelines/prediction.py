@@ -43,12 +43,12 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
 
         dtype: Optional[np.dtype] = Field(
-            description="Casts the result to desired type. Uses predictor output type by default."
+            None, description="Casts the result to desired type. Uses predictor output type by default."
         )
         _parse_dtype = optional_field_validator("dtype", parse_dtype, pre=True)
 
         prediction_mask_feature_name: Optional[str] = Field(
-            description="Name of `MASK_TIMELESS` feature which defines which areas will be predicted"
+            None, description="Name of `MASK_TIMELESS` feature which defines which areas will be predicted"
         )
         prediction_mask_folder_key: Optional[str] = None
         _ensure_mask_feature_key = ensure_defined_together("prediction_mask_feature_name", "prediction_mask_folder_key")
@@ -134,7 +134,7 @@ class RegressionPredictionPipeline(BasePredictionPipeline):
         output_feature_name: str
         model_filename: str = Field(description="A filename of a regression model to be used for prediction.")
         clip_predictions: Optional[Tuple[float, float]] = Field(
-            description="Whether to clip values of predictions to specified interval"
+            None, description="Whether to clip values of predictions to specified interval"
         )
 
     config: Schema
@@ -164,9 +164,10 @@ class ClassificationPredictionPipeline(BasePredictionPipeline):
 
         model_filename: str = Field(description="A filename of a classification model to be used for prediction.")
         label_encoder_filename: Optional[str] = Field(
+            None,
             description=(
                 "Whether the predictions need to be decoded. The label encoder should be in the same model folder."
-            )
+            ),
         )
 
     config: Schema

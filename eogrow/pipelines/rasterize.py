@@ -30,6 +30,7 @@ LOGGER = logging.getLogger(__name__)
 
 class Preprocessing(BaseSchema):
     reproject_crs: Optional[int] = Field(
+        None,
         description=(
             "An EPSG code of a CRS in which vector_input data will be reprojected once loaded. Mandatory if"
             " the input vector contains multiple layers in different CRS."
@@ -50,20 +51,22 @@ class RasterizePipeline(Pipeline):
         output_feature: Feature = Field(description="A feature which should contain the newly rasterized data.")
 
         raster_value: Optional[float] = Field(
-            description="Value to be used for all rasterized polygons. Cannot be used with `raster_values_column`."
+            None,
+            description="Value to be used for all rasterized polygons. Cannot be used with `raster_values_column`.",
         )
         raster_values_column: Optional[str] = Field(
+            None,
             description=(
                 "GeoPandas column for reading per-geometry rasterization values. Cannot be used with `raster_value`."
-            )
+            ),
         )
         _check_raster_value_values_column = ensure_exactly_one_defined("raster_value", "raster_values_column")
 
         resolution: Optional[float] = Field(
-            description="Rendering resolution in meters. Cannot be used with `raster_shape`."
+            None, description="Rendering resolution in meters. Cannot be used with `raster_shape`."
         )
         raster_shape: Optional[Tuple[int, int]] = Field(
-            description="Shape of resulting raster image. Cannot be used with `resolution`."
+            None, description="Shape of resulting raster image. Cannot be used with `resolution`."
         )
         _check_shape_resolution = ensure_exactly_one_defined("resolution", "raster_shape")
 
@@ -71,15 +74,17 @@ class RasterizePipeline(Pipeline):
         _parse_dtype = field_validator("dtype", parse_dtype, pre=True)
 
         preprocess_dataset: Optional[Preprocessing] = Field(
-            description="Parameters used by `self.preprocess_dataset` method. Skipped if set to `None`."
+            None, description="Parameters used by `self.preprocess_dataset` method. Skipped if set to `None`."
         )
         dataset_layer: Optional[str] = Field(
-            description="In case of multi-layer files, name of the layer with data to be rasterized."
+            None, description="In case of multi-layer files, name of the layer with data to be rasterized."
         )
         polygon_buffer: float = Field(
             0, description="The size of polygon buffering to be applied before rasterization."
         )
-        overlap_value: Optional[float] = Field(description="Value to write over the areas where polygons overlap.")
+        overlap_value: Optional[float] = Field(
+            None, description="Value to write over the areas where polygons overlap."
+        )
         no_data_value: int = Field(0, description="The no_data_value argument to be passed to VectorToRasterTask")
         compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
 

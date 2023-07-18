@@ -61,7 +61,7 @@ class RaySessionActor:
 
 class RescaleSchema(BaseSchema):
     rescale_factor: float = Field(1, description="Amount by which the selected features are multiplied")
-    dtype: Optional[np.dtype] = Field(description="The output dtype of data")
+    dtype: Optional[np.dtype] = Field(None, description="The output dtype of data")
     _parse_dtype = optional_field_validator("dtype", parse_dtype, pre=True)
     features_to_rescale: List[Feature]
 
@@ -83,13 +83,16 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
 
         compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
         threads_per_worker: Optional[int] = Field(
+            None,
             description=(
                 "Maximum number of parallel threads used during download by each worker. If set to None it will use "
                 "5 * N threads, where N is the number of CPUs on the machine"
             ),
         )
 
-        postprocessing: Optional[PostprocessingRescale] = Field(description="Parameters used in post-processing tasks")
+        postprocessing: Optional[PostprocessingRescale] = Field(
+            None, description="Parameters used in post-processing tasks"
+        )
 
     config: Schema
 
@@ -202,22 +205,24 @@ class CommonDownloadFields(BaseSchema):
     _validate_data_collection = field_validator("data_collection", parse_data_collection, pre=True)
 
     resolution: Optional[float] = Field(
+        None,
         description=(
             "Resolution of downloaded data in meters. Exactly one of the parameters resolution and size has to be"
             " specified."
-        )
+        ),
     )
     size: Optional[Tuple[int, int]] = Field(
+        None,
         description=(
             "A pair (width, height) of downloaded data in pixels. . Exactly one of the parameters resolution and size"
             " has to be specified."
-        )
+        ),
     )
 
-    maxcc: Optional[float] = Field(ge=0, le=1, description="Maximal cloud coverage filter.")
+    maxcc: Optional[float] = Field(None, ge=0, le=1, description="Maximal cloud coverage filter.")
 
     resampling_type: Optional[ResamplingType] = Field(
-        description="A type of downsampling and upsampling used by Sentinel Hub service. Default is NEAREST"
+        None, description="A type of downsampling and upsampling used by Sentinel Hub service. Default is NEAREST"
     )
 
     _check_resolution_and_size = ensure_exactly_one_defined("resolution", "size")
@@ -227,10 +232,12 @@ class TimeDependantFields(BaseSchema):
     time_period: TimePeriod
     _validate_time_period = field_validator("time_period", parse_time_period, pre=True)
 
-    time_difference: Optional[float] = Field(description="Time difference in minutes between consecutive time frames")
+    time_difference: Optional[float] = Field(
+        None, description="Time difference in minutes between consecutive time frames"
+    )
 
     mosaicking_order: Optional[MosaickingOrder] = Field(
-        description="The mosaicking order used by Sentinel Hub service. Default is mostRecent"
+        None, description="The mosaicking order used by Sentinel Hub service. Default is mostRecent"
     )
 
 
@@ -239,7 +246,7 @@ class DownloadPipeline(BaseDownloadPipeline):
 
     class Schema(BaseDownloadPipeline.Schema, CommonDownloadFields, TimeDependantFields):
         bands_feature_name: str = Field(description="Name of a feature in which bands will be saved")
-        bands: Optional[List[str]] = Field(description="Names of bands to download")
+        bands: Optional[List[str]] = Field(None, description="Names of bands to download")
         additional_data: List[Feature] = Field(default_factory=list, description="Additional data to download")
         use_dn: bool = Field(
             False, description="Whether to save bands as float32 reflectance (default), or int16 digital numbers."

@@ -31,7 +31,7 @@ class UtmZoneAreaManager(BaseAreaManager):
     """Area manager that splits the area per UTM zone"""
 
     class Schema(BaseAreaManager.Schema):
-        area: Optional[AreaSchema] = Field(description="DEPRECATED, use `geometry_filename` instead.")
+        area: Optional[AreaSchema] = Field(None, description="DEPRECATED, use `geometry_filename` instead.")
         geometry_filename: str = Field(  # type:ignore[assignment]
             None, description="Name of the file that defines the AoI geometry, located in the input data folder."
         )

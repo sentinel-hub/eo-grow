@@ -181,7 +181,7 @@ class BaseTrainingPipeline(Pipeline, metaclass=abc.ABCMeta):
 
 class ClassificationPreprocessSchema(BaseSchema):
     label_encoder_filename: Optional[str] = Field(
-        description="If specified uses a label encoder and saves it under specified name."
+        None, description="If specified uses a label encoder and saves it under specified name."
     )
 
     filter_classes: List[int] = Field(

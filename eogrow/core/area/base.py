@@ -28,9 +28,11 @@ LOGGER = logging.getLogger(__name__)
 class AreaSchema(BaseSchema):
     filename: str
     buffer: Optional[float] = Field(
+        None,
         description="Buffer that will be applied to AOI geometry. Buffer has to be in the same units as AOI CRS.",
     )
     simplification_factor: Optional[float] = Field(
+        None,
         description="Tolerance factor (in CRS units) for simplifying the buffered area geometry before splitting it.",
     )
 
@@ -64,7 +66,7 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
 
     class Schema(ManagerSchema):
         patch_names: Optional[PatchListSchema] = Field(
-            description="Names of EOPatches to keep when filtering in the `get_grid` method."
+            None, description="Names of EOPatches to keep when filtering in the `get_grid` method."
         )
 
     config: Schema

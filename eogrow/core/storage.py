@@ -26,6 +26,7 @@ class StorageManager(EOGrowObject):
             ),
         )
         aws_profile: Optional[str] = Field(
+            None,
             validation_alias="AWS_PROFILE",
             description=(
                 "The AWS profile with credentials needed to access the S3 buckets. In case the profile isn't specified"

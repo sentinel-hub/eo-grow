@@ -36,10 +36,11 @@ class MergeSamplesPipeline(Pipeline):
         )
         include_timestamp: bool = Field(False, description="Whether to also prepare an array of merged timestamps.")
         id_filename: Optional[str] = Field(
+            None,
             description=(
                 "Filename of array holding patch ID of concatenated features. The patch ID is the index of the patch in"
                 " the final patch list, any filtration of the patch list will impact the results."
-            )
+            ),
         )
         suffix: str = Field("", description="String to append to array filenames")
         workers: int = Field(1, description="Number of threads used to load data from EOPatches in parallel.")

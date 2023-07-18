@@ -27,7 +27,7 @@ class BatchAreaManager(BaseAreaManager):
     """Area manager that splits the area according to the Sentinel Hub Batch tiling grids."""
 
     class Schema(BaseAreaManager.Schema):
-        area: Optional[AreaSchema] = Field(description="DEPRECATED, use `geometry_filename` instead.")
+        area: Optional[AreaSchema] = Field(None, description="DEPRECATED, use `geometry_filename` instead.")
         geometry_filename: str = Field(  # type:ignore[assignment]
             None, description="Name of the file that defines the AoI geometry, located in the input data folder."
         )
@@ -43,6 +43,7 @@ class BatchAreaManager(BaseAreaManager):
         tile_buffer_x: int = Field(0, description="Number of pixels for which to buffer each tile left and right.")
         tile_buffer_y: int = Field(0, description="Number of pixels for which to buffer each tile up and down.")
         batch_id: Optional[str] = Field(
+            None,
             description=(
                 "ID of the batch job that defines the AOI. Not required when using BatchDownloadPipeline,"
                 " which generates a new batch job with the given AOI parameters."

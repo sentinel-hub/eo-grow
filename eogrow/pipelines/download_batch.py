@@ -55,8 +55,10 @@ class InputDataSchema(BaseSchema):
     resampling_type: ResamplingType = Field(
         ResamplingType.NEAREST, description="A type of downsampling and upsampling used by Sentinel Hub service"
     )
-    maxcc: Optional[float] = Field(ge=0, le=1, description="Maximal cloud coverage filter.")
-    mosaicking_order: Optional[MosaickingOrder] = Field(description="The mosaicking order used by Sentinel Hub service")
+    maxcc: Optional[float] = Field(None, ge=0, le=1, description="Maximal cloud coverage filter.")
+    mosaicking_order: Optional[MosaickingOrder] = Field(
+        None, description="The mosaicking order used by Sentinel Hub service"
+    )
     other_params: dict = Field(
         default_factory=dict,
         description=(

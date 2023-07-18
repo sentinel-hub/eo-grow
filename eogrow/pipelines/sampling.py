@@ -33,15 +33,17 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
             ),
         )
         mask_of_samples_name: Optional[str] = Field(
+            None,
             description=(
                 "A name of a mask timeless output feature with information which pixels were sampled and how many times"
-            )
+            ),
         )
         sampled_suffix: Optional[str] = Field(
+            None,
             description=(
                 "If provided features are saved with a suffix, e.g. for suffix SAMPLED the sampled FEATURES are "
                 "saved as FEATURES_SAMPLED."
-            )
+            ),
         )
         compress_level: int = Field(1, description="Level of compression used in saving eopatches")
 
@@ -192,6 +194,7 @@ class FractionSamplingPipeline(BaseRandomSamplingPipeline):
             description="Name of MASK_TIMELESS feature to be used to create sample point"
         )
         erosion_dict: Optional[Dict[int, List[int]]] = Field(
+            None,
             description="A dictionary specifying disc radius of erosion operation to be applied to a list of label IDs",
             example={2: [1, 3, 4], 1: [2]},
         )
@@ -244,16 +247,18 @@ class BlockSamplingPipeline(BaseRandomSamplingPipeline):
         sample_size: Tuple[int, int] = Field(description="A height and width of each block in pixels.")
 
         number_of_samples: Optional[int] = Field(
+            None,
             description=(
                 "A number of samples to be sampled. Exactly one of parameters fraction_of_samples and number_of_samples"
                 " has to be given."
-            )
+            ),
         )
         fraction_of_samples: Optional[float] = Field(
+            None,
             description=(
                 "A percentage of samples to be sampled. Exactly one of parameters fraction_of_samples and "
                 "number_of_samples has to be given."
-            )
+            ),
         )
 
         _check_fraction_number = ensure_exactly_one_defined("number_of_samples", "fraction_of_samples")
