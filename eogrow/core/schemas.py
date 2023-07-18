@@ -7,9 +7,11 @@ as an internal class of the implemented pipeline class
 from __future__ import annotations
 
 from inspect import isclass
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union, get_args, get_origin
 
 from pydantic import BaseModel, Field
+from pydantic.fields import FieldInfo
+from pydantic_core import PydanticUndefined
 
 from ..types import BoolOrAuto, ImportPath
 from ..utils.validators import field_validator, validate_manager
@@ -79,25 +81,32 @@ def build_schema_template(
     rec_flags: dict = dict(required_only=required_only, add_descriptions=add_descriptions)  # type is needed
 
     template: dict = {}
-    for name, field in schema.__fields__.items():
-        if required_only and not field.required:
+    for name, field in schema.model_fields.items():
+        if required_only and not field.is_required():
             continue
 
-        description = field.field_info.description if add_descriptions else None
+        # remove optional layer around type
+        is_optional = _is_optional_type(field.annotation)
+        field_type = field.annotation if not is_optional else _get_nested_type(field.annotation)
+
+        # get inner type in case of nested fields (list, tuple, ..)
+        origin_type = get_origin(field_type)
+        core_type = field_type if origin_type is None else _get_nested_type(field_type)
+
+        description = field.description if add_descriptions else None
 
         if name == "pipeline" and pipeline_import_path:
             template[name] = pipeline_import_path
-        elif isclass(field.type_) and issubclass(field.type_, BaseModel):
-            # Contains a subschema in the nesting
-            if isclass(field.outer_type_) and issubclass(field.outer_type_, BaseModel):
-                template[name] = build_schema_template(field.type_, **rec_flags)
+        elif isclass(core_type) and issubclass(core_type, BaseModel):
+            if origin_type is None:  # expand schema
+                template[name] = build_schema_template(field_type, **rec_flags)
                 if description:
                     template[name]["<< description >>"] = description
-            else:
+            else:  # expand the nested subschema
                 template[name] = {
-                    "<< type >>": repr(field._type_display()),
-                    "<< nested schema >>": str(field.type_),
-                    "<< sub-template >>": build_schema_template(field.type_, **rec_flags),
+                    "<< type >>": _type_name(field_type),
+                    "<< nested schema >>": repr(core_type),
+                    "<< sub-template >>": build_schema_template(core_type, **rec_flags),
                 }
         else:
             template[name] = _field_description(field, description)
@@ -105,8 +114,25 @@ def build_schema_template(
     return template
 
 
-def _field_description(field, description: str | None) -> str:
+def _type_name(field_type: Any) -> str:
+    """Return the prettified class/type name."""
+    if isclass(field_type):
+        return field_type.__name__
+
+    return repr(field_type).replace("typing.", "")
+
+
+def _is_optional_type(field_type: Any) -> bool:
+    """Returns True if type of field is Optional, otherwise False."""
+    return get_origin(field_type) is Union and type(None) in get_args(field_type)
+
+
+def _get_nested_type(field_type: Any) -> Any:
+    """Return the first nested type. type(None) is ignored"""
+    return next(item for item in get_args(field_type) if item is not type(None))
+
+
+def _field_description(field: FieldInfo, description: str | None) -> str:
     description = f" // {description}" if description else ""
-    field_type = repr(field._type_display())
-    default = repr(field.default) + " : " if field.default else ""
-    return f"<< {default}{field_type}{description} >>"
+    default = repr(field.default) + ": " if field.default not in [None, PydanticUndefined] else ""
+    return f"<< {default}{_type_name(field.annotation)}{description} >>"
