@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 import numpy as np
 import pytest
-from pydantic import ValidationError
+from pydantic import FieldValidationInfo, ValidationError
 
 from eolearn.core import FeatureType
 from sentinelhub import DataCollection
@@ -17,13 +17,13 @@ from eogrow.utils.validators import (
     ensure_defined_together,
     ensure_exactly_one_defined,
     ensure_storage_key_presence,
-    field_validator,
-    optional_field_validator,
+    optional_validator,
     parse_data_collection,
     parse_dtype,
     parse_time_period,
     restrict_types,
     validate_manager,
+    validator,
 )
 
 
@@ -33,26 +33,26 @@ def is_large_enough(value: int):
     return value
 
 
-def parse_float(value, values) -> Optional[float]:
+def parse_float(value, info: FieldValidationInfo) -> Optional[float]:
     """Extracts float from string and adds another field (to test `values` parameter as well)"""
     if isinstance(value, str):
-        return float(value) + values.get("int_field", 0)
+        return float(value) + info.data.get("int_field", 0)
     return None
 
 
 class DummySchema(BaseSchema):
     int_field: int
-    _check_int_field = field_validator("int_field", is_large_enough)
+    _check_int_field = validator("int_field", is_large_enough)
 
     opt_int_field: Optional[int] = None
-    _check_opt_int_field = optional_field_validator("opt_int_field", is_large_enough)
+    _check_opt_int_field = optional_validator("opt_int_field", is_large_enough)
 
     field_to_parse: float = "3"  # Defaults also go through parsers!
-    _parse_field = field_validator("field_to_parse", parse_float, pre=True)
+    _parse_field = validator("field_to_parse", parse_float, mode="before")
 
     opt_field_to_parse: Optional[float] = None
-    _parse_opt_field = field_validator("opt_field_to_parse", parse_float, pre=True)
-    _check_opt_field = optional_field_validator("opt_field_to_parse", is_large_enough)  # multiple validators
+    _parse_opt_field = validator("opt_field_to_parse", parse_float, mode="before")
+    _check_opt_field = optional_validator("opt_field_to_parse", is_large_enough)  # multiple validators
 
 
 def test_field_validator():
@@ -190,7 +190,7 @@ def test_parse_time_period(time_period, year, expected_start_date, expected_end_
 def test_parse_dtype(dtype_input: Union[str, type, np.dtype]):
     class DtypeSchema(BaseSchema):
         dtype: np.dtype
-        _parse_dtype = field_validator("dtype", parse_dtype, pre=True)
+        _parse_dtype = validator("dtype", parse_dtype, mode="before")
 
     schema = DtypeSchema(dtype=dtype_input)
     assert isinstance(schema.dtype, np.dtype)
@@ -240,7 +240,7 @@ def test_parse_dtype(dtype_input: Union[str, type, np.dtype]):
 def test_validate_manager(manager_input: RawSchemaDict, succeeds: bool):
     class SchemaWithManager(BaseSchema):
         manager: ManagerSchema
-        validate_manager = field_validator("manager", validate_manager, pre=True)
+        validate_manager = validator("manager", validate_manager, mode="before")
 
     with nullcontext() if succeeds else pytest.raises(ValidationError):
         SchemaWithManager(manager=manager_input)
@@ -258,7 +258,7 @@ def test_validate_manager(manager_input: RawSchemaDict, succeeds: bool):
 def test_parse_collection_from_string(collection_input: str, is_byoc: bool, is_batch: bool):
     class CollectionSchema(BaseSchema):
         collection: DataCollection
-        _parse_collection = field_validator("collection", parse_data_collection, pre=True)
+        _parse_collection = validator("collection", parse_data_collection, mode="before")
 
     schema = CollectionSchema(collection=collection_input)
     assert isinstance(schema.collection, DataCollection)
@@ -270,7 +270,7 @@ def test_parse_collection_from_string(collection_input: str, is_byoc: bool, is_b
 def test_parse_collection_from_dict():
     class CollectionSchema(BaseSchema):
         collection: DataCollection
-        _parse_collection = field_validator("collection", parse_data_collection, pre=True)
+        _parse_collection = validator("collection", parse_data_collection, mode="before")
 
     raw_schema = {
         "name": "test",
@@ -304,17 +304,17 @@ def test_parse_collection_from_dict():
 
 class DummyFeatureSchema(BaseSchema):
     temporal_feature: Feature
-    _check_temporal_feature = field_validator(
+    _check_temporal_feature = validator(
         "temporal_feature", restrict_types([ftype for ftype in FeatureType if ftype.is_temporal()])
     )
 
     mask_like_feature: Optional[Feature] = None
-    _check_mask_feature = optional_field_validator(
+    _check_mask_feature = optional_validator(
         "mask_like_feature", restrict_types([FeatureType.MASK, FeatureType.MASK_TIMELESS])
     )
 
     feature_3d: Optional[Feature] = None
-    _check_3d_feature = optional_field_validator(
+    _check_3d_feature = optional_validator(
         "feature_3d", restrict_types([ftype for ftype in FeatureType if ftype.ndim() == 3])
     )
 

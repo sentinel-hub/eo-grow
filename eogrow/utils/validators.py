@@ -8,7 +8,7 @@ import inspect
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Tuple, Union
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, FieldValidationInfo, field_validator
 from pydantic.functional_validators import BeforeValidator
 from typing_extensions import Annotated
 
@@ -17,7 +17,7 @@ from eolearn.core.utils.parsing import parse_feature
 from sentinelhub import DataCollection
 from sentinelhub.data_collections_bands import Band, Bands, MetaBands, Unit
 
-from ..types import Feature, RawSchemaDict, TimePeriod
+from ..types import Feature, TimePeriod
 from .meta import collect_schema, import_object
 
 if TYPE_CHECKING:
@@ -26,27 +26,22 @@ if TYPE_CHECKING:
 # ruff: noqa: ARG001
 
 
-def field_validator(field: str, validator_fun: Callable, allow_reuse: bool = True, **kwargs: Any) -> classmethod:
+def validator(field: str, validator_fun: Callable, **kwargs: Any) -> classmethod:
     """Sugared syntax for the `validator` decorator of `pydantic`"""
-    return validator(field, allow_reuse=allow_reuse, **kwargs)(validator_fun)
+    return field_validator(field, **kwargs)(validator_fun)
 
 
-def optional_field_validator(
-    field: str, validator_fun: Callable, allow_reuse: bool = True, **kwargs: Any
-) -> classmethod:
+def optional_validator(field: str, validator_fun: Callable, **kwargs: Any) -> classmethod:
     """Wraps the validator functions so that `None` is always a valid input and only calls the validator on values.
 
     This allows re-use of validators e.g. if we have a validator for `Path` we can now use it for `Optional[Path]`.
-    Because `pydantic` has a variable amount of arguments passed to the validator this function can only be used
-    with validators that include `**kwargs` (or require all three arguments). For details on this behaviour
-    consult the [validators documentation](https://pydantic-docs.helpmanual.io/usage/validators/).
     """
     # In order to propagate the pydantic python magic we need a bit of python magic ourselves
     additional_args = inspect.getfullargspec(validator_fun).args[1:]
 
-    def optional_validator(value, values):  # type: ignore[no-untyped-def]
+    def optional_validator(value, info: FieldValidationInfo):  # type: ignore[no-untyped-def]
         if value is not None:
-            all_kwargs = {"values": values}
+            all_kwargs = {"info": info}
             kwargs = {k: v for k, v in all_kwargs.items() if k in additional_args}
             return validator_fun(value, **kwargs)
         return None
@@ -54,7 +49,7 @@ def optional_field_validator(
     optional_validator.__name__ = f"optional_{validator_fun.__name__}"  # used for docbuilding purposes
     # the correct way would be to use `functools.wraps` but this breaks pydantics python magic
 
-    return validator(field, allow_reuse=allow_reuse, **kwargs)(optional_validator)
+    return field_validator(field, **kwargs)(optional_validator)
 
 
 def ensure_exactly_one_defined(first_param: str, second_param: str, **kwargs: Any) -> classmethod:
@@ -63,8 +58,8 @@ def ensure_exactly_one_defined(first_param: str, second_param: str, **kwargs: An
     Make sure that the definition of `second_param` comes after `first_param˙ (in line-order).
     """
 
-    def ensure_exclusion(cls: type, value: Any | None, values: RawSchemaDict) -> Any | None:
-        is_param1_undefined = values.get(first_param) is None
+    def ensure_exclusion(cls: type, value: Any | None, info: FieldValidationInfo) -> Any | None:
+        is_param1_undefined = info.data.get(first_param) is None
         is_param2_undefined = value is None
         assert (
             is_param1_undefined != is_param2_undefined
@@ -74,7 +69,7 @@ def ensure_exactly_one_defined(first_param: str, second_param: str, **kwargs: An
 
     ensure_exclusion.__name__ = f"cannot_be_used_with_{first_param}"  # used for docbuilding purposes
 
-    return field_validator(second_param, ensure_exclusion, **kwargs)
+    return validator(second_param, ensure_exclusion, **kwargs)
 
 
 def ensure_defined_together(first_param: str, second_param: str, **kwargs: Any) -> classmethod:
@@ -83,8 +78,8 @@ def ensure_defined_together(first_param: str, second_param: str, **kwargs: Any) 
     Make sure that the definition of `second_param` comes after `first_param˙ (in line-order).
     """
 
-    def ensure_both(cls: type, value: Any | None, values: RawSchemaDict) -> Any | None:
-        is_param1_undefined = values.get(first_param) is None
+    def ensure_both(cls: type, value: Any | None, info: FieldValidationInfo) -> Any | None:
+        is_param1_undefined = info.data.get(first_param) is None
         is_param2_undefined = value is None
         assert (
             is_param1_undefined == is_param2_undefined
@@ -94,22 +89,22 @@ def ensure_defined_together(first_param: str, second_param: str, **kwargs: Any) 
 
     ensure_both.__name__ = f"must_be_used_with_{first_param}"  # used for docbuilding purposes
 
-    return field_validator(second_param, ensure_both, **kwargs)
+    return validator(second_param, ensure_both, **kwargs)
 
 
 def ensure_storage_key_presence(key: str, **kwargs: Any) -> classmethod:
     """A field validator that makes sure that the specified storage key is present in the storage structure."""
 
-    def validate_storage_key(cls: type, key: str | None, values: RawSchemaDict) -> str | None:
+    def validate_storage_key(cls: type, key: str | None, info: FieldValidationInfo) -> str | None:
         if key is not None:
             predefined_keys = ["input_data", "logs", "cache"]
             assert (
-                key in values["storage"].structure or key in predefined_keys
+                key in info.data["storage"].structure or key in predefined_keys
             ), f"Couldn't find storage key {key!r} in the storage structure!"
 
         return key
 
-    return field_validator(key, validate_storage_key, **kwargs)
+    return validator(key, validate_storage_key, **kwargs)
 
 
 def parse_time_period(value: tuple[str, str]) -> TimePeriod:
