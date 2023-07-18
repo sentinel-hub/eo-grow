@@ -222,9 +222,10 @@ def parse_data_collection(value: str | dict | DataCollection) -> DataCollection:
         if name in DataCollection.__members__:
             return getattr(DataCollection, name)
     else:
-        params = dict(DataCollectionSchema.model_validate(value))
-        params["bands"] = _bands_parser(Bands, params["bands"])
-        params["metabands"] = _bands_parser(MetaBands, params["metabands"])
+        schema = DataCollectionSchema.model_validate(value)
+        params = schema.model_dump()
+        params["bands"] = _bands_parser(Bands, schema.bands)
+        params["metabands"] = _bands_parser(MetaBands, schema.metabands)
         name = params.pop("name")
 
     if name.startswith("BYOC_"):
