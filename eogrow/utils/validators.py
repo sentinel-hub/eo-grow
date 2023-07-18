@@ -157,7 +157,7 @@ def validate_manager(value: dict) -> ManagerSchema:
     assert "manager" in value, "Manager definition has no `manager` field that specifies its class."
     manager_class = import_object(value["manager"])
     manager_schema = collect_schema(manager_class)
-    return manager_schema.parse_obj(value)  # type: ignore[return-value]
+    return manager_schema.model_validate(value)  # type: ignore[return-value]
 
 
 class BandSchema(BaseModel):
@@ -222,7 +222,7 @@ def parse_data_collection(value: str | dict | DataCollection) -> DataCollection:
         if name in DataCollection.__members__:
             return getattr(DataCollection, name)
     else:
-        params = dict(DataCollectionSchema.parse_obj(value))
+        params = dict(DataCollectionSchema.model_validate(value))
         params["bands"] = _bands_parser(Bands, params["bands"])
         params["metabands"] = _bands_parser(MetaBands, params["metabands"])
         name = params.pop("name")
