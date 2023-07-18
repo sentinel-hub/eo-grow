@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING, Any, Callable, Iterable, Tuple, Union
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, validator
+from pydantic.functional_validators import BeforeValidator
+from typing_extensions import Annotated
 
 from eolearn.core import FeatureType
 from eolearn.core.utils.parsing import parse_feature
@@ -160,18 +162,18 @@ def validate_manager(value: dict) -> ManagerSchema:
     return manager_schema.model_validate(value)  # type: ignore[return-value]
 
 
+def _parse_output_types(value: str) -> type:
+    if value == "bool":
+        return bool
+    return np.dtype(value).type
+
+
 class BandSchema(BaseModel):
     """Schema used in parsing DataCollection bands."""
 
     name: str
     units: Tuple[Unit, ...]
-    output_types: Tuple[type, ...]
-
-    @validator("output_types", pre=True, each_item=True)
-    def _parse_output_types(cls, value: str) -> type:
-        if value == "bool":
-            return bool
-        return np.dtype(value).type
+    output_types: Tuple[Annotated[type, BeforeValidator(_parse_output_types)], ...]
 
 
 class DataCollectionSchema(BaseModel):
