@@ -14,7 +14,7 @@ from pydantic.fields import FieldInfo
 from pydantic_core import PydanticUndefined
 
 from ..types import BoolOrAuto, ImportPath
-from ..utils.validators import field_validator, validate_manager
+from ..utils.validators import validate_manager, validator
 from .base import EOGrowObject
 
 # ruff: noqa: SLF001
@@ -37,13 +37,13 @@ class PipelineSchema(BaseSchema):
     )
 
     storage: ManagerSchema = Field(description="A schema of an implementation of StorageManager class")
-    validate_storage = field_validator("storage", validate_manager, pre=True)
+    validate_storage = validator("storage", validate_manager, mode="before")
 
     area: ManagerSchema = Field(description="A schema of an implementation of AreaManager class")
-    validate_area = field_validator("area", validate_manager, pre=True)
+    validate_area = validator("area", validate_manager, mode="before")
 
     logging: ManagerSchema = Field(description="A schema of an implementation of LoggingManager class")
-    validate_logging = field_validator("logging", validate_manager, pre=True)
+    validate_logging = validator("logging", validate_manager, mode="before")
 
     workers: int = Field(
         1, description="Number of workers for parallel execution of workflows. Parameter does not affect ray clusters."

@@ -12,7 +12,7 @@ from pydantic import Field
 
 from sentinelhub import CRS, BatchRequest, BatchRequestStatus, BatchSplitter, Geometry, SentinelHubBatch
 
-from ...utils.validators import field_validator
+from ...utils.validators import validator
 from ..storage import StorageManager
 from .base import AreaSchema, BaseAreaManager, area_schema_deprecation, get_geometry_from_file
 
@@ -50,7 +50,7 @@ class BatchAreaManager(BaseAreaManager):
             ),
         )
 
-        _warn_and_adapt_old_config = field_validator("geometry_filename", area_schema_deprecation, pre=True)
+        _warn_and_adapt_old_config = validator("geometry_filename", area_schema_deprecation, mode="before")
 
     config: Schema
 

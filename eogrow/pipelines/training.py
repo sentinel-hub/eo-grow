@@ -10,7 +10,7 @@ import fs
 import joblib
 import numpy as np
 from lightgbm import LGBMClassifier, LGBMRegressor
-from pydantic import Field
+from pydantic import ConfigDict, Field
 from sklearn.metrics import (
     accuracy_score,
     f1_score,
@@ -69,6 +69,8 @@ class BaseTrainingPipeline(Pipeline, metaclass=abc.ABCMeta):
         patch_list: None = None
         input_patch_file: None = None
         skip_existing: Literal[False] = False
+
+        model_config = ConfigDict(protected_namespaces=())
 
     config: Schema
 

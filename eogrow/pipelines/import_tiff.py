@@ -16,7 +16,7 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..types import Feature, PatchList
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.validators import ensure_storage_key_presence, optional_field_validator, parse_dtype
+from ..utils.validators import ensure_storage_key_presence, optional_validator, parse_dtype
 
 
 class ResizeSchema(BaseSchema):
@@ -52,7 +52,7 @@ class ImportTiffPipeline(Pipeline):
             np.nan, description="Value assigned to undefined pixels, e.g. outside of given input image."
         )
         dtype: Optional[np.dtype] = Field(None, description="Custom dtype for the imported feature.")
-        _parse_dtype = optional_field_validator("dtype", parse_dtype, pre=True)
+        _parse_dtype = optional_validator("dtype", parse_dtype, mode="before")
         use_vsi: bool = Field(
             True,
             description="Whether to use the VSI for reading. Enabled by default as a remote filesystem is assumed.",

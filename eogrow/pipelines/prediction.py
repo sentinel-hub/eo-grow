@@ -6,7 +6,7 @@ from typing import List, Optional, Tuple
 
 import fs
 import numpy as np
-from pydantic import Field
+from pydantic import ConfigDict, Field
 
 from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, MergeEOPatchesTask, OverwritePermission, SaveTask
 
@@ -17,7 +17,7 @@ from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import (
     ensure_defined_together,
     ensure_storage_key_presence,
-    optional_field_validator,
+    optional_validator,
     parse_dtype,
 )
 
@@ -45,7 +45,7 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         dtype: Optional[np.dtype] = Field(
             None, description="Casts the result to desired type. Uses predictor output type by default."
         )
-        _parse_dtype = optional_field_validator("dtype", parse_dtype, pre=True)
+        _parse_dtype = optional_validator("dtype", parse_dtype, mode="before")
 
         prediction_mask_feature_name: Optional[str] = Field(
             None, description="Name of `MASK_TIMELESS` feature which defines which areas will be predicted"
@@ -58,6 +58,8 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         )
         _ensure_model_folder_key = ensure_storage_key_presence("model_folder_key")
         compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
+
+        model_config = ConfigDict(protected_namespaces=())
 
     config: Schema
 

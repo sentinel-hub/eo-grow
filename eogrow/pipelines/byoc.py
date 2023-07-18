@@ -5,12 +5,12 @@ import datetime
 import datetime as dt
 import logging
 from collections import defaultdict
-from typing import Dict, Optional, cast
+from typing import Optional, cast
 
 import fs
 import geopandas as gpd
 import rasterio
-from pydantic import Field, validator
+from pydantic import Field, FieldValidationInfo, field_validator
 
 from sentinelhub import CRS, BBox, DataCollection, SentinelHubBYOC
 from sentinelhub.api.byoc import ByocCollection, ByocTile
@@ -24,7 +24,7 @@ from ..utils.validators import (
     ensure_defined_together,
     ensure_exactly_one_defined,
     ensure_storage_key_presence,
-    optional_field_validator,
+    optional_validator,
     parse_data_collection,
 )
 from .export_maps import TIMESTAMP_FORMAT
@@ -43,7 +43,7 @@ class IngestByocTilesPipeline(Pipeline):
 
         new_collection_name: Optional[str] = Field(None, description="Used for defining a new BYOC collection.")
         existing_collection: Optional[DataCollection] = Field(None, description="Used when updating and reingesting.")
-        _parse_byoc_collection = optional_field_validator("existing_collection", parse_data_collection, pre=True)
+        _parse_byoc_collection = optional_validator("existing_collection", parse_data_collection, mode="before")
         _ensure_exclusion = ensure_exactly_one_defined("new_collection_name", "existing_collection")
 
         is_temporal: bool = Field(
@@ -58,9 +58,9 @@ class IngestByocTilesPipeline(Pipeline):
             None, description="Sensing time (ISO format) added to BYOC tiles. Only used for timeless collections."
         )
 
-        @validator("sensing_time", pre=True)
-        def _parse_sensing_time(cls, value: Optional[str], values: Dict[str, object]) -> Optional[datetime.datetime]:
-            is_temporal = values["is_temporal"]
+        @field_validator("sensing_time", mode="before")
+        def _parse_sensing_time(cls, value: Optional[str], info: FieldValidationInfo) -> Optional[datetime.datetime]:
+            is_temporal = info.data["is_temporal"]
             if is_temporal and value is None:
                 return None
             if not is_temporal and value is not None:

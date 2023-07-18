@@ -13,7 +13,7 @@ from pydantic import Field
 
 from sentinelhub import CRS, Geometry, UtmZoneSplitter
 
-from ...utils.validators import field_validator
+from ...utils.validators import validator
 from ..schemas import BaseSchema
 from .base import AreaSchema, BaseAreaManager, area_schema_deprecation, get_geometry_from_file
 
@@ -40,7 +40,7 @@ class UtmZoneAreaManager(BaseAreaManager):
         offset_x: float = Field(0, description="An offset of tiling grid in horizontal dimension")
         offset_y: float = Field(0, description="An offset of tiling grid in vertical dimension")
 
-        _warn_and_adapt_old_config = field_validator("geometry_filename", area_schema_deprecation, pre=True)
+        _warn_and_adapt_old_config = validator("geometry_filename", area_schema_deprecation, mode="before")
 
     config: Schema
 

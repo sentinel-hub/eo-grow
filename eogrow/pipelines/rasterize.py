@@ -4,13 +4,13 @@ from __future__ import annotations
 import logging
 import os
 import uuid
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Optional, Tuple, Union
 
 import fiona
 import fs
 import geopandas as gpd
 import numpy as np
-from pydantic import Field, validator
+from pydantic import Field, FieldValidationInfo, field_validator
 
 from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, FeatureType, LoadTask, OverwritePermission, SaveTask
 from eolearn.geometry import VectorToRasterTask
@@ -22,7 +22,7 @@ from ..core.schemas import BaseSchema
 from ..types import Feature, FeatureSpec, PatchList
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.fs import LocalFile
-from ..utils.validators import ensure_exactly_one_defined, ensure_storage_key_presence, field_validator, parse_dtype
+from ..utils.validators import ensure_exactly_one_defined, ensure_storage_key_presence, parse_dtype, validator
 from ..utils.vector import concat_gdf
 
 LOGGER = logging.getLogger(__name__)
@@ -71,7 +71,7 @@ class RasterizePipeline(Pipeline):
         _check_shape_resolution = ensure_exactly_one_defined("resolution", "raster_shape")
 
         dtype: np.dtype = Field(np.dtype("int32"), description="Numpy dtype of the output feature.")
-        _parse_dtype = field_validator("dtype", parse_dtype, pre=True)
+        _parse_dtype = validator("dtype", parse_dtype, mode="before")
 
         preprocess_dataset: Optional[Preprocessing] = Field(
             None, description="Parameters used by `self.preprocess_dataset` method. Skipped if set to `None`."
@@ -88,7 +88,7 @@ class RasterizePipeline(Pipeline):
         no_data_value: int = Field(0, description="The no_data_value argument to be passed to VectorToRasterTask")
         compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
 
-        @validator("vector_input")
+        @field_validator("vector_input")
         def _check_vector_input(cls, vector_input: Feature | str) -> Feature | str:
             if isinstance(vector_input, str):
                 assert vector_input.lower().endswith(
@@ -98,11 +98,11 @@ class RasterizePipeline(Pipeline):
                 assert vector_input[0].is_vector(), "Only vector-like input features are allowed!"
             return vector_input
 
-        @validator("output_feature")
-        def _check_temporal_nature_match(cls, output_feature: Feature, values: Dict[str, Any]) -> Feature:
+        @field_validator("output_feature")
+        def _check_temporal_nature_match(cls, output_feature: Feature, info: FieldValidationInfo) -> Feature:
             assert output_feature[0].is_image(), "Only image-like output features are allowed!"
 
-            vector_input = values.get("vector_input")
+            vector_input = info.data.get("vector_input")
             if vector_input and not isinstance(vector_input, str):
                 assert (
                     vector_input[0].is_temporal() == output_feature[0].is_temporal()

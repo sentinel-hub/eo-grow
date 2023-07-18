@@ -196,7 +196,7 @@ class FractionSamplingPipeline(BaseRandomSamplingPipeline):
         erosion_dict: Optional[Dict[int, List[int]]] = Field(
             None,
             description="A dictionary specifying disc radius of erosion operation to be applied to a list of label IDs",
-            example={2: [1, 3, 4], 1: [2]},
+            examples=[{2: [1, 3, 4], 1: [2]}],
         )
         fraction_of_samples: Union[float, Dict[int, float]] = Field(
             description=(

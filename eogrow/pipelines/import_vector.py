@@ -9,7 +9,7 @@ from eolearn.io import VectorImportTask
 
 from ..core.pipeline import Pipeline
 from ..types import ExecKwargs, Feature, PatchList
-from ..utils.validators import ensure_storage_key_presence, field_validator, restrict_types
+from ..utils.validators import ensure_storage_key_presence, restrict_types, validator
 
 
 class ImportVectorPipeline(Pipeline):
@@ -25,7 +25,7 @@ class ImportVectorPipeline(Pipeline):
         output_folder_key: str = Field(description="The folder key into which the EOPatch will be saved. ")
         _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
 
-        _restrict_output_feature = field_validator(
+        _restrict_output_feature = validator(
             "output_feature", restrict_types([FeatureType.VECTOR, FeatureType.VECTOR_TIMELESS])
         )
 

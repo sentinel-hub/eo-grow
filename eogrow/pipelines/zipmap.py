@@ -4,7 +4,7 @@ import logging
 from collections import defaultdict
 from typing import Any, Dict, List, Optional
 
-from pydantic import Field, validator
+from pydantic import Field, FieldValidationInfo, field_validator
 
 from eolearn.core import (
     EONode,
@@ -56,11 +56,11 @@ class ZipMapPipeline(Pipeline):
             default_factory=dict, description="Any keyword arguments to be passed to the zipmap function."
         )
 
-        @validator("params")
-        def parse_params(cls, v: dict[str, Any], values: dict[str, Any]) -> dict[str, Any]:
+        @field_validator("params")
+        def parse_params(cls, v: dict[str, Any], info: FieldValidationInfo) -> dict[str, Any]:
             """Parse the parameters according to model, but returning as a dictionary to allow `**kwargs` passing."""
-            if values.get("params_model"):
-                params_model: BaseSchema = import_object(values["params_model"])
+            if info.data.get("params_model"):
+                params_model: BaseSchema = import_object(info.data["params_model"])
                 return params_model.model_validate(v).model_dump()
             return v
 

@@ -10,12 +10,12 @@ import fiona
 import fs
 import geopandas as gpd
 import shapely.ops
-from pydantic import Field
+from pydantic import Field, FieldValidationInfo
 
 from eolearn.core.exceptions import EODeprecationWarning
 from sentinelhub import CRS, BBox, Geometry
 
-from ...types import PatchList, RawSchemaDict
+from ...types import PatchList
 from ...utils.eopatch_list import load_names
 from ...utils.fs import LocalFile
 from ..base import EOGrowObject
@@ -37,9 +37,10 @@ class AreaSchema(BaseSchema):
     )
 
 
-def area_schema_deprecation(cls: type, value: str | None, values: RawSchemaDict) -> str:  # noqa: ARG001
+def area_schema_deprecation(cls: type, value: str | None, info: FieldValidationInfo) -> str:  # noqa: ARG001
     """Warns and reconfigures when `area` is used instead of `geometry_filename`."""
-    if values.get("area") is not None:
+
+    if info.data.get("area") is not None:
         warnings.warn(
             (
                 "Use `geometry_filename` to provide the file (e.g., geojson, gpkg) with AoI. The `area` parameter is"
@@ -49,7 +50,7 @@ def area_schema_deprecation(cls: type, value: str | None, values: RawSchemaDict)
             EODeprecationWarning,
             stacklevel=2,
         )
-        return values["area"].filename
+        return info.data["area"].filename
     assert value is not None, "Specify the `geometry_filename` parameter."
     return value
 
