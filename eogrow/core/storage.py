@@ -4,8 +4,8 @@ from __future__ import annotations
 from typing import Any, ClassVar, Dict, Literal, Optional
 
 import fs
-from pydantic import ConfigDict, Field
-from pydantic_settings import BaseSettings
+from pydantic import AliasChoices, Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 import sentinelhub
 from eolearn.core.utils.fs import get_aws_credentials, get_filesystem, is_s3_path
@@ -27,7 +27,7 @@ class StorageManager(EOGrowObject):
         )
         aws_profile: Optional[str] = Field(
             None,
-            validation_alias="AWS_PROFILE",
+            validation_alias=AliasChoices("aws_profile", "AWS_PROFILE"),
             description=(
                 "The AWS profile with credentials needed to access the S3 buckets. In case the profile isn't specified"
                 " with a parameter it can be read from an environmental variable."
@@ -44,7 +44,7 @@ class StorageManager(EOGrowObject):
             "fiona", description="Which backend is used for IO operations when using geopandas."
         )
 
-        model_config = ConfigDict(case_sensitive=True, env_prefix="eogrow_")
+        model_config = SettingsConfigDict(case_sensitive=True, env_prefix="eogrow_", extra="allow")
 
     config: Schema
 
