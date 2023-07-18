@@ -60,7 +60,7 @@ class BatchToEOPatchPipeline(Pipeline):
                 "Either an import path to a utility function or a Python code describing how to read "
                 "dates from userdata dictionary."
             ),
-            example="\"[info['date'] for info in json.loads(userdata['metadata'])]\"",
+            examples=["\"[info['date'] for info in json.loads(userdata['metadata'])]\""],
         )
 
         mapping: List[FeatureMappingSchema] = Field(
