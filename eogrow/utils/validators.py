@@ -39,17 +39,17 @@ def optional_validator(field: str, validator_fun: Callable, **kwargs: Any) -> cl
     # In order to propagate the pydantic python magic we need a bit of python magic ourselves
     additional_args = inspect.getfullargspec(validator_fun).args[1:]
 
-    def optional_validator(value, info: FieldValidationInfo):  # type: ignore[no-untyped-def]
+    def optional_field_validator(value, info: FieldValidationInfo):  # type: ignore[no-untyped-def]
         if value is not None:
             all_kwargs = {"info": info}
             kwargs = {k: v for k, v in all_kwargs.items() if k in additional_args}
             return validator_fun(value, **kwargs)
         return None
 
-    optional_validator.__name__ = f"optional_{validator_fun.__name__}"  # used for docbuilding purposes
+    optional_field_validator.__name__ = f"optional_{validator_fun.__name__}"  # used for docbuilding purposes
     # the correct way would be to use `functools.wraps` but this breaks pydantics python magic
 
-    return field_validator(field, **kwargs)(optional_validator)
+    return field_validator(field, **kwargs)(optional_field_validator)
 
 
 def ensure_exactly_one_defined(first_param: str, second_param: str, **kwargs: Any) -> classmethod:
