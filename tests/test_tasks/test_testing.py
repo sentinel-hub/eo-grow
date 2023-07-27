@@ -51,7 +51,7 @@ def test_dummy_timestamp_feature_task(dummy_eopatch: EOPatch):
     end_time = dt.date(year=2020, month=2, day=1)
     timestamp_num = 50
 
-    task = DummyTimestampFeatureTask(time_interval=(start_time, end_time), timestamp_num=timestamp_num)
+    task = DummyTimestampFeatureTask(time_interval=(start_time, end_time), num_timestamps=timestamp_num)
     eopatch = task.execute(dummy_eopatch)
 
     assert isinstance(eopatch, EOPatch)
