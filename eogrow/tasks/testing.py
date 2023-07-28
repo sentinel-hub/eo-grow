@@ -133,7 +133,7 @@ class GenerateRasterFeatureTask(EOTask):
         return eopatch
 
 
-class DummyTimestampFeatureTask(EOTask):
+class GenerateTimestampsTask(EOTask):
     """Creates a timestamp feature with random timestamps"""
 
     def __init__(self, time_interval: TimePeriod, num_timestamps: int):

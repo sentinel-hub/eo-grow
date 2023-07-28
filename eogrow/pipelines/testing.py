@@ -14,8 +14,8 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.testing import (
     DummyRasterFeatureTask,
-    DummyTimestampFeatureTask,
     GenerateRasterFeatureTask,
+    GenerateTimestampsTask,
     NormalDistribution,
     UniformDistribution,
 )
@@ -132,9 +132,6 @@ class DummyDataPipeline(Pipeline):
             default_factory=list, description="A list of raster features to be generated."
         )
         timestamp_feature: Optional[TimestampFeatureSchema]
-        meta_info: Optional[dict] = Field(
-            description="Information to be stored into the meta-info fields of each EOPatch."
-        )
 
     config: Schema
 
@@ -147,10 +144,10 @@ class DummyDataPipeline(Pipeline):
         """Creates a workflow with tasks that generate different types of features and tasks that join and save the
         final EOPatch."""
         self._nodes_to_configs_map = {}
-        start_node = EONode(CreateEOPatchTask(meta_info=self.config.meta_info))
+        start_node = EONode(CreateEOPatchTask())
 
         if self.config.timestamp_feature:
-            timestamp_task = DummyTimestampFeatureTask(
+            timestamp_task = GenerateTimestampsTask(
                 time_interval=self.config.timestamp_feature.time_period,
                 num_timestamps=self.config.timestamp_feature.timestamp_num,
             )
@@ -209,18 +206,19 @@ class DummyDataPipeline(Pipeline):
 class GenerateDataPipeline(Pipeline):
     """Pipeline for generating test input data."""
 
-    # TODO: meta info
-
     class Schema(Pipeline.Schema):
         output_folder_key: str = Field(description="The storage manager key pointing to the pipeline output folder.")
         _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
 
         seed: int = Field(description="A seed with which per-eopatch RNGs seeds are generated.")
 
-        raster_features: List[RasterFeatureGenerationSchema] = Field(
+        features: List[RasterFeatureGenerationSchema] = Field(
             default_factory=list, description="A specification for features to be generated."
         )
-        timestamp_feature: Optional[TimestampGenerationSchema]
+        timestamps: Optional[TimestampGenerationSchema]
+        meta_info: Optional[dict] = Field(
+            description="Information to be stored into the meta-info fields of each EOPatch."
+        )
 
     config: Schema
 
@@ -229,19 +227,18 @@ class GenerateDataPipeline(Pipeline):
         final EOPatch."""
         previous_node = EONode(CreateEOPatchTask())
 
-        if self.config.timestamp_feature:
-            timestamp_config = self.config.timestamp_feature
-            timestamp_task = DummyTimestampFeatureTask(
-                time_interval=timestamp_config.time_period, num_timestamps=timestamp_config.num_timestamps
+        if self.config.timestamps:
+            timestamp_task = GenerateTimestampsTask(
+                time_interval=self.config.timestamps.time_period, num_timestamps=self.config.timestamps.num_timestamps
             )
             previous_node = EONode(timestamp_task, inputs=[previous_node])
 
-        for feature_config in self.config.raster_features:
+        for feature_config in self.config.features:
             raster_task = GenerateRasterFeatureTask(
                 feature_config.feature,
                 shape=feature_config.shape,
                 dtype=np.dtype(feature_config.dtype),
-                distribution=self.convert_distribution_configuration(feature_config.distribution),
+                distribution=self._convert_distribution_configuration(feature_config.distribution),
             )
             previous_node = EONode(raster_task, inputs=[previous_node], name=str(feature_config.feature))
 
@@ -254,7 +251,7 @@ class GenerateDataPipeline(Pipeline):
 
         return EOWorkflow.from_endnodes(save_node)
 
-    def convert_distribution_configuration(
+    def _convert_distribution_configuration(
         self, distribution_config: NormalDistributionSchema | UniformDistributionSchema
     ) -> NormalDistribution | UniformDistribution:
         if isinstance(distribution_config, NormalDistributionSchema):
@@ -267,13 +264,16 @@ class GenerateDataPipeline(Pipeline):
 
         rng = np.random.default_rng(seed=self.config.seed)
         per_node_seeds = {node: rng.integers(low=0, high=2**32) for node in workflow.get_nodes()}
-        same_timestamps = self.config.timestamp_feature and self.config.timestamp_feature.same_for_all
+        same_timestamps = self.config.timestamps and self.config.timestamps.same_for_all
 
         for node, node_seed in per_node_seeds.items():
-            if isinstance(node.task, DummyTimestampFeatureTask) and same_timestamps:
+            if isinstance(node.task, CreateEOPatchTask):
+                for _, patch_args in exec_args.items():
+                    patch_args[node]["meta_info"] = self.config.meta_info
+            if isinstance(node.task, GenerateTimestampsTask) and same_timestamps:
                 for _, patch_args in exec_args.items():
                     patch_args[node] = dict(seed=node_seed)
-            elif isinstance(node.task, (GenerateRasterFeatureTask, DummyTimestampFeatureTask)):
+            elif isinstance(node.task, (GenerateRasterFeatureTask, GenerateTimestampsTask)):
                 node_rng = np.random.default_rng(seed=node_seed)
                 for _, patch_args in exec_args.items():
                     patch_args[node] = dict(seed=node_rng.integers(low=0, high=2**32))

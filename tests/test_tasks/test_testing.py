@@ -10,8 +10,8 @@ from sentinelhub import CRS, BBox
 
 from eogrow.tasks.testing import (
     DummyRasterFeatureTask,
-    DummyTimestampFeatureTask,
     GenerateRasterFeatureTask,
+    GenerateTimestampsTask,
     NormalDistribution,
     UniformDistribution,
 )
@@ -59,8 +59,8 @@ def test_dummy_timestamp_feature_task(dummy_eopatch: EOPatch):
     end_time = dt.date(year=2020, month=2, day=1)
     timestamp_num = 50
 
-    task = DummyTimestampFeatureTask(time_interval=(start_time, end_time), num_timestamps=timestamp_num)
-    eopatch = task.execute(dummy_eopatch)
+    task = GenerateTimestampsTask(time_interval=(start_time, end_time), num_timestamps=timestamp_num)
+    eopatch = task.execute(dummy_eopatch, seed=42)
 
     assert isinstance(eopatch, EOPatch)
 

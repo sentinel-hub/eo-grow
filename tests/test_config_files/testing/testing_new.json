@@ -3,7 +3,7 @@
   "**global_config": "${config_path}/../global_config.json",
   "output_folder_key": "temp",
   "seed": 42,
-  "raster_features": [
+  "features": [
     {
       "feature": ["data", "DATA"],
       "shape": [21, 35, 25, 3],
@@ -45,8 +45,12 @@
       }
     }
   ],
-  "timestamp_feature": {
+  "timestamps": {
     "time_period": ["2020-01-01", "2022-01-01"],
     "num_timestamps": 21
+  },
+  "meta_info": {
+    "beep": [1, 2, 3],
+    "boop": "bap"
   }
 }
