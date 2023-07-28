@@ -270,10 +270,10 @@ class GenerateDataPipeline(Pipeline):
         same_timestamps = self.config.timestamp_feature and self.config.timestamp_feature.same_for_all
 
         for node, node_seed in per_node_seeds.items():
-            if isinstance(node, DummyTimestampFeatureTask) and same_timestamps:
+            if isinstance(node.task, DummyTimestampFeatureTask) and same_timestamps:
                 for _, patch_args in exec_args.items():
                     patch_args[node] = dict(seed=node_seed)
-            if isinstance(node, (GenerateRasterFeatureTask, DummyTimestampFeatureTask)):
+            elif isinstance(node.task, (GenerateRasterFeatureTask, DummyTimestampFeatureTask)):
                 node_rng = np.random.default_rng(seed=node_seed)
                 for _, patch_args in exec_args.items():
                     patch_args[node] = dict(seed=node_rng.integers(low=0, high=2**32))

@@ -119,7 +119,7 @@ class GenerateRasterFeatureTask(EOTask):
         array = rng.random(size=self.shape)
         return (configuration.max_value - configuration.min_value) * array + configuration.min_value
 
-    def execute(self, eopatch: EOPatch, seed: int | None = None) -> EOPatch:
+    def execute(self, eopatch: EOPatch, seed: int) -> EOPatch:
         """Generates a raster feature randomly with a given seed."""
         rng = np.random.default_rng(seed)
 
@@ -143,7 +143,7 @@ class DummyTimestampFeatureTask(EOTask):
         self.time_interval = tuple(map(_ensure_datetime, time_interval))
         self.num_timestamps = num_timestamps
 
-    def execute(self, eopatch: EOPatch, seed: int | None = None) -> EOPatch:
+    def execute(self, eopatch: EOPatch, seed: int) -> EOPatch:
         """Generates timestamps randomly with a given seed."""
         rng = np.random.default_rng(seed)
 
