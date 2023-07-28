@@ -115,7 +115,8 @@ class GenerateRasterFeatureTask(EOTask):
             return rng.normal(configuration.mean, configuration.std, size=self.shape)
 
         if is_discrete_type(self.dtype):
-            return rng.integers(configuration.min_value, configuration.max_value, size=self.shape, endpoint=True)
+            min_val, max_val = round(configuration.min_value), round(configuration.max_value)
+            return rng.integers(min_val, max_val, size=self.shape, endpoint=True)
         array = rng.random(size=self.shape)
         return (configuration.max_value - configuration.min_value) * array + configuration.min_value
 
