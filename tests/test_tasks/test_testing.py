@@ -56,7 +56,7 @@ def test_dummy_timestamp_feature_task(dummy_eopatch: EOPatch):
 
     assert isinstance(eopatch, EOPatch)
 
-    assert FeatureType.TIMESTAMPS in eopatch
+    assert eopatch.timestamps is not None
     assert len(eopatch.get_features()) == 2
 
     assert len(eopatch.timestamps) == timestamp_num

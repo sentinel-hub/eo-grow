@@ -132,33 +132,30 @@ class ContentTester:
         """Calculates statistics of given EOPatch and it's content"""
         stats: dict[str, object] = {}
 
+        stats["bbox"] = repr(eopatch.bbox)
+        if eopatch.timestamps is not None:
+            stats["timestamps"] = [time.isoformat() for time in eopatch.timestamps]
+
         for feature_type in FeatureType:
-            if feature_type not in eopatch:
+            if feature_type not in eopatch or feature_type in (FeatureType.BBOX, FeatureType.TIMESTAMPS):
                 continue
 
             feature_type_name = feature_type.value
 
-            if feature_type is FeatureType.BBOX:
-                stats[feature_type_name] = repr(eopatch.bbox)
+            feature_stats_dict = {}
 
-            elif feature_type is FeatureType.TIMESTAMPS:
-                stats[feature_type_name] = [time.isoformat() for time in eopatch.timestamps]
+            if feature_type.is_array():
+                calculation_method: Callable = self._calculate_numpy_stats
+            elif feature_type.is_vector():
+                calculation_method = self._calculate_vector_stats
+            else:  # Only FeatureType.META_INFO remains
+                calculation_method = str
 
-            else:
-                feature_stats_dict = {}
+            for feature_name in eopatch[feature_type]:
+                feature_data = eopatch[feature_type, feature_name]
+                feature_stats_dict[feature_name] = calculation_method(feature_data)
 
-                if feature_type.is_array():
-                    calculation_method: Callable = self._calculate_numpy_stats
-                elif feature_type.is_vector():
-                    calculation_method = self._calculate_vector_stats
-                else:  # Only FeatureType.META_INFO remains
-                    calculation_method = str
-
-                for feature_name in eopatch[feature_type]:
-                    feature_data = eopatch[feature_type, feature_name]
-                    feature_stats_dict[feature_name] = calculation_method(feature_data)
-
-                stats[feature_type_name] = feature_stats_dict
+            stats[feature_type_name] = feature_stats_dict
 
         return stats
 
