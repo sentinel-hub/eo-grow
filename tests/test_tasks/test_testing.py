@@ -158,6 +158,3 @@ def test_generate_raster_feature_task_normal(dummy_eopatch, feature_type, shape,
 
     assert eopatch == task.execute(dummy_eopatch.copy(), seed=seed), "Same seed yields different results!"
     assert eopatch != task.execute(dummy_eopatch.copy(), seed=seed + 1), "Different seed yields same results!"
-
-
-# TODO: add task for metainfo

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, List, Optional, Tuple, TypeVar, Union
+from typing import Any, List, Literal, Optional, Tuple, TypeVar, Union
 
 import numpy as np
 from pydantic import Field
@@ -89,24 +89,26 @@ class TimestampFeatureSchema(FeatureSchema):
     timestamp_num: int = Field(description="Number of timestamps from the interval")
 
 
-class FeatureGenerationSchema(BaseSchema):
-    feature: Feature = Field(description="Feature to be created.")
-    shape: Tuple[int, ...] = Field(description="Shape of the feature")
-    dtype: np.dtype = Field(description="The output dtype of the feature")
-    _parse_dtype = field_validator("dtype", parse_dtype, pre=True)
-    distribution: Union[UniformDistributionSchema, NormalDistributionSchema] = Field(
-        description="Choice of distribution for generating values."
-    )
-
-
 class UniformDistributionSchema(BaseSchema):
+    kind: Literal["uniform"]
     min_value: float = Field(0, description="All values in the feature will be greater or equal to this value.")
     max_value: float = Field(1, description="All values in the feature will be smaller or equal than this value.")
 
 
 class NormalDistributionSchema(BaseSchema):
+    kind: Literal["normal"]
     mean: float = Field(0, description="Mean of the normal distribution.")
     std: float = Field(1, description="Standard deviation of the normal distribution.")
+
+
+class RasterFeatureGenerationSchema(BaseSchema):
+    feature: Feature = Field(description="Feature to be created.")
+    shape: Tuple[int, ...] = Field(description="Shape of the feature")
+    dtype: np.dtype = Field(description="The output dtype of the feature")
+    _parse_dtype = field_validator("dtype", parse_dtype, pre=True)
+    distribution: Union[UniformDistributionSchema, NormalDistributionSchema] = Field(
+        description="Choice of distribution for generating values.", discriminator="kind"
+    )
 
 
 class TimestampGenerationSchema(BaseSchema):
@@ -204,13 +206,15 @@ class DummyDataPipeline(Pipeline):
 class GenerateDataPipeline(Pipeline):
     """Pipeline for generating test input data."""
 
+    # TODO: meta info
+
     class Schema(Pipeline.Schema):
         output_folder_key: str = Field(description="The storage manager key pointing to the pipeline output folder.")
         _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
 
-        seed: Optional[int] = Field(description="A seed with which per-eopatch RNGs seeds are generated.")
+        seed: int = Field(description="A seed with which per-eopatch RNGs seeds are generated.")
 
-        features: List[FeatureGenerationSchema] = Field(
+        raster_features: List[RasterFeatureGenerationSchema] = Field(
             default_factory=list, description="A specification for features to be generated."
         )
         timestamp_feature: Optional[TimestampGenerationSchema]
@@ -230,7 +234,7 @@ class GenerateDataPipeline(Pipeline):
             start_node = EONode(timestamp_task, inputs=[start_node])
 
         add_feature_nodes = []
-        for feature_config in self.config.features:
+        for feature_config in self.config.raster_features:
             raster_task = GenerateRasterFeatureTask(
                 feature_config.feature,
                 shape=feature_config.shape,

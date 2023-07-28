@@ -6,7 +6,7 @@ pytestmark = pytest.mark.integration
 
 
 @pytest.mark.chain()
-@pytest.mark.parametrize("experiment_name", ["testing", "timestamps_only"])
+@pytest.mark.parametrize("experiment_name", ["testing", "testing_new", "timestamps_only", "timestamps_only_new"])
 def test_features_pipeline(config_and_stats_paths, experiment_name):
     config_path, stats_path = config_and_stats_paths("testing", experiment_name)
     output_path = run_config(config_path)
