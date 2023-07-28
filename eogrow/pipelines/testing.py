@@ -132,6 +132,9 @@ class DummyDataPipeline(Pipeline):
             default_factory=list, description="A list of raster features to be generated."
         )
         timestamp_feature: Optional[TimestampFeatureSchema]
+        meta_info: Optional[dict] = Field(
+            description="Information to be stored into the meta-info fields of each EOPatch."
+        )
 
     config: Schema
 
@@ -144,7 +147,7 @@ class DummyDataPipeline(Pipeline):
         """Creates a workflow with tasks that generate different types of features and tasks that join and save the
         final EOPatch."""
         self._nodes_to_configs_map = {}
-        start_node = EONode(CreateEOPatchTask())
+        start_node = EONode(CreateEOPatchTask(meta_info=self.config.meta_info))
 
         if self.config.timestamp_feature:
             timestamp_task = DummyTimestampFeatureTask(
@@ -224,16 +227,15 @@ class GenerateDataPipeline(Pipeline):
     def build_workflow(self) -> EOWorkflow:
         """Creates a workflow with tasks that generate different types of features and tasks that join and save the
         final EOPatch."""
-        start_node = EONode(CreateEOPatchTask())
+        previous_node = EONode(CreateEOPatchTask())
 
         if self.config.timestamp_feature:
             timestamp_config = self.config.timestamp_feature
             timestamp_task = DummyTimestampFeatureTask(
                 time_interval=timestamp_config.time_period, num_timestamps=timestamp_config.num_timestamps
             )
-            start_node = EONode(timestamp_task, inputs=[start_node])
+            previous_node = EONode(timestamp_task, inputs=[previous_node])
 
-        add_feature_nodes = []
         for feature_config in self.config.raster_features:
             raster_task = GenerateRasterFeatureTask(
                 feature_config.feature,
@@ -241,14 +243,7 @@ class GenerateDataPipeline(Pipeline):
                 dtype=np.dtype(feature_config.dtype),
                 distribution=self.convert_distribution_configuration(feature_config.distribution),
             )
-            node = EONode(raster_task, inputs=[start_node], name=str(feature_config.feature))
-            add_feature_nodes.append(node)
-
-        if add_feature_nodes:
-            join_node = EONode(MergeEOPatchesTask(), inputs=add_feature_nodes)
-            previous_node = join_node
-        else:
-            previous_node = start_node
+            previous_node = EONode(raster_task, inputs=[previous_node], name=str(feature_config.feature))
 
         save_task = SaveTask(
             self.storage.get_folder(self.config.output_folder_key),
@@ -274,12 +269,12 @@ class GenerateDataPipeline(Pipeline):
         per_node_seeds = {node: rng.integers(low=0, high=2**32) for node in workflow.get_nodes()}
         same_timestamps = self.config.timestamp_feature and self.config.timestamp_feature.same_for_all
 
-        for node, global_seed in per_node_seeds.items():
+        for node, node_seed in per_node_seeds.items():
             if isinstance(node, DummyTimestampFeatureTask) and same_timestamps:
                 for _, patch_args in exec_args.items():
-                    patch_args[node] = dict(seed=global_seed)
+                    patch_args[node] = dict(seed=node_seed)
             if isinstance(node, (GenerateRasterFeatureTask, DummyTimestampFeatureTask)):
-                node_rng = np.random.default_rng(seed=global_seed)
+                node_rng = np.random.default_rng(seed=node_seed)
                 for _, patch_args in exec_args.items():
                     patch_args[node] = dict(seed=node_rng.integers(low=0, high=2**32))
 
