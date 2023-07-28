@@ -87,18 +87,18 @@ class GenerateRasterFeatureTask(EOTask):
         feature: Feature,
         shape: tuple[int, ...],
         dtype: np.dtype | type,
-        configuration: UniformDistribution | NormalDistribution,
+        distribution: UniformDistribution | NormalDistribution,
     ):
         """
         :param feature: A raster feature to be created.
         :param shape: Shape of the created feature array.
         :param dtype: A dtype of the feature.
-        :param configuration: The configuration for generating values.
+        :param distribution: The distribution for generating values.
         """
         self.feature = self.parse_feature(feature, allowed_feature_types=lambda fty: fty.is_array())
         self.shape = shape
         self.dtype = dtype
-        self.configuration = configuration
+        self.distribution = distribution
 
         feature_type, _ = self.feature
         if len(self.shape) != feature_type.ndim():
@@ -111,23 +111,24 @@ class GenerateRasterFeatureTask(EOTask):
     def _generate_data(
         self, configuration: NormalDistribution | UniformDistribution, rng: np.random.Generator
     ) -> np.ndarray:
-        if isinstance(configuration, UniformDistribution):
-            array = rng.random(size=self.shape)
-            return (configuration.max_value - configuration.min_value) * array + configuration.min_value
-        return rng.normal(configuration.mean, configuration.std, size=self.shape)
+        if isinstance(configuration, NormalDistribution):
+            return rng.normal(configuration.mean, configuration.std, size=self.shape)
+
+        if is_discrete_type(self.dtype):
+            return rng.integers(configuration.min_value, configuration.max_value, size=self.shape, endpoint=True)
+        array = rng.random(size=self.shape)
+        return (configuration.max_value - configuration.min_value) * array + configuration.min_value
 
     def execute(self, eopatch: EOPatch, seed: int | None = None) -> EOPatch:
         """Generates a raster feature randomly with a given seed."""
         rng = np.random.default_rng(seed)
 
-        generated_data = self._generate_data(self.configuration, rng)
+        generated_data = self._generate_data(self.distribution, rng)
 
         if is_discrete_type(self.dtype):
-            generated_data = np.rint(generated_data, dtype=self.dtype)
-        else:
-            generated_data = generated_data.astype(self.dtype)
+            generated_data = np.rint(generated_data)
 
-        eopatch[self.feature] = generated_data
+        eopatch[self.feature] = generated_data.astype(self.dtype)
         return eopatch
 
 

@@ -235,7 +235,7 @@ class GenerateDataPipeline(Pipeline):
                 feature_config.feature,
                 shape=feature_config.shape,
                 dtype=np.dtype(feature_config.dtype),
-                configuration=self.convert_distribution_configuration(feature_config.distribution),
+                distribution=self.convert_distribution_configuration(feature_config.distribution),
             )
             node = EONode(raster_task, inputs=[start_node], name=str(feature_config.feature))
             add_feature_nodes.append(node)

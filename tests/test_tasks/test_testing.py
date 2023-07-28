@@ -4,9 +4,15 @@ import numpy as np
 import pytest
 
 from eolearn.core import EOPatch, FeatureType
+from eolearn.core.utils.common import is_discrete_type
 from sentinelhub import CRS, BBox
 
-from eogrow.tasks.testing import DummyRasterFeatureTask, DummyTimestampFeatureTask
+from eogrow.tasks.testing import (
+    DummyRasterFeatureTask,
+    DummyTimestampFeatureTask,
+    GenerateRasterFeatureTask,
+    UniformDistribution,
+)
 
 
 @pytest.fixture()
@@ -71,3 +77,48 @@ def test_dummy_timestamp_feature_task(dummy_eopatch: EOPatch):
 
     eopatch3 = task.execute(dummy_eopatch.copy(), seed=11)
     assert eopatch1 != eopatch3
+
+
+@pytest.mark.parametrize(
+    ("feature_type", "shape", "dtype", "min_value", "max_value"),
+    [
+        (FeatureType.DATA, (10, 20, 21, 5), np.float32, -3, -1.5),
+        (FeatureType.DATA_TIMELESS, (83, 69, 1), int, -2, 5),
+        (FeatureType.MASK, (10, 4, 16, 7), np.int8, -3, 7),
+        (FeatureType.LABEL, (10, 271), bool, 0, 1),
+    ],
+)
+@pytest.mark.parametrize("seed", [1, 22, 9182])
+def test_generate_raster_feature_task_uniform(dummy_eopatch, feature_type, shape, dtype, min_value, max_value, seed):
+    dummy_eopatch.timestamps = ["2011-08-12"] * 10
+    feature = feature_type, "FEATURE"
+    configuration = UniformDistribution(min_value, max_value)
+
+    task = GenerateRasterFeatureTask(feature, shape=shape, dtype=dtype, distribution=configuration)
+    eopatch = task.execute(dummy_eopatch, seed=seed)
+
+    assert feature in eopatch
+    assert len(eopatch.get_features()) == 3
+
+    data: np.ndarray = eopatch[feature]
+    assert data.shape == shape
+    assert data.dtype == dtype
+    assert np.amin(data) >= min_value
+    assert np.amax(data) <= max_value
+
+    # check that the data is uniform 'enough'
+    if is_discrete_type(data.dtype):
+        # bins dont work well with few int values
+        values, bin_nums = np.unique(data, return_counts=True)
+        assert np.min(values) == min_value
+        assert np.max(values) == max_value
+        threshold = data.size / len(bin_nums) * 0.9
+        assert all(bin_nums > threshold)
+    else:
+        bin_nums, _ = np.histogram(data, bins=5, range=(min_value, max_value))
+        threshold = data.size / 5 * 0.9
+        assert all(bin_nums > threshold)
+
+
+# TODO: test that seeds return the same results, test that uniform is uniform, test that normal is normal
+# TODO: add task for metainfo
