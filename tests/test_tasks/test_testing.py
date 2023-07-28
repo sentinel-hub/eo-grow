@@ -2,6 +2,7 @@ import datetime as dt
 
 import numpy as np
 import pytest
+from scipy.stats import shapiro
 
 from eolearn.core import EOPatch, FeatureType
 from eolearn.core.utils.common import is_discrete_type
@@ -11,6 +12,7 @@ from eogrow.tasks.testing import (
     DummyRasterFeatureTask,
     DummyTimestampFeatureTask,
     GenerateRasterFeatureTask,
+    NormalDistribution,
     UniformDistribution,
 )
 
@@ -95,7 +97,7 @@ def test_generate_raster_feature_task_uniform(dummy_eopatch, feature_type, shape
     configuration = UniformDistribution(min_value, max_value)
 
     task = GenerateRasterFeatureTask(feature, shape=shape, dtype=dtype, distribution=configuration)
-    eopatch = task.execute(dummy_eopatch, seed=seed)
+    eopatch = task.execute(dummy_eopatch.copy(), seed=seed)
 
     assert feature in eopatch
     assert len(eopatch.get_features()) == 3
@@ -103,22 +105,59 @@ def test_generate_raster_feature_task_uniform(dummy_eopatch, feature_type, shape
     data: np.ndarray = eopatch[feature]
     assert data.shape == shape
     assert data.dtype == dtype
-    assert np.amin(data) >= min_value
-    assert np.amax(data) <= max_value
 
     # check that the data is uniform 'enough'
     if is_discrete_type(data.dtype):
         # bins dont work well with few int values
         values, bin_nums = np.unique(data, return_counts=True)
-        assert np.min(values) == min_value
-        assert np.max(values) == max_value
+        assert np.amin(values) == min_value
+        assert np.amax(values) == max_value
         threshold = data.size / len(bin_nums) * 0.9
         assert all(bin_nums > threshold)
+
     else:
+        assert np.amin(data) >= min_value
+        assert np.amax(data) <= max_value
         bin_nums, _ = np.histogram(data, bins=5, range=(min_value, max_value))
         threshold = data.size / 5 * 0.9
         assert all(bin_nums > threshold)
 
+    assert eopatch == task.execute(dummy_eopatch.copy(), seed=seed), "Same seed yields different results!"
+    assert eopatch != task.execute(dummy_eopatch.copy(), seed=seed + 1), "Different seed yields same results!"
 
-# TODO: test that seeds return the same results, test that uniform is uniform, test that normal is normal
+
+@pytest.mark.parametrize(
+    ("feature_type", "shape", "dtype", "mean", "std"),
+    [
+        (FeatureType.DATA, (7, 20, 31, 1), np.float32, -3, 1.5),
+        (FeatureType.DATA_TIMELESS, (30, 61, 2), float, -3422.23, 1522),
+        (FeatureType.DATA_TIMELESS, (83, 69, 10), int, -2, 10),
+    ],
+)
+@pytest.mark.parametrize("seed", [1, 22, 9182])
+def test_generate_raster_feature_task_normal(dummy_eopatch, feature_type, shape, dtype, mean, std, seed):
+    dummy_eopatch.timestamps = ["2011-08-12"] * 7
+    feature = feature_type, "FEATURE"
+    configuration = NormalDistribution(mean, std)
+
+    task = GenerateRasterFeatureTask(feature, shape=shape, dtype=dtype, distribution=configuration)
+    eopatch = task.execute(dummy_eopatch.copy(), seed=seed)
+
+    assert feature in eopatch
+    assert len(eopatch.get_features()) == 3
+
+    data: np.ndarray = eopatch[feature]
+    assert data.shape == shape
+    assert data.dtype == dtype
+    if not is_discrete_type(dtype):
+        assert shapiro(data)[1] > 0.05, "Shapiro-Wilks test rejects that the data is normally distributed."
+    else:
+        # "normally distributed" integers are just a hack, so we test what we can
+        assert np.mean(data) == pytest.approx(mean, abs=0.2)
+        assert np.std(data) == pytest.approx(std, abs=0.2)
+
+    assert eopatch == task.execute(dummy_eopatch.copy(), seed=seed), "Same seed yields different results!"
+    assert eopatch != task.execute(dummy_eopatch.copy(), seed=seed + 1), "Different seed yields same results!"
+
+
 # TODO: add task for metainfo
