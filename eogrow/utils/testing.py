@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import os
+from collections import defaultdict
 from typing import Any, Callable, ClassVar, Iterable, cast
 
 import fs
@@ -130,37 +131,21 @@ class ContentTester:
 
     def _calculate_eopatch_stats(self, eopatch: EOPatch) -> JsonDict:
         """Calculates statistics of given EOPatch and it's content"""
-        stats: dict[str, object] = {}
+        stats: dict[str, Any] = defaultdict(dict)
 
-        for feature_type in FeatureType:
-            if feature_type not in eopatch:
-                continue
+        stats["bbox"] = repr(eopatch.bbox)
+        if eopatch.timestamps is not None and eopatch.timestamps != []:  # remove second part after eo-learn 1.5.0
+            stats["timestamps"] = [time.isoformat() for time in eopatch.timestamps]
 
-            feature_type_name = feature_type.value
+        for ftype, fname in eopatch.get_features():
+            if ftype.is_array():
+                stats[ftype.value][fname] = self._calculate_numpy_stats(eopatch[ftype, fname])
+            elif ftype.is_vector():
+                stats[ftype.value][fname] = self._calculate_vector_stats(eopatch[ftype, fname])
+            elif ftype is FeatureType.META_INFO:
+                stats[ftype.value][fname] = str(eopatch[ftype, fname])
 
-            if feature_type is FeatureType.BBOX:
-                stats[feature_type_name] = repr(eopatch.bbox)
-
-            elif feature_type is FeatureType.TIMESTAMPS:
-                stats[feature_type_name] = [time.isoformat() for time in eopatch.timestamps]
-
-            else:
-                feature_stats_dict = {}
-
-                if feature_type.is_array():
-                    calculation_method: Callable = self._calculate_numpy_stats
-                elif feature_type.is_vector():
-                    calculation_method = self._calculate_vector_stats
-                else:  # Only FeatureType.META_INFO remains
-                    calculation_method = str
-
-                for feature_name in eopatch[feature_type]:
-                    feature_data = eopatch[feature_type, feature_name]
-                    feature_stats_dict[feature_name] = calculation_method(feature_data)
-
-                stats[feature_type_name] = feature_stats_dict
-
-        return stats
+        return {**stats}
 
     def _calculate_numpy_stats(self, raster: np.ndarray) -> JsonDict:
         """Calculates statistics over a raster numpy array"""
