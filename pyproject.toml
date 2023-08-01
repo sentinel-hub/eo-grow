@@ -54,7 +54,7 @@ dependencies = [
     "geopandas>=0.8.1",
     "numpy",
     "pandas",
-    "pydantic>=1.8.0",
+    "pydantic>=1.8.0, <2.0",
     "python-rapidjson",
     "rasterio",
     "ray[default]",
