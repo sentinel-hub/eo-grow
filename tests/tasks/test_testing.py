@@ -2,7 +2,7 @@ import datetime as dt
 
 import numpy as np
 import pytest
-from scipy.stats import shapiro
+from scipy.stats import chisquare, kstest, shapiro, uniform
 
 from eolearn.core import EOPatch, FeatureType
 from eolearn.core.utils.common import is_discrete_type
@@ -106,21 +106,12 @@ def test_generate_raster_feature_task_uniform(dummy_eopatch, feature_type, shape
     assert data.shape == shape
     assert data.dtype == dtype
 
-    # check that the data is uniform 'enough'
     if is_discrete_type(data.dtype):
-        # bins dont work well with few int values
-        values, bin_nums = np.unique(data, return_counts=True)
-        assert np.amin(values) == min_value
-        assert np.amax(values) == max_value
-        threshold = data.size / len(bin_nums) * 0.9
-        assert all(bin_nums > threshold)
-
+        _, p_value = chisquare(np.unique(data, return_counts=True)[1])
+        assert p_value > 0.05
     else:
-        assert np.amin(data) >= min_value
-        assert np.amax(data) <= max_value
-        bin_nums, _ = np.histogram(data, bins=5, range=(min_value, max_value))
-        threshold = data.size / 5 * 0.9
-        assert all(bin_nums > threshold)
+        kstest_result = kstest(data.ravel(), uniform.cdf, args=(min_value, max_value - min_value))
+        assert kstest_result.pvalue > 0.05
 
     assert eopatch == task.execute(dummy_eopatch.copy(), seed=seed), "Same seed yields different results!"
     assert eopatch != task.execute(dummy_eopatch.copy(), seed=seed + 1), "Different seed yields same results!"
