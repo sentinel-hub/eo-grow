@@ -2,7 +2,7 @@ import datetime as dt
 
 import numpy as np
 import pytest
-from scipy.stats import chisquare, kstest, shapiro, uniform
+from scipy.stats import chisquare, kstest, norm, uniform
 
 from eolearn.core import EOPatch, FeatureType
 from eolearn.core.utils.common import is_discrete_type
@@ -118,11 +118,11 @@ def test_generate_raster_feature_task(dummy_eopatch, feature_type, shape, dtype,
             assert np.std(data) == pytest.approx(distribution.std, abs=0.2)
     else:
         if isinstance(distribution, UniformDistribution):
-            args = (distribution.min_value, distribution.max_value - distribution.min_value)
-            kstest_result = kstest(data.ravel(), uniform.cdf, args=args)
-            assert kstest_result.pvalue > 0.05
+            dist, args = uniform.cdf, (distribution.min_value, distribution.max_value - distribution.min_value)
         else:
-            assert shapiro(data)[1] > 0.05
+            dist, args = norm.cdf, (distribution.mean, distribution.std)
+        kstest_result = kstest(data.ravel(), dist, args=args)
+        assert kstest_result.pvalue > 0.05
 
     assert eopatch == task.execute(dummy_eopatch.copy(), seed=seed), "Same seed yields different results!"
     assert eopatch != task.execute(dummy_eopatch.copy(), seed=seed + 1), "Different seed yields same results!"
