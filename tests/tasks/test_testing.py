@@ -82,21 +82,23 @@ def test_dummy_timestamp_feature_task(dummy_eopatch: EOPatch):
 
 
 @pytest.mark.parametrize(
-    ("feature_type", "shape", "dtype", "min_value", "max_value"),
+    ("feature_type", "shape", "dtype", "distribution"),
     [
-        (FeatureType.DATA, (10, 20, 21, 5), np.float32, -3, -1.5),
-        (FeatureType.DATA_TIMELESS, (83, 69, 1), int, -2, 5),
-        (FeatureType.MASK, (10, 4, 16, 7), np.int8, -3, 7),
-        (FeatureType.LABEL, (10, 271), bool, 0, 1),
+        (FeatureType.DATA, (10, 20, 21, 5), np.float32, UniformDistribution(-3, -1.5)),
+        (FeatureType.DATA_TIMELESS, (83, 69, 1), int, UniformDistribution(-2, 5)),
+        (FeatureType.MASK, (10, 4, 16, 7), np.int8, UniformDistribution(-3, 7)),
+        (FeatureType.LABEL, (10, 271), bool, UniformDistribution(0, 1)),
+        (FeatureType.DATA, (7, 20, 31, 1), np.float32, NormalDistribution(-3, 1.5)),
+        (FeatureType.DATA_TIMELESS, (30, 61, 2), float, NormalDistribution(-3422.23, 1522)),
+        (FeatureType.DATA_TIMELESS, (83, 69, 10), int, NormalDistribution(-2, 10)),
     ],
 )
 @pytest.mark.parametrize("seed", [1, 22, 9182])
-def test_generate_raster_feature_task_uniform(dummy_eopatch, feature_type, shape, dtype, min_value, max_value, seed):
+def test_generate_raster_feature_task(dummy_eopatch, feature_type, shape, dtype, distribution, seed):
     dummy_eopatch.timestamps = ["2011-08-12"] * 10
     feature = feature_type, "FEATURE"
-    configuration = UniformDistribution(min_value, max_value)
 
-    task = GenerateRasterFeatureTask(feature, shape=shape, dtype=dtype, distribution=configuration)
+    task = GenerateRasterFeatureTask(feature, shape=shape, dtype=dtype, distribution=distribution)
     eopatch = task.execute(dummy_eopatch.copy(), seed=seed)
 
     assert feature in eopatch
@@ -107,45 +109,20 @@ def test_generate_raster_feature_task_uniform(dummy_eopatch, feature_type, shape
     assert data.dtype == dtype
 
     if is_discrete_type(data.dtype):
-        _, p_value = chisquare(np.unique(data, return_counts=True)[1])
-        assert p_value > 0.05
+        if isinstance(distribution, UniformDistribution):
+            _, p_value = chisquare(np.unique(data, return_counts=True)[1])
+            assert p_value > 0.05
+        else:
+            # "normally distributed" integers are just a hack, so we test what we can
+            assert np.mean(data) == pytest.approx(distribution.mean, abs=0.2)
+            assert np.std(data) == pytest.approx(distribution.std, abs=0.2)
     else:
-        kstest_result = kstest(data.ravel(), uniform.cdf, args=(min_value, max_value - min_value))
-        assert kstest_result.pvalue > 0.05
-
-    assert eopatch == task.execute(dummy_eopatch.copy(), seed=seed), "Same seed yields different results!"
-    assert eopatch != task.execute(dummy_eopatch.copy(), seed=seed + 1), "Different seed yields same results!"
-
-
-@pytest.mark.parametrize(
-    ("feature_type", "shape", "dtype", "mean", "std"),
-    [
-        (FeatureType.DATA, (7, 20, 31, 1), np.float32, -3, 1.5),
-        (FeatureType.DATA_TIMELESS, (30, 61, 2), float, -3422.23, 1522),
-        (FeatureType.DATA_TIMELESS, (83, 69, 10), int, -2, 10),
-    ],
-)
-@pytest.mark.parametrize("seed", [1, 22, 9182])
-def test_generate_raster_feature_task_normal(dummy_eopatch, feature_type, shape, dtype, mean, std, seed):
-    dummy_eopatch.timestamps = ["2011-08-12"] * 7
-    feature = feature_type, "FEATURE"
-    configuration = NormalDistribution(mean, std)
-
-    task = GenerateRasterFeatureTask(feature, shape=shape, dtype=dtype, distribution=configuration)
-    eopatch = task.execute(dummy_eopatch.copy(), seed=seed)
-
-    assert feature in eopatch
-    assert len(eopatch.get_features()) == 3
-
-    data: np.ndarray = eopatch[feature]
-    assert data.shape == shape
-    assert data.dtype == dtype
-    if not is_discrete_type(dtype):
-        assert shapiro(data)[1] > 0.05, "Shapiro-Wilks test rejects that the data is normally distributed."
-    else:
-        # "normally distributed" integers are just a hack, so we test what we can
-        assert np.mean(data) == pytest.approx(mean, abs=0.2)
-        assert np.std(data) == pytest.approx(std, abs=0.2)
+        if isinstance(distribution, UniformDistribution):
+            args = (distribution.min_value, distribution.max_value - distribution.min_value)
+            kstest_result = kstest(data.ravel(), uniform.cdf, args=args)
+            assert kstest_result.pvalue > 0.05
+        else:
+            assert shapiro(data)[1] > 0.05
 
     assert eopatch == task.execute(dummy_eopatch.copy(), seed=seed), "Same seed yields different results!"
     assert eopatch != task.execute(dummy_eopatch.copy(), seed=seed + 1), "Different seed yields same results!"
