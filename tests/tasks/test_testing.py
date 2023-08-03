@@ -114,6 +114,7 @@ def test_generate_raster_feature_task(dummy_eopatch, feature_type, shape, dtype,
             assert p_value > 0.05
         else:
             # "normally distributed" integers are just a hack, so we test what we can
+            # see https://www.tqmp.org/RegularArticles/vol10-2/p107/p107.pdf if need arises for better values
             assert np.mean(data) == pytest.approx(distribution.mean, abs=0.2)
             assert np.std(data) == pytest.approx(distribution.std, abs=0.2)
     else:
