@@ -85,6 +85,7 @@ dev = [
     "pytest-order",
     "pytest>=4.0.0",
     "requests-mock",
+    "scipy",
     "twine",
     "types-mock",
     "types-requests",

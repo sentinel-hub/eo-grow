@@ -1,0 +1,10 @@
+{
+  "pipeline": "eogrow.pipelines.testing.GenerateDataPipeline",
+  "**global_config": "${config_path}/../global_config.json",
+  "output_folder_key": "temp",
+  "seed": 42,
+  "timestamps": {
+    "time_period": ["2021-06-15", "2022-09-05"],
+    "num_timestamps": 10
+  }
+}
