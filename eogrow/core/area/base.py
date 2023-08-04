@@ -39,11 +39,9 @@ def area_schema_deprecation(cls: type, value: str | None, values: RawSchemaDict)
     """Warns and reconfigures when `area` is used instead of `geometry_filename`."""
     if values.get("area") is not None:
         warnings.warn(
-            (
-                "Use `geometry_filename` to provide the file (e.g., geojson, gpkg) with AoI. The `area` parameter is"
-                " deprecated, and extra parameters like `buffer` and `simplification_factor` are no longer available;"
-                " users should prepare the AoI geometry by themselves."
-            ),
+            "Use `geometry_filename` to provide the file (e.g., geojson, gpkg) with AoI. The `area` parameter is"
+            " deprecated, and extra parameters like `buffer` and `simplification_factor` are no longer available;"
+            " users should prepare the AoI geometry by themselves.",
             EODeprecationWarning,
             stacklevel=2,
         )

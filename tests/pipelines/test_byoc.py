@@ -54,7 +54,7 @@ def run_byoc_pipeline(config_path: str, requests_mock):
 
     # patch storage manager so it believes it's on aws, but only during init
     with patch.object(StorageManager, "is_on_s3", lambda _: True):
-        SentinelHubDownloadClient._CACHED_SESSIONS = {}  # ruff: noqa: SLF001
+        SentinelHubDownloadClient._CACHED_SESSIONS = {}  # noqa: SLF001
         pipeline = IngestByocTilesPipeline.from_path(config_path)
         pipeline.bucket_name = "mock-bucket"
 
