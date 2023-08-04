@@ -1,5 +1,5 @@
 {
-  "pipeline": "eogrow.pipelines.testing.DummyDataPipeline",
+  "pipeline": "eogrow.pipelines.testing.GenerateDataPipeline",
   "**global_config": "${config_path}/global_config.json",
   "area": {
     // These parameters must match the content of test_project/input-data/batch_grid.gpkg grid file
@@ -12,31 +12,28 @@
   },
   "output_folder_key": "input_folder",
   "seed": 42,
-  "raster_features": [
+  "features": [
     {
       "feature": ["data", "BANDS"],
       "shape": [2, 1014, 1006, 3],
       "dtype": "float32",
-      "min_value": -1,
-      "max_value": 1
+      "distribution": { "kind": "uniform", "min_value": -1, "max_value": 1 }
     },
     {
       "feature": ["data", "IGNORED_BANDS"],
       "shape": [2, 1014, 1006, 3],
       "dtype": "float32",
-      "min_value": -1,
-      "max_value": 1
+      "distribution": { "kind": "uniform", "min_value": -1, "max_value": 1 }
     },
     {
       "feature": ["mask_timeless", "REF"],
       "shape": [1014, 1006, 2],
       "dtype": "bool",
-      "min_value": 0,
-      "max_value": 1
+      "distribution": { "kind": "uniform", "min_value": 0, "max_value": 1 }
     }
   ],
-  "timestamp_feature": {
+  "timestamps": {
     "time_period": ["2022-02-01", "2022-03-01"],
-    "timestamp_num": 2
+    "num_timestamps": 2
   }
 }
