@@ -24,61 +24,6 @@ class NormalDistribution:
     std: float
 
 
-class DummyRasterFeatureTask(EOTask):
-    """Creates a raster feature with random values"""
-
-    def __init__(
-        self,
-        feature: Feature,
-        shape: tuple[int, ...],
-        dtype: np.dtype | type,
-        min_value: float = 0,
-        max_value: float = 1,
-    ):
-        """
-        :param feature: A raster feature to be created.
-        :param shape: Shape of the created feature array.
-        :param dtype: A dtype of the feature.
-        :param min_value: All feature values will be greater or equal to this value.
-        :param max_value: If feature has a discrete dtype or max_value == min_value then all feature values will be
-            lesser or equal to this value. Otherwise, all features will be strictly lesser to this value.
-        """
-        self.feature = self.parse_feature(feature, allowed_feature_types=lambda fty: fty.is_array())
-        self.shape = shape
-        self.dtype = dtype
-        self.min_value = min_value
-        self.max_value = max_value
-
-        feature_type, _ = self.feature
-        if len(self.shape) != feature_type.ndim():
-            raise ValueError(
-                f"Feature {self.feature} should have {feature_type.ndim()}-dimensional shape but {self.shape} was given"
-            )
-        if feature_type.is_discrete() and not is_discrete_type(self.dtype):
-            raise ValueError(f"Feature {self.feature} only supports discrete dtypes but {self.dtype} was given")
-
-    def _get_random_raster(self, rng: np.random.Generator) -> np.ndarray:
-        """Creates a raster array from given random generator."""
-        if self.max_value == self.min_value:
-            return np.full(self.shape, self.max_value, dtype=self.dtype)
-
-        if is_discrete_type(self.dtype):
-            return rng.integers(
-                int(self.min_value), int(self.max_value), size=self.shape, dtype=self.dtype, endpoint=True
-            )
-
-        array = rng.random(size=self.shape)
-        array = (self.max_value - self.min_value) * array + self.min_value
-        return array.astype(self.dtype)
-
-    def execute(self, eopatch: EOPatch, seed: int | None = None) -> EOPatch:
-        """Generates a raster feature randomly with a given seed."""
-        rng = np.random.default_rng(seed)
-
-        eopatch[self.feature] = self._get_random_raster(rng)
-        return eopatch
-
-
 class GenerateRasterFeatureTask(EOTask):
     """Creates a raster feature with random values"""
 
