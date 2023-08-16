@@ -1,9 +1,12 @@
 """
 Module implementing utilities for unit testing pipeline results
 """
+from __future__ import annotations
+
 import json
 import os
-from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, cast
+from collections import defaultdict
+from typing import Any, Callable, ClassVar, Iterable, cast
 
 import fs
 import numpy as np
@@ -39,7 +42,7 @@ class ContentTester:
     this utility will let you know which statistics does not match
     """
 
-    _STATS_OPERATIONS: Dict[str, Callable] = {
+    _STATS_OPERATIONS: ClassVar[dict[str, Callable]] = {
         "min": np.min,
         "max": np.max,
         "mean": np.mean,
@@ -85,7 +88,7 @@ class ContentTester:
         :param filename: A JSON filename (with file path) where expected statistics is saved
         :return: A dictionary report about differences between expected and actual content
         """
-        with open(filename, "r") as file:
+        with open(filename) as file:
             expected_stats = json.load(file)
 
         return DeepDiff(expected_stats, self.stats)
@@ -99,9 +102,9 @@ class ContentTester:
         with open(filename, "w") as file:
             json.dump(self.stats, file, indent=2, sort_keys=True)
 
-    def _calculate_stats(self, folder: Optional[str] = None) -> JsonDict:
+    def _calculate_stats(self, folder: str | None = None) -> JsonDict:
         """Calculates statistics of given folder and it's content"""
-        stats: Dict[str, object] = {}
+        stats: dict[str, object] = {}
         if folder is None:
             folder = self.main_folder
 
@@ -128,37 +131,21 @@ class ContentTester:
 
     def _calculate_eopatch_stats(self, eopatch: EOPatch) -> JsonDict:
         """Calculates statistics of given EOPatch and it's content"""
-        stats: Dict[str, object] = {}
+        stats: dict[str, Any] = defaultdict(dict)
 
-        for feature_type in FeatureType:
-            if feature_type not in eopatch:
-                continue
+        stats["bbox"] = repr(eopatch.bbox)
+        if eopatch.timestamps is not None and eopatch.timestamps != []:  # remove second part after eo-learn 1.5.0
+            stats["timestamps"] = [time.isoformat() for time in eopatch.timestamps]
 
-            feature_type_name = feature_type.value
+        for ftype, fname in eopatch.get_features():
+            if ftype.is_array():
+                stats[ftype.value][fname] = self._calculate_numpy_stats(eopatch[ftype, fname])
+            elif ftype.is_vector():
+                stats[ftype.value][fname] = self._calculate_vector_stats(eopatch[ftype, fname])
+            elif ftype is FeatureType.META_INFO:
+                stats[ftype.value][fname] = str(eopatch[ftype, fname])
 
-            if feature_type is FeatureType.BBOX:
-                stats[feature_type_name] = repr(eopatch.bbox)
-
-            elif feature_type is FeatureType.TIMESTAMPS:
-                stats[feature_type_name] = [time.isoformat() for time in eopatch.timestamps]
-
-            else:
-                feature_stats_dict = {}
-
-                if feature_type.is_array():
-                    calculation_method: Callable = self._calculate_numpy_stats
-                elif feature_type.is_vector():
-                    calculation_method = self._calculate_vector_stats
-                else:  # Only FeatureType.META_INFO remains
-                    calculation_method = str
-
-                for feature_name in eopatch[feature_type]:
-                    feature_data = eopatch[feature_type, feature_name]
-                    feature_stats_dict[feature_name] = calculation_method(feature_data)
-
-                stats[feature_type_name] = feature_stats_dict
-
-        return stats
+        return {**stats}
 
     def _calculate_numpy_stats(self, raster: np.ndarray) -> JsonDict:
         """Calculates statistics over a raster numpy array"""
@@ -222,7 +209,7 @@ class ContentTester:
     def _calculate_vector_stats(self, dataframe: pd.DataFrame) -> JsonDict:
         """Calculates statistics over a vector GeoDataFrame"""  # TODO: add more statistical properties
 
-        def _rounder(x: float, y: float) -> Tuple[float, float]:
+        def _rounder(x: float, y: float) -> tuple[float, float]:
             return round(x, self.decimals), round(y, self.decimals)
 
         dataframe["geometry"] = dataframe["geometry"].apply(lambda geometry: shapely.ops.transform(_rounder, geometry))
@@ -234,14 +221,14 @@ class ContentTester:
 
         return stats
 
-    def _calculate_subsample_stats(self, values: np.ndarray, amount: float = 0.1) -> Dict[str, float]:
+    def _calculate_subsample_stats(self, values: np.ndarray, amount: float = 0.1) -> dict[str, float]:
         """Randomly samples a small amount of points from the array (10% by default) to recalculate the statistics.
         This introduces a 'positional instability' so that accidental mirroring or re-orderings are detected."""
         rng = np.random.default_rng(0)
         subsample = rng.choice(values, int(values.size * amount))
         return {name: self._prepare_value(operation(subsample)) for name, operation in self._STATS_OPERATIONS.items()}
 
-    def _get_random_stats(self, raster: np.ndarray, unique_values: np.ndarray) -> List[JsonDict]:
+    def _get_random_stats(self, raster: np.ndarray, unique_values: np.ndarray) -> list[JsonDict]:
         """First it randomly samples a few values from the list of unique values. Then for each one it checks where
         this value is located in the original array and randomly selects one of its locations. Selected locations
         and values are used for statistics."""
@@ -252,7 +239,7 @@ class ContentTester:
             replace=False,
         )
 
-        random_stats: List[JsonDict] = []
+        random_stats: list[JsonDict] = []
         for value in randomly_chosen_values:
             value_mask = np.isnan(raster) if np.isnan(value) else raster == value
             positions = np.argwhere(value_mask)
@@ -302,9 +289,9 @@ def check_pipeline_logs(pipeline: Pipeline) -> None:
 def run_config(
     config_path: str,
     *,
-    output_folder_key: Optional[str] = None,
+    output_folder_key: str | None = None,
     reset_output_folder: bool = True,
-) -> Optional[str]:
+) -> str | None:
     """Runs a pipeline (or multiple) and checks the logs that all the executions were successful. Returns the full path
     of the output folder (if there is one) so it can be inspected further. In case of chain configs, the output folder
     of the last config is returned.
@@ -335,7 +322,7 @@ def run_config(
 
 
 def compare_content(
-    folder_path: Optional[str],
+    folder_path: str | None,
     stats_path: str,
     *,
     save_new_stats: bool = False,

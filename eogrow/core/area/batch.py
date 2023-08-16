@@ -1,7 +1,9 @@
 """Area manager implementation for Sentinel Hub batch grids."""
+from __future__ import annotations
+
 import logging
 from collections import defaultdict
-from typing import Dict, Optional
+from typing import Optional
 
 import fs
 import geopandas as gpd
@@ -55,7 +57,7 @@ class BatchAreaManager(BaseAreaManager):
         super().__init__(config, storage)
         # We provide a way to inject a Batch ID after initialization if no ID was given in the config
         # This is meant to be used only in the BatchDownloadPipeline to force caching
-        self._injected_batch_id: Optional[str] = None
+        self._injected_batch_id: str | None = None
 
     def get_area_geometry(self, *, crs: CRS = CRS.WGS84) -> Geometry:
         file_path = fs.path.join(self.storage.get_input_data_folder(), self.config.geometry_filename)
@@ -65,7 +67,7 @@ class BatchAreaManager(BaseAreaManager):
             geopandas_engine=self.storage.config.geopandas_backend,
         ).transform(crs)
 
-    def _create_grid(self) -> Dict[CRS, GeoDataFrame]:
+    def _create_grid(self) -> dict[CRS, GeoDataFrame]:
         """Uses BatchSplitter to create a grid for the selected batch job."""
         batch_id = self.config.batch_id or self._injected_batch_id
 
@@ -85,7 +87,7 @@ class BatchAreaManager(BaseAreaManager):
 
         crs_to_patches = defaultdict(list)
         # they are returned in random order, so we sort them by name beforehand
-        for bbox, info in sorted(zip(bbox_list, info_list), key=lambda x: x[1]["name"]):  # type: ignore
+        for bbox, info in sorted(zip(bbox_list, info_list), key=lambda x: x[1]["name"]):  # type: ignore # noqa: PGH003
             crs_to_patches[bbox.crs].append((info["name"], bbox.geometry))
 
         grid = {}

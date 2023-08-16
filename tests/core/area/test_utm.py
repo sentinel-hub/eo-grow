@@ -23,7 +23,7 @@ def area_config_fixture():
 
 
 @pytest.mark.parametrize(
-    "config, expected_zone_num, expected_bbox_num",
+    ("config", "expected_zone_num", "expected_bbox_num"),
     [
         (pytest.lazy_fixture("area_config"), 1, 2),
         (pytest.lazy_fixture("large_area_config"), 71, 368),

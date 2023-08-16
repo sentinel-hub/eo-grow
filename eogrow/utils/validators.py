@@ -1,9 +1,11 @@
 """
 Module defining common validators for schemas and validator wrappers
 """
+from __future__ import annotations
+
 import datetime as dt
 import inspect
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Tuple, Union
 
 import numpy as np
 from pydantic import BaseModel, Field, validator
@@ -18,6 +20,8 @@ from .meta import collect_schema, import_object
 
 if TYPE_CHECKING:
     from ..core.schemas import ManagerSchema
+
+# ruff: noqa: ARG001
 
 
 def field_validator(field: str, validator_fun: Callable, allow_reuse: bool = True, **kwargs: Any) -> classmethod:
@@ -57,7 +61,7 @@ def ensure_exactly_one_defined(first_param: str, second_param: str, **kwargs: An
     Make sure that the definition of `second_param` comes after `first_param˙ (in line-order).
     """
 
-    def ensure_exclusion(cls: type, value: Optional[Any], values: RawSchemaDict) -> Optional[Any]:
+    def ensure_exclusion(cls: type, value: Any | None, values: RawSchemaDict) -> Any | None:
         is_param1_undefined = values.get(first_param) is None
         is_param2_undefined = value is None
         assert (
@@ -77,7 +81,7 @@ def ensure_defined_together(first_param: str, second_param: str, **kwargs: Any) 
     Make sure that the definition of `second_param` comes after `first_param˙ (in line-order).
     """
 
-    def ensure_both(cls: type, value: Optional[Any], values: RawSchemaDict) -> Optional[Any]:
+    def ensure_both(cls: type, value: Any | None, values: RawSchemaDict) -> Any | None:
         is_param1_undefined = values.get(first_param) is None
         is_param2_undefined = value is None
         assert (
@@ -94,7 +98,7 @@ def ensure_defined_together(first_param: str, second_param: str, **kwargs: Any) 
 def ensure_storage_key_presence(key: str, **kwargs: Any) -> classmethod:
     """A field validator that makes sure that the specified storage key is present in the storage structure."""
 
-    def validate_storage_key(cls: type, key: Optional[str], values: RawSchemaDict) -> Optional[str]:
+    def validate_storage_key(cls: type, key: str | None, values: RawSchemaDict) -> str | None:
         if key is not None:
             predefined_keys = ["input_data", "logs", "cache"]
             assert (
@@ -106,7 +110,7 @@ def ensure_storage_key_presence(key: str, **kwargs: Any) -> classmethod:
     return field_validator(key, validate_storage_key, **kwargs)
 
 
-def parse_time_period(value: Tuple[str, str]) -> TimePeriod:
+def parse_time_period(value: tuple[str, str]) -> TimePeriod:
     """Allows parsing of preset options of shape `[preset_kind, year]` but that requires `pre` validation"""
     presets = ["yearly", "season", "Q1", "Q2", "Q3", "Q4", "Q1-yearly", "Q2-yearly", "Q3-yearly", "Q4-yearly"]
 
@@ -148,7 +152,7 @@ def parse_dtype(value: str) -> np.dtype:
     return np.dtype(value)
 
 
-def validate_manager(value: dict) -> "ManagerSchema":
+def validate_manager(value: dict) -> ManagerSchema:
     """Parse and validate schema describing a manager."""
     assert "manager" in value, "Manager definition has no `manager` field that specifies its class."
     manager_class = import_object(value["manager"])
@@ -190,8 +194,8 @@ class DataCollectionSchema(BaseModel):
 
 
 def _bands_parser(
-    bands_collection: Union[Type[Bands], Type[MetaBands]], value: Union[None, str, Tuple[BandSchema, ...]]
-) -> Optional[Tuple[Band, ...]]:
+    bands_collection: type[Bands] | type[MetaBands], value: None | str | tuple[BandSchema, ...]
+) -> tuple[Band, ...] | None:
     """Collects defaults or parses bands from schemas."""
 
     if value is None:
@@ -201,7 +205,7 @@ def _bands_parser(
     return tuple(Band(band_schema.name, band_schema.units, band_schema.output_types) for band_schema in value)
 
 
-def parse_data_collection(value: Union[str, dict, DataCollection]) -> DataCollection:
+def parse_data_collection(value: str | dict | DataCollection) -> DataCollection:
     """Validates and parses the data collection.
 
     If a string is given, then it tries to fetch a pre-defined collection. Otherwise it constructs a new collection
@@ -212,7 +216,7 @@ def parse_data_collection(value: Union[str, dict, DataCollection]) -> DataCollec
 
     assert isinstance(value, (str, dict)), "Can only parse collection names or `DataCollectionSchema` definitions."
 
-    params: Dict[str, Any] = {}
+    params: dict[str, Any] = {}
     if isinstance(value, str):
         name = value
         if name in DataCollection.__members__:
@@ -235,7 +239,7 @@ def parse_data_collection(value: Union[str, dict, DataCollection]) -> DataCollec
 
 
 def restrict_types(
-    allowed_feature_types: Union[Iterable[FeatureType], Callable[[FeatureType], bool]]
+    allowed_feature_types: Iterable[FeatureType] | Callable[[FeatureType], bool]
 ) -> Callable[[Feature], Feature]:
     """Validates a field representing a feature, where it restricts the possible feature types."""
 

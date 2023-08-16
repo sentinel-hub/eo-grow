@@ -1,9 +1,11 @@
 """Implements different customizeable pipelines for downloading data."""
+from __future__ import annotations
+
 import abc
 import datetime as dt
 import logging
 from contextlib import nullcontext
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import Any, Callable, List, Optional, Tuple
 
 import numpy as np
 import ray
@@ -93,22 +95,19 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self.download_node_uid: Optional[str] = None
+        self.download_node_uid: str | None = None
 
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """EOPatches are filtered according to existence of specified output features"""
-
-        filtered_patch_list = get_patches_with_missing_features(
+        return get_patches_with_missing_features(
             self.storage.filesystem,
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
             self._get_output_features(),
         )
 
-        return filtered_patch_list
-
     @abc.abstractmethod
-    def _get_output_features(self) -> List[FeatureSpec]:
+    def _get_output_features(self) -> list[FeatureSpec]:
         """Lists all features that are to be saved upon the pipeline completion"""
 
     @abc.abstractmethod
@@ -176,7 +175,7 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
 
         return exec_args
 
-    def run_procedure(self) -> Tuple[List[str], List[str]]:
+    def run_procedure(self) -> tuple[list[str], list[str]]:
         execution_kind = self._init_processing()
         session_loader = self._create_session_loader(execution_kind)
 
@@ -184,7 +183,7 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
         workflow = self.build_workflow(session_loader)
         exec_args = self.get_execution_arguments(workflow, patch_list)
 
-        context: Union[SessionSharing, nullcontext] = nullcontext()
+        context: SessionSharing | nullcontext = nullcontext()
         if execution_kind is ProcessingType.MULTI:
             context = SessionSharing(SentinelHubSession(self.sh_config))
         with context:
@@ -248,8 +247,8 @@ class DownloadPipeline(BaseDownloadPipeline):
 
     config: Schema
 
-    def _get_output_features(self) -> List[FeatureSpec]:
-        features: List[FeatureSpec] = [
+    def _get_output_features(self) -> list[FeatureSpec]:
+        features: list[FeatureSpec] = [
             (FeatureType.DATA, self.config.bands_feature_name),
             FeatureType.BBOX,
             FeatureType.TIMESTAMPS,
@@ -301,8 +300,8 @@ class DownloadEvalscriptPipeline(BaseDownloadPipeline):
 
     config: Schema
 
-    def _get_output_features(self) -> List[FeatureSpec]:
-        features: List[FeatureSpec] = [FeatureType.BBOX, FeatureType.TIMESTAMPS]
+    def _get_output_features(self) -> list[FeatureSpec]:
+        features: list[FeatureSpec] = [FeatureType.BBOX, FeatureType.TIMESTAMPS]
         features.extend(self.config.features)
         return features
 
@@ -336,7 +335,7 @@ class DownloadTimelessPipeline(BaseDownloadPipeline):
 
     config: Schema
 
-    def _get_output_features(self) -> List[FeatureSpec]:
+    def _get_output_features(self) -> list[FeatureSpec]:
         return [(FeatureType.DATA_TIMELESS, self.config.feature_name), FeatureType.BBOX]
 
     def _get_download_node(self, session_loader: SessionLoaderType) -> EONode:

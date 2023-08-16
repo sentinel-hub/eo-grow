@@ -1,7 +1,7 @@
 """
 Utilities for working with area grids
 """
-from typing import List, Tuple
+from __future__ import annotations
 
 import numpy as np
 
@@ -9,13 +9,13 @@ from sentinelhub import BBox
 
 
 def split_bbox(
-    named_bbox: Tuple[str, BBox],
+    named_bbox: tuple[str, BBox],
     split_x: int,
     split_y: int,
     buffer_x: float,
     buffer_y: float,
     naming_schema: str = "{name}_{i_x}_{i_y}",
-) -> List[Tuple[str, BBox]]:
+) -> list[tuple[str, BBox]]:
     """Splits a BBox into multiple smaller BBoxes with new names generated for them.
 
     The `buffer` parameters describe the buffer of the original BBox, which is copied to the split ones.

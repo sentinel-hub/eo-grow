@@ -1,6 +1,8 @@
 """Implements a pipeline for merging sampled features into numpy arrays fit for training models."""
+from __future__ import annotations
+
 import logging
-from typing import List, Literal, Optional, Tuple, cast
+from typing import List, Literal, Optional, cast
 
 import fs
 import numpy as np
@@ -48,7 +50,7 @@ class MergeSamplesPipeline(Pipeline):
 
     _OUTPUT_NAME = "features-to-merge"
 
-    def run_procedure(self) -> Tuple[List[str], List[str]]:
+    def run_procedure(self) -> tuple[list[str], list[str]]:
         """Procedure which merges data from EOPatches into ML-ready numpy arrays"""
         workflow = self.build_workflow()
         patch_list = self.get_patch_list()
@@ -61,13 +63,13 @@ class MergeSamplesPipeline(Pipeline):
 
         result_patches = [cast(EOPatch, result.outputs.get(self._OUTPUT_NAME)) for result in results]
 
-        self.merge_and_save_features(result_patches, patch_names=successful)
+        self.merge_and_save_features(result_patches)
 
         return successful, failed
 
     def build_workflow(self) -> EOWorkflow:
         """Creates a workflow that outputs the requested features"""
-        features_to_load: List[FeatureSpec] = [FeatureType.TIMESTAMPS] if self.config.include_timestamp else []
+        features_to_load: list[FeatureSpec] = [FeatureType.TIMESTAMPS] if self.config.include_timestamp else []
         features_to_load.extend(self.config.features_to_merge)
         load_task = LoadTask(
             self.storage.get_folder(self.config.input_folder_key),
@@ -77,7 +79,7 @@ class MergeSamplesPipeline(Pipeline):
         output_task = OutputTask(name=self._OUTPUT_NAME)
         return EOWorkflow(linearly_connect_tasks(load_task, output_task))
 
-    def merge_and_save_features(self, patches: List[EOPatch], patch_names: List[str]) -> None:
+    def merge_and_save_features(self, patches: list[EOPatch]) -> None:
         """Merges features from EOPatches and saves data"""
         patch_sample_nums = None
 

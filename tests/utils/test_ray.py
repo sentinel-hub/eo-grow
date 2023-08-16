@@ -4,8 +4,8 @@ import ray
 from eogrow.utils.ray import handle_ray_connection
 
 
-@pytest.fixture(name="ray_cluster", scope="class")
-def ray_cluster_fixture():
+@pytest.fixture(name="_ray_cluster", scope="class")
+def _ray_cluster_fixture():
     ray.init(log_to_driver=False)
     yield
     ray.shutdown()
@@ -15,14 +15,15 @@ class TestWithRayCluster:
     """These are the tests that require a running Ray cluster while tests outside this class must not have it."""
 
     @pytest.mark.parametrize(
-        "use_ray, expected_connection",
+        ("use_ray", "expected_connection"),
         [
             ("auto", True),
             (True, True),
             (False, False),
         ],
     )
-    def test_handle_ray_connection_with_cluster(self, ray_cluster, use_ray, expected_connection):
+    @pytest.mark.usefixtures("_ray_cluster")
+    def test_handle_ray_connection_with_cluster(self, use_ray, expected_connection):
         is_connected = handle_ray_connection(use_ray)
         assert is_connected is expected_connection
 
@@ -31,7 +32,7 @@ class TestWithRayCluster:
 
 
 @pytest.mark.parametrize(
-    "use_ray, expected_connection",
+    ("use_ray", "expected_connection"),
     [
         ("auto", False),
         (True, ConnectionError),

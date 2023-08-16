@@ -1,5 +1,7 @@
 """Common tasks shared between pipelines."""
-from typing import Callable, List, Optional, Union
+from __future__ import annotations
+
+from typing import Callable
 
 import numpy as np
 
@@ -16,9 +18,9 @@ class ClassFilterTask(EOTask):
     def __init__(
         self,
         feature: Feature,
-        labels: List[int],
-        morph_operation: Union[MorphologicalOperations, Callable],
-        struct_elem: Optional[np.ndarray] = None,
+        labels: list[int],
+        morph_operation: MorphologicalOperations | Callable,
+        struct_elem: np.ndarray | None = None,
     ):
         """Perform a morphological operation on a given feature mask
 
@@ -27,8 +29,8 @@ class ClassFilterTask(EOTask):
         :param morph_operation: Type of morphological operation ot perform
         :param struct_elem: Structured element to be used. Taken from `ml_tools.MorphologicalStructFactory`
         """
-        self.feature_name: Optional[str]
-        self.new_feature_name: Optional[str]
+        self.feature_name: str | None
+        self.new_feature_name: str | None
         self.renamed_feature = parse_renamed_feature(feature)
         self.labels = labels
 
@@ -55,7 +57,7 @@ class ClassFilterTask(EOTask):
 class SkippableSaveTask(SaveTask):
     """Same as `SaveTask` but can be skipped if the `eopatch_folder` is set to `None`."""
 
-    def execute(self, eopatch: EOPatch, *, eopatch_folder: Optional[str] = "") -> EOPatch:
+    def execute(self, eopatch: EOPatch, *, eopatch_folder: str | None = "") -> EOPatch:
         if eopatch_folder is None:
             return eopatch
         return super().execute(eopatch, eopatch_folder=eopatch_folder)

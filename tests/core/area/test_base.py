@@ -16,6 +16,7 @@ from eogrow.utils.eopatch_list import save_names
 from eogrow.utils.vector import count_points
 
 
+# ruff: noqa: RUF012
 class DummyAreaManager(BaseAreaManager):
     BBOXES = [BBox((0, 0, 1, 1), CRS.WGS84), BBox((1, 1, 2, 2), CRS.WGS84), BBox((0, 0, 1, 1), CRS(3035))]
     NAMES = ["beep", "boop", "bap"]
@@ -82,7 +83,7 @@ def test_get_grid_caching(storage: StorageManager) -> None:
 
 
 @pytest.mark.parametrize(
-    "patch_list, expected_bboxes",
+    ("patch_list", "expected_bboxes"),
     [
         ([], []),
         (None, list(zip(DummyAreaManager.NAMES, DummyAreaManager.BBOXES))),

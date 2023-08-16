@@ -9,8 +9,8 @@ from eogrow.utils.testing import compare_content, run_config
 pytestmark = pytest.mark.integration
 
 
-@pytest.fixture(scope="session", name="batch_grid")
-def batch_grid_fixture(project_folder):
+@pytest.fixture(scope="session", name="_batch_grid")
+def _batch_grid_fixture(project_folder):
     """Cached grid file can't be created on the fly therefore it is committed in the input-data folder. This fixture
     just copies it into the cache folder."""
     grid_path = os.path.join(project_folder, "input-data", "batch_grid.gpkg")
@@ -20,14 +20,14 @@ def batch_grid_fixture(project_folder):
     cache_grid_path = os.path.join(cache_folder, "BatchAreaManager_batch_area_1_10.0_3_7.gpkg")
 
     shutil.copyfile(grid_path, cache_grid_path)
-    return cache_grid_path
 
 
 @pytest.mark.parametrize(
-    "preparation_config, config",
+    ("preparation_config", "config"),
     [("dummy_data_batch", "split_batch"), pytest.param("dummy_data_utm", "split_utm", marks=pytest.mark.chain)],
 )
-def test_grid_splitting(config_and_stats_paths, preparation_config, config, batch_grid, test_storage_manager):
+@pytest.mark.usefixtures("_batch_grid")
+def test_grid_splitting(config_and_stats_paths, preparation_config, config, test_storage_manager):
     preparation_config_path, _ = config_and_stats_paths("split_grid", preparation_config)
     config_path, stats_path = config_and_stats_paths("split_grid", config)
 

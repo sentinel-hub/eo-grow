@@ -1,8 +1,10 @@
 """Implementation of the base Pipeline class."""
+from __future__ import annotations
+
 import logging
 import time
 import uuid
-from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
+from typing import Any, TypeVar
 
 from eolearn.core import CreateEOPatchTask, EOExecutor, EONode, EOWorkflow, LoadTask, SaveTask, WorkflowResults
 from eolearn.core.extra.ray import RayExecutor
@@ -39,7 +41,7 @@ class Pipeline(EOGrowObject):
 
     config: Schema
 
-    def __init__(self, config: Schema, raw_config: Optional[RawConfig] = None):
+    def __init__(self, config: Schema, raw_config: RawConfig | None = None):
         """
         :param config: A dictionary with configuration parameters
         :param raw_config: The configuration parameters pre-validation, for logging purposes only
@@ -61,7 +63,7 @@ class Pipeline(EOGrowObject):
         return self.config.pipeline_name or self.__class__.__name__
 
     @classmethod
-    def from_raw_config(cls: Type[Self], config: RawConfig, *args: Any, **kwargs: Any) -> Self:
+    def from_raw_config(cls: type[Self], config: RawConfig, *args: Any, **kwargs: Any) -> Self:
         """Creates an object from a dictionary by constructing a validated config and use it to create the object."""
         validated_config = cls.Schema.parse_obj(config)
         if "raw_config" not in kwargs:
@@ -83,8 +85,7 @@ class Pipeline(EOGrowObject):
         if manager_config.manager is None:
             raise ValueError("Unable to load manager, field `manager` specifying it's class is missing.")
         manager_class = import_object(manager_config.manager)
-        manager = manager_class(manager_config, **manager_params)
-        return manager
+        return manager_class(manager_config, **manager_params)
 
     def get_pipeline_execution_name(self, pipeline_timestamp: str) -> str:
         """Returns the full name of the pipeline execution"""
@@ -134,7 +135,7 @@ class Pipeline(EOGrowObject):
         exec_kwargs = {}
         nodes = workflow.get_nodes()
         for name, bbox in patch_list:
-            patch_args: Dict[EONode, Dict[str, Any]] = {}
+            patch_args: dict[EONode, dict[str, Any]] = {}
 
             for node in nodes:
                 if isinstance(node.task, (SaveTask, LoadTask)):
@@ -158,7 +159,7 @@ class Pipeline(EOGrowObject):
         workflow: EOWorkflow,
         execution_kwargs: ExecKwargs,
         **executor_run_params: Any,
-    ) -> Tuple[List[str], List[str], List[WorkflowResults]]:
+    ) -> tuple[list[str], list[str], list[WorkflowResults]]:
         """A method which runs EOExecutor on given workflow with given execution parameters
 
         :param workflow: A workflow to be executed
@@ -167,7 +168,7 @@ class Pipeline(EOGrowObject):
             self.patch_list will be used
         :return: Lists of successfully/unsuccessfully executed EOPatch names and the result of the EOWorkflow execution
         """
-        executor_class: Type[EOExecutor]
+        executor_class: type[EOExecutor]
 
         execution_kind = self._init_processing()
         if execution_kind is ProcessingType.RAY:
@@ -255,7 +256,7 @@ class Pipeline(EOGrowObject):
         finally:
             self.logging_manager.stop_logging(handlers)
 
-    def run_procedure(self) -> Tuple[List[str], List[str]]:
+    def run_procedure(self) -> tuple[list[str], list[str]]:
         """Execution procedure of pipeline. Can be overridden if needed.
 
         By default, builds the workflow by using a `build_workflow` method, which must be additionally implemented.

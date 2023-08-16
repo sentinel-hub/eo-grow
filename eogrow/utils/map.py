@@ -1,6 +1,8 @@
 """
 Module with utilities for creating maps
 """
+from __future__ import annotations
+
 import logging
 import os
 import shutil
@@ -9,11 +11,11 @@ import tempfile
 import warnings
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Iterable, Literal, Optional
+from typing import Iterable, Literal
 
 SH_COMMAND_LIMIT = 130000
 OPEN_FILES_LIMIT = 1000
-
+# ruff: noqa: RUF013
 
 LOGGER = logging.getLogger(__name__)
 
@@ -46,7 +48,7 @@ WarpResamplingOptions = Literal[
 def cogify_inplace(
     tiff_file: str,
     blocksize: int = 2048,
-    nodata: Optional[float] = None,
+    nodata: float | None = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
     resampling: CogifyResamplingOptions = None,
     quiet: bool = True,
@@ -82,7 +84,7 @@ def cogify(
     input_file: str,
     output_file: str,
     blocksize: int = 1024,
-    nodata: Optional[float] = None,
+    nodata: float | None = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
     overwrite: bool = True,
     resampling: CogifyResamplingOptions = None,
@@ -134,10 +136,8 @@ def cogify(
 
     if version < "3.6.0" and resampling == "MODE":
         warnings.warn(
-            (
-                "GDAL versions below 3.6.0 have issues with `MODE` overview resampling. Trying to fix issue by setting"
-                " GDAL_OVR_CHUNK_MAX_SIZE to a large integer (2100000000)."
-            ),
+            "GDAL versions below 3.6.0 have issues with `MODE` overview resampling. Trying to fix issue by setting"
+            " GDAL_OVR_CHUNK_MAX_SIZE to a large integer (2100000000).",
             category=RuntimeWarning,
             stacklevel=2,
         )
@@ -151,7 +151,7 @@ def merge_tiffs(
     merged_filename: str,
     *,
     overwrite: bool = True,
-    nodata: Optional[float] = None,
+    nodata: float | None = None,
     dtype: Literal[None, "int8", "int16", "uint8", "uint16", "float32"] = None,
     warp_resampling: WarpResamplingOptions = None,
     quiet: bool = True,
@@ -177,7 +177,7 @@ def merge_tiffs(
         gdalwarp_options += f" -r {warp_resampling}"
 
     if nodata is not None:
-        gdalwarp_options += f' -dstnodata "{nodata}"'  # noqa B028
+        gdalwarp_options += f' -dstnodata "{nodata}"'  # B028
 
     if dtype is not None:
         gdalwarp_options += f" -ot {GDAL_DTYPE_SETTINGS[dtype]}"

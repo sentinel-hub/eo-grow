@@ -1,11 +1,13 @@
 """Implements a pipeline for exporting data to TIFF files, can be used to prepare BYOC tiles."""
+from __future__ import annotations
+
 import datetime as dt
 import itertools as it
 import logging
 from collections import defaultdict
 from dataclasses import dataclass
 from functools import partial
-from typing import Dict, Iterable, List, Literal, Optional, Tuple
+from typing import Iterable, List, Literal, Optional
 
 import fs
 import fs.copy
@@ -51,7 +53,7 @@ class ExportMapsPipeline(Pipeline):
         _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
 
         feature: Feature
-        map_name: Optional[str] = Field(regex=r".+\." + MimeType.TIFF.extension + r"?\b")  # noqa
+        map_name: Optional[str] = Field(regex=r".+\." + MimeType.TIFF.extension + r"?\b")
         map_dtype: Literal["int8", "int16", "uint8", "uint16", "float32"]
         no_data_value: Optional[float] = Field(description="No data value to be passed to GeoTIFFs")
         scale_factor: Optional[float] = Field(description="Feature will be multiplied by this value at export")
@@ -101,13 +103,13 @@ class ExportMapsPipeline(Pipeline):
     config: Schema
     MERGED_MAP_NAME = "merged"
 
-    def __init__(self, config: Schema, raw_config: Optional[RawConfig] = None):
+    def __init__(self, config: Schema, raw_config: RawConfig | None = None):
         super().__init__(config, raw_config)
 
         self.map_name = self.config.map_name or f"{self.config.feature[1]}.{MimeType.TIFF.extension}"
         self.get_tiff_name = partial(get_tiff_name, self.map_name, suffix=self.config.interim_results_suffix)
 
-    def run_procedure(self) -> Tuple[List[str], List[str]]:
+    def run_procedure(self) -> tuple[list[str], list[str]]:
         """Extracts and merges the data from EOPatches into a TIFF file.
 
         1. Extracts data from EOPatches via workflow into per-EOPatch tiffs.
@@ -175,7 +177,7 @@ class ExportMapsPipeline(Pipeline):
             filesystem=self.storage.filesystem,
             features=[self.config.feature, FeatureType.BBOX],
         )
-        task_list: List[EOTask] = [load_task]
+        task_list: list[EOTask] = [load_task]
 
         if self.config.scale_factor is not None:
             rescale_task = LinearFunctionTask(self.config.feature, slope=self.config.scale_factor)
@@ -203,7 +205,7 @@ class ExportMapsPipeline(Pipeline):
 
         return exec_args
 
-    def _prepare_files(self, geotiff_paths: List[str]) -> Tuple[FS, List[str]]:
+    def _prepare_files(self, geotiff_paths: list[str]) -> tuple[FS, list[str]]:
         """Returns a filesystem and appropriate paths to the geotiffs to use in the pipeline.
 
         If required files are copied locally and a temporary filesystem object is returned.
@@ -229,8 +231,8 @@ class ExportMapsPipeline(Pipeline):
         return temp_fs, temp_geotiff_paths
 
     def _split_patches_temporally(
-        self, filesystem: FS, output_folder: str, geotiff_paths: List[str], some_eopatch: str, crs: CRS
-    ) -> Dict[Optional[dt.datetime], List[str]]:
+        self, filesystem: FS, output_folder: str, geotiff_paths: list[str], some_eopatch: str, crs: CRS
+    ) -> dict[dt.datetime | None, list[str]]:
         """Splits multi-temporal tiffs into separate tiffs according to the temporal dimensions.
 
         The jobs for splitting tiffs are grouped together per input file. This ensures that two processes don't try
@@ -247,7 +249,7 @@ class ExportMapsPipeline(Pipeline):
             tiff_name = _strip_tiff_extension(fs.path.basename(input_path))
             return fs.path.join(output_folder, self.get_tiff_name(tiff_name, crs, time))
 
-        time_to_tiffs_map: Dict[Optional[dt.datetime], List[str]] = defaultdict(list)
+        time_to_tiffs_map: dict[dt.datetime | None, list[str]] = defaultdict(list)
         grouped_split_jobs = []  # these are grouped per input file to avoid IO blocking of processes
         for tiff_path in geotiff_paths:
             tiff_sys_path = filesystem.getsyspath(tiff_path)
@@ -267,7 +269,7 @@ class ExportMapsPipeline(Pipeline):
 
         return time_to_tiffs_map
 
-    def _extract_num_bands_and_timestamps(self, eopatch_name: str) -> Tuple[int, List[dt.datetime]]:
+    def _extract_num_bands_and_timestamps(self, eopatch_name: str) -> tuple[int, list[dt.datetime]]:
         """Loads an eopatch to get information about number of bands and the timestamps."""
         path = fs.path.join(self.storage.get_folder(self.config.input_folder_key), eopatch_name)
         patch = EOPatch.load(path, (FeatureType.TIMESTAMPS, self.config.feature), filesystem=self.storage.filesystem)
@@ -276,13 +278,13 @@ class ExportMapsPipeline(Pipeline):
         return patch[self.config.feature].shape[-1], patch.timestamps
 
     @staticmethod
-    def _execute_split_jobs(jobs: List["SplitTiffsJob"]) -> None:
+    def _execute_split_jobs(jobs: list[SplitTiffsJob]) -> None:
         """Executes all the jobs for a specific tiff. This prevents parallel processes fighting over IO to a tiff."""
         for job in jobs:
             extract_bands(job.input_path, job.output_path, job.bands)
 
     @staticmethod
-    def _combine_geotiffs(config: Schema, pickled_filesystem: bytes, job: "CombineTiffsJob") -> None:
+    def _combine_geotiffs(config: Schema, pickled_filesystem: bytes, job: CombineTiffsJob) -> None:
         """Merges tiffs and cogifies them if needed. Also removes the pre-merge tiffs."""
         filesystem = unpickle_fs(pickled_filesystem)
         merge_tiffs(
@@ -307,9 +309,9 @@ class ExportMapsPipeline(Pipeline):
     def _finalize_output(
         self,
         filesystem: FS,
-        merged_maps_paths: Dict[Optional[dt.datetime], str],
+        merged_maps_paths: dict[dt.datetime | None, str],
         output_folder: str,
-        exported_tiff_paths: List[str],
+        exported_tiff_paths: list[str],
     ) -> None:
         """Renames (or transfers in case of temporal FS) the files to the expected output files.
 
@@ -327,7 +329,7 @@ class ExportMapsPipeline(Pipeline):
             fs.copy.copy_file(filesystem, map_path, self.storage.filesystem, output_path)
             filesystem.remove(map_path)
 
-        LOGGER.info("Merged maps are saved in %s", get_full_path(self.storage.filesystem, output_folder))
+        LOGGER.info("Merged maps saved to %s", get_full_path(self.storage.filesystem, output_path))
 
         if isinstance(filesystem, TempFS):
             filesystem.close()
@@ -356,7 +358,7 @@ class CombineTiffsJob:
 
     input_paths: Iterable[str]
     output_path: str
-    time: Optional[dt.datetime]
+    time: dt.datetime | None
 
 
 def _strip_tiff_extension(path: str) -> str:
@@ -364,7 +366,7 @@ def _strip_tiff_extension(path: str) -> str:
 
 
 def get_tiff_name(
-    map_name: str, name: str, crs: Optional[CRS] = None, time: Optional[dt.datetime] = None, suffix: str = ""
+    map_name: str, name: str, crs: CRS | None = None, time: dt.datetime | None = None, suffix: str = ""
 ) -> str:
     """Creates a name of a geotiff image"""
     base = f"{_strip_tiff_extension(map_name)}_{name}"

@@ -1,8 +1,10 @@
 """Implementation of the base AreaManager."""
+from __future__ import annotations
+
 import logging
 import warnings
 from abc import ABCMeta, abstractmethod
-from typing import Dict, Literal, Optional
+from typing import Literal, Optional
 
 import fiona
 import fs
@@ -33,15 +35,13 @@ class AreaSchema(BaseSchema):
     )
 
 
-def area_schema_deprecation(cls: type, value: Optional[str], values: RawSchemaDict) -> str:
+def area_schema_deprecation(cls: type, value: str | None, values: RawSchemaDict) -> str:  # noqa: ARG001
     """Warns and reconfigures when `area` is used instead of `geometry_filename`."""
     if values.get("area") is not None:
         warnings.warn(
-            (
-                "Use `geometry_filename` to provide the file (e.g., geojson, gpkg) with AoI. The `area` parameter is"
-                " deprecated, and extra parameters like `buffer` and `simplification_factor` are no longer available;"
-                " users should prepare the AoI geometry by themselves."
-            ),
+            "Use `geometry_filename` to provide the file (e.g., geojson, gpkg) with AoI. The `area` parameter is"
+            " deprecated, and extra parameters like `buffer` and `simplification_factor` are no longer available;"
+            " users should prepare the AoI geometry by themselves.",
             EODeprecationWarning,
             stacklevel=2,
         )
@@ -80,7 +80,7 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
     def get_area_geometry(self, *, crs: CRS = CRS.WGS84) -> Geometry:
         """Provides a dissolved geometry object of the entire AOI"""
 
-    def get_grid(self, filtered: bool = True) -> Dict[CRS, gpd.GeoDataFrame]:
+    def get_grid(self, filtered: bool = True) -> dict[CRS, gpd.GeoDataFrame]:
         """Provides a grid of bounding boxes which divide the AOI. Uses caching to avoid recalculations.
 
         The grid is split into different CRS zones. The `bounds` properties of the geometries are taken as BBox
@@ -115,14 +115,14 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
         return grid
 
     @abstractmethod
-    def _create_grid(self) -> Dict[CRS, gpd.GeoDataFrame]:
+    def _create_grid(self) -> dict[CRS, gpd.GeoDataFrame]:
         """Defines a new grid, which encodes how the area is split into EOPatches.
 
         The grid is split into different CRS zones. The `bounds` properties of the geometries are taken as BBox
         definitions. EOPatch names are stored in a column with identifier `self.NAME_COLUMN`.
         """
 
-    def _load_grid(self, grid_path: str) -> Dict[CRS, gpd.GeoDataFrame]:
+    def _load_grid(self, grid_path: str) -> dict[CRS, gpd.GeoDataFrame]:
         """A method that loads the bounding box grid from the cache folder."""
         LOGGER.info("Loading grid from %s", grid_path)
 
@@ -134,7 +134,7 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
 
         return grid
 
-    def _save_grid(self, grid: Dict[CRS, gpd.GeoDataFrame], grid_path: str) -> None:
+    def _save_grid(self, grid: dict[CRS, gpd.GeoDataFrame], grid_path: str) -> None:
         """A method that saves the bounding box grid to the cache folder."""
         LOGGER.info("Saving grid to %s", grid_path)
 

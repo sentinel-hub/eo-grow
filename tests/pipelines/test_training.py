@@ -10,7 +10,7 @@ pytestmark = pytest.mark.integration
 
 @pytest.mark.order(after="test_merge_samples.py::test_merge_samples_pipeline")
 @pytest.mark.parametrize(
-    "experiment_name, num_classes",
+    ("experiment_name", "num_classes"),
     [pytest.param("lgbm_training_no_filter", 6, marks=pytest.mark.chain), ("lgbm_training_label_filter", 3)],
 )
 def test_training_pipeline_random_split(config_and_stats_paths, experiment_name, num_classes):

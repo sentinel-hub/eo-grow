@@ -1,8 +1,10 @@
 """Implements a base training pipeline and a LGBM specialized classification and regression model training pipelines."""
 
+from __future__ import annotations
+
 import abc
 import logging
-from typing import Any, Dict, List, Literal, Optional, Tuple
+from typing import Any, Dict, List, Literal, Optional
 
 import fs
 import joblib
@@ -70,7 +72,7 @@ class BaseTrainingPipeline(Pipeline, metaclass=abc.ABCMeta):
 
     config: Schema
 
-    def run_procedure(self) -> Tuple[List[str], List[str]]:
+    def run_procedure(self) -> tuple[list[str], list[str]]:
         """The main pipeline procedure
 
         1. Prepares data. Output serves as input to both the training method and scoring method, so separation of
@@ -101,9 +103,7 @@ class BaseTrainingPipeline(Pipeline, metaclass=abc.ABCMeta):
         features, reference = self.preprocess_data(features, reference)
 
         data_split = self.train_test_split(features, reference)
-        prepared_data = dict(zip(["features_train", "features_test", "reference_train", "reference_test"], data_split))
-
-        return prepared_data
+        return dict(zip(["features_train", "features_test", "reference_train", "reference_test"], data_split))
 
     def _collect_features(self) -> np.ndarray:
         """Prepares features"""
@@ -122,13 +122,13 @@ class BaseTrainingPipeline(Pipeline, metaclass=abc.ABCMeta):
         LOGGER.info("Reading input reference")
         return self._read_array(self.config.train_reference)
 
-    def preprocess_data(self, features: np.ndarray, reference: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def preprocess_data(self, features: np.ndarray, reference: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """Preforms filtering and other preprocessing before splitting data."""
         return features, reference.ravel()
 
     def train_test_split(
         self, features: np.ndarray, reference: np.ndarray
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Computes a random train-test split
 
         Order is train-features test-features train-reference test-reference.
@@ -200,7 +200,7 @@ class ClassificationTrainingPipeline(BaseTrainingPipeline):
 
     config: Schema
 
-    def preprocess_data(self, features: np.ndarray, reference: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def preprocess_data(self, features: np.ndarray, reference: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """Preforms filtering and other preprocessing before splitting data."""
         config = self.config.preprocessing
         reference = reference.ravel()

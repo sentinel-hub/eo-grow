@@ -28,9 +28,9 @@ def _prepare_fs(filesystem, eopatch):
 @pytest.fixture(name="eopatch", scope="session")
 def eopatch_fixture():
     eopatch = EOPatch(bbox=BBox((1, 2, 3, 4), CRS.WGS84))
+    eopatch.timestamps = [datetime.datetime(2017, 1, 1, 10, 4, 7), datetime.datetime(2017, 1, 4, 10, 14, 5)]
     eopatch.mask["mask"] = np.zeros((2, 3, 3, 2), dtype=np.int16)
     eopatch.data["data"] = np.zeros((2, 3, 3, 2), dtype=np.int16)
-    eopatch.timestamps = [datetime.datetime(2017, 1, 1, 10, 4, 7), datetime.datetime(2017, 1, 4, 10, 14, 5)]
     eopatch.scalar["my scalar with spaces"] = np.array([[1, 2, 3], [1, 2, 3]])
     eopatch.scalar_timeless["my timeless scalar with spaces"] = np.array([1, 2, 3])
     return eopatch
@@ -50,11 +50,11 @@ def mock_s3fs_fixture(eopatch):
 def temp_fs_fixture(eopatch):
     temp_fs = TempFS()
     _prepare_fs(temp_fs, eopatch)
-    yield temp_fs
+    return temp_fs
 
 
 @pytest.mark.parametrize(
-    "test_features, expected_result",
+    ("test_features", "expected_result"),
     [(list(features), True) for features in chain(*(combinations(REAL_FEATURES, i) for i in range(4)))]
     + [([missing], False) for missing in MISSING_FEATURES]
     + [(REAL_FEATURES[:i] + [missing] + REAL_FEATURES[i:], False) for i, missing in enumerate(MISSING_FEATURES)],
@@ -65,7 +65,7 @@ def test_check_if_features_exist(mock_s3fs, temp_fs, test_features, expected_res
 
 
 @pytest.mark.parametrize(
-    "features, expected_num",
+    ("features", "expected_num"),
     [
         ([], 0),
         ([FeatureType.BBOX], 0),

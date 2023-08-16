@@ -54,7 +54,7 @@ def run_byoc_pipeline(config_path: str, requests_mock):
 
     # patch storage manager so it believes it's on aws, but only during init
     with patch.object(StorageManager, "is_on_s3", lambda _: True):
-        SentinelHubDownloadClient._CACHED_SESSIONS = {}
+        SentinelHubDownloadClient._CACHED_SESSIONS = {}  # noqa: SLF001
         pipeline = IngestByocTilesPipeline.from_path(config_path)
         pipeline.bucket_name = "mock-bucket"
 
@@ -67,8 +67,8 @@ def run_byoc_pipeline(config_path: str, requests_mock):
     return pipeline, relevant_requests
 
 
-@pytest.mark.chain
-@pytest.mark.parametrize("preparation_config, config", [("prepare_lulc_data", "ingest_lulc")])
+@pytest.mark.chain()
+@pytest.mark.parametrize(("preparation_config", "config"), [("prepare_lulc_data", "ingest_lulc")])
 @pytest.mark.order(after=["test_rasterize.py::test_rasterize_feature_with_resolution"])
 def test_timeless_byoc(config_and_stats_paths, preparation_config, config, configured_requests_mock):
     preparation_config_path, _ = config_and_stats_paths("byoc", preparation_config)
@@ -100,7 +100,7 @@ def test_timeless_byoc(config_and_stats_paths, preparation_config, config, confi
         assert content["sensingTime"] == pipeline.config.sensing_time.isoformat() + "Z"
 
 
-@pytest.mark.parametrize("preparation_config, config", [("prepare_bands_data", "ingest_bands")])
+@pytest.mark.parametrize(("preparation_config", "config"), [("prepare_bands_data", "ingest_bands")])
 @pytest.mark.order(after=["test_rasterize.py::test_rasterize_feature_with_resolution"])
 def test_temporal_byoc(config_and_stats_paths, preparation_config, config, configured_requests_mock):
     preparation_config_path, _ = config_and_stats_paths("byoc", preparation_config)

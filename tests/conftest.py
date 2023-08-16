@@ -54,7 +54,7 @@ def test_storage_manager_fixture(project_folder):
         "structure": {"temp": "temp", "batch": "tiffs", "eopatches": "path/to/eopatches"},
     }
 
-    yield StorageManager.from_raw_config(manager_config)
+    return StorageManager.from_raw_config(manager_config)
 
 
 @pytest.fixture(name="storage")

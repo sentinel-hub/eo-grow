@@ -25,11 +25,14 @@ def test_config_from_file(config_object, temp_folder):
     if isinstance(config_object, dict):
         directly_loaded_config = interpret_config_from_path(path)
         assert len(config_list) == 1
-        assert isinstance(directly_loaded_config, dict) and isinstance(config_list[0], dict)
-        assert directly_loaded_config == config_object and config_list[0] == config_object
+        assert isinstance(directly_loaded_config, dict)
+        assert isinstance(config_list[0], dict)
+        assert directly_loaded_config == config_object
+        assert config_list[0] == config_object
 
     else:
-        assert isinstance(config_list, list) and all(isinstance(config, dict) for config in config_list)
+        assert isinstance(config_list, list)
+        assert all(isinstance(config, dict) for config in config_list)
         assert config_list == config_object
 
 
@@ -113,7 +116,7 @@ def test_cyclic_config_error(temp_folder):
             interpret_config_from_path(path)
 
 
-CONFIG_WITH_IMPORT_PATHS = {"eogrow": "${import_path:eogrow}/xy", "other": ["${import_path:os.path}"]}
+CONFIG_WITH_IMPORT_PATHS = {"eogrow": "${import_path:eogrow}/xy", "other": ["${import_path:pytest}"]}
 
 
 def test_parsing_import_paths():
@@ -121,7 +124,7 @@ def test_parsing_import_paths():
 
     expected_dict = {
         "eogrow": os.path.dirname(get_os_import_path("eogrow")) + "/xy",
-        "other": [os.path.dirname(get_os_import_path("os.path"))],
+        "other": [os.path.dirname(get_os_import_path("pytest"))],
     }
     assert config == expected_dict
 

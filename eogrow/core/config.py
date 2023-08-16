@@ -1,9 +1,11 @@
 """Implements functions that transform raw dictionaries/JSON files according to the config language of eo-grow."""
+from __future__ import annotations
+
 import copy
 import os
 import re
 from functools import reduce
-from typing import Any, Callable, Dict, List, NewType, Optional, Set, cast
+from typing import Any, Callable, NewType, cast
 
 import fs.path
 import rapidjson
@@ -16,7 +18,7 @@ CrudeConfig = NewType("CrudeConfig", dict)
 RawConfig = NewType("RawConfig", dict)
 
 
-def collect_configs_from_path(path: str, used_config_paths: Optional[Set[str]] = None) -> List[CrudeConfig]:
+def collect_configs_from_path(path: str, used_config_paths: set[str] | None = None) -> list[CrudeConfig]:
     """Loads and builds a list of config dictionaries defined by the parameters stored in files
 
     This function performs the 1st stage of language interpretation as described in
@@ -45,7 +47,7 @@ def collect_configs_from_path(path: str, used_config_paths: Optional[Set[str]] =
     raise ValueError(f"When interpreting config from {path} a dictionary or list was expected, got {type(config)}.")
 
 
-def _recursive_config_build(config: object, used_config_paths: Set[str]) -> object:
+def _recursive_config_build(config: object, used_config_paths: set[str]) -> object:
     """Recursively builds a configuration object by replacing dictionary items in form of
 
         `'**key': 'file path to another config'`
@@ -55,7 +57,7 @@ def _recursive_config_build(config: object, used_config_paths: Set[str]) -> obje
     """
     if isinstance(config, dict):
         joint_config = {}
-        imported_configs: List[CrudeConfig] = []
+        imported_configs: list[CrudeConfig] = []
 
         for key, value in config.items():
             if not isinstance(key, str):
@@ -83,7 +85,7 @@ def _recursive_config_build(config: object, used_config_paths: Set[str]) -> obje
     return config
 
 
-def interpret_config_from_dict(config: CrudeConfig, external_variables: Optional[Dict[str, Any]] = None) -> RawConfig:
+def interpret_config_from_dict(config: CrudeConfig, external_variables: dict[str, Any] | None = None) -> RawConfig:
     """Applies config language rules to a loaded config
 
     This function performs the 2nd stage of language interpretation as described in
@@ -146,12 +148,12 @@ def _sub_import_path(match: re.Match) -> str:
     return os.path.dirname(get_os_import_path(import_module))
 
 
-def _resolve_variables(config_str: str, variable_mapping: Dict[str, str]) -> str:
+def _resolve_variables(config_str: str, variable_mapping: dict[str, str]) -> str:
     """Replaces `${var:variable_name}` with a replacement value defined under variables"""
     return re.sub(r"\${var:(\w+)}", lambda match: _sub_variable(match, variable_mapping), config_str)
 
 
-def _sub_variable(match: re.Match, variable_mapping: Dict[str, str]) -> str:
+def _sub_variable(match: re.Match, variable_mapping: dict[str, str]) -> str:
     """Substitutes a regex match with a new variable according to the mapping"""
     variable_name = match.group(1)
     if variable_name in variable_mapping:

@@ -1,16 +1,21 @@
 """Implementation of LoggingManager and different handlers used for logging."""
+from __future__ import annotations
+
 import contextlib
 import json
 import logging
+import os
 import sys
 import time
 from logging import FileHandler, Filter, Formatter, Handler, LogRecord
-from typing import Any, List, Optional, Sequence, Tuple, Union
+from typing import Any, Sequence, Tuple
 
 import colorlog
 import fs
+import fs.copy
 from fs.base import FS
 from fs.errors import FilesystemClosed
+from fs.osfs import OSFS
 from pydantic import Field
 
 from eolearn.core.utils.fs import join_path, unpickle_fs
@@ -20,12 +25,14 @@ from ..utils.fs import LocalFile
 from ..utils.general import jsonify
 from ..utils.logging import get_instance_info
 from ..utils.meta import get_package_versions
+from ..utils.ray import CLUSTER_CONFIG_DIR
 from .base import EOGrowObject
 from .config import RawConfig
 from .schemas import ManagerSchema
 from .storage import StorageManager
 
 DEFAULT_PACKAGES_TOKEN = "..."  # fix docs if this is changed!
+CLUSTER_FILE_LOCATION_ON_HEAD = fs.path.join(CLUSTER_CONFIG_DIR, "cluster.yaml")
 
 
 class LoggingManager(EOGrowObject):
@@ -109,7 +116,7 @@ class LoggingManager(EOGrowObject):
             return join_path(main_logs_folder, pipeline_execution_name)
         return fs.path.combine(main_logs_folder, pipeline_execution_name)
 
-    def start_logging(self, pipeline_execution_name: str) -> List[Handler]:
+    def start_logging(self, pipeline_execution_name: str) -> list[Handler]:
         """Creates a folder for logs and sets up (and returns) logging handlers
 
         Supported handlers:
@@ -119,6 +126,7 @@ class LoggingManager(EOGrowObject):
         if self.config.save_logs:
             logs_folder = self.get_pipeline_logs_folder(pipeline_execution_name)
             self.storage.filesystem.makedirs(logs_folder, recreate=True)
+            self._add_cluster_config_to_logs(logs_folder)
 
         global_logger = logging.getLogger()
         global_logger.setLevel(logging.DEBUG)
@@ -126,7 +134,7 @@ class LoggingManager(EOGrowObject):
         for default_handler in global_logger.handlers:
             default_handler.setLevel(logging.WARNING)
 
-        new_handlers: List[Handler] = []
+        new_handlers: list[Handler] = []
 
         if self.config.save_logs:
             file_handler = self._create_file_handler(pipeline_execution_name)
@@ -142,6 +150,14 @@ class LoggingManager(EOGrowObject):
             logging.captureWarnings(True)
 
         return new_handlers
+
+    def _add_cluster_config_to_logs(self, logs_folder: str) -> None:
+        """If it detects a synced `cluster.yaml` file, it will copy it to the logs folder."""
+        os_path = CLUSTER_FILE_LOCATION_ON_HEAD.replace("~", os.path.expanduser("~"))
+        if os.path.exists(os_path):
+            os_folder, os_file = fs.path.split(CLUSTER_FILE_LOCATION_ON_HEAD)
+            os_fs = OSFS(os_folder)  # the file is on the head node, might not be visible in storage.filesystem
+            fs.copy.copy_file(os_fs, os_file, self.storage.filesystem, fs.path.join(logs_folder, "cluster.yaml"))
 
     def _create_file_handler(self, pipeline_execution_name: str) -> Handler:
         """Creates a logging handler to write a pipeline log to a file."""
@@ -177,7 +193,7 @@ class LoggingManager(EOGrowObject):
 
         return stdout_handler
 
-    def stop_logging(self, handlers: List[Handler]) -> None:
+    def stop_logging(self, handlers: list[Handler]) -> None:
         """Updates logs, removes pipeline handlers from the global logger and puts global logging level back to
         default
         """
@@ -195,10 +211,10 @@ class LoggingManager(EOGrowObject):
         self,
         pipeline_execution_name: str,
         pipeline_config: EOGrowObject.Schema,
-        pipeline_raw_config: Optional[RawConfig],
+        pipeline_raw_config: RawConfig | None,
         pipeline_id: str,
         pipeline_timestamp: str,
-        elapsed_time: Optional[float] = None,
+        elapsed_time: float | None = None,
     ) -> None:
         """A method in charge of preparing a report about pipeline run.
 
@@ -230,7 +246,7 @@ class LoggingManager(EOGrowObject):
             json.dump(report, report_file, indent=2, default=jsonify)
 
     def save_eopatch_execution_status(
-        self, pipeline_execution_name: str, finished: List[str], failed: List[str]
+        self, pipeline_execution_name: str, finished: list[str], failed: list[str]
     ) -> None:
         """Saves lists of EOPatch names for which execution either finished successfully or failed"""
         if not self.config.save_logs:
@@ -253,7 +269,7 @@ class FilesystemHandler(FileHandler):
     process stuck waiting for a thread lock release.
     """
 
-    def __init__(self, path: str, filesystem: Union[FS, bytes], encoding: Optional[str] = "utf-8", **kwargs: Any):
+    def __init__(self, path: str, filesystem: FS | bytes, encoding: str | None = "utf-8", **kwargs: Any):
         """
         :param path: A path to a log file that is relative to the given `filesystem` object.
         :param filesystem: A filesystem to where logs will be written. It can either be an instance of a filesystem
@@ -278,7 +294,7 @@ class FilesystemHandler(FileHandler):
 class RegularBackupHandler(FilesystemHandler):
     """A customized FilesystemHandler that makes a copy to a remote location regularly after given amount of time."""
 
-    def __init__(self, path: str, filesystem: Union[FS, bytes], backup_interval: Union[float, int], **kwargs: Any):
+    def __init__(self, path: str, filesystem: FS | bytes, backup_interval: float | int, **kwargs: Any):
         """
         :param path: A path to a log file that is relative to the given `filesystem` object.
         :param filesystem: A filesystem to where logs will be written. It can either be an instance of a filesystem
@@ -412,7 +428,7 @@ class EOExecutionFilter(Filter):
         return not record.name.startswith(self.ignore_packages)
 
 
-def _parse_packages(log_packages: Sequence[str], default_packages: Sequence[str]) -> Tuple[str, ...]:
+def _parse_packages(log_packages: Sequence[str], default_packages: Sequence[str]) -> tuple[str, ...]:
     """Builds a tuple of unique package names to be logged/ignored. If the placeholder for default packages is
     present, those are added as well.
 

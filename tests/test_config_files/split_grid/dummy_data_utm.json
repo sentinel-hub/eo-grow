@@ -1,5 +1,5 @@
 {
-  "pipeline": "eogrow.pipelines.testing.DummyDataPipeline",
+  "pipeline": "eogrow.pipelines.testing.GenerateDataPipeline",
   "**global_config": "${config_path}/global_config.json",
   "area": {
     "manager": "eogrow.core.area.UtmZoneAreaManager",
@@ -15,32 +15,29 @@
   },
   "output_folder_key": "input_folder",
   "seed": 42,
-  "raster_features": [
+  "features": [
     {
       "feature": ["mask", "dataMask"],
       "shape": [2, 160, 192, 1],
       "dtype": "uint8",
-      "min_value": 4,
-      "max_value": 6
+      "distribution": { "kind": "uniform", "min_value": 4, "max_value": 6 }
     },
     {
       "feature": ["label", "LABELS"],
       "shape": [2, 15],
       "dtype": "int16",
-      "min_value": -2,
-      "max_value": 5
+      "distribution": { "kind": "uniform", "min_value": -2, "max_value": 5 }
     },
     {
       "feature": ["mask_timeless", "REF"],
       "shape": [160, 192, 2],
       "dtype": "bool",
-      "min_value": 0,
-      "max_value": 1
+      "distribution": { "kind": "uniform", "min_value": 0, "max_value": 1 }
     }
   ],
-  "timestamp_feature": {
+  "timestamps": {
     "time_period": ["2022-02-01", "2022-03-01"],
-    "timestamp_num": 2,
+    "num_timestamps": 2,
     "same_for_all": true
   }
 }

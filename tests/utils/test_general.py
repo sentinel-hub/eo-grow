@@ -61,7 +61,7 @@ def test_convert_bbox_coords_to_int():
 
 
 @pytest.mark.parametrize(
-    "values_num, expected_repr",
+    ("values_num", "expected_repr"),
     [
         (0, "[]"),
         (3, "[0, 1, 2]"),

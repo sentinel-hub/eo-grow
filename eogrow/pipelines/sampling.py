@@ -1,4 +1,6 @@
 """Implements different pipelines for sampling from data."""
+from __future__ import annotations
+
 import abc
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -47,14 +49,12 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
 
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """Filter output EOPatches that have already been processed"""
-        filtered_patch_list = get_patches_with_missing_features(
+        return get_patches_with_missing_features(
             self.storage.filesystem,
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
             self._get_output_features(),
         )
-
-        return filtered_patch_list
 
     def build_workflow(self) -> EOWorkflow:
         """Creates workflow that is divided into the following sub-parts:
@@ -83,7 +83,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
         load_nodes = []
 
         for folder_name, features in self.config.apply_to.items():
-            load_features: List[FeatureSpec] = []
+            load_features: list[FeatureSpec] = []
 
             for feature_type_str, feature_names in features.items():
                 feature_type = FeatureType(feature_type_str)
@@ -116,7 +116,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
     def _get_sampling_node(self, previous_node: EONode) -> EONode:
         """Method to prepare sampling nodes"""
 
-    def _get_features_to_sample(self) -> List[Tuple[FeatureType, str, str]]:
+    def _get_features_to_sample(self) -> list[tuple[FeatureType, str, str]]:
         """Get a list of features that will be sampled, together with their new names"""
         features_to_sample = []
         for _, features in self.config.apply_to.items():
@@ -131,15 +131,15 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
 
         return features_to_sample
 
-    def _get_mask_of_samples_feature(self) -> Optional[Feature]:
+    def _get_mask_of_samples_feature(self) -> Feature | None:
         """Provide a mask of samples feature"""
         if self.config.mask_of_samples_name:
             return FeatureType.MASK_TIMELESS, self.config.mask_of_samples_name
         return None
 
-    def _get_output_features(self) -> List[FeatureSpec]:
+    def _get_output_features(self) -> list[FeatureSpec]:
         """Get a list of features that will be saved as an output of the pipeline"""
-        output_features: List[FeatureSpec] = [FeatureType.BBOX]
+        output_features: list[FeatureSpec] = [FeatureType.BBOX]
         features_to_sample = self._get_features_to_sample()
 
         for feature_type, _, sampled_feature_name in features_to_sample:
@@ -154,7 +154,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
         return output_features
 
 
-class BaseRandomSamplingPipeline(BaseSamplingPipeline, metaclass=abc.ABCMeta):  # noqa B024
+class BaseRandomSamplingPipeline(BaseSamplingPipeline, metaclass=abc.ABCMeta):  # B024
     """A base class for all sampling pipeline that work on random selection of samples"""
 
     class Schema(BaseSamplingPipeline.Schema):
@@ -166,7 +166,7 @@ class BaseRandomSamplingPipeline(BaseSamplingPipeline, metaclass=abc.ABCMeta):  
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self._sampling_node_uid: Optional[str] = None
+        self._sampling_node_uid: str | None = None
 
     def get_execution_arguments(self, workflow: EOWorkflow, patch_list: PatchList) -> ExecKwargs:
         """Extends the basic method for adding execution arguments by adding seed arguments a sampling task"""

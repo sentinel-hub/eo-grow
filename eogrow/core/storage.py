@@ -1,5 +1,7 @@
 """Implementation of the StorageManager class for handling project storage."""
-from typing import Any, Dict, Literal, Optional
+from __future__ import annotations
+
+from typing import Any, ClassVar, Dict, Literal, Optional
 
 import fs
 from pydantic import BaseSettings, Field
@@ -13,7 +15,7 @@ from .schemas import ManagerSchema
 
 
 class StorageManager(EOGrowObject):
-    PRESET_FOLDERS: Dict[str, str] = {"logs": "logs", "input_data": "input-data", "cache": "cache"}
+    PRESET_FOLDERS: ClassVar[dict[str, str]] = {"logs": "logs", "input_data": "input-data", "cache": "cache"}
 
     class Schema(ManagerSchema, BaseSettings):
         project_folder: str = Field(

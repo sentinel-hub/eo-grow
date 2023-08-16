@@ -1,6 +1,8 @@
 """Implements a pipeline to construct features for training/prediction."""
+from __future__ import annotations
+
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import numpy as np
 from pydantic import Field
@@ -85,17 +87,14 @@ class FeaturesPipeline(Pipeline):
 
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """EOPatches are filtered according to existence of specified output features"""
-
-        filtered_patch_list = get_patches_with_missing_features(
+        return get_patches_with_missing_features(
             self.storage.filesystem,
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
             self._get_output_features(),
         )
 
-        return filtered_patch_list
-
-    def _get_output_features(self) -> List[FeatureSpec]:
+    def _get_output_features(self) -> list[FeatureSpec]:
         """Lists all features that are to be saved upon the pipeline completion"""
         return [(FeatureType.DATA, self.config.output_feature_name), FeatureType.BBOX, FeatureType.TIMESTAMPS]
 
@@ -170,7 +169,7 @@ class FeaturesPipeline(Pipeline):
         """Builds a node for constructing Normalized Difference Indices"""
 
         for name, (id1, id2) in self.config.ndis.items():
-            ndi_task = NormalizedDifferenceIndexTask(self._get_bands_feature(), (FeatureType.DATA, name), [id1, id2])
+            ndi_task = NormalizedDifferenceIndexTask(self._get_bands_feature(), (FeatureType.DATA, name), (id1, id2))
             previous_node = EONode(ndi_task, inputs=[previous_node])
 
         return previous_node
