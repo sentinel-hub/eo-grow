@@ -1,3 +1,11 @@
+## [Version 1.5.2] - 2023-08-16
+
+- Pipelines using a Ray cluster now add the cluster configuration file to logs.
+- The CLI command `eogrow-ray` no longer supports `--screen` and `--stop` commands.
+- Changelog now also stored in the `CHANGELOG.md` file.
+- Improved test-data generating pipeline.
+- Switched from `flake8` and `isort` to `ruff`.
+- Various minor improvements.
 
 ## [Version 1.5.1] - 2023-05-03
 
