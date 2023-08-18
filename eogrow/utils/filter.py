@@ -20,8 +20,9 @@ def check_if_features_exist(
     filesystem: FS,
     eopatch_path: str,
     features: Sequence[tuple[FeatureType, str]],
-    skip_bbox: bool = False,
-    skip_timestamps: bool = False,
+    *,
+    check_bbox: bool = True,
+    check_timestamps: bool,
 ) -> bool:
     """Checks whether an EOPatch in the given location has all specified features saved"""
     try:
@@ -29,9 +30,9 @@ def check_if_features_exist(
     except (IOError, fs.errors.ResourceNotFound):
         return False
 
-    if not skip_bbox and existing_data.bbox is None:
+    if check_bbox and existing_data.bbox is None:
         return False
-    if not skip_timestamps and existing_data.timestamps is None:
+    if check_timestamps and existing_data.timestamps is None:
         return False
 
     return all(fname in existing_data.features.get(ftype, []) for ftype, fname in features)
@@ -42,6 +43,9 @@ def get_patches_with_missing_features(
     patches_folder: str,
     patch_list: PatchList,
     features: Sequence[tuple[FeatureType, str]],
+    *,
+    check_bbox: bool = True,
+    check_timestamps: bool,
 ) -> PatchList:
     """Filters out names of those EOPatches that are missing some given features.
 
@@ -49,12 +53,16 @@ def get_patches_with_missing_features(
     :param patches_folder: A path to folder with EOPatches, relative to `filesystem` object.
     :param patch_list: A list of EOPatch names.
     :param features: A list of EOPatch features.
+    :param check_bbox: Whether to make sure that the bbox is present.
+    :param check_timestamps: Whether to make sure that the timestamps are present.
     :return: A sublist of `patch_list` with only EOPatch names that are missing some features.
     """
     eopatch_paths = [fs.path.combine(patches_folder, eopatch) for eopatch, _ in patch_list]
 
     def check_patch(eopatch_path: str) -> bool:
-        return check_if_features_exist(filesystem, eopatch_path, features)
+        return check_if_features_exist(
+            filesystem, eopatch_path, features, check_bbox=check_bbox, check_timestamps=check_timestamps
+        )
 
     with ThreadPoolExecutor() as executor:
         has_features_list = list(

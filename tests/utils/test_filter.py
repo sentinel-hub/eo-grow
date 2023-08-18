@@ -55,7 +55,7 @@ def temp_fs_fixture(eopatch):
 
 
 @pytest.mark.parametrize(
-    ("test_features", "expected_result"),
+    ("features", "expected_result"),
     [
         ([EXISTING[0]], True),
         (EXISTING[1:], True),
@@ -64,10 +64,10 @@ def temp_fs_fixture(eopatch):
         *((EXISTING[:i] + [missing] + EXISTING[i:], False) for i, missing in enumerate(MISSING)),
     ],
 )
-def test_check_if_features_exist(mock_s3fs, temp_fs, test_features, expected_result):
+def test_check_if_features_exist(mock_s3fs, temp_fs, features, expected_result):
     for filesystem in [mock_s3fs, temp_fs]:
         # take the fourth patch because the first and third have missing features and the second has missing timestamps
-        assert check_if_features_exist(filesystem, PATCH_NAMES[3], test_features) == expected_result
+        assert check_if_features_exist(filesystem, PATCH_NAMES[3], features, check_timestamps=True) == expected_result
 
 
 @pytest.mark.parametrize(
@@ -81,4 +81,5 @@ def test_check_if_features_exist(mock_s3fs, temp_fs, test_features, expected_res
 def test_get_patches_with_missing_features(mock_s3fs, temp_fs, features, expected_num):
     patch_list = list(zip(PATCH_NAMES, repeat(BBox((0, 0, 1, 1), CRS.WGS84))))
     for filesystem in [mock_s3fs, temp_fs]:
-        assert len(get_patches_with_missing_features(filesystem, "/", patch_list, features)) == expected_num
+        incomplete = get_patches_with_missing_features(filesystem, "/", patch_list, features, check_timestamps=True)
+        assert len(incomplete) == expected_num
