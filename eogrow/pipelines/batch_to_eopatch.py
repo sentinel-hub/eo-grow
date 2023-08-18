@@ -24,7 +24,7 @@ from eolearn.io import ImportFromTiffTask
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
-from ..types import ExecKwargs, Feature, FeatureSpec, PatchList, RawSchemaDict
+from ..types import ExecKwargs, Feature, PatchList, RawSchemaDict
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import ensure_storage_key_presence, optional_field_validator, parse_dtype
 
@@ -96,18 +96,16 @@ class BatchToEOPatchPipeline(Pipeline):
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
             self._get_output_features(),
+            check_timestamps=self.config.userdata_timestamp_reader is not None,
         )
 
-    def _get_output_features(self) -> list[FeatureSpec]:
+    def _get_output_features(self) -> list[tuple[FeatureType, str]]:
         """Lists all features that the pipeline outputs."""
-        features: list[FeatureSpec] = [FeatureType.BBOX]
+        features = [feature_mapping.feature for feature_mapping in self.config.mapping]
         features.extend(feature_mapping.feature for feature_mapping in self.config.mapping)
 
         if self.config.userdata_feature_name:
-            features.append(FeatureType.META_INFO)
-
-        if self.config.userdata_timestamp_reader:
-            features.append(FeatureType.TIMESTAMPS)
+            features.append((FeatureType.META_INFO, self.config.userdata_feature_name))
 
         return features
 

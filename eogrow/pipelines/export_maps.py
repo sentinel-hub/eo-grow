@@ -272,10 +272,10 @@ class ExportMapsPipeline(Pipeline):
     def _extract_num_bands_and_timestamps(self, eopatch_name: str) -> tuple[int, list[dt.datetime]]:
         """Loads an eopatch to get information about number of bands and the timestamps."""
         path = fs.path.join(self.storage.get_folder(self.config.input_folder_key), eopatch_name)
-        patch = EOPatch.load(path, (FeatureType.TIMESTAMPS, self.config.feature), filesystem=self.storage.filesystem)
+        patch = EOPatch.load(path, [self.config.feature], filesystem=self.storage.filesystem)
         if self.config.band_indices is not None:
-            return len(self.config.band_indices), patch.timestamps
-        return patch[self.config.feature].shape[-1], patch.timestamps
+            return len(self.config.band_indices), patch.get_timestamps()
+        return patch[self.config.feature].shape[-1], patch.get_timestamps()
 
     @staticmethod
     def _execute_split_jobs(jobs: list[SplitTiffsJob]) -> None:

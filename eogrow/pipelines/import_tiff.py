@@ -69,7 +69,8 @@ class ImportTiffPipeline(Pipeline):
             self.storage.filesystem,
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
-            [self.config.output_feature, FeatureType.BBOX],
+            [self.config.output_feature],
+            check_timestamps=False,
         )
 
     def build_workflow(self) -> EOWorkflow:

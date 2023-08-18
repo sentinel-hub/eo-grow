@@ -49,11 +49,13 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
 
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """Filter output EOPatches that have already been processed"""
+        output_features = self._get_output_features()
         return get_patches_with_missing_features(
             self.storage.filesystem,
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
-            self._get_output_features(),
+            output_features,
+            check_timestamps=any(ftype.is_temporal() for ftype, _ in output_features),
         )
 
     def build_workflow(self) -> EOWorkflow:
@@ -137,20 +139,14 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
             return FeatureType.MASK_TIMELESS, self.config.mask_of_samples_name
         return None
 
-    def _get_output_features(self) -> list[FeatureSpec]:
+    def _get_output_features(self) -> list[tuple[FeatureType, str]]:
         """Get a list of features that will be saved as an output of the pipeline"""
-        output_features: list[FeatureSpec] = [FeatureType.BBOX]
-        features_to_sample = self._get_features_to_sample()
-
-        for feature_type, _, sampled_feature_name in features_to_sample:
-            output_features.append((feature_type, sampled_feature_name))
+        output_features = [(ftype, output_name) for ftype, _, output_name in self._get_features_to_sample()]
 
         mask_of_samples_feature = self._get_mask_of_samples_feature()
         if mask_of_samples_feature:
             output_features.append(mask_of_samples_feature)
 
-        if any(feature_type.is_temporal() for feature_type, _, _ in features_to_sample):
-            output_features.append(FeatureType.TIMESTAMPS)
         return output_features
 
 
@@ -166,15 +162,13 @@ class BaseRandomSamplingPipeline(BaseSamplingPipeline, metaclass=abc.ABCMeta):  
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self._sampling_node_uid: str | None = None
+        self._sampling_node_uid: str = "<NODE ID NOT SET>"
 
     def get_execution_arguments(self, workflow: EOWorkflow, patch_list: PatchList) -> ExecKwargs:
         """Extends the basic method for adding execution arguments by adding seed arguments a sampling task"""
         exec_args = super().get_execution_arguments(workflow, patch_list)
 
-        sampling_node = workflow.get_node_with_uid(self._sampling_node_uid)
-        if sampling_node is None:
-            return exec_args
+        sampling_node = workflow.get_node_with_uid(self._sampling_node_uid, fail_if_missing=True)
 
         generator = np.random.default_rng(seed=self.config.seed)
 

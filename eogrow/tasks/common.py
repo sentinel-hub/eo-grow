@@ -1,7 +1,7 @@
 """Common tasks shared between pipelines."""
 from __future__ import annotations
 
-from typing import Callable
+from typing import Any, Callable
 
 import numpy as np
 
@@ -57,7 +57,7 @@ class ClassFilterTask(EOTask):
 class SkippableSaveTask(SaveTask):
     """Same as `SaveTask` but can be skipped if the `eopatch_folder` is set to `None`."""
 
-    def execute(self, eopatch: EOPatch, *, eopatch_folder: str | None = "") -> EOPatch:
+    def execute(self, eopatch: EOPatch, *, eopatch_folder: str | None = "", **kwargs: Any) -> EOPatch:
         if eopatch_folder is None:
             return eopatch
-        return super().execute(eopatch, eopatch_folder=eopatch_folder)
+        return super().execute(eopatch, eopatch_folder=eopatch_folder, **kwargs)

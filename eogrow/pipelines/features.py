@@ -29,7 +29,7 @@ from ..tasks.features import (
     ValidDataFractionPredicate,
     join_valid_and_cloud_masks,
 )
-from ..types import Feature, FeatureSpec, PatchList, TimePeriod
+from ..types import Feature, PatchList, TimePeriod
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import (
     ensure_storage_key_presence,
@@ -92,11 +92,12 @@ class FeaturesPipeline(Pipeline):
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
             self._get_output_features(),
+            check_timestamps=True,
         )
 
-    def _get_output_features(self) -> list[FeatureSpec]:
+    def _get_output_features(self) -> list[tuple[FeatureType, str]]:
         """Lists all features that are to be saved upon the pipeline completion"""
-        return [(FeatureType.DATA, self.config.output_feature_name), FeatureType.BBOX, FeatureType.TIMESTAMPS]
+        return [(FeatureType.DATA, self.config.output_feature_name)]
 
     def _get_bands_feature(self) -> Feature:
         return FeatureType.DATA, self.config.bands_feature_name

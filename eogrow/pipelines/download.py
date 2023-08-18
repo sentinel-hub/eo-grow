@@ -28,7 +28,7 @@ from sentinelhub.download import SessionSharing, collect_shared_session
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
-from ..types import ExecKwargs, Feature, FeatureSpec, PatchList, ProcessingType, TimePeriod
+from ..types import ExecKwargs, Feature, PatchList, ProcessingType, TimePeriod
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import (
     ensure_exactly_one_defined,
@@ -95,19 +95,21 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self.download_node_uid: str | None = None
+        self.download_node_uid = "<NODE ID NOT SET>"
 
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """EOPatches are filtered according to existence of specified output features"""
+        output_features = self._get_output_features()
         return get_patches_with_missing_features(
             self.storage.filesystem,
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
-            self._get_output_features(),
+            output_features,
+            check_timestamps=any(ftype.is_temporal() for ftype, _ in output_features),
         )
 
     @abc.abstractmethod
-    def _get_output_features(self) -> list[FeatureSpec]:
+    def _get_output_features(self) -> list[tuple[FeatureType, str]]:
         """Lists all features that are to be saved upon the pipeline completion"""
 
     @abc.abstractmethod
@@ -164,9 +166,7 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
         """
         exec_args = super().get_execution_arguments(workflow, patch_list)
 
-        download_node = workflow.get_node_with_uid(self.download_node_uid)
-        if download_node is None:
-            return exec_args
+        download_node = workflow.get_node_with_uid(self.download_node_uid, fail_if_missing=True)
 
         for patch_name, bbox in patch_list:
             exec_args[patch_name][download_node] = {"bbox": bbox}
@@ -247,14 +247,8 @@ class DownloadPipeline(BaseDownloadPipeline):
 
     config: Schema
 
-    def _get_output_features(self) -> list[FeatureSpec]:
-        features: list[FeatureSpec] = [
-            (FeatureType.DATA, self.config.bands_feature_name),
-            FeatureType.BBOX,
-            FeatureType.TIMESTAMPS,
-        ]
-        features.extend(self.config.additional_data)
-        return features
+    def _get_output_features(self) -> list[tuple[FeatureType, str]]:
+        return [(FeatureType.DATA, self.config.bands_feature_name), *self.config.additional_data]
 
     def _get_download_node(self, session_loader: SessionLoaderType) -> EONode:
         time_diff = None if self.config.time_difference is None else dt.timedelta(minutes=self.config.time_difference)
@@ -300,10 +294,8 @@ class DownloadEvalscriptPipeline(BaseDownloadPipeline):
 
     config: Schema
 
-    def _get_output_features(self) -> list[FeatureSpec]:
-        features: list[FeatureSpec] = [FeatureType.BBOX, FeatureType.TIMESTAMPS]
-        features.extend(self.config.features)
-        return features
+    def _get_output_features(self) -> list[tuple[FeatureType, str]]:
+        return self.config.features
 
     def _get_download_node(self, session_loader: SessionLoaderType) -> EONode:
         evalscript = read_data(self.config.evalscript_path, data_format=MimeType.TXT)
@@ -335,8 +327,8 @@ class DownloadTimelessPipeline(BaseDownloadPipeline):
 
     config: Schema
 
-    def _get_output_features(self) -> list[FeatureSpec]:
-        return [(FeatureType.DATA_TIMELESS, self.config.feature_name), FeatureType.BBOX]
+    def _get_output_features(self) -> list[tuple[FeatureType, str]]:
+        return [(FeatureType.DATA_TIMELESS, self.config.feature_name)]
 
     def _get_download_node(self, session_loader: SessionLoaderType) -> EONode:
         download_task = SentinelHubDemTask(
