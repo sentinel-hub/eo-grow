@@ -102,7 +102,6 @@ class BatchToEOPatchPipeline(Pipeline):
     def _get_output_features(self) -> list[tuple[FeatureType, str]]:
         """Lists all features that the pipeline outputs."""
         features = [feature_mapping.feature for feature_mapping in self.config.mapping]
-        features.extend(feature_mapping.feature for feature_mapping in self.config.mapping)
 
         if self.config.userdata_feature_name:
             features.append((FeatureType.META_INFO, self.config.userdata_feature_name))

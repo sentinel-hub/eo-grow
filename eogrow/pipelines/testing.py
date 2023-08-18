@@ -135,6 +135,7 @@ class GenerateDataPipeline(Pipeline):
             self.storage.get_folder(self.config.output_folder_key),
             filesystem=self.storage.filesystem,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
+            save_timestamps=self.config.timestamps is not None,
         )
         save_node = EONode(save_task, inputs=[previous_node])
 

@@ -73,6 +73,7 @@ class MergeSamplesPipeline(Pipeline):
             self.storage.get_folder(self.config.input_folder_key),
             filesystem=self.storage.filesystem,
             features=self.config.features_to_merge,
+            load_timestamps=True if self.config.include_timestamp else "auto",
         )
         output_task = OutputTask(name=self._OUTPUT_NAME)
         return EOWorkflow(linearly_connect_tasks(load_task, output_task))
@@ -101,7 +102,7 @@ class MergeSamplesPipeline(Pipeline):
         if self.config.include_timestamp:
             arrays = []
             for patch, sample_num in zip(patches, patch_sample_nums):
-                arrays.append(np.tile(np.array(patch.timestamps), (sample_num, 1)))
+                arrays.append(np.tile(np.array(patch.get_timestamps()), (sample_num, 1)))
                 patch.timestamps = []
 
             self._save_array(np.concatenate(arrays, axis=0), "TIMESTAMPS")
