@@ -17,7 +17,7 @@ from fs.tempfs import TempFS
 from pydantic import Field
 from tqdm.auto import tqdm
 
-from eolearn.core import EOPatch, EOTask, EOWorkflow, FeatureType, LoadTask, linearly_connect_tasks
+from eolearn.core import EOPatch, EOTask, EOWorkflow, LoadTask, linearly_connect_tasks
 from eolearn.core.utils.fs import get_full_path, pickle_fs, unpickle_fs
 from eolearn.core.utils.parallelize import parallelize
 from eolearn.features import LinearFunctionTask
@@ -175,7 +175,7 @@ class ExportMapsPipeline(Pipeline):
         load_task = LoadTask(
             self.storage.get_folder(self.config.input_folder_key),
             filesystem=self.storage.filesystem,
-            features=[self.config.feature, FeatureType.BBOX],
+            features=[self.config.feature],
         )
         task_list: list[EOTask] = [load_task]
 

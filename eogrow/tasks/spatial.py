@@ -112,8 +112,6 @@ class SpatialJoinTask(EOTask):
 
         for feature in self.features:
             feature_type, _ = feature
-            if feature_type is FeatureType.BBOX:
-                continue
 
             data = [eopatch[feature] for eopatch in eopatches if feature in eopatch]
             if not data:
@@ -143,7 +141,7 @@ class SpatialJoinTask(EOTask):
 class SpatialSliceTask(EOTask):
     """Spatially slices given EOPatch to create a new one."""
 
-    def __init__(self, features: list[FeatureSpec], raise_misaligned: bool = True):
+    def __init__(self, features: list[tuple[FeatureType, str]], raise_misaligned: bool = True):
         self.features = self.parse_features(features)
         self.raise_misaligned = raise_misaligned
 
@@ -181,8 +179,6 @@ class SpatialSliceTask(EOTask):
 
         for feature in self.features:
             feature_type, _ = feature
-            if feature_type is FeatureType.BBOX:
-                continue
             data = eopatch[feature]
 
             if feature_type.is_spatial():

@@ -15,7 +15,7 @@ from eogrow.utils.validators import ensure_exactly_one_defined, ensure_storage_k
 
 from ..core.pipeline import Pipeline
 from ..tasks.common import ClassFilterTask
-from ..types import ExecKwargs, Feature, FeatureSpec, PatchList
+from ..types import ExecKwargs, Feature, PatchList
 from ..utils.filter import get_patches_with_missing_features
 
 
@@ -85,7 +85,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
         load_nodes = []
 
         for folder_name, features in self.config.apply_to.items():
-            load_features: list[FeatureSpec] = []
+            load_features = []
 
             for feature_type_str, feature_names in features.items():
                 feature_type = FeatureType(feature_type_str)
@@ -95,10 +95,6 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
 
                 for feature_name in feature_names:
                     load_features.append((feature_type, feature_name))
-
-            load_features.append(FeatureType.BBOX)
-            if any(FeatureType(feature_type).is_temporal() for feature_type in features):
-                load_features.append(FeatureType.TIMESTAMPS)
 
             load_task = LoadTask(
                 self.storage.get_folder(folder_name),

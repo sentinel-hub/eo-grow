@@ -97,7 +97,7 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
             LoadTask(
                 self.storage.get_folder(self.config.input_folder_key),
                 filesystem=self.storage.filesystem,
-                features=[FeatureType.BBOX, FeatureType.TIMESTAMPS, *self.config.input_features],
+                features=self.config.input_features,
             )
         )
 

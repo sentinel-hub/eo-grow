@@ -278,7 +278,7 @@ class MosaickingFeaturesPipeline(FeaturesPipeline):
             )
         mosaicking_node = EONode(mosaicking_task, inputs=[previous_node])
         return EONode(
-            CopyTask(features=[self._get_bands_feature(), FeatureType.BBOX, FeatureType.TIMESTAMPS]),
+            CopyTask(features=[self._get_bands_feature()]),
             inputs=[mosaicking_node],
             name="Remove non-mosaicked features",
         )

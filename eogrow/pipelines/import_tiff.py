@@ -7,7 +7,7 @@ import fs
 import numpy as np
 from pydantic import Field
 
-from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, FeatureType, OverwritePermission, SaveTask
+from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, OverwritePermission, SaveTask
 from eolearn.features.feature_manipulation import SpatialResizeTask
 from eolearn.features.utils import ResizeLib, ResizeMethod, ResizeParam
 from eolearn.io import ImportFromTiffTask
@@ -109,7 +109,7 @@ class ImportTiffPipeline(Pipeline):
             compress_level=1,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
             config=self.sh_config,
-            features=[self.config.output_feature, FeatureType.BBOX],
+            features=[self.config.output_feature],
         )
         save_node = EONode(save_task, inputs=[resize_node or import_node])
 
