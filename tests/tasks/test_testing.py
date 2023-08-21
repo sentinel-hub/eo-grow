@@ -55,7 +55,7 @@ def test_generate_timestamp_feature_task(dummy_eopatch: EOPatch):
         (FeatureType.DATA_TIMELESS, (83, 69, 1), int, UniformDistribution(-2, 5)),
         (FeatureType.MASK, (10, 4, 16, 7), np.int8, UniformDistribution(-3, 7)),
         (FeatureType.LABEL, (10, 271), bool, UniformDistribution(0, 1)),
-        (FeatureType.DATA, (7, 20, 31, 1), np.float32, NormalDistribution(-3, 1.5)),
+        (FeatureType.DATA, (10, 20, 31, 1), np.float32, NormalDistribution(-3, 1.5)),
         (FeatureType.DATA_TIMELESS, (30, 61, 2), float, NormalDistribution(-3422.23, 1522)),
         (FeatureType.DATA_TIMELESS, (83, 69, 10), int, NormalDistribution(-2, 10)),
     ],
