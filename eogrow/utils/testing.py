@@ -57,7 +57,7 @@ class ContentTester:
         decimals: int = 5,
         unique_values_limit: int = 8,
         histogram_bin_num: int = 8,
-        num_random_values: int = 5,
+        num_random_values: int = 8,
     ):
         """
         :param filesystem: A filesystem containing project data
@@ -231,7 +231,8 @@ class ContentTester:
     def _get_random_values(self, raster: np.ndarray) -> list[float]:
         """It randomly samples a few values from the array and marks their locations."""
         rng = np.random.default_rng(0)
-        return rng.choice(raster.ravel(), self.num_random_values).tolist()
+        values = raster[np.isfinite(raster)]
+        return rng.choice(values.ravel(), self.num_random_values).tolist()
 
     def _prepare_value(self, value: Any) -> Any:
         """Converts a value in a way that it can be compared and serialized into a JSON. It also rounds float values."""
