@@ -12,7 +12,6 @@ import ray
 from pydantic import Field
 
 from eolearn.core import EONode, EOWorkflow, FeatureType, OverwritePermission, SaveTask
-from eolearn.features import LinearFunctionTask
 from eolearn.io import SentinelHubDemTask, SentinelHubEvalscriptTask, SentinelHubInputTask
 from sentinelhub import (
     Band,
@@ -28,6 +27,7 @@ from sentinelhub.download import SessionSharing, collect_shared_session
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
+from ..tasks.common import LinearFunctionTask
 from ..types import ExecKwargs, Feature, PatchList, ProcessingType, TimePeriod
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import (

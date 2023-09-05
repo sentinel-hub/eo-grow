@@ -18,12 +18,12 @@ from eolearn.core import (
     RenameFeatureTask,
     SaveTask,
 )
-from eolearn.features import LinearFunctionTask
 from eolearn.io import ImportFromTiffTask
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
+from ..tasks.common import LinearFunctionTask
 from ..types import ExecKwargs, Feature, PatchList, RawSchemaDict
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import ensure_storage_key_presence, optional_field_validator, parse_dtype
