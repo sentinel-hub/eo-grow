@@ -1,8 +1,10 @@
 """Common tasks shared between pipelines."""
 from __future__ import annotations
 
-from typing import Any, Callable
+from functools import partial
+from typing import Any
 
+import cv2
 import numpy as np
 
 from eolearn.core import EOPatch, EOTask, MapFeatureTask, SaveTask
@@ -20,7 +22,7 @@ class ClassFilterTask(EOTask):
         self,
         feature: Feature,
         labels: list[int],
-        morph_operation: MorphologicalOperations | Callable,
+        morph_operation: MorphologicalOperations,
         struct_elem: np.ndarray | None = None,
     ):
         """Perform a morphological operation on a given feature mask
@@ -35,19 +37,17 @@ class ClassFilterTask(EOTask):
         self.renamed_feature = parse_renamed_feature(feature)
         self.labels = labels
 
-        if isinstance(morph_operation, MorphologicalOperations):
-            self.morph_operation = MorphologicalOperations.get_operation(morph_operation)
-        else:
-            self.morph_operation = morph_operation
+        self.morph_operation = MorphologicalOperations.get_operation(morph_operation)
         self.struct_elem = struct_elem
 
     def execute(self, eopatch: EOPatch) -> EOPatch:
         feature_type, feature_name, new_feature_name = self.renamed_feature
         mask = eopatch[(feature_type, feature_name)].copy()
+        morp_func = partial(cv2.morphologyEx, kernel=self.struct_elem, op=self.morph_operation)
 
         for label in self.labels:
-            label_mask = np.squeeze((mask == label), axis=-1)
-            mask_mod = self.morph_operation(label_mask, self.struct_elem) * label
+            label_mask = np.squeeze((mask == label).astype(np.uint8), axis=-1)
+            mask_mod = morp_func(label_mask) * label
             mask_mod = mask_mod[..., np.newaxis]
             mask[mask == label] = mask_mod[mask == label]
 
