@@ -9,22 +9,14 @@
         ],
         "dtype": "uint16",
         "random_values": [
-          {
-            "position": [
-              3,
-              116,
-              215
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              1,
-              183,
-              113
-            ],
-            "value": 1
-          }
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0
         ],
         "values": [
           {

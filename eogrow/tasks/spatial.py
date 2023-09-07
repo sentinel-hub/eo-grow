@@ -1,15 +1,13 @@
 """Tasks for spatial operations on EOPatches, used in grid-switching."""
 from __future__ import annotations
 
-from typing import cast
-
 import numpy as np
 from geopandas import GeoDataFrame
 
-from eolearn.core import EOPatch, EOTask, FeatureType, deep_eq
+from eolearn.core import EOPatch, EOTask, deep_eq
+from eolearn.core.types import Feature
 from sentinelhub import CRS, BBox, bbox_to_resolution
 
-from ..types import Feature, FeatureSpec
 from ..utils.general import convert_to_int
 from ..utils.vector import concat_gdf
 
@@ -21,7 +19,7 @@ class SpatialJoinTask(EOTask):
 
     def __init__(
         self,
-        features: list[FeatureSpec],
+        features: list[Feature],
         no_data_map: dict[Feature, float],
         unique_columns_map: dict[Feature, list[str]],
         raise_misaligned: bool = True,
@@ -112,15 +110,12 @@ class SpatialJoinTask(EOTask):
 
         for feature in self.features:
             feature_type, _ = feature
-            if feature_type is FeatureType.BBOX:
-                continue
 
             data = [eopatch[feature] for eopatch in eopatches if feature in eopatch]
             if not data:
                 continue
 
             if feature_type.is_spatial():
-                feature = cast(Feature, feature)  # bbox and timestamp are discarded with above check
                 if feature_type.is_array():
                     bboxes: list[BBox] = [patch.bbox for patch in eopatches if feature in patch]  # type: ignore[misc]
                     joined_data = self._join_spatial_rasters(data, bboxes, bbox, self.no_data_map[feature])
@@ -143,7 +138,7 @@ class SpatialJoinTask(EOTask):
 class SpatialSliceTask(EOTask):
     """Spatially slices given EOPatch to create a new one."""
 
-    def __init__(self, features: list[FeatureSpec], raise_misaligned: bool = True):
+    def __init__(self, features: list[Feature], raise_misaligned: bool = True):
         self.features = self.parse_features(features)
         self.raise_misaligned = raise_misaligned
 
@@ -181,8 +176,6 @@ class SpatialSliceTask(EOTask):
 
         for feature in self.features:
             feature_type, _ = feature
-            if feature_type is FeatureType.BBOX:
-                continue
             data = eopatch[feature]
 
             if feature_type.is_spatial():

@@ -9,10 +9,11 @@ import numpy as np
 from pydantic import Field
 
 from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, MergeEOPatchesTask, OverwritePermission, SaveTask
+from eolearn.core.types import Feature
 
 from ..core.pipeline import Pipeline
 from ..tasks.prediction import ClassificationPredictionTask, RegressionPredictionTask
-from ..types import Feature, FeatureSpec, PatchList
+from ..types import PatchList
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import (
     ensure_defined_together,
@@ -57,12 +58,11 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
             description="The storage manager key pointing to the folder of the model used in the prediction pipeline."
         )
         _ensure_model_folder_key = ensure_storage_key_presence("model_folder_key")
-        compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
 
     config: Schema
 
     @abc.abstractmethod
-    def _get_output_features(self) -> list[FeatureSpec]:
+    def _get_output_features(self) -> list[Feature]:
         """Lists all features that are to be saved upon the pipeline completion"""
 
     @property
@@ -72,11 +72,13 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
 
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """EOPatches are filtered according to existence of specified output features"""
+        output_features = self._get_output_features()
         return get_patches_with_missing_features(
             self.storage.filesystem,
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
-            self._get_output_features(),
+            output_features,
+            check_timestamps=False,
         )
 
     def build_workflow(self) -> EOWorkflow:
@@ -95,11 +97,11 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
             LoadTask(
                 self.storage.get_folder(self.config.input_folder_key),
                 filesystem=self.storage.filesystem,
-                features=[FeatureType.BBOX, FeatureType.TIMESTAMPS, *self.config.input_features],
+                features=self.config.input_features,
             )
         )
 
-        if not self.config.prediction_mask_folder_key:
+        if not self.config.prediction_mask_folder_key or not self.config.prediction_mask_feature_name:
             return features_load_node
 
         mask_load_node = EONode(
@@ -123,7 +125,6 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
             filesystem=self.storage.filesystem,
             features=self._get_output_features(),
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
-            compress_level=self.config.compress_level,
         )
 
         return EONode(save_task, inputs=[previous_node])
@@ -139,8 +140,8 @@ class RegressionPredictionPipeline(BasePredictionPipeline):
 
     config: Schema
 
-    def _get_output_features(self) -> list[FeatureSpec]:
-        return [FeatureType.BBOX, (FeatureType.DATA_TIMELESS, self.config.output_feature_name)]
+    def _get_output_features(self) -> list[Feature]:
+        return [(FeatureType.DATA_TIMELESS, self.config.output_feature_name)]
 
     def _get_prediction_node(self, previous_node: EONode) -> EONode:
         model_path = fs.path.join(self.storage.get_folder(self.config.model_folder_key), self.config.model_filename)
@@ -171,8 +172,8 @@ class ClassificationPredictionPipeline(BasePredictionPipeline):
 
     config: Schema
 
-    def _get_output_features(self) -> list[FeatureSpec]:
-        features: list[FeatureSpec] = [FeatureType.BBOX, (FeatureType.MASK_TIMELESS, self.config.output_feature_name)]
+    def _get_output_features(self) -> list[Feature]:
+        features = [(FeatureType.MASK_TIMELESS, self.config.output_feature_name)]
         if self.config.output_probability_feature_name:
             features.append((FeatureType.DATA_TIMELESS, self.config.output_probability_feature_name))
         return features

@@ -4,12 +4,26 @@
     "mask_timeless": {
       "LULC_ID": {
         "array_shape": [
-          9076,
+          9090,
           1,
           1
         ],
         "dtype": "int16",
+        "random_values": [
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8
+        ],
         "values": [
+          {
+            "count": 14,
+            "value": 4
+          },
           {
             "count": 9076,
             "value": 8
@@ -24,45 +38,38 @@
         ],
         "dtype": "uint8",
         "random_values": [
-          {
-            "position": [
-              64,
-              49,
-              0
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              26,
-              158,
-              0
-            ],
-            "value": 1
-          }
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0
         ],
         "values": [
           {
-            "count": 22868,
+            "count": 22854,
             "value": 0
           },
           {
-            "count": 9076,
+            "count": 9090,
             "value": 1
           }
         ]
       },
       "POLYGON_ID": {
         "array_shape": [
-          9076,
+          9090,
           1,
           1
         ],
         "basic_stats": {
           "max": 326,
-          "mean": 0.6212,
+          "mean": 0.46293,
           "median": 0.0,
-          "min": 0
+          "min": 0,
+          "std": 11.94993
         },
         "counts": {
           "infinite": 0,
@@ -71,14 +78,14 @@
         "dtype": "int32",
         "histogram": {
           "counts": [
-            9058,
+            9076,
             0,
             0,
             0,
-            1,
+            2,
             0,
             0,
-            17
+            12
           ],
           "edges": [
             0.0,
@@ -93,52 +100,21 @@
           ]
         },
         "random_values": [
-          {
-            "position": [
-              4552,
-              0,
-              0
-            ],
-            "value": 320
-          },
-          {
-            "position": [
-              4495,
-              0,
-              0
-            ],
-            "value": 324
-          },
-          {
-            "position": [
-              7270,
-              0,
-              0
-            ],
-            "value": 316
-          },
-          {
-            "position": [
-              1945,
-              0,
-              0
-            ],
-            "value": 326
-          },
-          {
-            "position": [
-              3653,
-              0,
-              0
-            ],
-            "value": 321
-          }
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
         ],
         "subsample_basic_stats": {
-          "max": 320,
-          "mean": 0.74531,
+          "max": 316,
+          "mean": 0.73927,
           "median": 0.0,
-          "min": 0
+          "min": 0,
+          "std": 13.37975
         }
       }
     }
@@ -148,12 +124,26 @@
     "mask_timeless": {
       "LULC_ID": {
         "array_shape": [
-          5790,
+          5794,
           1,
           1
         ],
         "dtype": "int16",
+        "random_values": [
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8
+        ],
         "values": [
+          {
+            "count": 4,
+            "value": 4
+          },
           {
             "count": 5790,
             "value": 8
@@ -168,102 +158,62 @@
         ],
         "dtype": "uint8",
         "random_values": [
-          {
-            "position": [
-              57,
-              170,
-              0
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              50,
-              113,
-              0
-            ],
-            "value": 1
-          }
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
         ],
         "values": [
           {
-            "count": 26154,
+            "count": 26150,
             "value": 0
           },
           {
-            "count": 5790,
+            "count": 5794,
             "value": 1
           }
         ]
       },
       "POLYGON_ID": {
         "array_shape": [
-          5790,
+          5794,
           1,
           1
         ],
         "dtype": "int32",
         "random_values": [
-          {
-            "position": [
-              4909,
-              0,
-              0
-            ],
-            "value": 22
-          },
-          {
-            "position": [
-              4813,
-              0,
-              0
-            ],
-            "value": 207
-          },
-          {
-            "position": [
-              5564,
-              0,
-              0
-            ],
-            "value": 10
-          },
-          {
-            "position": [
-              1025,
-              0,
-              0
-            ],
-            "value": 315
-          },
-          {
-            "position": [
-              5006,
-              0,
-              0
-            ],
-            "value": 21
-          }
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
         ],
         "values": [
           {
-            "count": 5756,
+            "count": 5759,
             "value": 0
           },
           {
-            "count": 10,
+            "count": 9,
             "value": 10
           },
           {
-            "count": 5,
+            "count": 6,
             "value": 21
           },
           {
-            "count": 6,
+            "count": 8,
             "value": 22
           },
           {
-            "count": 2,
+            "count": 1,
             "value": 207
           },
           {
