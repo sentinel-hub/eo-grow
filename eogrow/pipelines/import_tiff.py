@@ -7,15 +7,14 @@ import fs
 import numpy as np
 from pydantic import Field
 
-from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, OverwritePermission, SaveTask
-from eolearn.core.types import Feature
+from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, FeatureType, OverwritePermission, SaveTask
 from eolearn.features.feature_manipulation import SpatialResizeTask
 from eolearn.features.utils import ResizeLib, ResizeMethod, ResizeParam
 from eolearn.io import ImportFromTiffTask
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
-from ..types import PatchList
+from ..types import Feature, PatchList
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import ensure_storage_key_presence, optional_field_validator, parse_dtype
 
@@ -70,8 +69,7 @@ class ImportTiffPipeline(Pipeline):
             self.storage.filesystem,
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
-            [self.config.output_feature],
-            check_timestamps=False,
+            [self.config.output_feature, FeatureType.BBOX],
         )
 
     def build_workflow(self) -> EOWorkflow:
@@ -107,9 +105,10 @@ class ImportTiffPipeline(Pipeline):
         save_task = SaveTask(
             self.storage.get_folder(self.config.output_folder_key),
             filesystem=self.storage.filesystem,
+            compress_level=1,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
             config=self.sh_config,
-            features=[self.config.output_feature],
+            features=[self.config.output_feature, FeatureType.BBOX],
         )
         save_node = EONode(save_task, inputs=[resize_node or import_node])
 

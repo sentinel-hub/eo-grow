@@ -32,7 +32,7 @@ def test_generate_timestamp_feature_task(dummy_eopatch: EOPatch):
     assert isinstance(eopatch, EOPatch)
 
     assert eopatch.timestamps is not None
-    assert len(eopatch.get_features()) == 0
+    assert len(eopatch.get_features()) == 2
 
     assert len(eopatch.timestamps) == timestamp_num
     assert eopatch.timestamps == sorted(eopatch.timestamps)
@@ -55,7 +55,7 @@ def test_generate_timestamp_feature_task(dummy_eopatch: EOPatch):
         (FeatureType.DATA_TIMELESS, (83, 69, 1), int, UniformDistribution(-2, 5)),
         (FeatureType.MASK, (10, 4, 16, 7), np.int8, UniformDistribution(-3, 7)),
         (FeatureType.LABEL, (10, 271), bool, UniformDistribution(0, 1)),
-        (FeatureType.DATA, (10, 20, 31, 1), np.float32, NormalDistribution(-3, 1.5)),
+        (FeatureType.DATA, (7, 20, 31, 1), np.float32, NormalDistribution(-3, 1.5)),
         (FeatureType.DATA_TIMELESS, (30, 61, 2), float, NormalDistribution(-3422.23, 1522)),
         (FeatureType.DATA_TIMELESS, (83, 69, 10), int, NormalDistribution(-2, 10)),
     ],
@@ -69,7 +69,7 @@ def test_generate_raster_feature_task(dummy_eopatch, feature_type, shape, dtype,
     eopatch = task.execute(dummy_eopatch.copy(), seed=seed)
 
     assert feature in eopatch
-    assert len(eopatch.get_features()) == 1
+    assert len(eopatch.get_features()) == 3
 
     data: np.ndarray = eopatch[feature]
     assert data.shape == shape

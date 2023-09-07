@@ -5,11 +5,10 @@ import fs
 from pydantic import Field
 
 from eolearn.core import EONode, EOWorkflow, FeatureType, OverwritePermission, SaveTask
-from eolearn.core.types import Feature
 from eolearn.io import VectorImportTask
 
 from ..core.pipeline import Pipeline
-from ..types import ExecKwargs, PatchList
+from ..types import ExecKwargs, Feature, PatchList
 from ..utils.validators import ensure_storage_key_presence, field_validator, restrict_types
 
 
@@ -56,7 +55,8 @@ class ImportVectorPipeline(Pipeline):
         save_task = SaveTask(
             path=self.storage.get_folder(self.config.output_folder_key),
             filesystem=self.storage.filesystem,
-            features=[self.config.output_feature],
+            features=[FeatureType.BBOX, self.config.output_feature],
+            compress_level=1,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
         )
         save_node = EONode(save_task, inputs=[import_node])

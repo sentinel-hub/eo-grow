@@ -114,8 +114,7 @@ class ContentTester:
             if self.filesystem.isdir(content_path):
                 fs_data_info = get_filesystem_data_info(self.filesystem, content_path)
                 if fs_data_info.bbox is not None:
-                    load_timestamps = fs_data_info.timestamps is not None
-                    eopatch = EOPatch.load(content_path, filesystem=self.filesystem, load_timestamps=load_timestamps)
+                    eopatch = EOPatch.load(content_path, filesystem=self.filesystem)
                     stats[content] = self._calculate_eopatch_stats(eopatch)
                 else:  # Probably it is not an EOPatch folder
                     stats[content] = self._calculate_stats(folder=content_path)

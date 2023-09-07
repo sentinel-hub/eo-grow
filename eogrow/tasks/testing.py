@@ -7,10 +7,9 @@ from dataclasses import dataclass
 import numpy as np
 
 from eolearn.core import EOPatch, EOTask
-from eolearn.core.types import Feature
 from eolearn.core.utils.common import is_discrete_type
 
-from ..types import TimePeriod
+from ..types import Feature, TimePeriod
 
 
 @dataclass

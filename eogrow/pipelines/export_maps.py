@@ -17,18 +17,17 @@ from fs.tempfs import TempFS
 from pydantic import Field
 from tqdm.auto import tqdm
 
-from eolearn.core import EOPatch, EOTask, EOWorkflow, LoadTask, linearly_connect_tasks
-from eolearn.core.types import Feature
+from eolearn.core import EOPatch, EOTask, EOWorkflow, FeatureType, LoadTask, linearly_connect_tasks
 from eolearn.core.utils.fs import get_full_path, pickle_fs, unpickle_fs
 from eolearn.core.utils.parallelize import parallelize
+from eolearn.features import LinearFunctionTask
 from eolearn.io import ExportToTiffTask
 from sentinelhub import CRS, MimeType
 
 from eogrow.core.config import RawConfig
 
 from ..core.pipeline import Pipeline
-from ..tasks.common import LinearFunctionTask
-from ..types import ExecKwargs, PatchList
+from ..types import ExecKwargs, Feature, PatchList
 from ..utils.eopatch_list import group_by_crs
 from ..utils.map import CogifyResamplingOptions, WarpResamplingOptions, cogify_inplace, extract_bands, merge_tiffs
 from ..utils.validators import ensure_storage_key_presence
@@ -176,7 +175,7 @@ class ExportMapsPipeline(Pipeline):
         load_task = LoadTask(
             self.storage.get_folder(self.config.input_folder_key),
             filesystem=self.storage.filesystem,
-            features=[self.config.feature],
+            features=[self.config.feature, FeatureType.BBOX],
         )
         task_list: list[EOTask] = [load_task]
 
@@ -273,10 +272,10 @@ class ExportMapsPipeline(Pipeline):
     def _extract_num_bands_and_timestamps(self, eopatch_name: str) -> tuple[int, list[dt.datetime]]:
         """Loads an eopatch to get information about number of bands and the timestamps."""
         path = fs.path.join(self.storage.get_folder(self.config.input_folder_key), eopatch_name)
-        patch = EOPatch.load(path, [self.config.feature], filesystem=self.storage.filesystem)
+        patch = EOPatch.load(path, (FeatureType.TIMESTAMPS, self.config.feature), filesystem=self.storage.filesystem)
         if self.config.band_indices is not None:
-            return len(self.config.band_indices), patch.get_timestamps()
-        return patch[self.config.feature].shape[-1], patch.get_timestamps()
+            return len(self.config.band_indices), patch.timestamps
+        return patch[self.config.feature].shape[-1], patch.timestamps
 
     @staticmethod
     def _execute_split_jobs(jobs: list[SplitTiffsJob]) -> None:

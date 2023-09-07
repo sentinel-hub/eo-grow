@@ -2,11 +2,12 @@
   "pipeline": "eogrow.pipelines.download.DownloadPipeline",
   "**global_config": "${config_path}/../global_config.json",
   "output_folder_key": "temp",
-  "data_collection": "SENTINEL2_L1C",
-  "time_period": ["Q3", 2018],
-  "bands_feature_name": "BANDS-S2-L1C",
-  "resolution": 10,
+  "data_collection": "SENTINEL2_L2A",
+  "time_period": ["yearly", 2017],
+  "bands_feature_name": "BANDS-S2-L2A",
+  "size": [264, 121],
   "maxcc": 0.3,
+  "time_difference": 120,
   "additional_data": [
     ["mask", "CLM"],
     ["mask", "dataMask"]
