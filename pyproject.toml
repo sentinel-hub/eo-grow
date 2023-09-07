@@ -43,7 +43,7 @@ classifiers = [
 dependencies = [
     "click",
     "colorlog",
-    "eo-learn[FEATURES,GEOMETRY,IO,MASK,VISUALIZATION,MLTOOLS]",
+    "eo-learn[VISUALIZATION]>=1.5.0",
     "fiona",
     "fs>=2.2.0",
     "geopandas>=0.8.1",
@@ -60,6 +60,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+ml = [
+    "joblib",
+    "lightgbm>=3.0.0",
+    "scikit-learn",
+]
 docs = [
     "autodoc_pydantic",
     "nbsphinx",
@@ -68,6 +73,7 @@ docs = [
     "sphinx",
 ]
 dev = [
+    "eo-grow[ML]",
     "boto3",
     "build",
     "deepdiff",
@@ -88,11 +94,7 @@ dev = [
     "types-setuptools",
     "types-urllib3",
 ]
-ml = [
-    "joblib",
-    "lightgbm>=3.0.0",
-    "scikit-learn",
-]
+
 
 [project.urls]
 Homepage = "https://github.com/sentinel-hub/eo-grow"
