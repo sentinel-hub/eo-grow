@@ -8,6 +8,7 @@ import numpy as np
 from pydantic import Field
 
 from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, MergeEOPatchesTask, OverwritePermission, SaveTask
+from eolearn.core.types import Feature
 from eolearn.geometry import MorphologicalOperations, MorphologicalStructFactory
 from eolearn.ml_tools import BlockSamplingTask, FractionSamplingTask, GridSamplingTask
 
@@ -15,7 +16,7 @@ from eogrow.utils.validators import ensure_exactly_one_defined, ensure_storage_k
 
 from ..core.pipeline import Pipeline
 from ..tasks.common import ClassFilterTask
-from ..types import ExecKwargs, Feature, FeatureSpec, PatchList
+from ..types import ExecKwargs, PatchList
 from ..utils.filter import get_patches_with_missing_features
 
 
@@ -43,17 +44,18 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
                 "saved as FEATURES_SAMPLED."
             )
         )
-        compress_level: int = Field(1, description="Level of compression used in saving eopatches")
 
     config: Schema
 
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """Filter output EOPatches that have already been processed"""
+        output_features = self._get_output_features()
         return get_patches_with_missing_features(
             self.storage.filesystem,
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
-            self._get_output_features(),
+            output_features,
+            check_timestamps=any(ftype.is_temporal() for ftype, _ in output_features),
         )
 
     def build_workflow(self) -> EOWorkflow:
@@ -72,7 +74,6 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
             self.storage.get_folder(self.config.output_folder_key),
             filesystem=self.storage.filesystem,
             features=self._get_output_features(),
-            compress_level=self.config.compress_level,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
         )
 
@@ -83,7 +84,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
         load_nodes = []
 
         for folder_name, features in self.config.apply_to.items():
-            load_features: list[FeatureSpec] = []
+            load_features = []
 
             for feature_type_str, feature_names in features.items():
                 feature_type = FeatureType(feature_type_str)
@@ -93,10 +94,6 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
 
                 for feature_name in feature_names:
                     load_features.append((feature_type, feature_name))
-
-            load_features.append(FeatureType.BBOX)
-            if any(FeatureType(feature_type).is_temporal() for feature_type in features):
-                load_features.append(FeatureType.TIMESTAMPS)
 
             load_task = LoadTask(
                 self.storage.get_folder(folder_name),
@@ -137,20 +134,14 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
             return FeatureType.MASK_TIMELESS, self.config.mask_of_samples_name
         return None
 
-    def _get_output_features(self) -> list[FeatureSpec]:
+    def _get_output_features(self) -> list[Feature]:
         """Get a list of features that will be saved as an output of the pipeline"""
-        output_features: list[FeatureSpec] = [FeatureType.BBOX]
-        features_to_sample = self._get_features_to_sample()
-
-        for feature_type, _, sampled_feature_name in features_to_sample:
-            output_features.append((feature_type, sampled_feature_name))
+        output_features = [(ftype, output_name) for ftype, _, output_name in self._get_features_to_sample()]
 
         mask_of_samples_feature = self._get_mask_of_samples_feature()
         if mask_of_samples_feature:
             output_features.append(mask_of_samples_feature)
 
-        if any(feature_type.is_temporal() for feature_type, _, _ in features_to_sample):
-            output_features.append(FeatureType.TIMESTAMPS)
         return output_features
 
 
@@ -166,15 +157,13 @@ class BaseRandomSamplingPipeline(BaseSamplingPipeline, metaclass=abc.ABCMeta):  
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self._sampling_node_uid: str | None = None
+        self._sampling_node_uid: str = "<NODE ID NOT SET>"
 
     def get_execution_arguments(self, workflow: EOWorkflow, patch_list: PatchList) -> ExecKwargs:
         """Extends the basic method for adding execution arguments by adding seed arguments a sampling task"""
         exec_args = super().get_execution_arguments(workflow, patch_list)
 
-        sampling_node = workflow.get_node_with_uid(self._sampling_node_uid)
-        if sampling_node is None:
-            return exec_args
+        sampling_node = workflow.get_node_with_uid(self._sampling_node_uid, fail_if_missing=True)
 
         generator = np.random.default_rng(seed=self.config.seed)
 

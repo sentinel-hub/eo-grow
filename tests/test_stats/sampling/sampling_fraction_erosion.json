@@ -4,12 +4,26 @@
     "mask_timeless": {
       "LULC_ID": {
         "array_shape": [
-          9076,
+          9090,
           1,
           1
         ],
         "dtype": "int16",
+        "random_values": [
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8
+        ],
         "values": [
+          {
+            "count": 14,
+            "value": 4
+          },
           {
             "count": 9076,
             "value": 8
@@ -28,34 +42,34 @@
           0,
           0,
           0,
-          0,
+          1,
           0,
           0,
           0
         ],
         "values": [
           {
-            "count": 22868,
+            "count": 22854,
             "value": 0
           },
           {
-            "count": 9076,
+            "count": 9090,
             "value": 1
           }
         ]
       },
       "POLYGON_ID": {
         "array_shape": [
-          9076,
+          9090,
           1,
           1
         ],
         "basic_stats": {
           "max": 326,
-          "mean": 0.6212,
+          "mean": 0.46293,
           "median": 0.0,
           "min": 0,
-          "std": 14.01211
+          "std": 11.94993
         },
         "counts": {
           "infinite": 0,
@@ -64,14 +78,14 @@
         "dtype": "int32",
         "histogram": {
           "counts": [
-            9058,
+            9076,
             0,
             0,
             0,
-            1,
+            2,
             0,
             0,
-            17
+            12
           ],
           "edges": [
             0.0,
@@ -96,11 +110,11 @@
           0
         ],
         "subsample_basic_stats": {
-          "max": 320,
-          "mean": 0.74531,
+          "max": 316,
+          "mean": 0.73927,
           "median": 0.0,
           "min": 0,
-          "std": 13.49851
+          "std": 13.37975
         }
       }
     }
@@ -110,12 +124,26 @@
     "mask_timeless": {
       "LULC_ID": {
         "array_shape": [
-          5790,
+          5794,
           1,
           1
         ],
         "dtype": "int16",
+        "random_values": [
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8
+        ],
         "values": [
+          {
+            "count": 4,
+            "value": 4
+          },
           {
             "count": 5790,
             "value": 8
@@ -141,18 +169,18 @@
         ],
         "values": [
           {
-            "count": 26154,
+            "count": 26150,
             "value": 0
           },
           {
-            "count": 5790,
+            "count": 5794,
             "value": 1
           }
         ]
       },
       "POLYGON_ID": {
         "array_shape": [
-          5790,
+          5794,
           1,
           1
         ],
@@ -169,23 +197,23 @@
         ],
         "values": [
           {
-            "count": 5756,
+            "count": 5759,
             "value": 0
           },
           {
-            "count": 10,
+            "count": 9,
             "value": 10
           },
           {
-            "count": 5,
+            "count": 6,
             "value": 21
           },
           {
-            "count": 6,
+            "count": 8,
             "value": 22
           },
           {
-            "count": 2,
+            "count": 1,
             "value": 207
           },
           {

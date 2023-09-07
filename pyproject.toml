@@ -43,16 +43,12 @@ classifiers = [
 dependencies = [
     "click",
     "colorlog",
-    "eo-learn-core>=1.4.1",
-    "eo-learn-features>=1.4.1",
-    "eo-learn-geometry>=1.4.1",
-    "eo-learn-io>=1.4.1",
-    "eo-learn-mask>=1.4.1",
-    "eo-learn-visualization>=1.4.1",
+    "eo-learn[VISUALIZATION]>=1.5.0",
     "fiona",
     "fs>=2.2.0",
     "geopandas>=0.8.1",
     "numpy",
+    "opencv-python-headless",
     "pandas",
     "pydantic>=1.8.0, <2.0",
     "python-rapidjson",
@@ -64,6 +60,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+ml = [
+    "joblib",
+    "lightgbm>=3.0.0",
+    "scikit-learn",
+]
 docs = [
     "autodoc_pydantic",
     "nbsphinx",
@@ -72,6 +73,7 @@ docs = [
     "sphinx==7.1.2",
 ]
 dev = [
+    "eo-grow[ML]",
     "boto3",
     "build",
     "deepdiff",
@@ -92,12 +94,7 @@ dev = [
     "types-setuptools",
     "types-urllib3",
 ]
-ml = [
-    "eo-learn-ml-tools>=1.4.1",
-    "joblib",
-    "lightgbm>=3.0.0",
-    "scikit-learn",
-]
+
 
 [project.urls]
 Homepage = "https://github.com/sentinel-hub/eo-grow"
