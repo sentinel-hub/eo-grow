@@ -10,7 +10,7 @@ if sys.version_info >= (3, 10):
 else:
     from typing_extensions import TypeAlias
 
-from eolearn.core import EONode, FeatureType
+from eolearn.core import EONode
 from sentinelhub import BBox
 
 PatchList: TypeAlias = List[Tuple[str, BBox]]
@@ -18,9 +18,6 @@ ExecKwargs: TypeAlias = Dict[str, Dict[EONode, Dict[str, object]]]
 
 ImportPath: TypeAlias = str
 TimePeriod: TypeAlias = Tuple[datetime.date, datetime.date]
-
-Feature: TypeAlias = Tuple[FeatureType, str]
-FeatureSpec: TypeAlias = Union[Tuple[FeatureType, str], FeatureType]
 
 BoolOrAuto: TypeAlias = Union[Literal["auto"], bool]
 
