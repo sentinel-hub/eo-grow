@@ -126,12 +126,5 @@
         "value": 1
       }
     ]
-  },
-  "TIMESTAMPS.npy": {
-    "array_shape": [
-      1400,
-      35
-    ],
-    "dtype": "object"
   }
 }

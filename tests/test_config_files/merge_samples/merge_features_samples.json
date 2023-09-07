@@ -4,7 +4,6 @@
   "input_folder_key": "features_sampled",
   "output_folder_key": "training_data",
   "features_to_merge": [["data", "FEATURES"]],
-  "include_timestamp": true,
   "id_filename": "PATCH_IDS",
   "suffix": "",
   "workers": 2
