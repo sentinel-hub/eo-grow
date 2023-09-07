@@ -82,7 +82,6 @@ class FeaturesPipeline(Pipeline):
         dtype: Optional[np.dtype] = Field(description="The dtype under which the concatenated features should be saved")
         _parse_dtype = optional_field_validator("dtype", parse_dtype, pre=True)
         output_feature_name: str = Field(description="Name of output data feature encompassing bands and NDIs")
-        compress_level: int = Field(1, description="Level of compression used in saving eopatches")
 
     config: Schema
 
@@ -124,7 +123,6 @@ class FeaturesPipeline(Pipeline):
             self.storage.get_folder(self.config.output_folder_key),
             filesystem=self.storage.filesystem,
             features=self._get_output_features(),
-            compress_level=self.config.compress_level,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
         )
         save_node = EONode(save_task, inputs=[postprocessing_node])

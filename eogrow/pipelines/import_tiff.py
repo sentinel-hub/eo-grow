@@ -107,7 +107,6 @@ class ImportTiffPipeline(Pipeline):
         save_task = SaveTask(
             self.storage.get_folder(self.config.output_folder_key),
             filesystem=self.storage.filesystem,
-            compress_level=1,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
             config=self.sh_config,
             features=[self.config.output_feature],

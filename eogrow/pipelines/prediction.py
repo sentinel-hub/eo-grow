@@ -58,7 +58,6 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
             description="The storage manager key pointing to the folder of the model used in the prediction pipeline."
         )
         _ensure_model_folder_key = ensure_storage_key_presence("model_folder_key")
-        compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
 
     config: Schema
 
@@ -126,7 +125,6 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
             filesystem=self.storage.filesystem,
             features=self._get_output_features(),
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
-            compress_level=self.config.compress_level,
         )
 
         return EONode(save_task, inputs=[previous_node])

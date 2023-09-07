@@ -82,7 +82,6 @@ class RasterizePipeline(Pipeline):
         )
         overlap_value: Optional[float] = Field(description="Value to write over the areas where polygons overlap.")
         no_data_value: int = Field(0, description="The no_data_value argument to be passed to VectorToRasterTask")
-        compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
 
         @validator("vector_input")
         def _check_vector_input(cls, vector_input: Feature | str) -> Feature | str:
@@ -192,7 +191,6 @@ class RasterizePipeline(Pipeline):
             filesystem=self.storage.filesystem,
             features=self._get_output_features(),
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
-            compress_level=self.config.compress_level,
         )
         save_node = EONode(save_task, inputs=[postprocess_node])
 

@@ -64,8 +64,6 @@ class ZipMapPipeline(Pipeline):
         )
         output_feature: Feature
 
-        compress_level: int = Field(1, description="Level of compression used in saving eopatches.")
-
     config: Schema
 
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
@@ -115,7 +113,6 @@ class ZipMapPipeline(Pipeline):
             save_path,
             config=self.sh_config,
             features=[self.config.output_feature],
-            compress_level=self.config.compress_level,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
         )
         save_node = EONode(save_task, inputs=[mapping_node])

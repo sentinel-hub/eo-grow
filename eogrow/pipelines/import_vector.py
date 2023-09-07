@@ -57,7 +57,6 @@ class ImportVectorPipeline(Pipeline):
             path=self.storage.get_folder(self.config.output_folder_key),
             filesystem=self.storage.filesystem,
             features=[self.config.output_feature],
-            compress_level=1,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
         )
         save_node = EONode(save_task, inputs=[import_node])
