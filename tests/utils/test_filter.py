@@ -20,7 +20,9 @@ EXISTING = [(FeatureType.DATA, "data"), (FeatureType.DATA, "data2"), (FeatureTyp
 
 
 def _prepare_fs(filesystem, eopatch: EOPatch):
-    """Saves the eopatch under the predefined names, where every second one only contains the BBOX and MASK"""
+    """Saves the eopatch under the predefined names, where every second one only contains the MASK feature type.
+    All EOPatches contain the bbox, while only the first two are missing the timestamps.
+    """
     for i, name in enumerate(PATCH_NAMES):
         eopatch.save(name, filesystem=filesystem, features=... if i % 2 else [FeatureType.MASK], save_timestamps=i > 1)
 
@@ -66,7 +68,7 @@ def temp_fs_fixture(eopatch):
 )
 def test_check_if_features_exist(mock_s3fs, temp_fs, features, expected_result):
     for filesystem in [mock_s3fs, temp_fs]:
-        # take the fourth patch because the first and third have missing features and the second has missing timestamps
+        # take the 4th patch because the 1st and 3rd have missing features, and the first two have missing timestamps
         assert check_if_features_exist(filesystem, PATCH_NAMES[3], features, check_timestamps=True) == expected_result
 
 
