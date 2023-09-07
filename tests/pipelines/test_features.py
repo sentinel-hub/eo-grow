@@ -9,6 +9,7 @@ pytestmark = pytest.mark.integration
 @pytest.mark.parametrize(
     "experiment_name",
     [
+        "features_interpolation",
         "features_mosaicking_custom",
         "features_on_rescaled_dn",
         "features_mosaicking",

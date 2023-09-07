@@ -7,13 +7,12 @@ import pytest
 from pydantic import ValidationError
 
 from eolearn.core import FeatureType
-from eolearn.core.types import Feature
 from sentinelhub import DataCollection
 from sentinelhub.data_collections_bands import Band, MetaBands, Unit
 
 from eogrow.core.pipeline import Pipeline
 from eogrow.core.schemas import BaseSchema, ManagerSchema
-from eogrow.types import RawSchemaDict
+from eogrow.types import Feature, RawSchemaDict
 from eogrow.utils.validators import (
     ensure_defined_together,
     ensure_exactly_one_defined,

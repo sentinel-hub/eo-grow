@@ -11,12 +11,11 @@ import numpy as np
 from pydantic import BaseModel, Field, validator
 
 from eolearn.core import FeatureType
-from eolearn.core.types import Feature
 from eolearn.core.utils.parsing import parse_feature
 from sentinelhub import DataCollection
 from sentinelhub.data_collections_bands import Band, Bands, MetaBands, Unit
 
-from ..types import RawSchemaDict, TimePeriod
+from ..types import Feature, RawSchemaDict, TimePeriod
 from .meta import collect_schema, import_object
 
 if TYPE_CHECKING:

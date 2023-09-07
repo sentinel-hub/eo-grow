@@ -4,34 +4,12 @@
     "mask_timeless": {
       "LULC_ID": {
         "array_shape": [
-          9090,
+          9076,
           1,
           1
         ],
         "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              7,
-              0,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              2462,
-              0,
-              0
-            ],
-            "value": 8
-          }
-        ],
         "values": [
-          {
-            "count": 14,
-            "value": 4
-          },
           {
             "count": 9076,
             "value": 8
@@ -49,7 +27,7 @@
           {
             "position": [
               64,
-              85,
+              49,
               0
             ],
             "value": 0
@@ -57,7 +35,7 @@
           {
             "position": [
               26,
-              116,
+              158,
               0
             ],
             "value": 1
@@ -65,24 +43,24 @@
         ],
         "values": [
           {
-            "count": 22854,
+            "count": 22868,
             "value": 0
           },
           {
-            "count": 9090,
+            "count": 9076,
             "value": 1
           }
         ]
       },
       "POLYGON_ID": {
         "array_shape": [
-          9090,
+          9076,
           1,
           1
         ],
         "basic_stats": {
           "max": 326,
-          "mean": 0.46293,
+          "mean": 0.6212,
           "median": 0.0,
           "min": 0
         },
@@ -93,14 +71,14 @@
         "dtype": "int32",
         "histogram": {
           "counts": [
-            9076,
+            9058,
             0,
             0,
             0,
-            2,
+            1,
             0,
             0,
-            12
+            17
           ],
           "edges": [
             0.0,
@@ -117,7 +95,7 @@
         "random_values": [
           {
             "position": [
-              4461,
+              4552,
               0,
               0
             ],
@@ -125,7 +103,7 @@
           },
           {
             "position": [
-              1853,
+              4495,
               0,
               0
             ],
@@ -133,7 +111,7 @@
           },
           {
             "position": [
-              5779,
+              7270,
               0,
               0
             ],
@@ -141,7 +119,7 @@
           },
           {
             "position": [
-              4149,
+              1945,
               0,
               0
             ],
@@ -149,7 +127,7 @@
           },
           {
             "position": [
-              1836,
+              3653,
               0,
               0
             ],
@@ -157,8 +135,8 @@
           }
         ],
         "subsample_basic_stats": {
-          "max": 316,
-          "mean": 0.73927,
+          "max": 320,
+          "mean": 0.74531,
           "median": 0.0,
           "min": 0
         }
@@ -170,34 +148,12 @@
     "mask_timeless": {
       "LULC_ID": {
         "array_shape": [
-          5794,
+          5790,
           1,
           1
         ],
         "dtype": "int16",
-        "random_values": [
-          {
-            "position": [
-              2,
-              0,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              1566,
-              0,
-              0
-            ],
-            "value": 8
-          }
-        ],
         "values": [
-          {
-            "count": 4,
-            "value": 4
-          },
           {
             "count": 5790,
             "value": 8
@@ -215,7 +171,7 @@
           {
             "position": [
               57,
-              165,
+              170,
               0
             ],
             "value": 0
@@ -223,7 +179,7 @@
           {
             "position": [
               50,
-              107,
+              113,
               0
             ],
             "value": 1
@@ -231,18 +187,18 @@
         ],
         "values": [
           {
-            "count": 26150,
+            "count": 26154,
             "value": 0
           },
           {
-            "count": 5794,
+            "count": 5790,
             "value": 1
           }
         ]
       },
       "POLYGON_ID": {
         "array_shape": [
-          5794,
+          5790,
           1,
           1
         ],
@@ -250,7 +206,7 @@
         "random_values": [
           {
             "position": [
-              4956,
+              4909,
               0,
               0
             ],
@@ -258,7 +214,7 @@
           },
           {
             "position": [
-              3670,
+              4813,
               0,
               0
             ],
@@ -266,7 +222,7 @@
           },
           {
             "position": [
-              3394,
+              5564,
               0,
               0
             ],
@@ -274,7 +230,7 @@
           },
           {
             "position": [
-              3819,
+              1025,
               0,
               0
             ],
@@ -282,7 +238,7 @@
           },
           {
             "position": [
-              4599,
+              5006,
               0,
               0
             ],
@@ -291,23 +247,23 @@
         ],
         "values": [
           {
-            "count": 5759,
+            "count": 5756,
             "value": 0
           },
           {
-            "count": 9,
+            "count": 10,
             "value": 10
           },
           {
-            "count": 6,
+            "count": 5,
             "value": 21
           },
           {
-            "count": 8,
+            "count": 6,
             "value": 22
           },
           {
-            "count": 1,
+            "count": 2,
             "value": 207
           },
           {

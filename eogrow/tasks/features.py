@@ -8,8 +8,9 @@ from typing import Sequence
 import numpy as np
 
 from eolearn.core import EOPatch, EOTask, FeatureType, MapFeatureTask
-from eolearn.core.types import Feature
 from eolearn.core.utils.parsing import parse_renamed_feature
+
+from ..types import Feature
 
 
 def join_valid_and_cloud_masks(valid_mask: np.ndarray, cloud_mask: np.ndarray) -> np.ndarray:
@@ -120,7 +121,7 @@ class MosaickingTask(EOTask, metaclass=abc.ABCMeta):
         feature_type, _, new_feature_name = self.parsed_feature
         output_patch = EOPatch(bbox=eopatch.bbox, timestamps=self.compute_mosaic_dates())
 
-        eopatch.timestamps = [ts.replace(tzinfo=None) for ts in eopatch.get_timestamps()]
+        eopatch.timestamps = [ts.replace(tzinfo=None) for ts in eopatch.timestamps]
         output_patch[feature_type, new_feature_name] = self.compute_mosaic(eopatch)
 
         return output_patch
@@ -142,7 +143,7 @@ class MaxNDVIMosaickingTask(MosaickingTask):
 
     def _compute_single_mosaic(self, eopatch: EOPatch, idate: int) -> np.ndarray:
         """Compute single mosaic using values of the max NDVI"""
-        array = self._find_time_indices(eopatch.get_timestamps(), idate)
+        array = self._find_time_indices(eopatch.timestamps, idate)
         feature_type, feature_name, _ = self.parsed_feature
         feat_values = eopatch[(feature_type, feature_name)][array].astype(np.float32)
         ndvi_values = eopatch[(self.ndvi_feature_type, self.ndvi_feature_name)][array]  # type: ignore[index]
@@ -190,7 +191,7 @@ class MedianMosaickingTask(MosaickingTask):
 
     def _compute_single_mosaic(self, eopatch: EOPatch, idate: int) -> np.ndarray:
         """Compute single mosaic using the median of values"""
-        array = self._find_time_indices(eopatch.get_timestamps(), idate)
+        array = self._find_time_indices(eopatch.timestamps, idate)
         feature_type, feature_name, _ = self.parsed_feature
 
         feat_values = eopatch[(feature_type, feature_name)][array].astype(np.float32)

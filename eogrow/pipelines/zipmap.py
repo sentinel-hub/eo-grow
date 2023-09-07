@@ -9,17 +9,17 @@ from pydantic import Field, validator
 from eolearn.core import (
     EONode,
     EOWorkflow,
+    FeatureType,
     LoadTask,
     MergeEOPatchesTask,
     OverwritePermission,
     SaveTask,
     ZipFeatureTask,
 )
-from eolearn.core.types import Feature
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
-from ..types import PatchList
+from ..types import Feature, FeatureSpec, PatchList
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.meta import import_object
 
@@ -29,6 +29,10 @@ LOGGER = logging.getLogger(__name__)
 class InputFeatureSchema(BaseSchema):
     feature: Feature = Field(description="Which features to load from folder.")
     folder_key: str = Field(description="The storage manager key pointing to the folder from which to load data.")
+    include_bbox_and_timestamp = Field(
+        True,
+        description="Auto loads BBOX and (if the features is temporal) TIMESTAMP.",
+    )
 
 
 class ZipMapPipeline(Pipeline):
@@ -64,23 +68,31 @@ class ZipMapPipeline(Pipeline):
         )
         output_feature: Feature
 
+        compress_level: int = Field(1, description="Level of compression used in saving eopatches.")
+
     config: Schema
 
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """EOPatches are filtered according to existence of new features"""
+        # Note: does not catch missing BBox or Timestamp
         return get_patches_with_missing_features(
             self.storage.filesystem,
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
             [self.config.output_feature],
-            check_timestamps=self.config.output_feature[0].is_temporal(),
         )
 
     def get_load_nodes(self) -> list[EONode]:
         """Prepare all nodes with load tasks."""
-        load_schema: defaultdict[str, set[Feature]] = defaultdict(set)
+        load_schema: defaultdict[str, set[FeatureSpec]] = defaultdict(set)
         for input_feature in self.config.input_features:
-            load_schema[input_feature.folder_key].add(input_feature.feature)
+            features_to_load = load_schema[input_feature.folder_key]
+            features_to_load.add(input_feature.feature)
+
+            if input_feature.include_bbox_and_timestamp:
+                features_to_load.add(FeatureType.BBOX)
+                if input_feature.feature[0].is_temporal():
+                    features_to_load.add(FeatureType.TIMESTAMPS)
 
         load_nodes = []
         for folder_key, features in load_schema.items():
@@ -112,7 +124,8 @@ class ZipMapPipeline(Pipeline):
         save_task = SaveTask(
             save_path,
             config=self.sh_config,
-            features=[self.config.output_feature],
+            features=[self.config.output_feature, FeatureType.BBOX, FeatureType.TIMESTAMPS],
+            compress_level=self.config.compress_level,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
         )
         save_node = EONode(save_task, inputs=[mapping_node])

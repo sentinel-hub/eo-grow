@@ -10,8 +10,9 @@ import numpy as np
 from fs.base import FS
 
 from eolearn.core import EOPatch, EOTask, execute_with_mp_lock
-from eolearn.core.types import Feature
 from eolearn.core.utils.fs import pickle_fs, unpickle_fs
+
+from ..types import Feature
 
 
 class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
