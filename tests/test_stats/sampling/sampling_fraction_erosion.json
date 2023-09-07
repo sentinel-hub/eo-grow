@@ -10,22 +10,14 @@
         ],
         "dtype": "int16",
         "random_values": [
-          {
-            "position": [
-              7,
-              0,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              2462,
-              0,
-              0
-            ],
-            "value": 8
-          }
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8
         ],
         "values": [
           {
@@ -46,22 +38,14 @@
         ],
         "dtype": "uint8",
         "random_values": [
-          {
-            "position": [
-              64,
-              85,
-              0
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              26,
-              116,
-              0
-            ],
-            "value": 1
-          }
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0
         ],
         "values": [
           {
@@ -84,7 +68,8 @@
           "max": 326,
           "mean": 0.46293,
           "median": 0.0,
-          "min": 0
+          "min": 0,
+          "std": 11.94993
         },
         "counts": {
           "infinite": 0,
@@ -115,52 +100,21 @@
           ]
         },
         "random_values": [
-          {
-            "position": [
-              4461,
-              0,
-              0
-            ],
-            "value": 320
-          },
-          {
-            "position": [
-              1853,
-              0,
-              0
-            ],
-            "value": 324
-          },
-          {
-            "position": [
-              5779,
-              0,
-              0
-            ],
-            "value": 316
-          },
-          {
-            "position": [
-              4149,
-              0,
-              0
-            ],
-            "value": 326
-          },
-          {
-            "position": [
-              1836,
-              0,
-              0
-            ],
-            "value": 321
-          }
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
         ],
         "subsample_basic_stats": {
           "max": 316,
           "mean": 0.73927,
           "median": 0.0,
-          "min": 0
+          "min": 0,
+          "std": 13.37975
         }
       }
     }
@@ -176,22 +130,14 @@
         ],
         "dtype": "int16",
         "random_values": [
-          {
-            "position": [
-              2,
-              0,
-              0
-            ],
-            "value": 4
-          },
-          {
-            "position": [
-              1566,
-              0,
-              0
-            ],
-            "value": 8
-          }
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8
         ],
         "values": [
           {
@@ -212,22 +158,14 @@
         ],
         "dtype": "uint8",
         "random_values": [
-          {
-            "position": [
-              57,
-              165,
-              0
-            ],
-            "value": 0
-          },
-          {
-            "position": [
-              50,
-              107,
-              0
-            ],
-            "value": 1
-          }
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
         ],
         "values": [
           {
@@ -248,46 +186,14 @@
         ],
         "dtype": "int32",
         "random_values": [
-          {
-            "position": [
-              4956,
-              0,
-              0
-            ],
-            "value": 22
-          },
-          {
-            "position": [
-              3670,
-              0,
-              0
-            ],
-            "value": 207
-          },
-          {
-            "position": [
-              3394,
-              0,
-              0
-            ],
-            "value": 10
-          },
-          {
-            "position": [
-              3819,
-              0,
-              0
-            ],
-            "value": 315
-          },
-          {
-            "position": [
-              4599,
-              0,
-              0
-            ],
-            "value": 21
-          }
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
         ],
         "values": [
           {

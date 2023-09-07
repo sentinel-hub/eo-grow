@@ -34,7 +34,7 @@ class ResizeSchema(BaseSchema):
         description="Parameter to be applied to the height in combination with the resize_type."
     )
     method: ResizeMethod = ResizeMethod.LINEAR
-    library: ResizeLib = ResizeLib.PIL
+    library: ResizeLib = ResizeLib.CV2
 
 
 class ImportTiffPipeline(Pipeline):
