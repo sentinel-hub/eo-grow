@@ -9,10 +9,10 @@ import numpy as np
 from pydantic import Field
 
 from eolearn.core import EOPatch, EOWorkflow, FeatureType, LoadTask, OutputTask, linearly_connect_tasks
+from eolearn.core.types import Feature
 from eolearn.core.utils.fs import get_full_path
 
 from ..core.pipeline import Pipeline
-from ..types import Feature
 from ..utils.validators import ensure_storage_key_presence
 
 LOGGER = logging.getLogger(__name__)
@@ -111,10 +111,6 @@ class MergeSamplesPipeline(Pipeline):
         """Collects a feature from an EOPatch and removes it from EOPatch to conserve overall memory"""
         feature_array = patch[feature]
         feature_type, _ = feature
-
-        if feature_type is FeatureType.TIMESTAMPS:
-            patch.timestamps = []
-            return np.array(feature_array)
 
         del patch[feature]
 

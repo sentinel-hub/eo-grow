@@ -18,13 +18,14 @@ from eolearn.core import (
     RenameFeatureTask,
     SaveTask,
 )
-from eolearn.features import LinearFunctionTask
+from eolearn.core.types import Feature
 from eolearn.io import ImportFromTiffTask
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
-from ..types import ExecKwargs, Feature, FeatureSpec, PatchList, RawSchemaDict
+from ..tasks.common import LinearFunctionTask
+from ..types import ExecKwargs, PatchList, RawSchemaDict
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import ensure_storage_key_presence, optional_field_validator, parse_dtype
 
@@ -96,18 +97,15 @@ class BatchToEOPatchPipeline(Pipeline):
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
             self._get_output_features(),
+            check_timestamps=self.config.userdata_timestamp_reader is not None,
         )
 
-    def _get_output_features(self) -> list[FeatureSpec]:
+    def _get_output_features(self) -> list[Feature]:
         """Lists all features that the pipeline outputs."""
-        features: list[FeatureSpec] = [FeatureType.BBOX]
-        features.extend(feature_mapping.feature for feature_mapping in self.config.mapping)
+        features = [feature_mapping.feature for feature_mapping in self.config.mapping]
 
         if self.config.userdata_feature_name:
-            features.append(FeatureType.META_INFO)
-
-        if self.config.userdata_timestamp_reader:
-            features.append(FeatureType.TIMESTAMPS)
+            features.append((FeatureType.META_INFO, self.config.userdata_feature_name))
 
         return features
 
@@ -141,7 +139,6 @@ class BatchToEOPatchPipeline(Pipeline):
             path=self.storage.get_folder(self.config.output_folder_key),
             filesystem=self.storage.filesystem,
             features=self._get_output_features(),
-            compress_level=1,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
         )
         save_node = EONode(save_task, inputs=([processing_node] if processing_node else []))
