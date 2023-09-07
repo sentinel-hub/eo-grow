@@ -16,9 +16,11 @@ def test_preparation():
 @pytest.mark.parametrize(
     "experiment_name",
     [
+        "download_l1c_q1",
         "download_l1c_q1_dn",
         "download_l1c_q1_dn_rescaled",
-        "download_custom_collection",
+        "download_l2a",
+        "download_season",
         "download_custom",
         "download_q3",
         "download_dem",

@@ -10,14 +10,22 @@
         ],
         "dtype": "int16",
         "random_values": [
-          8,
-          8,
-          8,
-          8,
-          8,
-          8,
-          8,
-          8
+          {
+            "position": [
+              14,
+              0,
+              0
+            ],
+            "value": 4
+          },
+          {
+            "position": [
+              2476,
+              0,
+              0
+            ],
+            "value": 8
+          }
         ],
         "values": [
           {
@@ -38,14 +46,22 @@
         ],
         "dtype": "uint8",
         "random_values": [
-          0,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0
+          {
+            "position": [
+              64,
+              118,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              26,
+              154,
+              0
+            ],
+            "value": 1
+          }
         ],
         "values": [
           {
@@ -68,8 +84,7 @@
           "max": 326,
           "mean": 0.49725,
           "median": 0.0,
-          "min": 0,
-          "std": 12.39857
+          "min": 0
         },
         "counts": {
           "infinite": 0,
@@ -100,21 +115,52 @@
           ]
         },
         "random_values": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
+          {
+            "position": [
+              7767,
+              0,
+              0
+            ],
+            "value": 320
+          },
+          {
+            "position": [
+              6700,
+              0,
+              0
+            ],
+            "value": 324
+          },
+          {
+            "position": [
+              6899,
+              0,
+              0
+            ],
+            "value": 316
+          },
+          {
+            "position": [
+              6888,
+              0,
+              0
+            ],
+            "value": 326
+          },
+          {
+            "position": [
+              4022,
+              0,
+              0
+            ],
+            "value": 321
+          }
         ],
         "subsample_basic_stats": {
           "max": 0,
           "mean": 0.0,
           "median": 0.0,
-          "min": 0,
-          "std": 0.0
+          "min": 0
         }
       }
     }
@@ -130,14 +176,22 @@
         ],
         "dtype": "int16",
         "random_values": [
-          8,
-          8,
-          8,
-          8,
-          8,
-          8,
-          8,
-          8
+          {
+            "position": [
+              8,
+              0,
+              0
+            ],
+            "value": 4
+          },
+          {
+            "position": [
+              1579,
+              0,
+              0
+            ],
+            "value": 8
+          }
         ],
         "values": [
           {
@@ -158,14 +212,22 @@
         ],
         "dtype": "uint8",
         "random_values": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
+          {
+            "position": [
+              57,
+              191,
+              0
+            ],
+            "value": 0
+          },
+          {
+            "position": [
+              49,
+              135,
+              0
+            ],
+            "value": 1
+          }
         ],
         "values": [
           {
@@ -186,14 +248,46 @@
         ],
         "dtype": "int32",
         "random_values": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
+          {
+            "position": [
+              4250,
+              0,
+              0
+            ],
+            "value": 22
+          },
+          {
+            "position": [
+              977,
+              0,
+              0
+            ],
+            "value": 207
+          },
+          {
+            "position": [
+              5507,
+              0,
+              0
+            ],
+            "value": 10
+          },
+          {
+            "position": [
+              2510,
+              0,
+              0
+            ],
+            "value": 315
+          },
+          {
+            "position": [
+              4018,
+              0,
+              0
+            ],
+            "value": 21
+          }
         ],
         "values": [
           {

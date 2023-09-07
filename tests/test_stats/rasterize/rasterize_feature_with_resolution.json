@@ -10,14 +10,46 @@
         ],
         "dtype": "int16",
         "random_values": [
-          0,
-          1,
-          0,
-          0,
-          8,
-          1,
-          1,
-          1
+          {
+            "position": [
+              26,
+              231,
+              0
+            ],
+            "value": 4
+          },
+          {
+            "position": [
+              89,
+              66,
+              0
+            ],
+            "value": 5
+          },
+          {
+            "position": [
+              76,
+              17,
+              0
+            ],
+            "value": 1
+          },
+          {
+            "position": [
+              70,
+              255,
+              0
+            ],
+            "value": 9
+          },
+          {
+            "position": [
+              93,
+              7,
+              0
+            ],
+            "value": 3
+          }
         ],
         "values": [
           {
@@ -60,8 +92,7 @@
           "max": 327,
           "mean": 11.40449,
           "median": 0.0,
-          "min": 0,
-          "std": 48.83154
+          "min": 0
         },
         "counts": {
           "infinite": 0,
@@ -92,21 +123,52 @@
           ]
         },
         "random_values": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          246,
-          0
+          {
+            "position": [
+              37,
+              47,
+              0
+            ],
+            "value": 248
+          },
+          {
+            "position": [
+              36,
+              36,
+              0
+            ],
+            "value": 245
+          },
+          {
+            "position": [
+              64,
+              45,
+              0
+            ],
+            "value": 90
+          },
+          {
+            "position": [
+              0,
+              4,
+              0
+            ],
+            "value": 111
+          },
+          {
+            "position": [
+              34,
+              94,
+              0
+            ],
+            "value": 320
+          }
         ],
         "subsample_basic_stats": {
           "max": 327,
           "mean": 11.74734,
           "median": 0.0,
-          "min": 0,
-          "std": 49.88546
+          "min": 0
         }
       }
     },
@@ -160,14 +222,46 @@
         ],
         "dtype": "int16",
         "random_values": [
-          1,
-          0,
-          1,
-          8,
-          1,
-          1,
-          1,
-          1
+          {
+            "position": [
+              116,
+              238,
+              0
+            ],
+            "value": 4
+          },
+          {
+            "position": [
+              66,
+              169,
+              0
+            ],
+            "value": 5
+          },
+          {
+            "position": [
+              84,
+              214,
+              0
+            ],
+            "value": 1
+          },
+          {
+            "position": [
+              85,
+              110,
+              0
+            ],
+            "value": 9
+          },
+          {
+            "position": [
+              72,
+              190,
+              0
+            ],
+            "value": 3
+          }
         ],
         "values": [
           {
@@ -210,8 +304,7 @@
           "max": 334,
           "mean": 42.86069,
           "median": 0.0,
-          "min": 0,
-          "std": 95.26048
+          "min": 0
         },
         "counts": {
           "infinite": 0,
@@ -242,21 +335,52 @@
           ]
         },
         "random_values": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          132,
-          0,
-          0
+          {
+            "position": [
+              35,
+              128,
+              0
+            ],
+            "value": 193
+          },
+          {
+            "position": [
+              19,
+              254,
+              0
+            ],
+            "value": 133
+          },
+          {
+            "position": [
+              80,
+              33,
+              0
+            ],
+            "value": 113
+          },
+          {
+            "position": [
+              49,
+              85,
+              0
+            ],
+            "value": 115
+          },
+          {
+            "position": [
+              84,
+              253,
+              0
+            ],
+            "value": 272
+          }
         ],
         "subsample_basic_stats": {
           "max": 334,
           "mean": 38.81653,
           "median": 0.0,
-          "min": 0,
-          "std": 90.33518
+          "min": 0
         }
       }
     },
