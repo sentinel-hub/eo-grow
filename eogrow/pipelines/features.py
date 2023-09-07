@@ -17,7 +17,7 @@ from eolearn.core import (
     OverwritePermission,
     SaveTask,
 )
-from eolearn.features import LinearInterpolationTask, NormalizedDifferenceIndexTask, SimpleFilterTask
+from eolearn.features import NormalizedDifferenceIndexTask, SimpleFilterTask
 from eolearn.mask import JoinMasksTask
 
 from ..core.pipeline import Pipeline
@@ -184,40 +184,6 @@ class FeaturesPipeline(Pipeline):
             dtype=self.config.dtype,
         )
         return EONode(merge_task, inputs=[previous_node])
-
-
-class InterpolationSpecifications(BaseSchema):
-    time_period: TimePeriod
-    _parse_time_period = field_validator("time_period", parse_time_period, pre=True)
-    resampling_period: int
-
-
-class InterpolationFeaturesPipeline(FeaturesPipeline):
-    """A pipeline to calculate and prepare features for ML including interpolation"""
-
-    class Schema(FeaturesPipeline.Schema):
-        interpolation: Optional[InterpolationSpecifications] = Field(
-            description=(
-                "Fine-tuning of interpolation parameters. If not set, the interpolation will work on current timestamps"
-            )
-        )
-
-    config: Schema
-
-    def get_temporal_regularization_node(self, previous_node: EONode) -> EONode:
-        resample_range = None
-        if self.config.interpolation:
-            start, end = self.config.interpolation.time_period
-            start_time, end_time = start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
-            resample_range = (start_time, end_time, self.config.interpolation.resampling_period)
-
-        interpolation_task = LinearInterpolationTask(
-            feature=self._get_bands_feature(),
-            mask_feature=self._get_valid_data_feature(),
-            resample_range=resample_range,
-            bounds_error=False,
-        )
-        return EONode(interpolation_task, inputs=[previous_node])
 
 
 class MosaickingSpecifications(BaseSchema):
