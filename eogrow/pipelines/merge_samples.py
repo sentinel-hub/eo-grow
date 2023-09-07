@@ -9,10 +9,10 @@ import numpy as np
 from pydantic import Field
 
 from eolearn.core import EOPatch, EOWorkflow, FeatureType, LoadTask, OutputTask, linearly_connect_tasks
+from eolearn.core.types import Feature
 from eolearn.core.utils.fs import get_full_path
 
 from ..core.pipeline import Pipeline
-from ..types import Feature, FeatureSpec
 from ..utils.validators import ensure_storage_key_presence
 
 LOGGER = logging.getLogger(__name__)
@@ -69,12 +69,11 @@ class MergeSamplesPipeline(Pipeline):
 
     def build_workflow(self) -> EOWorkflow:
         """Creates a workflow that outputs the requested features"""
-        features_to_load: list[FeatureSpec] = [FeatureType.TIMESTAMPS] if self.config.include_timestamp else []
-        features_to_load.extend(self.config.features_to_merge)
         load_task = LoadTask(
             self.storage.get_folder(self.config.input_folder_key),
             filesystem=self.storage.filesystem,
-            features=features_to_load,
+            features=self.config.features_to_merge,
+            load_timestamps=True if self.config.include_timestamp else "auto",
         )
         output_task = OutputTask(name=self._OUTPUT_NAME)
         return EOWorkflow(linearly_connect_tasks(load_task, output_task))
@@ -103,7 +102,7 @@ class MergeSamplesPipeline(Pipeline):
         if self.config.include_timestamp:
             arrays = []
             for patch, sample_num in zip(patches, patch_sample_nums):
-                arrays.append(np.tile(np.array(patch.timestamps), (sample_num, 1)))
+                arrays.append(np.tile(np.array(patch.get_timestamps()), (sample_num, 1)))
                 patch.timestamps = []
 
             self._save_array(np.concatenate(arrays, axis=0), "TIMESTAMPS")
@@ -122,10 +121,6 @@ class MergeSamplesPipeline(Pipeline):
         """Collects a feature from an EOPatch and removes it from EOPatch to conserve overall memory"""
         feature_array = patch[feature]
         feature_type, _ = feature
-
-        if feature_type is FeatureType.TIMESTAMPS:
-            patch.timestamps = []
-            return np.array(feature_array)
 
         del patch[feature]
 

@@ -17,7 +17,8 @@ from eolearn.core import (
     OverwritePermission,
     SaveTask,
 )
-from eolearn.features import LinearInterpolationTask, NormalizedDifferenceIndexTask, SimpleFilterTask
+from eolearn.core.types import Feature
+from eolearn.features import NormalizedDifferenceIndexTask, SimpleFilterTask
 from eolearn.mask import JoinMasksTask
 
 from ..core.pipeline import Pipeline
@@ -29,7 +30,7 @@ from ..tasks.features import (
     ValidDataFractionPredicate,
     join_valid_and_cloud_masks,
 )
-from ..types import Feature, FeatureSpec, PatchList, TimePeriod
+from ..types import PatchList, TimePeriod
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import (
     ensure_storage_key_presence,
@@ -81,7 +82,6 @@ class FeaturesPipeline(Pipeline):
         dtype: Optional[np.dtype] = Field(description="The dtype under which the concatenated features should be saved")
         _parse_dtype = optional_field_validator("dtype", parse_dtype, pre=True)
         output_feature_name: str = Field(description="Name of output data feature encompassing bands and NDIs")
-        compress_level: int = Field(1, description="Level of compression used in saving eopatches")
 
     config: Schema
 
@@ -92,11 +92,12 @@ class FeaturesPipeline(Pipeline):
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
             self._get_output_features(),
+            check_timestamps=True,
         )
 
-    def _get_output_features(self) -> list[FeatureSpec]:
+    def _get_output_features(self) -> list[Feature]:
         """Lists all features that are to be saved upon the pipeline completion"""
-        return [(FeatureType.DATA, self.config.output_feature_name), FeatureType.BBOX, FeatureType.TIMESTAMPS]
+        return [(FeatureType.DATA, self.config.output_feature_name)]
 
     def _get_bands_feature(self) -> Feature:
         return FeatureType.DATA, self.config.bands_feature_name
@@ -122,7 +123,6 @@ class FeaturesPipeline(Pipeline):
             self.storage.get_folder(self.config.output_folder_key),
             filesystem=self.storage.filesystem,
             features=self._get_output_features(),
-            compress_level=self.config.compress_level,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
         )
         save_node = EONode(save_task, inputs=[postprocessing_node])
@@ -185,40 +185,6 @@ class FeaturesPipeline(Pipeline):
         return EONode(merge_task, inputs=[previous_node])
 
 
-class InterpolationSpecifications(BaseSchema):
-    time_period: TimePeriod
-    _parse_time_period = field_validator("time_period", parse_time_period, pre=True)
-    resampling_period: int
-
-
-class InterpolationFeaturesPipeline(FeaturesPipeline):
-    """A pipeline to calculate and prepare features for ML including interpolation"""
-
-    class Schema(FeaturesPipeline.Schema):
-        interpolation: Optional[InterpolationSpecifications] = Field(
-            description=(
-                "Fine-tuning of interpolation parameters. If not set, the interpolation will work on current timestamps"
-            )
-        )
-
-    config: Schema
-
-    def get_temporal_regularization_node(self, previous_node: EONode) -> EONode:
-        resample_range = None
-        if self.config.interpolation:
-            start, end = self.config.interpolation.time_period
-            start_time, end_time = start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
-            resample_range = (start_time, end_time, self.config.interpolation.resampling_period)
-
-        interpolation_task = LinearInterpolationTask(
-            feature=self._get_bands_feature(),
-            mask_feature=self._get_valid_data_feature(),
-            resample_range=resample_range,
-            bounds_error=False,
-        )
-        return EONode(interpolation_task, inputs=[previous_node])
-
-
 class MosaickingSpecifications(BaseSchema):
     time_period: TimePeriod
     _parse_time_period = field_validator("time_period", parse_time_period, pre=True)
@@ -277,7 +243,7 @@ class MosaickingFeaturesPipeline(FeaturesPipeline):
             )
         mosaicking_node = EONode(mosaicking_task, inputs=[previous_node])
         return EONode(
-            CopyTask(features=[self._get_bands_feature(), FeatureType.BBOX, FeatureType.TIMESTAMPS]),
+            CopyTask(features=[self._get_bands_feature()]),
             inputs=[mosaicking_node],
             name="Remove non-mosaicked features",
         )
