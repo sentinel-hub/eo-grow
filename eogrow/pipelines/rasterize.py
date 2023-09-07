@@ -13,13 +13,14 @@ import numpy as np
 from pydantic import Field, validator
 
 from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, FeatureType, LoadTask, OverwritePermission, SaveTask
+from eolearn.core.types import Feature
 from eolearn.geometry import VectorToRasterTask
 from eolearn.io import VectorImportTask
 from sentinelhub import CRS
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
-from ..types import Feature, PatchList
+from ..types import PatchList
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.fs import LocalFile
 from ..utils.validators import ensure_exactly_one_defined, ensure_storage_key_presence, field_validator, parse_dtype
@@ -239,6 +240,6 @@ class RasterizePipeline(Pipeline):
 
         return fs.path.combine(folder, filename)
 
-    def _get_output_features(self) -> list[tuple[FeatureType, str]]:
+    def _get_output_features(self) -> list[Feature]:
         """Lists all features that are to be saved upon the pipeline completion"""
         return [self.config.output_feature]

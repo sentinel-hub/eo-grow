@@ -18,6 +18,7 @@ from pydantic import Field
 from tqdm.auto import tqdm
 
 from eolearn.core import EOPatch, EOTask, EOWorkflow, LoadTask, linearly_connect_tasks
+from eolearn.core.types import Feature
 from eolearn.core.utils.fs import get_full_path, pickle_fs, unpickle_fs
 from eolearn.core.utils.parallelize import parallelize
 from eolearn.io import ExportToTiffTask
@@ -27,7 +28,7 @@ from eogrow.core.config import RawConfig
 
 from ..core.pipeline import Pipeline
 from ..tasks.common import LinearFunctionTask
-from ..types import ExecKwargs, Feature, PatchList
+from ..types import ExecKwargs, PatchList
 from ..utils.eopatch_list import group_by_crs
 from ..utils.map import CogifyResamplingOptions, WarpResamplingOptions, cogify_inplace, extract_bands, merge_tiffs
 from ..utils.validators import ensure_storage_key_presence

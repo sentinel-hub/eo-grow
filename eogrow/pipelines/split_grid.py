@@ -11,6 +11,7 @@ import geopandas as gpd
 from pydantic import Field
 
 from eolearn.core import EONode, EOWorkflow, LoadTask, OverwritePermission
+from eolearn.core.types import Feature
 from sentinelhub import CRS, BBox
 from sentinelhub.geometry import Geometry
 
@@ -19,7 +20,7 @@ from ..core.area.utm import UtmZoneAreaManager
 from ..core.pipeline import Pipeline
 from ..tasks.common import SkippableSaveTask
 from ..tasks.spatial import SpatialSliceTask
-from ..types import ExecKwargs, Feature
+from ..types import ExecKwargs
 from ..utils.fs import LocalFile
 from ..utils.grid import split_bbox
 from ..utils.validators import ensure_storage_key_presence

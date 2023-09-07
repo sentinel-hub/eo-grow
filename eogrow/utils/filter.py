@@ -10,8 +10,8 @@ import fs
 from fs.base import FS
 from tqdm.auto import tqdm
 
-from eolearn.core import FeatureType
 from eolearn.core.eodata_io import get_filesystem_data_info
+from eolearn.core.types import Feature
 
 from ..types import PatchList
 
@@ -19,7 +19,7 @@ from ..types import PatchList
 def check_if_features_exist(
     filesystem: FS,
     eopatch_path: str,
-    features: Sequence[tuple[FeatureType, str]],
+    features: Sequence[Feature],
     *,
     check_bbox: bool = True,
     check_timestamps: bool,
@@ -42,7 +42,7 @@ def get_patches_with_missing_features(
     filesystem: FS,
     patches_folder: str,
     patch_list: PatchList,
-    features: Sequence[tuple[FeatureType, str]],
+    features: Sequence[Feature],
     *,
     check_bbox: bool = True,
     check_timestamps: bool,

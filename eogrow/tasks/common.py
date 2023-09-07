@@ -8,11 +8,9 @@ import cv2
 import numpy as np
 
 from eolearn.core import EOPatch, EOTask, MapFeatureTask, SaveTask
-from eolearn.core.types import FeaturesSpecification
+from eolearn.core.types import Feature, FeaturesSpecification
 from eolearn.core.utils.parsing import parse_renamed_feature
 from eolearn.geometry import MorphologicalOperations
-
-from ..types import Feature
 
 
 class ClassFilterTask(EOTask):

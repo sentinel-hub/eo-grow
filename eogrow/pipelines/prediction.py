@@ -9,10 +9,11 @@ import numpy as np
 from pydantic import Field
 
 from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, MergeEOPatchesTask, OverwritePermission, SaveTask
+from eolearn.core.types import Feature
 
 from ..core.pipeline import Pipeline
 from ..tasks.prediction import ClassificationPredictionTask, RegressionPredictionTask
-from ..types import Feature, PatchList
+from ..types import PatchList
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import (
     ensure_defined_together,
@@ -62,7 +63,7 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
     config: Schema
 
     @abc.abstractmethod
-    def _get_output_features(self) -> list[tuple[FeatureType, str]]:
+    def _get_output_features(self) -> list[Feature]:
         """Lists all features that are to be saved upon the pipeline completion"""
 
     @property
@@ -141,7 +142,7 @@ class RegressionPredictionPipeline(BasePredictionPipeline):
 
     config: Schema
 
-    def _get_output_features(self) -> list[tuple[FeatureType, str]]:
+    def _get_output_features(self) -> list[Feature]:
         return [(FeatureType.DATA_TIMELESS, self.config.output_feature_name)]
 
     def _get_prediction_node(self, previous_node: EONode) -> EONode:
@@ -173,7 +174,7 @@ class ClassificationPredictionPipeline(BasePredictionPipeline):
 
     config: Schema
 
-    def _get_output_features(self) -> list[tuple[FeatureType, str]]:
+    def _get_output_features(self) -> list[Feature]:
         features = [(FeatureType.MASK_TIMELESS, self.config.output_feature_name)]
         if self.config.output_probability_feature_name:
             features.append((FeatureType.DATA_TIMELESS, self.config.output_probability_feature_name))

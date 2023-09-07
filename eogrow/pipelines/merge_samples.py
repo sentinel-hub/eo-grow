@@ -9,10 +9,10 @@ import numpy as np
 from pydantic import Field
 
 from eolearn.core import EOPatch, EOWorkflow, FeatureType, LoadTask, OutputTask, linearly_connect_tasks
+from eolearn.core.types import Feature
 from eolearn.core.utils.fs import get_full_path
 
 from ..core.pipeline import Pipeline
-from ..types import Feature
 from ..utils.validators import ensure_storage_key_presence
 
 LOGGER = logging.getLogger(__name__)

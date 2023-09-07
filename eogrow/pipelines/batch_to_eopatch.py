@@ -18,13 +18,14 @@ from eolearn.core import (
     RenameFeatureTask,
     SaveTask,
 )
+from eolearn.core.types import Feature
 from eolearn.io import ImportFromTiffTask
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
 from ..tasks.common import LinearFunctionTask
-from ..types import ExecKwargs, Feature, PatchList, RawSchemaDict
+from ..types import ExecKwargs, PatchList, RawSchemaDict
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import ensure_storage_key_presence, optional_field_validator, parse_dtype
 
@@ -99,7 +100,7 @@ class BatchToEOPatchPipeline(Pipeline):
             check_timestamps=self.config.userdata_timestamp_reader is not None,
         )
 
-    def _get_output_features(self) -> list[tuple[FeatureType, str]]:
+    def _get_output_features(self) -> list[Feature]:
         """Lists all features that the pipeline outputs."""
         features = [feature_mapping.feature for feature_mapping in self.config.mapping]
 

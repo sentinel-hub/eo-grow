@@ -8,6 +8,7 @@ import numpy as np
 from pydantic import Field
 
 from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, OverwritePermission, SaveTask
+from eolearn.core.types import Feature
 
 from ..core.config import RawConfig, recursive_config_join
 from ..core.pipeline import Pipeline
@@ -18,7 +19,7 @@ from ..tasks.testing import (
     NormalDistribution,
     UniformDistribution,
 )
-from ..types import ExecKwargs, Feature, PatchList, TimePeriod
+from ..types import ExecKwargs, PatchList, TimePeriod
 from ..utils.validators import ensure_storage_key_presence, field_validator, parse_dtype, parse_time_period
 
 Self = TypeVar("Self", bound="TestPipeline")

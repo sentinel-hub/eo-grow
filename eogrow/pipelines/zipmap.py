@@ -15,10 +15,11 @@ from eolearn.core import (
     SaveTask,
     ZipFeatureTask,
 )
+from eolearn.core.types import Feature
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
-from ..types import Feature, FeatureSpec, PatchList
+from ..types import PatchList
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.meta import import_object
 
@@ -79,7 +80,7 @@ class ZipMapPipeline(Pipeline):
 
     def get_load_nodes(self) -> list[EONode]:
         """Prepare all nodes with load tasks."""
-        load_schema: defaultdict[str, set[FeatureSpec]] = defaultdict(set)
+        load_schema: defaultdict[str, set[Feature]] = defaultdict(set)
         for input_feature in self.config.input_features:
             load_schema[input_feature.folder_key].add(input_feature.feature)
 

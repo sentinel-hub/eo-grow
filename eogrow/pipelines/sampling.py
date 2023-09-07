@@ -8,6 +8,7 @@ import numpy as np
 from pydantic import Field
 
 from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, MergeEOPatchesTask, OverwritePermission, SaveTask
+from eolearn.core.types import Feature
 from eolearn.geometry import MorphologicalOperations, MorphologicalStructFactory
 from eolearn.ml_tools import BlockSamplingTask, FractionSamplingTask, GridSamplingTask
 
@@ -15,7 +16,7 @@ from eogrow.utils.validators import ensure_exactly_one_defined, ensure_storage_k
 
 from ..core.pipeline import Pipeline
 from ..tasks.common import ClassFilterTask
-from ..types import ExecKwargs, Feature, PatchList
+from ..types import ExecKwargs, PatchList
 from ..utils.filter import get_patches_with_missing_features
 
 
@@ -135,7 +136,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
             return FeatureType.MASK_TIMELESS, self.config.mask_of_samples_name
         return None
 
-    def _get_output_features(self) -> list[tuple[FeatureType, str]]:
+    def _get_output_features(self) -> list[Feature]:
         """Get a list of features that will be saved as an output of the pipeline"""
         output_features = [(ftype, output_name) for ftype, _, output_name in self._get_features_to_sample()]
 

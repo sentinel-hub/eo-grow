@@ -8,13 +8,14 @@ import numpy as np
 from pydantic import Field
 
 from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, OverwritePermission, SaveTask
+from eolearn.core.types import Feature
 from eolearn.features.feature_manipulation import SpatialResizeTask
 from eolearn.features.utils import ResizeLib, ResizeMethod, ResizeParam
 from eolearn.io import ImportFromTiffTask
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
-from ..types import Feature, PatchList
+from ..types import PatchList
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import ensure_storage_key_presence, optional_field_validator, parse_dtype
 

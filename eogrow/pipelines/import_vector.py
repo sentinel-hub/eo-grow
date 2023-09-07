@@ -5,10 +5,11 @@ import fs
 from pydantic import Field
 
 from eolearn.core import EONode, EOWorkflow, FeatureType, OverwritePermission, SaveTask
+from eolearn.core.types import Feature
 from eolearn.io import VectorImportTask
 
 from ..core.pipeline import Pipeline
-from ..types import ExecKwargs, Feature, PatchList
+from ..types import ExecKwargs, PatchList
 from ..utils.validators import ensure_storage_key_presence, field_validator, restrict_types
 
 

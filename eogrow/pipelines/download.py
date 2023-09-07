@@ -12,6 +12,7 @@ import ray
 from pydantic import Field
 
 from eolearn.core import EONode, EOWorkflow, FeatureType, OverwritePermission, SaveTask
+from eolearn.core.types import Feature
 from eolearn.io import SentinelHubDemTask, SentinelHubEvalscriptTask, SentinelHubInputTask
 from sentinelhub import (
     Band,
@@ -28,7 +29,7 @@ from sentinelhub.download import SessionSharing, collect_shared_session
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.common import LinearFunctionTask
-from ..types import ExecKwargs, Feature, PatchList, ProcessingType, TimePeriod
+from ..types import ExecKwargs, PatchList, ProcessingType, TimePeriod
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import (
     ensure_exactly_one_defined,
@@ -109,7 +110,7 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
         )
 
     @abc.abstractmethod
-    def _get_output_features(self) -> list[tuple[FeatureType, str]]:
+    def _get_output_features(self) -> list[Feature]:
         """Lists all features that are to be saved upon the pipeline completion"""
 
     @abc.abstractmethod
@@ -247,7 +248,7 @@ class DownloadPipeline(BaseDownloadPipeline):
 
     config: Schema
 
-    def _get_output_features(self) -> list[tuple[FeatureType, str]]:
+    def _get_output_features(self) -> list[Feature]:
         return [(FeatureType.DATA, self.config.bands_feature_name), *self.config.additional_data]
 
     def _get_download_node(self, session_loader: SessionLoaderType) -> EONode:
@@ -294,7 +295,7 @@ class DownloadEvalscriptPipeline(BaseDownloadPipeline):
 
     config: Schema
 
-    def _get_output_features(self) -> list[tuple[FeatureType, str]]:
+    def _get_output_features(self) -> list[Feature]:
         return self.config.features
 
     def _get_download_node(self, session_loader: SessionLoaderType) -> EONode:
@@ -327,7 +328,7 @@ class DownloadTimelessPipeline(BaseDownloadPipeline):
 
     config: Schema
 
-    def _get_output_features(self) -> list[tuple[FeatureType, str]]:
+    def _get_output_features(self) -> list[Feature]:
         return [(FeatureType.DATA_TIMELESS, self.config.feature_name)]
 
     def _get_download_node(self, session_loader: SessionLoaderType) -> EONode:
