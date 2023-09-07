@@ -1,3 +1,15 @@
+## [Version 1.6.0] - 2023-09-07
+
+- Adjusted to use `eo-learn 1.5.0`
+    - `compression` parameters were removed since they are redundant
+    - Removed interpolation from `eogrow.pipelines.features`.
+    - `LinearFunctionTask` moved to `eogrow.tasks.common` from `eo-learn`
+    - many adjustments due to parser changes
+- In pipeline configs dictionary keys can now also contain variables.
+- Default resizing backend changed to cv2 (to comply with changes in eo-learn).
+- Merging timestamps of samples is no longer an option in the sample-merging pipeline.
+
+
 ## [Version 1.5.2] - 2023-08-16
 
 - Pipelines using a Ray cluster now add the cluster configuration file to the logs folder.
@@ -6,6 +18,7 @@
 - Improved test-data generating pipeline.
 - Switched from `flake8` and `isort` to `ruff`.
 - Various minor improvements.
+
 
 ## [Version 1.5.1] - 2023-05-03
 
