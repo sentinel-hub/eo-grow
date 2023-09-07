@@ -16,14 +16,14 @@ class MyEnum(enum.Enum):
 
 
 ORIGINAL_CONFIG = {
-    "feature_types": (FeatureType.DATA, FeatureType.MASK_TIMELESS),
+    "feature_types": (FeatureType.DATA, FeatureType.BBOX),
     "enum": MyEnum.NO_DATA,
     "timestamp": dt.datetime(year=2021, month=9, day=30),
     "collection_set": {DataCollection.SENTINEL2_L1C},
     "collection_def": DataCollection.SENTINEL2_L1C.value,
 }
 SERIALIZED_CONFIG = {
-    "feature_types": ["data", "mask_timeless"],
+    "feature_types": ["data", "bbox"],
     "enum": "no data",
     "timestamp": "2021-09-30T00:00:00",
     "collection_set": ["SENTINEL2_L1C"],

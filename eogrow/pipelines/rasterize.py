@@ -13,14 +13,13 @@ import numpy as np
 from pydantic import Field, validator
 
 from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, FeatureType, LoadTask, OverwritePermission, SaveTask
-from eolearn.core.types import Feature
 from eolearn.geometry import VectorToRasterTask
 from eolearn.io import VectorImportTask
 from sentinelhub import CRS
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
-from ..types import PatchList
+from ..types import Feature, FeatureSpec, PatchList
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.fs import LocalFile
 from ..utils.validators import ensure_exactly_one_defined, ensure_storage_key_presence, field_validator, parse_dtype
@@ -82,6 +81,7 @@ class RasterizePipeline(Pipeline):
         )
         overlap_value: Optional[float] = Field(description="Value to write over the areas where polygons overlap.")
         no_data_value: int = Field(0, description="The no_data_value argument to be passed to VectorToRasterTask")
+        compress_level: int = Field(1, description="Level of compression used in saving EOPatches")
 
         @validator("vector_input")
         def _check_vector_input(cls, vector_input: Feature | str) -> Feature | str:
@@ -115,18 +115,16 @@ class RasterizePipeline(Pipeline):
         if not isinstance(self.config.vector_input, str):
             self.vector_feature = self.config.vector_input
         else:
-            ftype = FeatureType.VECTOR if self.config.output_feature[0].is_temporal() else FeatureType.VECTOR_TIMELESS
+            ftype = FeatureType.VECTOR if self._is_temporal(self.config.output_feature) else FeatureType.VECTOR_TIMELESS
             self.filename = self.config.vector_input
             self.vector_feature = (ftype, f"TEMP_{uuid.uuid4().hex}")
 
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
-        output_features = self._get_output_features()
         return get_patches_with_missing_features(
             self.storage.filesystem,
             self.storage.get_folder(self.config.output_folder_key),
             patch_list,
-            output_features,
-            check_timestamps=any(ftype.is_temporal() for ftype, _ in output_features),
+            self._get_output_features(),
         )
 
     def run_procedure(self) -> tuple[list[str], list[str]]:
@@ -175,10 +173,13 @@ class RasterizePipeline(Pipeline):
             )
             data_preparation_node = EONode(import_task, inputs=[create_node])
         else:
+            features = [self.vector_feature, FeatureType.BBOX]
+            if self._is_temporal(self.vector_feature):
+                features.append(FeatureType.TIMESTAMPS)
             input_task = LoadTask(
                 self.storage.get_folder(self.config.input_folder_key),
                 filesystem=self.storage.filesystem,
-                features=[self.vector_feature],
+                features=features,
             )
             data_preparation_node = EONode(input_task)
 
@@ -191,6 +192,7 @@ class RasterizePipeline(Pipeline):
             filesystem=self.storage.filesystem,
             features=self._get_output_features(),
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
+            compress_level=self.config.compress_level,
         )
         save_node = EONode(save_task, inputs=[postprocess_node])
 
@@ -238,6 +240,15 @@ class RasterizePipeline(Pipeline):
 
         return fs.path.combine(folder, filename)
 
-    def _get_output_features(self) -> list[Feature]:
+    def _get_output_features(self) -> list[FeatureSpec]:
         """Lists all features that are to be saved upon the pipeline completion"""
-        return [self.config.output_feature]
+        features: list[FeatureSpec] = [self.config.output_feature, FeatureType.BBOX]
+        if self._is_temporal(self.config.output_feature):
+            features.append(FeatureType.TIMESTAMPS)
+
+        return features
+
+    @staticmethod
+    def _is_temporal(feature: Feature) -> bool:
+        f_type, _ = feature
+        return f_type.is_temporal()

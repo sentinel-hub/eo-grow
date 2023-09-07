@@ -1,5 +1,5 @@
 import datetime
-from itertools import repeat
+from itertools import chain, combinations, repeat
 
 import boto3
 import numpy as np
@@ -15,16 +15,14 @@ from eogrow.utils.filter import check_if_features_exist, get_patches_with_missin
 
 BUCKET_NAME = "mocked-test-bucket"
 PATCH_NAMES = [f"eopatch{i}" for i in range(5)]
-MISSING = [(FeatureType.META_INFO, "beep"), (FeatureType.DATA, "no_data"), (FeatureType.MASK_TIMELESS, "mask")]
-EXISTING = [(FeatureType.DATA, "data"), (FeatureType.DATA, "data2"), (FeatureType.MASK, "mask")]
+REAL_FEATURES = [FeatureType.BBOX, FeatureType.TIMESTAMPS, (FeatureType.DATA, "data"), (FeatureType.MASK, "mask")]
+MISSING_FEATURES = [FeatureType.META_INFO, (FeatureType.DATA, "no_data"), (FeatureType.MASK_TIMELESS, "mask")]
 
 
-def _prepare_fs(filesystem, eopatch: EOPatch):
-    """Saves the eopatch under the predefined names, where every second one only contains the MASK feature type.
-    All EOPatches contain the bbox, while only the first two are missing the timestamps.
-    """
+def _prepare_fs(filesystem, eopatch):
+    """Saves the eopatch under the predefined names, where every second one only contains the BBOX and MASK"""
     for i, name in enumerate(PATCH_NAMES):
-        eopatch.save(name, filesystem=filesystem, features=... if i % 2 else [FeatureType.MASK], save_timestamps=i > 1)
+        eopatch.save(name, filesystem=filesystem, features=[FeatureType.BBOX, FeatureType.MASK] if i % 2 else ...)
 
 
 @pytest.fixture(name="eopatch", scope="session")
@@ -33,7 +31,6 @@ def eopatch_fixture():
     eopatch.timestamps = [datetime.datetime(2017, 1, 1, 10, 4, 7), datetime.datetime(2017, 1, 4, 10, 14, 5)]
     eopatch.mask["mask"] = np.zeros((2, 3, 3, 2), dtype=np.int16)
     eopatch.data["data"] = np.zeros((2, 3, 3, 2), dtype=np.int16)
-    eopatch.data["data2"] = np.zeros((2, 3, 3, 2), dtype=bool)
     eopatch.scalar["my scalar with spaces"] = np.array([[1, 2, 3], [1, 2, 3]])
     eopatch.scalar_timeless["my timeless scalar with spaces"] = np.array([1, 2, 3])
     return eopatch
@@ -57,31 +54,26 @@ def temp_fs_fixture(eopatch):
 
 
 @pytest.mark.parametrize(
-    ("features", "expected_result"),
-    [
-        ([EXISTING[0]], True),
-        (EXISTING[1:], True),
-        (EXISTING, True),
-        *(([missing], False) for missing in MISSING),
-        *((EXISTING[:i] + [missing] + EXISTING[i:], False) for i, missing in enumerate(MISSING)),
-    ],
+    ("test_features", "expected_result"),
+    [(list(features), True) for features in chain(*(combinations(REAL_FEATURES, i) for i in range(4)))]
+    + [([missing], False) for missing in MISSING_FEATURES]
+    + [(REAL_FEATURES[:i] + [missing] + REAL_FEATURES[i:], False) for i, missing in enumerate(MISSING_FEATURES)],
 )
-def test_check_if_features_exist(mock_s3fs, temp_fs, features, expected_result):
+def test_check_if_features_exist(mock_s3fs, temp_fs, test_features, expected_result):
     for filesystem in [mock_s3fs, temp_fs]:
-        # take the 4th patch because the 1st and 3rd have missing features, and the first two have missing timestamps
-        assert check_if_features_exist(filesystem, PATCH_NAMES[3], features, check_timestamps=True) == expected_result
+        assert check_if_features_exist(filesystem, PATCH_NAMES[0], test_features) == expected_result
 
 
 @pytest.mark.parametrize(
     ("features", "expected_num"),
     [
-        ([], 2),  # timestamps are missing
-        ([(FeatureType.DATA, "data")], 4),
+        ([], 0),
+        ([FeatureType.BBOX], 0),
+        ([FeatureType.BBOX, (FeatureType.DATA, "data")], 2),
         ([(FeatureType.DATA, "no_data"), (FeatureType.DATA, "data")], 5),
     ],
 )
 def test_get_patches_with_missing_features(mock_s3fs, temp_fs, features, expected_num):
     patch_list = list(zip(PATCH_NAMES, repeat(BBox((0, 0, 1, 1), CRS.WGS84))))
     for filesystem in [mock_s3fs, temp_fs]:
-        incomplete = get_patches_with_missing_features(filesystem, "/", patch_list, features, check_timestamps=True)
-        assert len(incomplete) == expected_num
+        assert len(get_patches_with_missing_features(filesystem, "/", patch_list, features)) == expected_num

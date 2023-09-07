@@ -3,13 +3,16 @@
   "**global_config": "${config_path}/../global_config.json",
   "output_folder_key": "temp",
   "data_collection": "SENTINEL2_L1C",
-  "time_period": ["Q3", 2018],
+  "time_period": ["Q1", 2018],
   "bands_feature_name": "BANDS-S2-L1C",
   "resolution": 10,
   "maxcc": 0.3,
+  "time_difference": 120,
   "additional_data": [
     ["mask", "CLM"],
     ["mask", "dataMask"]
   ],
-  "workers": 2
+  "workers": 2,
+  "threads_per_worker": null,
+  "resampling_type": "nearest"
 }

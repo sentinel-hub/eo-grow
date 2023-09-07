@@ -3,17 +3,12 @@
     "bbox": "BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS('32638'))",
     "mask_timeless": {
       "POLYGON_ID": {
-        "array_shape": [
-          121,
-          264,
-          1
-        ],
+        "array_shape": [121, 264, 1],
         "basic_stats": {
           "max": 327,
           "mean": 11.40449,
           "median": 0.0,
-          "min": 0,
-          "std": 48.83154
+          "min": 0
         },
         "counts": {
           "infinite": 0,
@@ -21,56 +16,44 @@
         },
         "dtype": "int32",
         "histogram": {
-          "counts": [
-            30027,
-            11,
-            693,
-            0,
-            124,
-            386,
-            567,
-            136
-          ],
+          "counts": [30027, 11, 693, 0, 124, 386, 567, 136],
           "edges": [
-            0.0,
-            40.875,
-            81.75,
-            122.625,
-            163.5,
-            204.375,
-            245.25,
-            286.125,
-            327.0
+            0.0, 40.875, 81.75, 122.625, 163.5, 204.375, 245.25, 286.125, 327.0
           ]
         },
         "random_values": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          246,
-          0
+          {
+            "position": [37, 47, 0],
+            "value": 248
+          },
+          {
+            "position": [36, 36, 0],
+            "value": 245
+          },
+          {
+            "position": [64, 45, 0],
+            "value": 90
+          },
+          {
+            "position": [0, 4, 0],
+            "value": 111
+          },
+          {
+            "position": [34, 94, 0],
+            "value": 320
+          }
         ],
         "subsample_basic_stats": {
           "max": 327,
           "mean": 11.74734,
           "median": 0.0,
-          "min": 0,
-          "std": 49.88546
+          "min": 0
         }
       }
     },
     "vector_timeless": {
       "CROPS_VECTOR": {
-        "columns": [
-          "CROP_TYPE",
-          "POLYGON_ID",
-          "DATE",
-          "ORIGIN",
-          "geometry"
-        ],
+        "columns": ["CROP_TYPE", "POLYGON_ID", "DATE", "ORIGIN", "geometry"],
         "crs": "EPSG:32638",
         "first_row": [
           "grape",
@@ -87,17 +70,12 @@
     "bbox": "BBox(((729480.0, 4391145.0), (732120.0, 4392355.0)), crs=CRS('32638'))",
     "mask_timeless": {
       "POLYGON_ID": {
-        "array_shape": [
-          121,
-          264,
-          1
-        ],
+        "array_shape": [121, 264, 1],
         "basic_stats": {
           "max": 334,
           "mean": 42.86069,
           "median": 0.0,
-          "min": 0,
-          "std": 95.26048
+          "min": 0
         },
         "counts": {
           "infinite": 0,
@@ -105,56 +83,44 @@
         },
         "dtype": "int32",
         "histogram": {
-          "counts": [
-            26047,
-            37,
-            1013,
-            710,
-            414,
-            537,
-            1355,
-            1831
-          ],
+          "counts": [26047, 37, 1013, 710, 414, 537, 1355, 1831],
           "edges": [
-            0.0,
-            41.75,
-            83.5,
-            125.25,
-            167.0,
-            208.75,
-            250.5,
-            292.25,
-            334.0
+            0.0, 41.75, 83.5, 125.25, 167.0, 208.75, 250.5, 292.25, 334.0
           ]
         },
         "random_values": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          132,
-          0,
-          0
+          {
+            "position": [35, 128, 0],
+            "value": 193
+          },
+          {
+            "position": [19, 254, 0],
+            "value": 133
+          },
+          {
+            "position": [80, 33, 0],
+            "value": 113
+          },
+          {
+            "position": [49, 85, 0],
+            "value": 115
+          },
+          {
+            "position": [84, 253, 0],
+            "value": 272
+          }
         ],
         "subsample_basic_stats": {
           "max": 334,
           "mean": 38.81653,
           "median": 0.0,
-          "min": 0,
-          "std": 90.33518
+          "min": 0
         }
       }
     },
     "vector_timeless": {
       "CROPS_VECTOR": {
-        "columns": [
-          "CROP_TYPE",
-          "POLYGON_ID",
-          "DATE",
-          "ORIGIN",
-          "geometry"
-        ],
+        "columns": ["CROP_TYPE", "POLYGON_ID", "DATE", "ORIGIN", "geometry"],
         "crs": "EPSG:32638",
         "first_row": [
           "cotton",

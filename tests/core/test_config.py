@@ -140,15 +140,6 @@ def test_parsing_variables():
     assert config == {"key": "x, 1, y, x"}
 
 
-def test_parsing_variables_in_dict_keys():
-    config_with_variables_in_keys = {
-        "variables": {"var1": "x", "var_2": 1},
-        "${var:var1}": "${var:var1}, ${var:var_2}",
-    }
-    config = interpret_config_from_dict(config_with_variables_in_keys)
-    assert config == {"x": "x, 1"}
-
-
 def test_parsing_missing_variables():
     with pytest.raises(ValueError):
         interpret_config_from_dict({"key": "${var:missing_var}"})

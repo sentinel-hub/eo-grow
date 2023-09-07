@@ -10,8 +10,7 @@ import fs
 import geopandas as gpd
 from pydantic import Field
 
-from eolearn.core import EONode, EOWorkflow, LoadTask, OverwritePermission
-from eolearn.core.types import Feature
+from eolearn.core import EONode, EOWorkflow, FeatureType, LoadTask, OverwritePermission
 from sentinelhub import CRS, BBox
 from sentinelhub.geometry import Geometry
 
@@ -20,7 +19,7 @@ from ..core.area.utm import UtmZoneAreaManager
 from ..core.pipeline import Pipeline
 from ..tasks.common import SkippableSaveTask
 from ..tasks.spatial import SpatialSliceTask
-from ..types import ExecKwargs
+from ..types import ExecKwargs, Feature, FeatureSpec
 from ..utils.fs import LocalFile
 from ..utils.grid import split_bbox
 from ..utils.validators import ensure_storage_key_presence
@@ -143,19 +142,21 @@ class SplitGridPipeline(Pipeline):
         )
 
     def build_workflow(self) -> EOWorkflow:
+        features = self._get_features()
+
         input_path = self.storage.get_folder(self.config.input_folder_key)
-        load_node = EONode(LoadTask(input_path, filesystem=self.storage.filesystem, features=self.config.features))
+        load_node = EONode(LoadTask(input_path, filesystem=self.storage.filesystem, features=features))
 
         processing_nodes = []
         output_path = self.storage.get_folder(self.config.eopatch_output_folder_key)
         for _ in range(self.config.split_x * self.config.split_y):
-            slice_task = SpatialSliceTask(self.config.features, raise_misaligned=self.config.raise_misaligned)
+            slice_task = SpatialSliceTask(features, raise_misaligned=self.config.raise_misaligned)
             slice_node = EONode(slice_task, inputs=[load_node])
 
             save_task = SkippableSaveTask(
                 output_path,
                 filesystem=self.storage.filesystem,
-                features=self.config.features,
+                features=features,
                 overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
             )
             save_node = EONode(save_task, inputs=[slice_node])
@@ -184,6 +185,14 @@ class SplitGridPipeline(Pipeline):
             exec_args[orig_name] = patch_args
 
         return exec_args
+
+    def _get_features(self) -> list[FeatureSpec]:
+        """Provides features that will be transformed by the pipeline."""
+        meta_features = [FeatureType.BBOX]
+        if any(f_type.is_temporal() for f_type, _ in self.config.features):
+            meta_features += [FeatureType.TIMESTAMPS]
+
+        return self.config.features + meta_features
 
     def save_new_grid(self, bbox_splits: list[tuple[NamedBBox, list[NamedBBox]]]) -> None:
         """Organizes BBoxes into multiple GeoDataFrames that are then saved as layers of a GPKG file."""

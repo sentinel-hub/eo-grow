@@ -47,7 +47,6 @@ class ContentTester:
         "max": np.max,
         "mean": np.mean,
         "median": np.median,
-        "std": np.std,
     }
 
     def __init__(
@@ -57,7 +56,7 @@ class ContentTester:
         decimals: int = 5,
         unique_values_limit: int = 8,
         histogram_bin_num: int = 8,
-        num_random_values: int = 8,
+        max_random_values: int = 5,
     ):
         """
         :param filesystem: A filesystem containing project data
@@ -68,14 +67,15 @@ class ContentTester:
             the values.
         :param histogram_bin_num: Number of bins in a histogram for statistics. The histogram will be calculated only
             if number of unique values is higher than `unique_values_limit`.
-        :param num_random_values: Number of values that will be randomly sampled from an array and added to statistics.
+        :param max_random_values: Number of values that will be randomly sampled from an array for statistics. This
+            will happen only if the array contains at least `2` different unique values.
         """
         self.filesystem = filesystem
         self.main_folder = main_folder
         self.decimals = decimals
         self.unique_values_limit = unique_values_limit
         self.histogram_bin_num = histogram_bin_num
-        self.num_random_values = num_random_values
+        self.max_random_values = max_random_values
 
         if not filesystem.isdir(self.main_folder):
             raise ValueError(f"Folder {self.main_folder} does not exist on filesystem {self.filesystem}")
@@ -114,8 +114,7 @@ class ContentTester:
             if self.filesystem.isdir(content_path):
                 fs_data_info = get_filesystem_data_info(self.filesystem, content_path)
                 if fs_data_info.bbox is not None:
-                    load_timestamps = fs_data_info.timestamps is not None
-                    eopatch = EOPatch.load(content_path, filesystem=self.filesystem, load_timestamps=load_timestamps)
+                    eopatch = EOPatch.load(content_path, filesystem=self.filesystem)
                     stats[content] = self._calculate_eopatch_stats(eopatch)
                 else:  # Probably it is not an EOPatch folder
                     stats[content] = self._calculate_stats(folder=content_path)
@@ -184,7 +183,7 @@ class ContentTester:
             }
 
         if unique_values.size > 1:
-            stats["random_values"] = self._get_random_values(raster)
+            stats["random_values"] = self._get_random_stats(raster, unique_values)
 
         return stats
 
@@ -229,11 +228,30 @@ class ContentTester:
         subsample = rng.choice(values, int(values.size * amount))
         return {name: self._prepare_value(operation(subsample)) for name, operation in self._STATS_OPERATIONS.items()}
 
-    def _get_random_values(self, raster: np.ndarray) -> list[float]:
-        """It randomly samples a few values from the array and marks their locations."""
+    def _get_random_stats(self, raster: np.ndarray, unique_values: np.ndarray) -> list[JsonDict]:
+        """First it randomly samples a few values from the list of unique values. Then for each one it checks where
+        this value is located in the original array and randomly selects one of its locations. Selected locations
+        and values are used for statistics."""
         rng = np.random.default_rng(0)
-        values = raster[np.isfinite(raster)]
-        return rng.choice(values.ravel(), self.num_random_values).tolist()
+        randomly_chosen_values = rng.choice(
+            unique_values,
+            size=min(self.max_random_values, unique_values.size),
+            replace=False,
+        )
+
+        random_stats: list[JsonDict] = []
+        for value in randomly_chosen_values:
+            value_mask = np.isnan(raster) if np.isnan(value) else raster == value
+            positions = np.argwhere(value_mask)
+
+            num_positions = positions.shape[0]
+            chosen_position_index = rng.integers(num_positions)
+
+            random_stats.append(
+                {"value": self._prepare_value(value), "position": positions[chosen_position_index].tolist()}
+            )
+
+        return random_stats
 
     def _prepare_value(self, value: Any) -> Any:
         """Converts a value in a way that it can be compared and serialized into a JSON. It also rounds float values."""

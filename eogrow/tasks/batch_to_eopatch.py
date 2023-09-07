@@ -9,10 +9,10 @@ import numpy as np
 from fs.base import FS
 
 from eolearn.core import EOPatch, EOTask
-from eolearn.core.types import Feature
 from eolearn.core.utils.fs import pickle_fs, unpickle_fs
 from sentinelhub import parse_time
 
+from ..types import Feature
 from ..utils.meta import import_object
 
 

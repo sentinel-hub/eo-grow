@@ -164,7 +164,7 @@ def _sub_variable(match: re.Match, variable_mapping: dict[str, str]) -> str:
 def _recursive_apply_to_strings(config: object, function: Callable) -> object:
     """Recursively applies a function on all string values (and not keys) of a nested config object"""
     if isinstance(config, dict):
-        return {function(key): _recursive_apply_to_strings(value, function) for key, value in config.items()}
+        return {key: _recursive_apply_to_strings(value, function) for key, value in config.items()}
 
     if isinstance(config, list):
         return [_recursive_apply_to_strings(value, function) for value in config]
