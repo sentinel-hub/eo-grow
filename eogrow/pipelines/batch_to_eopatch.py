@@ -222,8 +222,7 @@ class BatchToEOPatchPipeline(Pipeline):
         remove_task = RemoveFeatureTask(input_features)
         return EONode(remove_task, inputs=[merge_node])
 
-    @staticmethod
-    def get_processing_node(previous_node: EONode) -> EONode:
+    def get_processing_node(self, previous_node: EONode) -> EONode:
         """This method can be overwritten to add more tasks that process loaded data before saving it."""
         return previous_node
 
