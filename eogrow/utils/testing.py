@@ -82,25 +82,29 @@ class ContentTester:
 
         self.stats = self._calculate_stats()
 
-    def compare(self, filename: str) -> DeepDiff:
+    @staticmethod
+    def compare_with_saved(stats: JsonDict, filename: str) -> DeepDiff:
         """Compares statistics of given folder content with statistics saved in a given file
 
+        :param stats: Dictionary of calculated statistics of content
         :param filename: A JSON filename (with file path) where expected statistics is saved
         :return: A dictionary report about differences between expected and actual content
         """
         with open(filename) as file:
             expected_stats = json.load(file)
 
-        return DeepDiff(expected_stats, self.stats)
+        return DeepDiff(expected_stats, stats)
 
-    def save(self, filename: str) -> None:
+    @staticmethod
+    def save_statistics(stats: JsonDict, filename: str) -> None:
         """Saves statistics of given folder content into a JSON file
 
+        :param stats: Dictionary of calculated statistics of content
         :param filename: A JSON filename (with file path) where statistics should be saved
         """
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, "w") as file:
-            json.dump(self.stats, file, indent=2, sort_keys=True)
+            json.dump(stats, file, indent=2, sort_keys=True)
 
     def _calculate_stats(self, folder: str | None = None) -> JsonDict:
         """Calculates statistics of given folder and it's content"""
@@ -322,9 +326,9 @@ def compare_content(
     tester = ContentTester(OSFS("/"), folder_path)
 
     if save_new_stats:
-        tester.save(stats_path)
+        tester.save_statistics(tester.stats, stats_path)
 
-    stats_difference = tester.compare(stats_path)
+    stats_difference = tester.compare_with_saved(tester.stats, stats_path)
     if stats_difference:
         stats_difference_repr = stats_difference.to_json(indent=2, sort_keys=True)
         raise AssertionError(f"Expected and obtained stats differ:\n{stats_difference_repr}")
