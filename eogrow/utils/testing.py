@@ -7,7 +7,7 @@ import json
 import os
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, Callable, ClassVar, Iterable, cast
+from typing import Any, Callable, Iterable, cast
 
 import fs
 import numpy as np
@@ -37,6 +37,15 @@ class StatCalcConfig:
     num_random_values: int = 8
 
 
+_STATS_OPERATIONS: dict[str, Callable] = {
+    "min": np.min,
+    "max": np.max,
+    "mean": np.mean,
+    "median": np.median,
+    "std": np.std,
+}
+
+
 class ContentTester:
     """Utility used for testing pipeline results
 
@@ -50,14 +59,6 @@ class ContentTester:
     If statistics match there is a good chance that the pipeline produced exactly the same results as before. Otherwise,
     this utility will let you know which statistics does not match
     """
-
-    _STATS_OPERATIONS: ClassVar[dict[str, Callable]] = {
-        "min": np.min,
-        "max": np.max,
-        "mean": np.mean,
-        "median": np.median,
-        "std": np.std,
-    }
 
     def __init__(
         self,
@@ -148,7 +149,7 @@ class ContentTester:
         stats: dict[str, Any] = defaultdict(dict)
 
         stats["bbox"] = repr(eopatch.bbox)
-        if eopatch.timestamps is not None and eopatch.timestamps != []:  # remove second part after eo-learn 1.5.0
+        if eopatch.timestamps is not None:
             stats["timestamps"] = [time.isoformat() for time in eopatch.timestamps]
 
         for ftype, fname in eopatch.get_features():
@@ -186,7 +187,7 @@ class ContentTester:
             }
             stats["basic_stats"] = {
                 name: self._prepare_value(operation(finite_values), config=config)
-                for name, operation in self._STATS_OPERATIONS.items()
+                for name, operation in _STATS_OPERATIONS.items()
             }
 
             stats["subsample_basic_stats"] = self._calculate_subsample_stats(finite_values, config=config)
@@ -245,7 +246,7 @@ class ContentTester:
         subsample = rng.choice(values, int(values.size * amount))
         return {
             name: self._prepare_value(operation(subsample), config=config)
-            for name, operation in self._STATS_OPERATIONS.items()
+            for name, operation in _STATS_OPERATIONS.items()
         }
 
     def _get_random_values(self, raster: np.ndarray, config: StatCalcConfig) -> list[float]:
