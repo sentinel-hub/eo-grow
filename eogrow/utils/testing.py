@@ -62,7 +62,6 @@ class ContentTester:
 
     def __init__(
         self,
-        filesystem: FS,
         main_folder: str,
         decimals: int = 5,
         unique_values_limit: int = 8,
@@ -70,7 +69,6 @@ class ContentTester:
         num_random_values: int = 8,
     ):
         """
-        :param filesystem: A filesystem containing project data
         :param main_folder: A folder path on the filesystem where results are saved
         :param decimals: Number of decimals to which values will be rounded
         :param unique_values_limit: If a raster has at most this many unique values then statistics will show all
@@ -80,8 +78,6 @@ class ContentTester:
             if number of unique values is higher than `unique_values_limit`.
         :param num_random_values: Number of values that will be randomly sampled from an array and added to statistics.
         """
-        self.filesystem = filesystem
-        self.main_folder = main_folder
         self.config = StatCalcConfig(
             decimals=decimals,
             unique_values_limit=unique_values_limit,
@@ -89,10 +85,10 @@ class ContentTester:
             num_random_values=num_random_values,
         )
 
-        if not filesystem.isdir(self.main_folder):
-            raise ValueError(f"Folder {self.main_folder} does not exist on filesystem {self.filesystem}")
+        if not os.path.isdir(main_folder):
+            raise ValueError(f"Folder {main_folder} does not exist.")
 
-        self.stats = self._calculate_stats(self.main_folder, self.config)
+        self.stats = self._calculate_stats(main_folder, self.config)
 
     @staticmethod
     def compare_with_saved(stats: JsonDict, filename: str) -> DeepDiff:
@@ -122,14 +118,14 @@ class ContentTester:
         """Calculates statistics of given folder and it's content"""
         stats: dict[str, object] = {}
 
-        for content in self.filesystem.listdir(folder):
+        for content in os.listdir(folder):
             content_path = fs.path.combine(folder, content)
 
-            if self.filesystem.isdir(content_path):
-                fs_data_info = get_filesystem_data_info(self.filesystem, content_path)
+            if os.path.isdir(content_path):
+                fs_data_info = get_filesystem_data_info(OSFS("/"), content_path)
                 if fs_data_info.bbox is not None:
                     load_timestamps = fs_data_info.timestamps is not None
-                    eopatch = EOPatch.load(content_path, filesystem=self.filesystem, load_timestamps=load_timestamps)
+                    eopatch = EOPatch.load(content_path, load_timestamps=load_timestamps)
                     stats[content] = self._calculate_eopatch_stats(eopatch, config=config)
                 else:  # Probably it is not an EOPatch folder
                     stats[content] = self._calculate_stats(folder=content_path, config=config)
@@ -205,7 +201,7 @@ class ContentTester:
 
     def _calculate_tiff_stats(self, tiff_filename: str, config: StatCalcConfig) -> JsonDict:
         """Calculates statistics over a .tiff image"""
-        with self.filesystem.openbin(tiff_filename, "r") as file_handle:
+        with open(tiff_filename, "rb") as file_handle:
             with rasterio.open(file_handle) as tiff:
                 image = tiff.read()
                 mask = tiff.dataset_mask()
@@ -217,7 +213,7 @@ class ContentTester:
 
     def _calculate_numpy_file_stats(self, numpy_filename: str, config: StatCalcConfig) -> JsonDict:
         """Calculates statistics over a .npy file containing a numpy array"""
-        with self.filesystem.openbin(numpy_filename, "r") as file_handle:
+        with open(numpy_filename, "rb") as file_handle:
             raster = np.load(file_handle, allow_pickle=True)
 
         return self._calculate_numpy_stats(raster, config=config)
@@ -339,7 +335,7 @@ def compare_content(
     if folder_path is None:
         raise ValueError("The given path is None. The pipeline likely has no `output_folder_key` parameter.")
 
-    tester = ContentTester(OSFS("/"), folder_path)
+    tester = ContentTester(folder_path)
 
     if save_new_stats:
         tester.save_statistics(tester.stats, stats_path)
