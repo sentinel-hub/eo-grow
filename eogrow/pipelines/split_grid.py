@@ -157,6 +157,7 @@ class SplitGridPipeline(Pipeline):
                 filesystem=self.storage.filesystem,
                 features=self.config.features,
                 overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
+                use_zarr=self.storage.config.use_zarr,
             )
             save_node = EONode(save_task, inputs=[slice_node])
             processing_nodes.append(save_node)

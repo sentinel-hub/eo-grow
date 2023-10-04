@@ -114,6 +114,7 @@ class ZipMapPipeline(Pipeline):
             config=self.sh_config,
             features=[self.config.output_feature],
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
+            use_zarr=self.storage.config.use_zarr,
         )
         save_node = EONode(save_task, inputs=[mapping_node])
 
