@@ -137,7 +137,7 @@ class GenerateDataPipeline(Pipeline):
             filesystem=self.storage.filesystem,
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
             save_timestamps=self.config.timestamps is not None,
-            use_zarr=self.storage.config.save_with_zarr,
+            use_zarr=self.storage.config.use_zarr,
         )
         save_node = EONode(save_task, inputs=[previous_node])
 

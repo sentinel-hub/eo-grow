@@ -75,7 +75,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
             filesystem=self.storage.filesystem,
             features=self._get_output_features(),
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
-            use_zarr=self.storage.config.save_with_zarr,
+            use_zarr=self.storage.config.use_zarr,
         )
 
         return EOWorkflow.from_endnodes(EONode(save_task, inputs=[sampling_node]))
