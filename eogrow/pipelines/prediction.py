@@ -125,6 +125,7 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
             filesystem=self.storage.filesystem,
             features=self._get_output_features(),
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
+            use_zarr=self.storage.config.save_with_zarr,
         )
 
         return EONode(save_task, inputs=[previous_node])

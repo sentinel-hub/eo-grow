@@ -41,6 +41,7 @@ class StorageManager(EOGrowObject):
         geopandas_backend: Literal["fiona", "pyogrio"] = Field(
             "fiona", description="Which backend is used for IO operations when using geopandas."
         )
+        save_with_zarr: bool = Field(False, description="Whether to save EOPatches with the Zarr backend.")
 
         class Config(ManagerSchema.Config):
             case_sensitive = True

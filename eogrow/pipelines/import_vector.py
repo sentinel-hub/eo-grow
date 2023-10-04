@@ -58,6 +58,7 @@ class ImportVectorPipeline(Pipeline):
             filesystem=self.storage.filesystem,
             features=[self.config.output_feature],
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
+            use_zarr=self.storage.config.save_with_zarr,
         )
         save_node = EONode(save_task, inputs=[import_node])
         return EOWorkflow.from_endnodes(save_node)
