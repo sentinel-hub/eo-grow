@@ -10,8 +10,8 @@ from dataclasses import dataclass
 from typing import Any, Callable, Iterable, cast
 
 import fs
+import geopandas as gpd
 import numpy as np
-import pandas as pd
 import rasterio
 import shapely.ops
 from deepdiff import DeepDiff
@@ -182,18 +182,26 @@ def _calculate_numpy_file_stats(numpy_filename: str, config: StatCalcConfig) -> 
     return _calculate_numpy_stats(raster, config)
 
 
-def _calculate_vector_stats(dataframe: pd.DataFrame, config: StatCalcConfig) -> JsonDict:
+def _calculate_vector_stats(dataframe: gpd.GeoDataFrame, config: StatCalcConfig) -> JsonDict:
     """Calculates statistics over a vector GeoDataFrame"""  # TODO: add more statistical properties
 
     def _rounder(x: float, y: float) -> tuple[float, float]:
         return round(x, config.decimals), round(y, config.decimals)
 
-    dataframe["geometry"] = dataframe["geometry"].apply(lambda geometry: shapely.ops.transform(_rounder, geometry))
+    dataframe.geometry = dataframe.geometry.apply(lambda geometry: shapely.ops.transform(_rounder, geometry))
 
-    stats = {"columns": list(dataframe), "row_count": len(dataframe.index), "crs": str(dataframe.crs)}
+    stats = {
+        "columns": list(dataframe),
+        "row_count": len(dataframe.index),
+        "crs": str(dataframe.crs),
+        "mean_area": _prepare_value(dataframe.area.mean(), config),
+        "total_bounds": list(dataframe.total_bounds),
+    }
 
     if len(dataframe.index):
-        stats["first_row"] = list(map(str, dataframe.iloc[0]))
+        rng = np.random.default_rng(0)
+        random_rows = np.unique(rng.integers(0, len(dataframe), config.num_random_values))
+        stats["random_rows"] = {str(row): list(map(str, dataframe.iloc[row])) for row in random_rows}
 
     return stats
 
