@@ -93,7 +93,7 @@ def calculate_statistics(folder: str, config: StatCalcConfig) -> JsonDict:
         elif content_path.endswith("tiff"):
             stats[content] = _calculate_tiff_stats(content_path, config)
         elif content_path.endswith(".npy"):
-            stats[content] = _calculate_numpy_file_stats(content_path, config)
+            stats[content] = _calculate_numpy_stats(np.load(content_path, allow_pickle=True), config)
         elif content_path.endswith(".aux.xml"):
             pass
         else:
@@ -163,23 +163,11 @@ def _calculate_numpy_stats(raster: np.ndarray, config: StatCalcConfig) -> JsonDi
 
 def _calculate_tiff_stats(tiff_filename: str, config: StatCalcConfig) -> JsonDict:
     """Calculates statistics over a .tiff image"""
-    with open(tiff_filename, "rb") as file_handle:
-        with rasterio.open(file_handle) as tiff:
-            image = tiff.read()
-            mask = tiff.dataset_mask()
-
-    return {
-        "image": _calculate_numpy_stats(image, config),
-        "mask": _calculate_numpy_stats(mask, config),
-    }
-
-
-def _calculate_numpy_file_stats(numpy_filename: str, config: StatCalcConfig) -> JsonDict:
-    """Calculates statistics over a .npy file containing a numpy array"""
-    with open(numpy_filename, "rb") as file_handle:
-        raster = np.load(file_handle, allow_pickle=True)
-
-    return _calculate_numpy_stats(raster, config)
+    with rasterio.open(tiff_filename) as tiff:
+        return {
+            "image": _calculate_numpy_stats(tiff.read(), config),
+            "mask": _calculate_numpy_stats(tiff.dataset_mask(), config),
+        }
 
 
 def _calculate_vector_stats(dataframe: gpd.GeoDataFrame, config: StatCalcConfig) -> JsonDict:
