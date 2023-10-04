@@ -94,8 +94,10 @@ def calculate_statistics(folder: str, config: StatCalcConfig) -> JsonDict:
             stats[content] = _calculate_tiff_stats(content_path, config)
         elif content_path.endswith(".npy"):
             stats[content] = _calculate_numpy_stats(np.load(content_path, allow_pickle=True), config)
-        elif content_path.endswith(".aux.xml"):
-            pass
+        elif content_path.endswith((".geojson", ".gpkg")):
+            stats[content] = _calculate_vector_stats(gpd.read_file(content_path), config)
+        elif content_path.endswith(".parquet"):
+            stats[content] = _calculate_vector_stats(gpd.read_parquet(content_path), config)
         else:
             stats[content] = None
 
