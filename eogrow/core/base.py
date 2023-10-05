@@ -21,7 +21,7 @@ class EOGrowObject:
             validate_default=True,
             frozen=True,
             arbitrary_types_allowed=True,
-            protected_namespaces=[],
+            protected_namespaces=(),
         )
 
     config: Schema
