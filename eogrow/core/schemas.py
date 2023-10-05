@@ -102,6 +102,8 @@ def build_schema_template(
                     _prettify_annotation(sch): build_schema_template(sch, **rec_flags) for sch in nested_schemas
                 },
             }
+            if description:
+                template[name]["<< description >>"] = description
         else:
             template[name] = _field_description(field, description)
 
