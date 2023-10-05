@@ -34,10 +34,10 @@ from ..types import PatchList, TimePeriod
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import (
     ensure_storage_key_presence,
-    optional_field_validator,
-    our_field_validator,
+    optional_validator,
     parse_dtype,
     parse_time_period,
+    validator,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -82,7 +82,7 @@ class FeaturesPipeline(Pipeline):
         dtype: Optional[np.dtype] = Field(
             None, description="The dtype under which the concatenated features should be saved"
         )
-        _parse_dtype = optional_field_validator("dtype", parse_dtype, mode="before")
+        _parse_dtype = optional_validator("dtype", parse_dtype, mode="before")
         output_feature_name: str = Field(description="Name of output data feature encompassing bands and NDIs")
 
     config: Schema
@@ -190,7 +190,7 @@ class FeaturesPipeline(Pipeline):
 
 class MosaickingSpecifications(BaseSchema):
     time_period: TimePeriod
-    _parse_time_period = our_field_validator("time_period", parse_time_period, mode="before")
+    _parse_time_period = validator("time_period", parse_time_period, mode="before")
     n_mosaics: int
 
     max_ndi_indices: Optional[Tuple[int, int]] = Field(

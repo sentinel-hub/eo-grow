@@ -25,12 +25,12 @@ if TYPE_CHECKING:
 # ruff: noqa: ARG001
 
 
-def our_field_validator(field: str, validator_fun: Callable, **kwargs: Any) -> classmethod:
+def validator(field: str, validator_fun: Callable, **kwargs: Any) -> classmethod:
     """Sugared syntax for the `validator` decorator of `pydantic`"""
     return field_validator(field, **kwargs)(validator_fun)
 
 
-def optional_field_validator(field: str, validator_fun: Callable, **kwargs: Any) -> classmethod:
+def optional_validator(field: str, validator_fun: Callable, **kwargs: Any) -> classmethod:
     """Wraps the validator functions so that `None` is always a valid input and only calls the validator on values.
 
     This allows re-use of validators e.g. if we have a validator for `Path` we can now use it for `Optional[Path]`.
@@ -69,7 +69,7 @@ def ensure_exactly_one_defined(first_param: str, second_param: str, **kwargs: An
 
     ensure_exclusion.__name__ = f"cannot_be_used_with_{first_param}"  # used for docbuilding purposes
 
-    return our_field_validator(second_param, ensure_exclusion, **kwargs)
+    return validator(second_param, ensure_exclusion, **kwargs)
 
 
 def ensure_defined_together(first_param: str, second_param: str, **kwargs: Any) -> classmethod:
@@ -89,7 +89,7 @@ def ensure_defined_together(first_param: str, second_param: str, **kwargs: Any) 
 
     ensure_both.__name__ = f"must_be_used_with_{first_param}"  # used for docbuilding purposes
 
-    return our_field_validator(second_param, ensure_both, **kwargs)
+    return validator(second_param, ensure_both, **kwargs)
 
 
 def ensure_storage_key_presence(key: str, **kwargs: Any) -> classmethod:
@@ -104,7 +104,7 @@ def ensure_storage_key_presence(key: str, **kwargs: Any) -> classmethod:
 
         return key
 
-    return our_field_validator(key, validate_storage_key, **kwargs)
+    return validator(key, validate_storage_key, **kwargs)
 
 
 def parse_time_period(value: tuple[str, str]) -> TimePeriod:
@@ -166,7 +166,7 @@ class BandSchema(BaseModel):
 
     @field_validator("output_types", mode="before")
     def _parse_output_types(cls, value: list[str]) -> tuple[type, ...]:
-        return tuple(bool if x == "bool" else np.dtype(x).type for x in value)
+        return tuple(bool if x == "bool" else np.dtype(x).type for x in value)  # type: ignore[misc]
 
 
 class DataCollectionSchema(BaseModel):

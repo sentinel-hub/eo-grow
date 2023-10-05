@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 from pydantic.fields import FieldInfo
 
 from ..types import BoolOrAuto, ImportPath
-from ..utils.validators import our_field_validator, validate_manager
+from ..utils.validators import validate_manager, validator
 from .base import EOGrowObject
 
 # ruff: noqa: SLF001
@@ -36,13 +36,13 @@ class PipelineSchema(BaseSchema):
     )
 
     storage: ManagerSchema = Field(description="A schema of an implementation of StorageManager class")
-    validate_storage = our_field_validator("storage", validate_manager, mode="before")
+    validate_storage = validator("storage", validate_manager, mode="before")
 
     area: ManagerSchema = Field(description="A schema of an implementation of AreaManager class")
-    validate_area = our_field_validator("area", validate_manager, mode="before")
+    validate_area = validator("area", validate_manager, mode="before")
 
     logging: ManagerSchema = Field(description="A schema of an implementation of LoggingManager class")
-    validate_logging = our_field_validator("logging", validate_manager, mode="before")
+    validate_logging = validator("logging", validate_manager, mode="before")
 
     workers: int = Field(
         1, description="Number of workers for parallel execution of workflows. Parameter does not affect ray clusters."
@@ -80,7 +80,7 @@ def build_schema_template(
     rec_flags: dict = dict(required_only=required_only, add_descriptions=add_descriptions)  # type is needed
 
     template: dict = {}
-    for name, field in schema.__fields__.items():
+    for name, field in schema.model_fields.items():
         if required_only and not field.required:
             continue
 

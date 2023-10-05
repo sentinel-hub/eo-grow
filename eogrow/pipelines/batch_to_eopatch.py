@@ -27,7 +27,7 @@ from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFe
 from ..tasks.common import LinearFunctionTask
 from ..types import ExecKwargs, PatchList
 from ..utils.filter import get_patches_with_missing_features
-from ..utils.validators import ensure_storage_key_presence, optional_field_validator, parse_dtype
+from ..utils.validators import ensure_storage_key_presence, optional_validator, parse_dtype
 
 
 class FeatureMappingSchema(BaseSchema):
@@ -42,7 +42,7 @@ class FeatureMappingSchema(BaseSchema):
     feature: Feature
     multiply_factor: float = Field(1, description="Factor used to multiply feature values with.")
     dtype: Optional[np.dtype] = Field(None, description="Dtype of the output feature.")
-    _parse_dtype = optional_field_validator("dtype", parse_dtype, mode="before")
+    _parse_dtype = optional_validator("dtype", parse_dtype, mode="before")
 
 
 class BatchToEOPatchPipeline(Pipeline):

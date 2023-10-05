@@ -7,14 +7,14 @@ from typing import Dict, Union
 import numpy as np
 
 from ..core.schemas import BaseSchema
-from .validators import optional_field_validator, parse_dtype
+from .validators import optional_validator, parse_dtype
 
 
 class MapParams(BaseSchema):
     mapping: Dict[int, int]
     default: Union[int, None]
     dtype: np.dtype
-    _parse_dtype = optional_field_validator("dtype", parse_dtype, mode="before")
+    _parse_dtype = optional_validator("dtype", parse_dtype, mode="before")
 
 
 def map_values(

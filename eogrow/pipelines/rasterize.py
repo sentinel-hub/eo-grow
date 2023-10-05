@@ -23,7 +23,7 @@ from ..core.schemas import BaseSchema
 from ..types import PatchList
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.fs import LocalFile
-from ..utils.validators import ensure_exactly_one_defined, ensure_storage_key_presence, our_field_validator, parse_dtype
+from ..utils.validators import ensure_exactly_one_defined, ensure_storage_key_presence, parse_dtype, validator
 from ..utils.vector import concat_gdf
 
 LOGGER = logging.getLogger(__name__)
@@ -72,7 +72,7 @@ class RasterizePipeline(Pipeline):
         _check_shape_resolution = ensure_exactly_one_defined("resolution", "raster_shape")
 
         dtype: np.dtype = Field(np.dtype("int32"), description="Numpy dtype of the output feature.")
-        _parse_dtype = our_field_validator("dtype", parse_dtype, mode="before")
+        _parse_dtype = validator("dtype", parse_dtype, mode="before")
 
         preprocess_dataset: Optional[Preprocessing] = Field(
             None, description="Parameters used by `self.preprocess_dataset` method. Skipped if set to `None`."

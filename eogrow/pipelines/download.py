@@ -34,11 +34,11 @@ from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import (
     ensure_exactly_one_defined,
     ensure_storage_key_presence,
-    optional_field_validator,
-    our_field_validator,
+    optional_validator,
     parse_data_collection,
     parse_dtype,
     parse_time_period,
+    validator,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -63,7 +63,7 @@ class RaySessionActor:
 class RescaleSchema(BaseSchema):
     rescale_factor: float = Field(1, description="Amount by which the selected features are multiplied")
     dtype: Optional[np.dtype] = Field(None, description="The output dtype of data")
-    _parse_dtype = optional_field_validator("dtype", parse_dtype, mode="before")
+    _parse_dtype = optional_validator("dtype", parse_dtype, mode="before")
     features_to_rescale: List[Feature]
 
 
@@ -202,7 +202,7 @@ class CommonDownloadFields(BaseSchema):
             " info on input options."
         )
     )
-    _validate_data_collection = our_field_validator("data_collection", parse_data_collection, mode="before")
+    _validate_data_collection = validator("data_collection", parse_data_collection, mode="before")
 
     resolution: Optional[float] = Field(
         None,
@@ -230,7 +230,7 @@ class CommonDownloadFields(BaseSchema):
 
 class TimeDependantFields(BaseSchema):
     time_period: TimePeriod
-    _validate_time_period = our_field_validator("time_period", parse_time_period, mode="before")
+    _validate_time_period = validator("time_period", parse_time_period, mode="before")
 
     time_difference: Optional[float] = Field(
         None, description="Time difference in minutes between consecutive time frames"

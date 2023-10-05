@@ -24,7 +24,7 @@ from ..utils.validators import (
     ensure_defined_together,
     ensure_exactly_one_defined,
     ensure_storage_key_presence,
-    optional_field_validator,
+    optional_validator,
     parse_data_collection,
 )
 from .export_maps import TIMESTAMP_FORMAT
@@ -43,18 +43,15 @@ class IngestByocTilesPipeline(Pipeline):
 
         new_collection_name: Optional[str] = Field(None, description="Used for defining a new BYOC collection.")
         existing_collection: Optional[DataCollection] = Field(None, description="Used when updating and reingesting.")
-        _parse_byoc_collection = optional_field_validator("existing_collection", parse_data_collection, mode="before")
+        _parse_byoc_collection = optional_validator("existing_collection", parse_data_collection, mode="before")
         _ensure_exclusion = ensure_exactly_one_defined("new_collection_name", "existing_collection")
 
         is_temporal: bool = Field(
             False,
             description=(
-                None,
-                (
-                    "If the BYOC is marked as temporal the pipeline will assume that the direct parent folder of a TIFF"
-                    " contains the sensing time, i.e. filesystem structure follows that used by `ExportMapsPipeline`."
-                    " Example of such a path is `UTM_32638/2019-01-04T07-48-37/BANDS_S2_L1C.tiff`."
-                ),
+                "If the BYOC is marked as temporal the pipeline will assume that the direct parent folder of a TIFF"
+                " contains the sensing time, i.e. filesystem structure follows that used by `ExportMapsPipeline`."
+                " Example of such a path is `UTM_32638/2019-01-04T07-48-37/BANDS_S2_L1C.tiff`."
             ),
         )
         sensing_time: Optional[datetime.datetime] = Field(

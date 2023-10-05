@@ -29,10 +29,10 @@ from ..core.schemas import BaseSchema
 from ..types import TimePeriod
 from ..utils.validators import (
     ensure_storage_key_presence,
-    optional_field_validator,
-    our_field_validator,
+    optional_validator,
     parse_data_collection,
     parse_time_period,
+    validator,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -47,10 +47,10 @@ class InputDataSchema(BaseSchema):
             " info on input options."
         )
     )
-    _validate_data_collection = our_field_validator("data_collection", parse_data_collection, mode="before")
+    _validate_data_collection = validator("data_collection", parse_data_collection, mode="before")
 
     time_period: Optional[TimePeriod] = None
-    _validate_time_period = optional_field_validator("time_period", parse_time_period, mode="before")
+    _validate_time_period = optional_validator("time_period", parse_time_period, mode="before")
 
     resampling_type: ResamplingType = Field(
         ResamplingType.NEAREST, description="A type of downsampling and upsampling used by Sentinel Hub service"

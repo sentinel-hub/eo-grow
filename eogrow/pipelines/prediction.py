@@ -18,7 +18,7 @@ from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import (
     ensure_defined_together,
     ensure_storage_key_presence,
-    optional_field_validator,
+    optional_validator,
     parse_dtype,
 )
 
@@ -46,7 +46,7 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         dtype: Optional[np.dtype] = Field(
             None, description="Casts the result to desired type. Uses predictor output type by default."
         )
-        _parse_dtype = optional_field_validator("dtype", parse_dtype, mode="before")
+        _parse_dtype = optional_validator("dtype", parse_dtype, mode="before")
 
         prediction_mask_feature_name: Optional[str] = Field(
             None, description="Name of `MASK_TIMELESS` feature which defines which areas will be predicted"
