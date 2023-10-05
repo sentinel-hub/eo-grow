@@ -50,7 +50,7 @@ dependencies = [
     "numpy",
     "opencv-python-headless",
     "pandas",
-    "pydantic>=1.8.0, <2.0",
+    "pydantic>=2.0",
     "python-rapidjson",
     "rasterio",
     "ray[default]",
