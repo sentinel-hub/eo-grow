@@ -7,10 +7,11 @@ as an internal class of the implemented pipeline class
 from __future__ import annotations
 
 from inspect import isclass
-from typing import List, Optional, Union
+from typing import List, Optional, Union, get_args, get_origin
 
 from pydantic import BaseModel, Field
 from pydantic.fields import FieldInfo
+from pydantic_core import PydanticUndefined
 
 from ..types import BoolOrAuto, ImportPath
 from ..utils.validators import validate_manager, validator
@@ -81,34 +82,50 @@ def build_schema_template(
 
     template: dict = {}
     for name, field in schema.model_fields.items():
-        if required_only and not field.required:
+        annotation = field.annotation
+        if annotation is None or (required_only and not field.is_required()):
             continue
 
-        description = field.field_info.description if add_descriptions else None
+        description = field.description if add_descriptions else None
+        nested_schemas = _get_nested_schemas(annotation)
 
         if name == "pipeline" and pipeline_import_path:
             template[name] = pipeline_import_path
-        elif isclass(field.type_) and issubclass(field.type_, BaseModel):
-            # Contains a subschema in the nesting
-            if isclass(field.outer_type_) and issubclass(field.outer_type_, BaseModel):
-                template[name] = build_schema_template(field.type_, **rec_flags)
-                if description:
-                    template[name]["<< description >>"] = description
-            else:
-                template[name] = {
-                    "<< type >>": repr(field._type_display()),
-                    "<< nested schema >>": str(field.type_),
-                    "<< sub-template >>": build_schema_template(field.type_, **rec_flags),
-                }
+        elif isclass(annotation) and issubclass(annotation, BaseModel):
+            template[name] = build_schema_template(annotation, **rec_flags)
+            if description:
+                template[name]["<< description >>"] = description
+        elif nested_schemas:
+            template[name] = {
+                "<< type >>": _prettify_annotation(annotation),
+                "<< sub-templates >>": {
+                    _prettify_annotation(sch): build_schema_template(sch, **rec_flags) for sch in nested_schemas
+                },
+            }
         else:
             template[name] = _field_description(field, description)
 
     return template
 
 
-# TODO: FIX TEMPLATES
 def _field_description(field: FieldInfo, description: str | None) -> str:
     description = f" // {description}" if description else ""
-    field_type = repr(field.annotation)
-    default = repr(field.default) + " : " if field.default else ""
-    return f"<< {default}{field_type}{description} >>"
+    default = repr(field.default) + " : " if field.default is not PydanticUndefined else ""
+    return f"<< {default}{_prettify_annotation(field.annotation)}{description} >>"
+
+
+def _get_nested_schemas(annotation: type) -> list[type[BaseModel]]:
+    if isclass(annotation) and issubclass(annotation, BaseModel):
+        return [annotation]
+    if get_origin(annotation) is None:
+        return []
+    return sum(map(_get_nested_schemas, get_args(annotation)), start=[])
+
+
+def _prettify_annotation(annotation: type | None) -> str | None:
+    if isclass(annotation):
+        module = "" if annotation.__module__ == "builtins" else annotation.__module__ + "."
+        type_name = f"{module}{annotation.__name__}"
+    else:
+        type_name = repr(annotation)
+    return type_name.replace("typing.", "").replace("NoneType", "None")
