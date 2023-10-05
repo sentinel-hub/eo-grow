@@ -34,10 +34,10 @@ def is_large_enough(value: int):
     return value
 
 
-def parse_float(value, values) -> Optional[float]:
-    """Extracts float from string and adds another field (to test `values` parameter as well)"""
+def parse_float(value, info) -> Optional[float]:
+    """Extracts float from string and adds another field (to test `info` parameter as well)"""
     if isinstance(value, str):
-        return float(value) + values.get("int_field", 0)
+        return float(value) + info.data.get("int_field", 0)
     return None
 
 
