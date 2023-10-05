@@ -26,7 +26,7 @@ class EOGrowObject:
     @classmethod
     def from_raw_config(cls: type[Self], config: RawConfig, *args: Any, **kwargs: Any) -> Self:
         """Creates an object from a dictionary by constructing a validated config and use it to create the object."""
-        validated_config = cls.Schema.parse_obj(config)
+        validated_config = cls.Schema.model_validate(config)
         return cls(validated_config, *args, **kwargs)
 
     @classmethod

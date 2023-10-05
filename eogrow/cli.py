@@ -205,7 +205,7 @@ def validate_config(config_path: str) -> None:
     """
     for config in collect_configs_from_path(config_path):
         raw_config = interpret_config_from_dict(config)
-        load_pipeline_class(config).Schema.parse_obj(raw_config)
+        load_pipeline_class(config).Schema.model_validate(raw_config)
 
     click.echo("Config validation succeeded!")
 

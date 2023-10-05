@@ -65,7 +65,7 @@ class Pipeline(EOGrowObject):
     @classmethod
     def from_raw_config(cls: type[Self], config: RawConfig, *args: Any, **kwargs: Any) -> Self:
         """Creates an object from a dictionary by constructing a validated config and use it to create the object."""
-        validated_config = cls.Schema.parse_obj(config)
+        validated_config = cls.Schema.model_validate(config)
         if "raw_config" not in kwargs:
             kwargs["raw_config"] = config
         return cls(validated_config, *args, **kwargs)

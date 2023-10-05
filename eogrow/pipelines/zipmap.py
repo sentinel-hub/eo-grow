@@ -59,7 +59,7 @@ class ZipMapPipeline(Pipeline):
             """Parse the parameters according to model, but returning as a dictionary to allow `**kwargs` passing."""
             if values.get("params_model"):
                 params_model: BaseSchema = import_object(values["params_model"])
-                return params_model.parse_obj(v).dict()
+                return params_model.model_validate(v).model_dump()
             return v
 
         output_folder_key: str = Field(
