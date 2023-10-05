@@ -46,7 +46,7 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
         dtype: Optional[np.dtype] = Field(
             None, description="Casts the result to desired type. Uses predictor output type by default."
         )
-        _parse_dtype = optional_field_validator("dtype", parse_dtype, pre=True)
+        _parse_dtype = optional_field_validator("dtype", parse_dtype, mode="before")
 
         prediction_mask_feature_name: Optional[str] = Field(
             None, description="Name of `MASK_TIMELESS` feature which defines which areas will be predicted"

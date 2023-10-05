@@ -14,7 +14,7 @@ class MapParams(BaseSchema):
     mapping: Dict[int, int]
     default: Union[int, None]
     dtype: np.dtype
-    _parse_dtype = optional_field_validator("dtype", parse_dtype, pre=True)
+    _parse_dtype = optional_field_validator("dtype", parse_dtype, mode="before")
 
 
 def map_values(

@@ -4,13 +4,13 @@ from __future__ import annotations
 import logging
 import os
 import uuid
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Optional, Tuple, Union
 
 import fiona
 import fs
 import geopandas as gpd
 import numpy as np
-from pydantic import Field, field_validator, validator
+from pydantic import Field, ValidationInfo, field_validator
 
 from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, FeatureType, LoadTask, OverwritePermission, SaveTask
 from eolearn.core.types import Feature
@@ -72,7 +72,7 @@ class RasterizePipeline(Pipeline):
         _check_shape_resolution = ensure_exactly_one_defined("resolution", "raster_shape")
 
         dtype: np.dtype = Field(np.dtype("int32"), description="Numpy dtype of the output feature.")
-        _parse_dtype = our_field_validator("dtype", parse_dtype, pre=True)
+        _parse_dtype = our_field_validator("dtype", parse_dtype, mode="before")
 
         preprocess_dataset: Optional[Preprocessing] = Field(
             None, description="Parameters used by `self.preprocess_dataset` method. Skipped if set to `None`."
@@ -99,13 +99,11 @@ class RasterizePipeline(Pipeline):
                 assert vector_input[0].is_vector(), "Only vector-like input features are allowed!"
             return vector_input
 
-        # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-        # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-        @validator("output_feature")
-        def _check_temporal_nature_match(cls, output_feature: Feature, values: Dict[str, Any]) -> Feature:
+        @field_validator("output_feature")
+        def _check_temporal_nature_match(cls, output_feature: Feature, info: ValidationInfo) -> Feature:
             assert output_feature[0].is_image(), "Only image-like output features are allowed!"
 
-            vector_input = values.get("vector_input")
+            vector_input = info.data.get("vector_input")
             if vector_input and not isinstance(vector_input, str):
                 assert (
                     vector_input[0].is_temporal() == output_feature[0].is_temporal()

@@ -36,13 +36,13 @@ class PipelineSchema(BaseSchema):
     )
 
     storage: ManagerSchema = Field(description="A schema of an implementation of StorageManager class")
-    validate_storage = our_field_validator("storage", validate_manager, pre=True)
+    validate_storage = our_field_validator("storage", validate_manager, mode="before")
 
     area: ManagerSchema = Field(description="A schema of an implementation of AreaManager class")
-    validate_area = our_field_validator("area", validate_manager, pre=True)
+    validate_area = our_field_validator("area", validate_manager, mode="before")
 
     logging: ManagerSchema = Field(description="A schema of an implementation of LoggingManager class")
-    validate_logging = our_field_validator("logging", validate_manager, pre=True)
+    validate_logging = our_field_validator("logging", validate_manager, mode="before")
 
     workers: int = Field(
         1, description="Number of workers for parallel execution of workflows. Parameter does not affect ray clusters."

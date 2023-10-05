@@ -8,7 +8,7 @@ import inspect
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Tuple, Union
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 
 from eolearn.core import FeatureType
 from eolearn.core.types import Feature
@@ -16,7 +16,7 @@ from eolearn.core.utils.parsing import parse_feature
 from sentinelhub import DataCollection
 from sentinelhub.data_collections_bands import Band, Bands, MetaBands, Unit
 
-from ..types import RawSchemaDict, TimePeriod
+from ..types import TimePeriod
 from .meta import collect_schema, import_object
 
 if TYPE_CHECKING:
@@ -25,14 +25,12 @@ if TYPE_CHECKING:
 # ruff: noqa: ARG001
 
 
-def our_field_validator(field: str, validator_fun: Callable, allow_reuse: bool = True, **kwargs: Any) -> classmethod:
+def our_field_validator(field: str, validator_fun: Callable, **kwargs: Any) -> classmethod:
     """Sugared syntax for the `validator` decorator of `pydantic`"""
-    return validator(field, allow_reuse=allow_reuse, **kwargs)(validator_fun)
+    return field_validator(field, **kwargs)(validator_fun)
 
 
-def optional_field_validator(
-    field: str, validator_fun: Callable, allow_reuse: bool = True, **kwargs: Any
-) -> classmethod:
+def optional_field_validator(field: str, validator_fun: Callable, **kwargs: Any) -> classmethod:
     """Wraps the validator functions so that `None` is always a valid input and only calls the validator on values.
 
     This allows re-use of validators e.g. if we have a validator for `Path` we can now use it for `Optional[Path]`.
@@ -43,17 +41,15 @@ def optional_field_validator(
     # In order to propagate the pydantic python magic we need a bit of python magic ourselves
     additional_args = inspect.getfullargspec(validator_fun).args[1:]
 
-    def optional_validator(value, values, config, field):  # type: ignore[no-untyped-def]
+    def optional_validator(value, info: ValidationInfo):  # type: ignore[no-untyped-def]
         if value is not None:
-            all_kwargs = {"values": values, "config": config, "field": field}
-            kwargs = {k: v for k, v in all_kwargs.items() if k in additional_args}
-            return validator_fun(value, **kwargs)
+            return validator_fun(value, info=info) if "info" in additional_args else validator_fun(value)
         return None
 
     optional_validator.__name__ = f"optional_{validator_fun.__name__}"  # used for docbuilding purposes
     # the correct way would be to use `functools.wraps` but this breaks pydantics python magic
 
-    return validator(field, allow_reuse=allow_reuse, **kwargs)(optional_validator)
+    return field_validator(field, **kwargs)(optional_validator)
 
 
 def ensure_exactly_one_defined(first_param: str, second_param: str, **kwargs: Any) -> classmethod:
@@ -62,8 +58,8 @@ def ensure_exactly_one_defined(first_param: str, second_param: str, **kwargs: An
     Make sure that the definition of `second_param` comes after `first_param˙ (in line-order).
     """
 
-    def ensure_exclusion(cls: type, value: Any | None, values: RawSchemaDict) -> Any | None:
-        is_param1_undefined = values.get(first_param) is None
+    def ensure_exclusion(cls: type, value: Any | None, info: ValidationInfo) -> Any | None:
+        is_param1_undefined = info.data.get(first_param) is None
         is_param2_undefined = value is None
         assert (
             is_param1_undefined != is_param2_undefined
@@ -82,8 +78,8 @@ def ensure_defined_together(first_param: str, second_param: str, **kwargs: Any) 
     Make sure that the definition of `second_param` comes after `first_param˙ (in line-order).
     """
 
-    def ensure_both(cls: type, value: Any | None, values: RawSchemaDict) -> Any | None:
-        is_param1_undefined = values.get(first_param) is None
+    def ensure_both(cls: type, value: Any | None, info: ValidationInfo) -> Any | None:
+        is_param1_undefined = info.data.get(first_param) is None
         is_param2_undefined = value is None
         assert (
             is_param1_undefined == is_param2_undefined
@@ -99,11 +95,11 @@ def ensure_defined_together(first_param: str, second_param: str, **kwargs: Any) 
 def ensure_storage_key_presence(key: str, **kwargs: Any) -> classmethod:
     """A field validator that makes sure that the specified storage key is present in the storage structure."""
 
-    def validate_storage_key(cls: type, key: str | None, values: RawSchemaDict) -> str | None:
+    def validate_storage_key(cls: type, key: str | None, info: ValidationInfo) -> str | None:
         if key is not None:
             predefined_keys = ["input_data", "logs", "cache"]
             assert (
-                key in values["storage"].structure or key in predefined_keys
+                key in info.data["storage"].structure or key in predefined_keys
             ), f"Couldn't find storage key {key!r} in the storage structure!"
 
         return key
@@ -168,13 +164,9 @@ class BandSchema(BaseModel):
     units: Tuple[Unit, ...]
     output_types: Tuple[type, ...]
 
-    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-    @validator("output_types", pre=True, each_item=True)
-    def _parse_output_types(cls, value: str) -> type:
-        if value == "bool":
-            return bool
-        return np.dtype(value).type
+    @field_validator("output_types", mode="before")
+    def _parse_output_types(cls, value: list[str]) -> tuple[type, ...]:
+        return tuple(bool if x == "bool" else np.dtype(x).type for x in value)
 
 
 class DataCollectionSchema(BaseModel):

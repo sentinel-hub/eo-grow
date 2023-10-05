@@ -183,7 +183,7 @@ def _calculate_numpy_file_stats(numpy_filename: str, config: StatCalcConfig) -> 
 
 
 def _calculate_vector_stats(dataframe: pd.DataFrame, config: StatCalcConfig) -> JsonDict:
-    """Calculates statistics over a vector GeoDataFrame"""  # TODO: add more statistical properties
+    """Calculates statistics over a vector GeoDataFrame"""
 
     def _rounder(x: float, y: float) -> tuple[float, float]:
         return round(x, config.decimals), round(y, config.decimals)

@@ -78,7 +78,7 @@ class RasterFeatureGenerationSchema(BaseSchema):
     feature: Feature = Field(description="Feature to be created.")
     shape: Tuple[int, ...] = Field(description="Shape of the feature")
     dtype: np.dtype = Field(description="The output dtype of the feature")
-    _parse_dtype = our_field_validator("dtype", parse_dtype, pre=True)
+    _parse_dtype = our_field_validator("dtype", parse_dtype, mode="before")
     distribution: Union[UniformDistributionSchema, NormalDistributionSchema] = Field(
         description="Choice of distribution for generating values.", discriminator="kind"
     )
@@ -86,7 +86,7 @@ class RasterFeatureGenerationSchema(BaseSchema):
 
 class TimestampGenerationSchema(BaseSchema):
     time_period: TimePeriod = Field(description="Time period from where timestamps will be generated.")
-    _validate_time_period = our_field_validator("time_period", parse_time_period, pre=True)
+    _validate_time_period = our_field_validator("time_period", parse_time_period, mode="before")
 
     num_timestamps: int = Field(description="Number of timestamps from the interval")
     same_for_all: bool = Field(True, description="Whether all EOPatches should have the same timestamps")

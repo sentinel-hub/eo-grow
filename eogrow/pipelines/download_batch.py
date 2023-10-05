@@ -47,10 +47,10 @@ class InputDataSchema(BaseSchema):
             " info on input options."
         )
     )
-    _validate_data_collection = our_field_validator("data_collection", parse_data_collection, pre=True)
+    _validate_data_collection = our_field_validator("data_collection", parse_data_collection, mode="before")
 
     time_period: Optional[TimePeriod] = None
-    _validate_time_period = optional_field_validator("time_period", parse_time_period, pre=True)
+    _validate_time_period = optional_field_validator("time_period", parse_time_period, mode="before")
 
     resampling_type: ResamplingType = Field(
         ResamplingType.NEAREST, description="A type of downsampling and upsampling used by Sentinel Hub service"

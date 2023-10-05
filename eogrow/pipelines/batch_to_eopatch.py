@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Any, List, Optional
 
 import numpy as np
-from pydantic import Field, validator
+from pydantic import Field, ValidationInfo, field_validator
 
 from eolearn.core import (
     CreateEOPatchTask,
@@ -25,7 +25,7 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.batch_to_eopatch import DeleteFilesTask, FixImportedTimeDependentFeatureTask, LoadUserDataTask
 from ..tasks.common import LinearFunctionTask
-from ..types import ExecKwargs, PatchList, RawSchemaDict
+from ..types import ExecKwargs, PatchList
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import ensure_storage_key_presence, optional_field_validator, parse_dtype
 
@@ -42,7 +42,7 @@ class FeatureMappingSchema(BaseSchema):
     feature: Feature
     multiply_factor: float = Field(1, description="Factor used to multiply feature values with.")
     dtype: Optional[np.dtype] = Field(None, description="Dtype of the output feature.")
-    _parse_dtype = optional_field_validator("dtype", parse_dtype, pre=True)
+    _parse_dtype = optional_field_validator("dtype", parse_dtype, mode="before")
 
 
 class BatchToEOPatchPipeline(Pipeline):
@@ -68,14 +68,12 @@ class BatchToEOPatchPipeline(Pipeline):
             description="A list of mapping from batch files into EOPatch features."
         )
 
-        # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
-        # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
-        @validator("mapping")
-        def check_nonempty_input(cls, value: list, values: RawSchemaDict) -> list:
+        @field_validator("mapping")
+        def check_nonempty_input(cls, value: list, info: ValidationInfo) -> list:
             if not value:
                 params = "userdata_feature_name", "userdata_timestamp_reader"
                 assert any(
-                    values.get(param) is not None for param in params
+                    info.data.get(param) is not None for param in params
                 ), "At least one of `userdata_feature_name`, `userdata_timestamp_reader`, or `mapping` has to be set."
             return value
 
