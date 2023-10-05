@@ -41,17 +41,20 @@ class IngestByocTilesPipeline(Pipeline):
 
         file_glob_pattern: str = Field("**/*.tiff", description="Pattern used to obtain the TIFF files to use")
 
-        new_collection_name: Optional[str] = Field(description="Used for defining a new BYOC collection.")
-        existing_collection: Optional[DataCollection] = Field(description="Used when updating and reingesting.")
+        new_collection_name: Optional[str] = Field(None, description="Used for defining a new BYOC collection.")
+        existing_collection: Optional[DataCollection] = Field(None, description="Used when updating and reingesting.")
         _parse_byoc_collection = optional_field_validator("existing_collection", parse_data_collection, pre=True)
         _ensure_exclusion = ensure_exactly_one_defined("new_collection_name", "existing_collection")
 
         is_temporal: bool = Field(
             False,
             description=(
-                "If the BYOC is marked as temporal the pipeline will assume that the direct parent folder of a TIFF"
-                " contains the sensing time, i.e. filesystem structure follows that used by `ExportMapsPipeline`."
-                " Example of such a path is `UTM_32638/2019-01-04T07-48-37/BANDS_S2_L1C.tiff`."
+                None,
+                (
+                    "If the BYOC is marked as temporal the pipeline will assume that the direct parent folder of a TIFF"
+                    " contains the sensing time, i.e. filesystem structure follows that used by `ExportMapsPipeline`."
+                    " Example of such a path is `UTM_32638/2019-01-04T07-48-37/BANDS_S2_L1C.tiff`."
+                ),
             ),
         )
         sensing_time: Optional[datetime.datetime] = Field(
@@ -69,10 +72,14 @@ class IngestByocTilesPipeline(Pipeline):
                 return datetime.datetime.fromisoformat(value)
             raise AssertionError("Sensing time should be set for timeless BYOC collections.")
 
-        cover_geometry_folder_key: Optional[str] = Field(description="Folder for supplying a custom cover geometry.")
+        cover_geometry_folder_key: Optional[str] = Field(
+            None, description="Folder for supplying a custom cover geometry."
+        )
         _ensure_cover_geometry_folder_key = ensure_storage_key_presence("cover_geometry_folder_key")
 
-        cover_geometry: Optional[str] = Field(description="Specifies a geometry file describing the cover geometry.")
+        cover_geometry: Optional[str] = Field(
+            None, description="Specifies a geometry file describing the cover geometry."
+        )
         _ensure_cover_geometry = ensure_defined_together("cover_geometry_folder_key", "cover_geometry")
 
         reingest_existing: bool = Field(False, description="Whether to reingest or skip already ingested tiles.")

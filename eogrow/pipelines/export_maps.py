@@ -54,12 +54,12 @@ class ExportMapsPipeline(Pipeline):
         _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
 
         feature: Feature
-        map_name: Optional[str] = Field(pattern=r".+\." + MimeType.TIFF.extension + r"?\b")
+        map_name: Optional[str] = Field(None, pattern=r".+\." + MimeType.TIFF.extension + r"?\b")
         map_dtype: Literal["int8", "int16", "uint8", "uint16", "float32"]
-        no_data_value: Optional[float] = Field(description="No data value to be passed to GeoTIFFs")
-        scale_factor: Optional[float] = Field(description="Feature will be multiplied by this value at export")
+        no_data_value: Optional[float] = Field(None, description="No data value to be passed to GeoTIFFs")
+        scale_factor: Optional[float] = Field(None, description="Feature will be multiplied by this value at export")
         band_indices: Optional[List[int]] = Field(
-            description="A list of band indices to be exported for the export feature. Default is all bands"
+            None, description="A list of band indices to be exported for the export feature. Default is all bands"
         )
         warp_resampling: WarpResamplingOptions = Field(
             None, description="The resampling method used when warping, useful for pixel misalignment"
@@ -95,10 +95,11 @@ class ExportMapsPipeline(Pipeline):
         )
         skip_existing: Literal[False] = False
         merge_workers: Optional[int] = Field(
+            None,
             description=(
                 "How many workers are used to parallelize merging of TIFFs. Uses all cores (of head node) by default."
                 "Decreasing this should help with memory and disk-space issues."
-            )
+            ),
         )
 
     config: Schema

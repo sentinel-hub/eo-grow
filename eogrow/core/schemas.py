@@ -24,15 +24,15 @@ BaseSchema = EOGrowObject.Schema
 class ManagerSchema(BaseSchema):
     """A basic schema for managers, to be used as a parent class for defining manager schemas"""
 
-    manager: Optional[ImportPath] = Field(description="An import path to this specific manager.")
+    manager: Optional[ImportPath] = Field(None, description="An import path to this specific manager.")
 
 
 class PipelineSchema(BaseSchema):
     """Base schema of the Pipeline class."""
 
-    pipeline: Optional[ImportPath] = Field(description="Import path to an implementation of Pipeline class.")
+    pipeline: Optional[ImportPath] = Field(None, description="Import path to an implementation of Pipeline class.")
     pipeline_name: Optional[str] = Field(
-        description="Custom pipeline name for easier identification in logs. By default the class name is used."
+        None, description="Custom pipeline name for easier identification in logs. By default the class name is used."
     )
 
     storage: ManagerSchema = Field(description="A schema of an implementation of StorageManager class")
@@ -56,10 +56,11 @@ class PipelineSchema(BaseSchema):
     )
 
     test_subset: Optional[List[Union[int, str]]] = Field(
+        None,
         description=(
             "A list of EOPatch indices and/or names for which the pipeline is executed. Used for testing, can be set"
             " through CLI with the -t flag."
-        )
+        ),
     )
     skip_existing: bool = Field(
         False,

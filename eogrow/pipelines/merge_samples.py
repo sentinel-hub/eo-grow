@@ -35,10 +35,11 @@ class MergeSamplesPipeline(Pipeline):
             description="Dictionary of all features for which samples are to be merged."
         )
         id_filename: Optional[str] = Field(
+            None,
             description=(
                 "Filename of array holding patch ID of concatenated features. The patch ID is the index of the patch in"
                 " the final patch list, any filtration of the patch list will impact the results."
-            )
+            ),
         )
         suffix: str = Field("", description="String to append to array filenames")
         workers: int = Field(1, description="Number of threads used to load data from EOPatches in parallel.")

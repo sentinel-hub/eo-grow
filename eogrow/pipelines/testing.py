@@ -104,9 +104,9 @@ class GenerateDataPipeline(Pipeline):
         features: List[RasterFeatureGenerationSchema] = Field(
             default_factory=list, description="A specification for features to be generated."
         )
-        timestamps: Optional[TimestampGenerationSchema]
+        timestamps: Optional[TimestampGenerationSchema] = None
         meta_info: Optional[dict] = Field(
-            description="Information to be stored into the meta-info fields of each EOPatch."
+            None, description="Information to be stored into the meta-info fields of each EOPatch."
         )
 
     config: Schema

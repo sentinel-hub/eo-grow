@@ -41,11 +41,12 @@ class ZipMapPipeline(Pipeline):
             description="Import path of the callable with which to process the loaded features."
         )
         params_model: Optional[str] = Field(
+            None,
             description=(
                 "Optional import path for the pydantic model class, with which to parse and validate the parameters for"
                 " the callable. The model will be used to parse the params and then unpacked back into a dictionary, "
                 " which is passed to the callable as `**params`."
-            )
+            ),
         )
         params: Dict[str, Any] = Field(
             default_factory=dict, description="Any keyword arguments to be passed to the zipmap function."

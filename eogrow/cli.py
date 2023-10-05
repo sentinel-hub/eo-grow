@@ -1,10 +1,11 @@
 """Implements the command line interface for `eo-grow`."""
+from __future__ import annotations
+
 import json
 import os
 import re
 import subprocess
 from tempfile import NamedTemporaryFile
-from typing import Optional, Tuple
 
 import click
 
@@ -41,7 +42,7 @@ test_patches_option = click.option(
 @click.argument("config_path", type=click.Path())
 @variables_option
 @test_patches_option
-def run_pipeline(config_path: str, cli_variables: Tuple[str, ...], test_patches: Tuple[int, ...]) -> None:
+def run_pipeline(config_path: str, cli_variables: tuple[str, ...], test_patches: tuple[int, ...]) -> None:
     """Execute eo-grow pipeline using CLI.
 
     \b
@@ -84,8 +85,8 @@ def run_pipeline_on_cluster(
     cluster_yaml: str,
     start_cluster: bool,
     use_tmux: bool,
-    cli_variables: Tuple[str, ...],
-    test_patches: Tuple[int, ...],
+    cli_variables: tuple[str, ...],
+    test_patches: tuple[int, ...],
 ) -> None:
     """Command for running an eo-grow pipeline on a remote Ray cluster of AWS EC2 instances. The provided config is
     fully constructed and uploaded to the cluster head in the `~/.synced_configs/` directory, where it is then
@@ -155,7 +156,7 @@ def run_pipeline_on_cluster(
 )
 def make_template(
     import_path: str,
-    template_path: Optional[str],
+    template_path: str | None,
     force_override: bool,
     template_format: str,
     required_only: bool,
@@ -225,7 +226,7 @@ def run_test_pipeline(config_path: str) -> None:
         pipeline.run()
 
 
-def _parse_cli_variable(mapping_str: str) -> Tuple[str, str]:
+def _parse_cli_variable(mapping_str: str) -> tuple[str, str]:
     """Checks that the input is of shape `name:value` and then splits it into a tuple"""
     match = re.match(r"(?P<name>.+?):(?P<value>.+)", mapping_str)
     if match is None:

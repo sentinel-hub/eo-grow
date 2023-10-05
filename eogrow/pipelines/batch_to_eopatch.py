@@ -41,7 +41,7 @@ class FeatureMappingSchema(BaseSchema):
     )
     feature: Feature
     multiply_factor: float = Field(1, description="Factor used to multiply feature values with.")
-    dtype: Optional[np.dtype] = Field(description="Dtype of the output feature.")
+    dtype: Optional[np.dtype] = Field(None, description="Dtype of the output feature.")
     _parse_dtype = optional_field_validator("dtype", parse_dtype, pre=True)
 
 
@@ -53,9 +53,10 @@ class BatchToEOPatchPipeline(Pipeline):
         _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
 
         userdata_feature_name: Optional[str] = Field(
-            description="A name of META_INFO feature in which userdata.json would be stored."
+            None, description="A name of META_INFO feature in which userdata.json would be stored."
         )
         userdata_timestamp_reader: Optional[str] = Field(
+            None,
             description=(
                 "Either an import path to a utility function or a Python code describing how to read "
                 "dates from userdata dictionary."

@@ -35,7 +35,7 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
 
     class Schema(ManagerSchema):
         patch_names: Optional[PatchListSchema] = Field(
-            description="Names of EOPatches to keep when filtering in the `get_grid` method."
+            None, description="Names of EOPatches to keep when filtering in the `get_grid` method."
         )
 
     config: Schema

@@ -45,12 +45,12 @@ LOGGER = logging.getLogger(__name__)
 
 class ValidityFiltering(BaseSchema):
     cloud_mask_feature_name: Optional[str] = Field(
-        description="Name of cloud mask to enable additional filtering by cloud"
+        None, description="Name of cloud mask to enable additional filtering by cloud"
     )
     valid_data_feature_name: str = Field(description="Name of the valid-data mask to use for filtering.")
 
     validity_threshold: Optional[float] = Field(
-        description="Threshold to remove frames with valid data lower than threshold"
+        None, description="Threshold to remove frames with valid data lower than threshold"
     )
 
 
@@ -79,7 +79,9 @@ class FeaturesPipeline(Pipeline):
             ),
         )
 
-        dtype: Optional[np.dtype] = Field(description="The dtype under which the concatenated features should be saved")
+        dtype: Optional[np.dtype] = Field(
+            None, description="The dtype under which the concatenated features should be saved"
+        )
         _parse_dtype = optional_field_validator("dtype", parse_dtype, pre=True)
         output_feature_name: str = Field(description="Name of output data feature encompassing bands and NDIs")
 
@@ -192,11 +194,12 @@ class MosaickingSpecifications(BaseSchema):
     n_mosaics: int
 
     max_ndi_indices: Optional[Tuple[int, int]] = Field(
+        None,
         description=(
             "When omitted uses median value mosaicking. If set, uses max NDI mosaicking for the NDI of the bands at"
             " specified indices. For example, to use max NDVI when using all 13 bands of L1C set parameter to `[7, 3]`"
             " (uses B08 and B04)"
-        )
+        ),
     )
 
 

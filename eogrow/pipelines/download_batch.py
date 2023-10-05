@@ -49,14 +49,16 @@ class InputDataSchema(BaseSchema):
     )
     _validate_data_collection = our_field_validator("data_collection", parse_data_collection, pre=True)
 
-    time_period: Optional[TimePeriod]
+    time_period: Optional[TimePeriod] = None
     _validate_time_period = optional_field_validator("time_period", parse_time_period, pre=True)
 
     resampling_type: ResamplingType = Field(
         ResamplingType.NEAREST, description="A type of downsampling and upsampling used by Sentinel Hub service"
     )
-    maxcc: Optional[float] = Field(ge=0, le=1, description="Maximal cloud coverage filter.")
-    mosaicking_order: Optional[MosaickingOrder] = Field(description="The mosaicking order used by Sentinel Hub service")
+    maxcc: Optional[float] = Field(None, ge=0, le=1, description="Maximal cloud coverage filter.")
+    mosaicking_order: Optional[MosaickingOrder] = Field(
+        None, description="The mosaicking order used by Sentinel Hub service"
+    )
     other_params: dict = Field(
         default_factory=dict,
         description=(
