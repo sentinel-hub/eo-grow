@@ -51,6 +51,7 @@ dependencies = [
     "opencv-python-headless",
     "pandas",
     "pydantic>=2.0",
+    "pydantic-settings",
     "python-rapidjson",
     "rasterio",
     "ray[default]",
