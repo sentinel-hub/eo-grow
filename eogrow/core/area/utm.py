@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
-from typing import Optional
 
 import fs
 import geopandas as gpd
@@ -13,9 +12,8 @@ from pydantic import Field
 
 from sentinelhub import CRS, Geometry, UtmZoneSplitter
 
-from ...utils.validators import field_validator
 from ..schemas import BaseSchema
-from .base import AreaSchema, BaseAreaManager, area_schema_deprecation, get_geometry_from_file
+from .base import BaseAreaManager, get_geometry_from_file
 
 LOGGER = logging.getLogger(__name__)
 
@@ -31,16 +29,13 @@ class UtmZoneAreaManager(BaseAreaManager):
     """Area manager that splits the area per UTM zone"""
 
     class Schema(BaseAreaManager.Schema):
-        area: Optional[AreaSchema] = Field(description="DEPRECATED, use `geometry_filename` instead.")
-        geometry_filename: str = Field(  # type:ignore[assignment]
-            None, description="Name of the file that defines the AoI geometry, located in the input data folder."
+        geometry_filename: str = Field(
+            description="Name of the file that defines the AoI geometry, located in the input data folder."
         )
         patch: PatchSchema
 
         offset_x: float = Field(0, description="An offset of tiling grid in horizontal dimension")
         offset_y: float = Field(0, description="An offset of tiling grid in vertical dimension")
-
-        _warn_and_adapt_old_config = field_validator("geometry_filename", area_schema_deprecation, pre=True)
 
     config: Schema
 

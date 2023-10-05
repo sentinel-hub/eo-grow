@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import logging
-import warnings
 from abc import ABCMeta, abstractmethod
 from typing import Literal, Optional
 
@@ -12,10 +11,9 @@ import geopandas as gpd
 import shapely.ops
 from pydantic import Field
 
-from eolearn.core.exceptions import EODeprecationWarning
 from sentinelhub import CRS, BBox, Geometry
 
-from ...types import PatchList, RawSchemaDict
+from ...types import PatchList
 from ...utils.eopatch_list import load_names
 from ...utils.fs import LocalFile
 from ..base import EOGrowObject
@@ -23,31 +21,6 @@ from ..schemas import BaseSchema, ManagerSchema
 from ..storage import StorageManager
 
 LOGGER = logging.getLogger(__name__)
-
-
-class AreaSchema(BaseSchema):
-    filename: str
-    buffer: Optional[float] = Field(
-        description="Buffer that will be applied to AOI geometry. Buffer has to be in the same units as AOI CRS.",
-    )
-    simplification_factor: Optional[float] = Field(
-        description="Tolerance factor (in CRS units) for simplifying the buffered area geometry before splitting it.",
-    )
-
-
-def area_schema_deprecation(cls: type, value: str | None, values: RawSchemaDict) -> str:  # noqa: ARG001
-    """Warns and reconfigures when `area` is used instead of `geometry_filename`."""
-    if values.get("area") is not None:
-        warnings.warn(
-            "Use `geometry_filename` to provide the file (e.g., geojson, gpkg) with AoI. The `area` parameter is"
-            " deprecated, and extra parameters like `buffer` and `simplification_factor` are no longer available;"
-            " users should prepare the AoI geometry by themselves.",
-            EODeprecationWarning,
-            stacklevel=2,
-        )
-        return values["area"].filename
-    assert value is not None, "Specify the `geometry_filename` parameter."
-    return value
 
 
 class PatchListSchema(BaseSchema):

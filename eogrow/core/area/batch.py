@@ -12,9 +12,8 @@ from pydantic import Field
 
 from sentinelhub import CRS, BatchRequest, BatchRequestStatus, BatchSplitter, Geometry, SentinelHubBatch
 
-from ...utils.validators import field_validator
 from ..storage import StorageManager
-from .base import AreaSchema, BaseAreaManager, area_schema_deprecation, get_geometry_from_file
+from .base import BaseAreaManager, get_geometry_from_file
 
 LOGGER = logging.getLogger(__name__)
 
@@ -27,9 +26,8 @@ class BatchAreaManager(BaseAreaManager):
     """Area manager that splits the area according to the Sentinel Hub Batch tiling grids."""
 
     class Schema(BaseAreaManager.Schema):
-        area: Optional[AreaSchema] = Field(description="DEPRECATED, use `geometry_filename` instead.")
-        geometry_filename: str = Field(  # type:ignore[assignment]
-            None, description="Name of the file that defines the AoI geometry, located in the input data folder."
+        geometry_filename: str = Field(
+            description="Name of the file that defines the AoI geometry, located in the input data folder."
         )
         tiling_grid_id: int = Field(
             description="An id of one of the tiling grids predefined at Sentinel Hub Batch service."
@@ -48,8 +46,6 @@ class BatchAreaManager(BaseAreaManager):
                 " which generates a new batch job with the given AOI parameters."
             ),
         )
-
-        _warn_and_adapt_old_config = field_validator("geometry_filename", area_schema_deprecation, pre=True)
 
     config: Schema
 
