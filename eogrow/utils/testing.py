@@ -26,6 +26,7 @@ from ..core.config import collect_configs_from_path, interpret_config_from_dict
 from ..core.pipeline import Pipeline
 from ..types import JsonDict
 from ..utils.eopatch_list import load_names
+from ..utils.general import jsonify
 from ..utils.meta import load_pipeline_class
 
 
@@ -56,7 +57,8 @@ def compare_with_saved(stats: JsonDict, filename: str) -> DeepDiff:
     with open(filename) as file:
         expected_stats = json.load(file)
 
-    return DeepDiff(expected_stats, stats)
+    jsonified_stats = json.loads(json.dumps(stats, indent=2, sort_keys=True, default=jsonify))
+    return DeepDiff(expected_stats, jsonified_stats)
 
 
 def save_statistics(stats: JsonDict, filename: str) -> None:
@@ -67,7 +69,7 @@ def save_statistics(stats: JsonDict, filename: str) -> None:
     """
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, "w") as file:
-        json.dump(stats, file, indent=2, sort_keys=True)
+        json.dump(stats, file, indent=2, sort_keys=True, default=jsonify)
 
 
 def calculate_statistics(folder: str, config: StatCalcConfig) -> JsonDict:
@@ -172,26 +174,29 @@ def _calculate_tiff_stats(tiff_filename: str, config: StatCalcConfig) -> JsonDic
         }
 
 
-def _calculate_vector_stats(dataframe: gpd.GeoDataFrame, config: StatCalcConfig) -> JsonDict:
+def _calculate_vector_stats(gdf: gpd.GeoDataFrame, config: StatCalcConfig) -> JsonDict:
     """Calculates statistics over a vector GeoDataFrame"""  # TODO: add more statistical properties
 
     def _rounder(x: float, y: float) -> tuple[float, float]:
         return round(x, config.decimals), round(y, config.decimals)
 
-    dataframe.geometry = dataframe.geometry.apply(lambda geometry: shapely.ops.transform(_rounder, geometry))
+    gdf.geometry = gdf.geometry.apply(lambda geometry: shapely.ops.transform(_rounder, geometry))
 
     stats = {
-        "columns": list(dataframe),
-        "row_count": len(dataframe.index),
-        "crs": str(dataframe.crs),
-        "mean_area": _prepare_value(dataframe.area.mean(), config),
-        "total_bounds": list(dataframe.total_bounds),
+        "columns": list(gdf),
+        "row_count": len(gdf),
+        "crs": str(gdf.crs),
+        "mean_area": _prepare_value(gdf.area.mean(), config),
+        "total_bounds": list(gdf.total_bounds),
     }
 
-    if len(dataframe.index):
-        rng = np.random.default_rng(0)
-        random_rows = np.unique(rng.integers(0, len(dataframe), config.num_random_values))
-        stats["random_rows"] = {str(row): list(map(str, dataframe.iloc[row])) for row in random_rows}
+    if len(gdf):
+        subsample: gpd.GeoDataFrame = gdf.sample(min(len(gdf), config.num_random_values), random_state=42)
+        subsample["centroid"] = subsample.centroid.apply(lambda point: _rounder(*point.coords[0]))
+        subsample["area"] = subsample.area.apply(lambda x: _prepare_value(x, config))
+        subsample["some_coords"] = subsample.geometry.apply(lambda geom: geom.exterior.coords[:10])
+
+        stats["random_rows"] = subsample.drop("geometry", axis=1).to_dict("index")
 
     return stats
 
