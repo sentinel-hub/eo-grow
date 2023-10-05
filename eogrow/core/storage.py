@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Any, ClassVar, Dict, Literal, Optional
 
 import fs
-from pydantic import Field
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 import sentinelhub
@@ -27,7 +27,7 @@ class StorageManager(EOGrowObject):
         )
         aws_profile: Optional[str] = Field(
             None,
-            validation_alias="AWS_PROFILE",
+            alias=AliasChoices("aws_profile", "AWS_PROFILE"),
             description=(
                 "The AWS profile with credentials needed to access the S3 buckets. In case the profile isn't specified"
                 " with a parameter it can be read from an environmental variable."
@@ -45,7 +45,7 @@ class StorageManager(EOGrowObject):
         )
         use_zarr: bool = Field(False, description="Whether to use the Zarr backend for EOPatch IO.")
 
-        model_config = SettingsConfigDict(case_sensitive=True, env_prefix="eogrow_", **ManagerSchema.model_config)
+        model_config = SettingsConfigDict(env_prefix="eogrow_", **ManagerSchema.model_config)
 
     config: Schema
 
