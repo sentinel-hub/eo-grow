@@ -53,7 +53,7 @@ class SplitGridPipeline(Pipeline):
         _ensure_grid_output_folder_key = ensure_storage_key_presence("grid_output_folder_key")
 
         subsplit_grid_filename: str = Field(
-            description="Filename of new grid, which can be used in `CustomAreaManager`.", regex=r"^.+\.gpkg$"
+            description="Filename of new grid, which can be used in `CustomAreaManager`.", pattern=r"^.+\.gpkg$"
         )
         features: List[Feature] = Field(description="Which features will be loaded and adapted to new grid.")
         raise_misaligned: bool = Field(

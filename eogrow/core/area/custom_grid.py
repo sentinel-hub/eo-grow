@@ -26,7 +26,7 @@ class CustomGridAreaManager(BaseAreaManager):
                 "A Geopackage with a collection of bounding boxes and attributes that define EOPatches. If bounding"
                 " boxes are in multiple CRS then each Geopackage layer should contain bounding boxes from one CRS."
             ),
-            regex=r"^.+\..+$",
+            pattern=r"^.+\..+$",
         )
         name_column: str = Field(description="Name of the column containing EOPatch names.")
 

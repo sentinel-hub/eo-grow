@@ -29,8 +29,8 @@ from ..core.schemas import BaseSchema
 from ..types import TimePeriod
 from ..utils.validators import (
     ensure_storage_key_presence,
-    field_validator,
     optional_field_validator,
+    our_field_validator,
     parse_data_collection,
     parse_time_period,
 )
@@ -47,7 +47,7 @@ class InputDataSchema(BaseSchema):
             " info on input options."
         )
     )
-    _validate_data_collection = field_validator("data_collection", parse_data_collection, pre=True)
+    _validate_data_collection = our_field_validator("data_collection", parse_data_collection, pre=True)
 
     time_period: Optional[TimePeriod]
     _validate_time_period = optional_field_validator("time_period", parse_time_period, pre=True)

@@ -58,6 +58,8 @@ class IngestByocTilesPipeline(Pipeline):
             None, description="Sensing time (ISO format) added to BYOC tiles. Only used for timeless collections."
         )
 
+        # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+        # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
         @validator("sensing_time", pre=True)
         def _parse_sensing_time(cls, value: Optional[str], values: Dict[str, object]) -> Optional[datetime.datetime]:
             is_temporal = values["is_temporal"]

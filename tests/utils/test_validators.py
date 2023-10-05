@@ -18,8 +18,8 @@ from eogrow.utils.validators import (
     ensure_defined_together,
     ensure_exactly_one_defined,
     ensure_storage_key_presence,
-    field_validator,
     optional_field_validator,
+    our_field_validator,
     parse_data_collection,
     parse_dtype,
     parse_time_period,
@@ -43,16 +43,16 @@ def parse_float(value, values) -> Optional[float]:
 
 class DummySchema(BaseSchema):
     int_field: int
-    _check_int_field = field_validator("int_field", is_large_enough)
+    _check_int_field = our_field_validator("int_field", is_large_enough)
 
     opt_int_field: Optional[int]
     _check_opt_int_field = optional_field_validator("opt_int_field", is_large_enough)
 
     field_to_parse: float = "3"  # Defaults also go through parsers!
-    _parse_field = field_validator("field_to_parse", parse_float, pre=True)
+    _parse_field = our_field_validator("field_to_parse", parse_float, pre=True)
 
     opt_field_to_parse: Optional[float]
-    _parse_opt_field = field_validator("opt_field_to_parse", parse_float, pre=True)
+    _parse_opt_field = our_field_validator("opt_field_to_parse", parse_float, pre=True)
     _check_opt_field = optional_field_validator("opt_field_to_parse", is_large_enough)  # multiple validators
 
 
@@ -191,7 +191,7 @@ def test_parse_time_period(time_period, year, expected_start_date, expected_end_
 def test_parse_dtype(dtype_input: Union[str, type, np.dtype]):
     class DtypeSchema(BaseSchema):
         dtype: np.dtype
-        _parse_dtype = field_validator("dtype", parse_dtype, pre=True)
+        _parse_dtype = our_field_validator("dtype", parse_dtype, pre=True)
 
     schema = DtypeSchema(dtype=dtype_input)
     assert isinstance(schema.dtype, np.dtype)
@@ -241,7 +241,7 @@ def test_parse_dtype(dtype_input: Union[str, type, np.dtype]):
 def test_validate_manager(manager_input: RawSchemaDict, succeeds: bool):
     class SchemaWithManager(BaseSchema):
         manager: ManagerSchema
-        validate_manager = field_validator("manager", validate_manager, pre=True)
+        validate_manager = our_field_validator("manager", validate_manager, pre=True)
 
     with nullcontext() if succeeds else pytest.raises(ValidationError):
         SchemaWithManager(manager=manager_input)
@@ -259,7 +259,7 @@ def test_validate_manager(manager_input: RawSchemaDict, succeeds: bool):
 def test_parse_collection_from_string(collection_input: str, is_byoc: bool, is_batch: bool):
     class CollectionSchema(BaseSchema):
         collection: DataCollection
-        _parse_collection = field_validator("collection", parse_data_collection, pre=True)
+        _parse_collection = our_field_validator("collection", parse_data_collection, pre=True)
 
     schema = CollectionSchema(collection=collection_input)
     assert isinstance(schema.collection, DataCollection)
@@ -271,7 +271,7 @@ def test_parse_collection_from_string(collection_input: str, is_byoc: bool, is_b
 def test_parse_collection_from_dict():
     class CollectionSchema(BaseSchema):
         collection: DataCollection
-        _parse_collection = field_validator("collection", parse_data_collection, pre=True)
+        _parse_collection = our_field_validator("collection", parse_data_collection, pre=True)
 
     raw_schema = {
         "name": "test",
@@ -305,7 +305,7 @@ def test_parse_collection_from_dict():
 
 class DummyFeatureSchema(BaseSchema):
     temporal_feature: Feature
-    _check_temporal_feature = field_validator(
+    _check_temporal_feature = our_field_validator(
         "temporal_feature", restrict_types([ftype for ftype in FeatureType if ftype.is_temporal()])
     )
 

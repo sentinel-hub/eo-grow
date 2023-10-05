@@ -34,8 +34,8 @@ from ..types import PatchList, TimePeriod
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import (
     ensure_storage_key_presence,
-    field_validator,
     optional_field_validator,
+    our_field_validator,
     parse_dtype,
     parse_time_period,
 )
@@ -188,7 +188,7 @@ class FeaturesPipeline(Pipeline):
 
 class MosaickingSpecifications(BaseSchema):
     time_period: TimePeriod
-    _parse_time_period = field_validator("time_period", parse_time_period, pre=True)
+    _parse_time_period = our_field_validator("time_period", parse_time_period, pre=True)
     n_mosaics: int
 
     max_ndi_indices: Optional[Tuple[int, int]] = Field(

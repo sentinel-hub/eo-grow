@@ -25,7 +25,7 @@ LOGGER = logging.getLogger(__name__)
 
 class PatchListSchema(BaseSchema):
     input_folder_key: str = Field(description="The storage manager key pointing to the folder containing the file.")
-    filename: str = Field(description="A JSON file containing a list of EOPatch names.", regex=r"^.+\.(json|JSON)$")
+    filename: str = Field(description="A JSON file containing a list of EOPatch names.", pattern=r"^.+\.(json|JSON)$")
 
 
 class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):

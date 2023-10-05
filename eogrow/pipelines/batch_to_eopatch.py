@@ -60,13 +60,15 @@ class BatchToEOPatchPipeline(Pipeline):
                 "Either an import path to a utility function or a Python code describing how to read "
                 "dates from userdata dictionary."
             ),
-            example="\"[info['date'] for info in json.loads(userdata['metadata'])]\"",
+            examples=["\"[info['date'] for info in json.loads(userdata['metadata'])]\""],
         )
 
         mapping: List[FeatureMappingSchema] = Field(
             description="A list of mapping from batch files into EOPatch features."
         )
 
+        # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+        # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
         @validator("mapping")
         def check_nonempty_input(cls, value: list, values: RawSchemaDict) -> list:
             if not value:

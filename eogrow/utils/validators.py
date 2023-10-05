@@ -8,7 +8,7 @@ import inspect
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Tuple, Union
 
 import numpy as np
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, validator
 
 from eolearn.core import FeatureType
 from eolearn.core.types import Feature
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 # ruff: noqa: ARG001
 
 
-def field_validator(field: str, validator_fun: Callable, allow_reuse: bool = True, **kwargs: Any) -> classmethod:
+def our_field_validator(field: str, validator_fun: Callable, allow_reuse: bool = True, **kwargs: Any) -> classmethod:
     """Sugared syntax for the `validator` decorator of `pydantic`"""
     return validator(field, allow_reuse=allow_reuse, **kwargs)(validator_fun)
 
@@ -73,7 +73,7 @@ def ensure_exactly_one_defined(first_param: str, second_param: str, **kwargs: An
 
     ensure_exclusion.__name__ = f"cannot_be_used_with_{first_param}"  # used for docbuilding purposes
 
-    return field_validator(second_param, ensure_exclusion, **kwargs)
+    return our_field_validator(second_param, ensure_exclusion, **kwargs)
 
 
 def ensure_defined_together(first_param: str, second_param: str, **kwargs: Any) -> classmethod:
@@ -93,7 +93,7 @@ def ensure_defined_together(first_param: str, second_param: str, **kwargs: Any) 
 
     ensure_both.__name__ = f"must_be_used_with_{first_param}"  # used for docbuilding purposes
 
-    return field_validator(second_param, ensure_both, **kwargs)
+    return our_field_validator(second_param, ensure_both, **kwargs)
 
 
 def ensure_storage_key_presence(key: str, **kwargs: Any) -> classmethod:
@@ -108,7 +108,7 @@ def ensure_storage_key_presence(key: str, **kwargs: Any) -> classmethod:
 
         return key
 
-    return field_validator(key, validate_storage_key, **kwargs)
+    return our_field_validator(key, validate_storage_key, **kwargs)
 
 
 def parse_time_period(value: tuple[str, str]) -> TimePeriod:
@@ -168,6 +168,8 @@ class BandSchema(BaseModel):
     units: Tuple[Unit, ...]
     output_types: Tuple[type, ...]
 
+    # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+    # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
     @validator("output_types", pre=True, each_item=True)
     def _parse_output_types(cls, value: str) -> type:
         if value == "bool":
@@ -188,10 +190,7 @@ class DataCollectionSchema(BaseModel):
     metabands: Union[None, str, Tuple[BandSchema, ...]] = Field(
         None, description="Name of predefined collection in `MetaBands` or custom specification via `BandSchema`."
     )
-
-    class Config:
-        extra = "allow"  # in order to pass on arbitrary parameters but keep definition shorter
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True, validate_default=True, frozen=True)
 
 
 def _bands_parser(

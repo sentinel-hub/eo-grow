@@ -10,10 +10,10 @@ from inspect import isclass
 from typing import List, Optional, Union
 
 from pydantic import BaseModel, Field
-from pydantic.fields import ModelField
+from pydantic.fields import FieldInfo
 
 from ..types import BoolOrAuto, ImportPath
-from ..utils.validators import field_validator, validate_manager
+from ..utils.validators import our_field_validator, validate_manager
 from .base import EOGrowObject
 
 # ruff: noqa: SLF001
@@ -36,13 +36,13 @@ class PipelineSchema(BaseSchema):
     )
 
     storage: ManagerSchema = Field(description="A schema of an implementation of StorageManager class")
-    validate_storage = field_validator("storage", validate_manager, pre=True)
+    validate_storage = our_field_validator("storage", validate_manager, pre=True)
 
     area: ManagerSchema = Field(description="A schema of an implementation of AreaManager class")
-    validate_area = field_validator("area", validate_manager, pre=True)
+    validate_area = our_field_validator("area", validate_manager, pre=True)
 
     logging: ManagerSchema = Field(description="A schema of an implementation of LoggingManager class")
-    validate_logging = field_validator("logging", validate_manager, pre=True)
+    validate_logging = our_field_validator("logging", validate_manager, pre=True)
 
     workers: int = Field(
         1, description="Number of workers for parallel execution of workflows. Parameter does not affect ray clusters."
@@ -105,8 +105,9 @@ def build_schema_template(
     return template
 
 
-def _field_description(field: ModelField, description: str | None) -> str:
+# TODO: FIX TEMPLATES
+def _field_description(field: FieldInfo, description: str | None) -> str:
     description = f" // {description}" if description else ""
-    field_type = repr(field._type_display())
+    field_type = repr(field.annotation)
     default = repr(field.default) + " : " if field.default else ""
     return f"<< {default}{field_type}{description} >>"

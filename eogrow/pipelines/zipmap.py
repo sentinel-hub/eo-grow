@@ -51,6 +51,8 @@ class ZipMapPipeline(Pipeline):
             default_factory=dict, description="Any keyword arguments to be passed to the zipmap function."
         )
 
+        # TODO[pydantic]: We couldn't refactor the `validator`, please replace it by `field_validator` manually.
+        # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-validators for more information.
         @validator("params")
         def parse_params(cls, v: dict[str, Any], values: dict[str, Any]) -> dict[str, Any]:
             """Parse the parameters according to model, but returning as a dictionary to allow `**kwargs` passing."""

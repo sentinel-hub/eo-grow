@@ -34,8 +34,8 @@ from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import (
     ensure_exactly_one_defined,
     ensure_storage_key_presence,
-    field_validator,
     optional_field_validator,
+    our_field_validator,
     parse_data_collection,
     parse_dtype,
     parse_time_period,
@@ -199,7 +199,7 @@ class CommonDownloadFields(BaseSchema):
             " info on input options."
         )
     )
-    _validate_data_collection = field_validator("data_collection", parse_data_collection, pre=True)
+    _validate_data_collection = our_field_validator("data_collection", parse_data_collection, pre=True)
 
     resolution: Optional[float] = Field(
         description=(
@@ -225,7 +225,7 @@ class CommonDownloadFields(BaseSchema):
 
 class TimeDependantFields(BaseSchema):
     time_period: TimePeriod
-    _validate_time_period = field_validator("time_period", parse_time_period, pre=True)
+    _validate_time_period = our_field_validator("time_period", parse_time_period, pre=True)
 
     time_difference: Optional[float] = Field(description="Time difference in minutes between consecutive time frames")
 

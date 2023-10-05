@@ -54,7 +54,7 @@ class ExportMapsPipeline(Pipeline):
         _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
 
         feature: Feature
-        map_name: Optional[str] = Field(regex=r".+\." + MimeType.TIFF.extension + r"?\b")
+        map_name: Optional[str] = Field(pattern=r".+\." + MimeType.TIFF.extension + r"?\b")
         map_dtype: Literal["int8", "int16", "uint8", "uint16", "float32"]
         no_data_value: Optional[float] = Field(description="No data value to be passed to GeoTIFFs")
         scale_factor: Optional[float] = Field(description="Feature will be multiplied by this value at export")

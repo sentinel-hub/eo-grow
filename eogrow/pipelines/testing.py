@@ -5,7 +5,7 @@ import logging
 from typing import List, Literal, Optional, Tuple, TypeVar, Union
 
 import numpy as np
-from pydantic import Field
+from pydantic import ConfigDict, Field
 
 from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, OverwritePermission, SaveTask
 from eolearn.core.types import Feature
@@ -20,7 +20,7 @@ from ..tasks.testing import (
     UniformDistribution,
 )
 from ..types import ExecKwargs, PatchList, TimePeriod
-from ..utils.validators import ensure_storage_key_presence, field_validator, parse_dtype, parse_time_period
+from ..utils.validators import ensure_storage_key_presence, our_field_validator, parse_dtype, parse_time_period
 
 Self = TypeVar("Self", bound="TestPipeline")
 LOGGER = logging.getLogger(__name__)
@@ -32,8 +32,7 @@ class TestPipeline(Pipeline):
     """
 
     class Schema(Pipeline.Schema):
-        class Config:
-            extra = "allow"
+        model_config = ConfigDict(extra="allow")
 
     _DEFAULT_CONFIG_PARAMS = {  # noqa: RUF012
         "pipeline": "eogrow.pipelines.testing.TestPipeline",
@@ -79,7 +78,7 @@ class RasterFeatureGenerationSchema(BaseSchema):
     feature: Feature = Field(description="Feature to be created.")
     shape: Tuple[int, ...] = Field(description="Shape of the feature")
     dtype: np.dtype = Field(description="The output dtype of the feature")
-    _parse_dtype = field_validator("dtype", parse_dtype, pre=True)
+    _parse_dtype = our_field_validator("dtype", parse_dtype, pre=True)
     distribution: Union[UniformDistributionSchema, NormalDistributionSchema] = Field(
         description="Choice of distribution for generating values.", discriminator="kind"
     )
@@ -87,7 +86,7 @@ class RasterFeatureGenerationSchema(BaseSchema):
 
 class TimestampGenerationSchema(BaseSchema):
     time_period: TimePeriod = Field(description="Time period from where timestamps will be generated.")
-    _validate_time_period = field_validator("time_period", parse_time_period, pre=True)
+    _validate_time_period = our_field_validator("time_period", parse_time_period, pre=True)
 
     num_timestamps: int = Field(description="Number of timestamps from the interval")
     same_for_all: bool = Field(True, description="Whether all EOPatches should have the same timestamps")
