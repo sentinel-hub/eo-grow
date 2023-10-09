@@ -196,7 +196,7 @@ def _calculate_vector_stats(gdf: gpd.GeoDataFrame, config: StatCalcConfig) -> Js
         subsample["area"] = subsample.area.apply(lambda x: _prepare_value(x, config))
         subsample["some_coords"] = subsample.geometry.apply(lambda geom: geom.exterior.coords[:10])
 
-        stats["random_rows"] = subsample.drop("geometry", axis=1).to_dict("index")
+        stats["random_rows"] = subsample.drop(columns="geometry").to_dict("index")
 
     return stats
 
