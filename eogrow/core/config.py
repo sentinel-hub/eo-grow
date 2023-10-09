@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import copy
-import os
 import re
 from functools import reduce
 from typing import Any, Callable, NewType, cast
@@ -11,8 +10,6 @@ import fs.path
 import rapidjson
 
 from eolearn.core.utils.fs import get_base_filesystem_and_path, get_full_path, join_path
-
-from ..utils.meta import get_os_import_path
 
 CrudeConfig = NewType("CrudeConfig", dict)
 RawConfig = NewType("RawConfig", dict)
@@ -92,11 +89,8 @@ def interpret_config_from_dict(config: CrudeConfig, external_variables: dict[str
     `eo-grow/documentation/config-language.md`.
     """
     _recursive_check_config(config)
-    config_with_imports = _recursive_apply_to_strings(config, _resolve_import_paths)
-    if not isinstance(config_with_imports, dict):
-        raise ValueError(f"Interpretation resulted in object of type {type(config)} but a dictionary was expected.")
-    config = cast(CrudeConfig, config_with_imports)
 
+    config = cast(CrudeConfig, config.copy())
     variable_mapping = config.pop("variables", {})
     if external_variables:
         variable_mapping.update(external_variables)
@@ -131,21 +125,6 @@ def _resolve_config_paths(config_str: str, config_path: str) -> str:
     if new_config_str != config_str:
         return join_path(new_config_str)
     return new_config_str
-
-
-def _resolve_import_paths(config_str: str) -> str:
-    """Replaces `${import_path:package.module}` with an actual local path"""
-    new_config_str = re.sub(r"\${import_path:([\w.]+)}", _sub_import_path, config_str)
-
-    if new_config_str != config_str:
-        return join_path(new_config_str)
-    return new_config_str
-
-
-def _sub_import_path(match: re.Match) -> str:
-    """Substitutes a regex match with a local file path to a module or a package"""
-    import_module = match.group(1)
-    return os.path.dirname(get_os_import_path(import_module))
 
 
 def _resolve_variables(config_str: str, variable_mapping: dict[str, str]) -> str:
