@@ -13,7 +13,7 @@
         "random_rows": {
           "0": {
             "CROP_TYPE": "barley",
-            "TIMESTAMP": "2016-11-01T00:00:00",
+            "TIMESTAMP": "2016-11-01T00:00:00.000",
             "area": 4337.3922,
             "centroid": [
               729945.81624,
@@ -44,7 +44,7 @@
           },
           "1": {
             "CROP_TYPE": "barley",
-            "TIMESTAMP": "2016-11-05T00:00:00",
+            "TIMESTAMP": "2016-11-05T00:00:00.000",
             "area": 17927.22685,
             "centroid": [
               729811.46529,
@@ -98,7 +98,7 @@
         "random_rows": {
           "0": {
             "CROP_TYPE": "barley",
-            "TIMESTAMP": "2016-11-03T00:00:00",
+            "TIMESTAMP": "2016-11-03T00:00:00.000",
             "area": 4701.4661,
             "centroid": [
               729969.6,
@@ -129,7 +129,7 @@
           },
           "1": {
             "CROP_TYPE": "barley",
-            "TIMESTAMP": "2016-11-01T00:00:00",
+            "TIMESTAMP": "2016-11-01T00:00:00.000",
             "area": 9480.00341,
             "centroid": [
               729862.71052,

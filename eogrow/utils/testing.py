@@ -57,8 +57,7 @@ def compare_with_saved(stats: JsonDict, filename: str) -> DeepDiff:
     with open(filename) as file:
         expected_stats = json.load(file)
 
-    jsonified_stats = json.loads(json.dumps(stats, indent=2, sort_keys=True, default=jsonify))
-    return DeepDiff(expected_stats, jsonified_stats)
+    return DeepDiff(expected_stats, stats)
 
 
 def save_statistics(stats: JsonDict, filename: str) -> None:
@@ -196,7 +195,8 @@ def _calculate_vector_stats(gdf: gpd.GeoDataFrame, config: StatCalcConfig) -> Js
         subsample["area"] = subsample.area.apply(lambda x: _prepare_value(x, config))
         subsample["some_coords"] = subsample.geometry.apply(lambda geom: geom.exterior.coords[:10])
 
-        stats["random_rows"] = subsample.drop(columns="geometry").to_dict("index")
+        subsample_json_string = subsample.drop(columns="geometry").to_json(orient="index", date_format="iso")
+        stats["random_rows"] = json.loads(subsample_json_string)
 
     return stats
 
