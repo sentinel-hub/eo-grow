@@ -1,5 +1,4 @@
 import datetime as dt
-import os
 
 import pytest
 
@@ -9,7 +8,6 @@ from eogrow.core.schemas import BaseSchema
 from eogrow.core.storage import StorageManager
 from eogrow.utils.meta import (
     collect_schema,
-    get_os_import_path,
     get_package_versions,
     import_object,
     load_pipeline_class,
@@ -50,22 +48,6 @@ def test_import_object_from_wrong_module():
 def test_import_object_with_wrong_name():
     with pytest.raises(ImportError):
         import_object("datetime.xyz")
-
-
-def test_get_os_import_path_from_3rd_party():
-    path = get_os_import_path("eogrow")
-    assert path.endswith("__init__.py")
-    assert os.path.dirname(path).endswith("eogrow")
-
-
-def test_get_os_import_path_from_std_lib():
-    path = get_os_import_path("datetime")
-    assert path.endswith("datetime.py")
-
-
-def test_get_os_import_path_from_non_existing():
-    with pytest.raises(ValueError):
-        get_os_import_path("package-that-doesnt-exist!")
 
 
 def test_get_package_versions():
