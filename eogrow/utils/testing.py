@@ -197,14 +197,12 @@ def _calculate_basic_stats(values: np.ndarray) -> dict[str, float]:
     """Randomly samples a small amount of points from the array (10% by default) to recalculate the statistics.
     This introduces a 'positional instability' so that accidental mirroring or re-orderings are detected."""
 
-    float_precision = np.float32 if np.issubdtype(values.dtype, np.float32) else np.float64
-    # TODO: is this overcomplicating it? should we just slap float32 on mean, median, std?
     return {
         "min": _prepare_value(np.min(values), values.dtype),
         "max": _prepare_value(np.max(values), values.dtype),
-        "mean": _prepare_value(np.mean(values), float_precision),
-        "median": _prepare_value(np.median(values), float_precision),
-        "std": _prepare_value(np.std(values), float_precision),
+        "mean": _prepare_value(np.mean(values), np.float32),
+        "median": _prepare_value(np.median(values), np.float32),
+        "std": _prepare_value(np.std(values), np.float32),
     }
 
 
@@ -287,7 +285,7 @@ def compare_content(
     folder_path: str | None,
     stats_path: str,
     *,
-    save_new_stats: bool = True,
+    save_new_stats: bool = False,
 ) -> None:
     """Compares the results from a pipeline run with the saved statistics. Constructed to be coupled with `run_config`
     hence the `Optional` input.
