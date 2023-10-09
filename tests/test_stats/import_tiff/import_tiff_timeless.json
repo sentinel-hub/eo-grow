@@ -10,10 +10,10 @@
         ],
         "basic_stats": {
           "max": 9999,
-          "mean": 4997.66466,
+          "mean": 4997.66,
           "median": 4994.0,
           "min": 0,
-          "std": 2886.14615
+          "std": 2886.15
         },
         "counts": {
           "infinite": 0,
@@ -55,10 +55,10 @@
         ],
         "subsample_basic_stats": {
           "max": 9999,
-          "mean": 4984.97891,
+          "mean": 4984.98,
           "median": 4960.0,
           "min": 0,
-          "std": 2892.02759
+          "std": 2892.03
         }
       }
     }
@@ -74,10 +74,10 @@
         ],
         "basic_stats": {
           "max": 9999,
-          "mean": 950.32857,
+          "mean": 950.329,
           "median": 100.0,
           "min": 0,
-          "std": 2210.76487
+          "std": 2210.76
         },
         "counts": {
           "infinite": 0,
@@ -119,10 +119,10 @@
         ],
         "subsample_basic_stats": {
           "max": 9999,
-          "mean": 941.26241,
+          "mean": 941.262,
           "median": 100.0,
           "min": 0,
-          "std": 2198.24215
+          "std": 2198.24
         }
       }
     }
