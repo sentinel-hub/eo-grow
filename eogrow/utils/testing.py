@@ -213,7 +213,7 @@ def _get_random_values(raster: np.ndarray, config: StatCalcConfig) -> list[float
     """It randomly samples a few values from the array and marks their locations."""
     rng = np.random.default_rng(0)
     values = raster[np.isfinite(raster)]
-    return rng.choice(values.ravel(), config.num_random_values).tolist()
+    return [_prepare_value(x, config) for x in rng.choice(values.ravel(), config.num_random_values)]
 
 
 def _prepare_value(value: Any, config: StatCalcConfig) -> Any:
