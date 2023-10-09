@@ -166,7 +166,7 @@ def _calculate_tiff_stats(tiff_filename: str, config: StatCalcConfig) -> JsonDic
 
 
 def _calculate_vector_stats(gdf: gpd.GeoDataFrame, config: StatCalcConfig) -> JsonDict:
-    """Calculates statistics over a vector GeoDataFrame"""  # TODO: add more statistical properties
+    """Calculates statistics over a vector GeoDataFrame"""
 
     def _rounder(x: float, y: float) -> tuple[float, float]:
         return _prepare_value(x, np.float64), _prepare_value(y, np.float64)
