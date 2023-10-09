@@ -5,6 +5,7 @@ import logging
 from collections import defaultdict
 from typing import Any, List, Literal, Optional
 
+import fs
 from pydantic import Field
 
 from sentinelhub import (
@@ -77,6 +78,11 @@ class BatchDownloadPipeline(Pipeline):
         _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
 
         inputs: List[InputDataSchema]
+
+        evalscript_folder_key: str = Field(
+            "input_data", description="Storage manager key pointing to the path where the evalscript is loaded from."
+        )
+        _ensure_evalscript_folder_key = ensure_storage_key_presence("evalscript_folder_key")
         evalscript_path: str
 
         tiff_outputs: List[str] = Field(default_factory=list, description="Names of TIFF outputs of a batch job")
@@ -192,8 +198,15 @@ class BatchDownloadPipeline(Pipeline):
         if self.config.save_userdata:
             responses.append(SentinelHubRequest.output_response("userdata", MimeType.JSON))
 
+        evalscript_path = fs.path.join(
+            self.storage.get_folder(self.config.evalscript_folder_key), self.config.evalscript_path
+        )
+        with self.storage.filesystem.open(evalscript_path) as evalscript_file:
+            evalscript = evalscript_file.read()
+        evalscript = (read_data(self.config.evalscript_path, data_format=MimeType.TXT),)
+
         sentinelhub_request = SentinelHubRequest(
-            evalscript=read_data(self.config.evalscript_path, data_format=MimeType.TXT),
+            evalscript=evalscript,
             input_data=[
                 SentinelHubRequest.input_data(
                     data_collection=input_config.data_collection,

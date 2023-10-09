@@ -7,6 +7,7 @@ import logging
 from contextlib import nullcontext
 from typing import Any, Callable, List, Optional, Tuple
 
+import fs
 import numpy as np
 import ray
 from pydantic import Field
@@ -17,12 +18,10 @@ from eolearn.io import SentinelHubDemTask, SentinelHubEvalscriptTask, SentinelHu
 from sentinelhub import (
     Band,
     DataCollection,
-    MimeType,
     MosaickingOrder,
     ResamplingType,
     SentinelHubSession,
     Unit,
-    read_data,
 )
 from sentinelhub.download import SessionSharing, collect_shared_session
 
@@ -290,6 +289,10 @@ class DownloadEvalscriptPipeline(BaseDownloadPipeline):
 
     class Schema(BaseDownloadPipeline.Schema, CommonDownloadFields, TimeDependantFields):
         features: List[Feature] = Field(description="Features to construct from the evalscript")
+        evalscript_folder_key: str = Field(
+            "input_data", description="Storage manager key pointing to the path where the evalscript is loaded from."
+        )
+        _ensure_evalscript_folder_key = ensure_storage_key_presence("evalscript_folder_key")
         evalscript_path: str
 
     config: Schema
@@ -298,7 +301,12 @@ class DownloadEvalscriptPipeline(BaseDownloadPipeline):
         return self.config.features
 
     def _get_download_node(self, session_loader: SessionLoaderType) -> EONode:
-        evalscript = read_data(self.config.evalscript_path, data_format=MimeType.TXT)
+        evalscript_path = fs.path.join(
+            self.storage.get_folder(self.config.evalscript_folder_key), self.config.evalscript_path
+        )
+        with self.storage.filesystem.open(evalscript_path) as evalscript_file:
+            evalscript = evalscript_file.read()
+
         time_diff = None if self.config.time_difference is None else dt.timedelta(minutes=self.config.time_difference)
 
         download_task = SentinelHubEvalscriptTask(
