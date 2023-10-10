@@ -7,7 +7,7 @@ import json
 import os
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, Callable, Iterable, cast
+from typing import Any, Iterable, cast
 
 import fs
 import geopandas as gpd
@@ -32,19 +32,9 @@ from ..utils.meta import load_pipeline_class
 
 @dataclass(frozen=True)
 class StatCalcConfig:
-    decimals: int = 5
     unique_values_limit: int = 8
     histogram_bin_num: int = 8
     num_random_values: int = 8
-
-
-_STATS_OPERATIONS: dict[str, Callable] = {
-    "min": np.min,
-    "max": np.max,
-    "mean": np.mean,
-    "median": np.median,
-    "std": np.std,
-}
 
 
 def compare_with_saved(stats: JsonDict, filename: str) -> DeepDiff:
@@ -135,7 +125,7 @@ def _calculate_numpy_stats(raster: np.ndarray, config: StatCalcConfig) -> JsonDi
     if unique_values.size <= config.unique_values_limit:
         values, counts = np.unique(raster, return_counts=True)
         stats["values"] = [
-            {"value": _prepare_value(value, config), "count": int(count)} for value, count in zip(values, counts)
+            {"value": _prepare_value(value, raster.dtype), "count": int(count)} for value, count in zip(values, counts)
         ]
 
     else:
@@ -146,16 +136,18 @@ def _calculate_numpy_stats(raster: np.ndarray, config: StatCalcConfig) -> JsonDi
             "nan": raster.size - number_values.size,
             "infinite": number_values.size - finite_values.size,
         }
-        stats["basic_stats"] = {
-            name: _prepare_value(operation(finite_values), config) for name, operation in _STATS_OPERATIONS.items()
-        }
+        stats["basic_stats"] = _calculate_basic_stats(finite_values)
 
-        stats["subsample_basic_stats"] = _calculate_subsample_stats(finite_values, config=config)
+        # Randomly samples a small amount of points from the array (10% by default) to recalculate the statistics.
+        # This introduces a 'positional instability' so that accidental mirroring or re-orderings are detected.
+        rng = np.random.default_rng(0)
+        subsample = rng.choice(finite_values, int(finite_values.size * 0.1))
+        stats["subsample_basic_stats"] = _calculate_basic_stats(subsample)
 
         counts, edges = np.histogram(finite_values, bins=config.histogram_bin_num)
         stats["histogram"] = {
             "counts": counts.astype(int).tolist(),
-            "edges": [_prepare_value(x, config) for x in edges],
+            "edges": [_prepare_value(x, edges.dtype) for x in edges],  # type: ignore[arg-type]
         }
 
     if unique_values.size > 1:
@@ -174,10 +166,10 @@ def _calculate_tiff_stats(tiff_filename: str, config: StatCalcConfig) -> JsonDic
 
 
 def _calculate_vector_stats(gdf: gpd.GeoDataFrame, config: StatCalcConfig) -> JsonDict:
-    """Calculates statistics over a vector GeoDataFrame"""  # TODO: add more statistical properties
+    """Calculates statistics over a vector GeoDataFrame"""
 
     def _rounder(x: float, y: float) -> tuple[float, float]:
-        return round(x, config.decimals), round(y, config.decimals)
+        return _prepare_value(x, np.float64), _prepare_value(y, np.float64)
 
     gdf.geometry = gdf.geometry.apply(lambda geometry: shapely.ops.transform(_rounder, geometry))
 
@@ -185,14 +177,14 @@ def _calculate_vector_stats(gdf: gpd.GeoDataFrame, config: StatCalcConfig) -> Js
         "columns": list(gdf),
         "row_count": len(gdf),
         "crs": str(gdf.crs),
-        "mean_area": _prepare_value(gdf.area.mean(), config),
+        "mean_area": _prepare_value(gdf.area.mean(), np.float64),
         "total_bounds": list(gdf.total_bounds),
     }
 
     if len(gdf):
         subsample: gpd.GeoDataFrame = gdf.sample(min(len(gdf), config.num_random_values), random_state=42)
         subsample["centroid"] = subsample.centroid.apply(lambda point: _rounder(*point.coords[0]))
-        subsample["area"] = subsample.area.apply(lambda x: _prepare_value(x, config))
+        subsample["area"] = subsample.area.apply(lambda x: _prepare_value(x, np.float64))
         subsample["some_coords"] = subsample.geometry.apply(lambda geom: geom.exterior.coords[:10])
 
         subsample_json_string = subsample.drop(columns="geometry").to_json(orient="index", date_format="iso")
@@ -201,34 +193,39 @@ def _calculate_vector_stats(gdf: gpd.GeoDataFrame, config: StatCalcConfig) -> Js
     return stats
 
 
-def _calculate_subsample_stats(values: np.ndarray, *, amount: float = 0.1, config: StatCalcConfig) -> dict[str, float]:
+def _calculate_basic_stats(values: np.ndarray) -> dict[str, float]:
     """Randomly samples a small amount of points from the array (10% by default) to recalculate the statistics.
     This introduces a 'positional instability' so that accidental mirroring or re-orderings are detected."""
-    rng = np.random.default_rng(0)
-    subsample = rng.choice(values, int(values.size * amount))
-    return {name: _prepare_value(operation(subsample), config) for name, operation in _STATS_OPERATIONS.items()}
+
+    return {
+        "min": _prepare_value(np.min(values), values.dtype),
+        "max": _prepare_value(np.max(values), values.dtype),
+        "mean": _prepare_value(np.mean(values), np.float32),
+        "median": _prepare_value(np.median(values), np.float32),
+        "std": _prepare_value(np.std(values), np.float32),
+    }
 
 
 def _get_random_values(raster: np.ndarray, config: StatCalcConfig) -> list[float]:
     """It randomly samples a few values from the array and marks their locations."""
     rng = np.random.default_rng(0)
     values = raster[np.isfinite(raster)]
-    return rng.choice(values.ravel(), config.num_random_values).tolist()
+    return [_prepare_value(x, values.dtype) for x in rng.choice(values.ravel(), config.num_random_values)]
 
 
-def _prepare_value(value: Any, config: StatCalcConfig) -> Any:
+def _prepare_value(value: Any, dtype: type) -> Any:
     """Converts a value in a way that it can be compared and serialized into a JSON. It also rounds float values."""
     if not np.isscalar(value):
         return value
     if not np.isfinite(value):
         return repr(value)
-    if np.issubdtype(type(value), np.integer):
+    if np.issubdtype(dtype, np.integer):
         value = cast(int, value)
         return int(value)
-    if np.issubdtype(type(value), bool):
+    if np.issubdtype(dtype, bool):
         return bool(value)
     value = cast(float, value)
-    return round(float(value), config.decimals)
+    return float(f"{value:.5e}" if np.issubdtype(dtype, np.float32) else f"{value:.10e}")
 
 
 def check_pipeline_logs(pipeline: Pipeline) -> None:
