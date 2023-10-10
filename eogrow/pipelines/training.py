@@ -248,6 +248,10 @@ class ClassificationTrainingPipeline(BaseTrainingPipeline):
 class RegressionTrainingPipeline(BaseTrainingPipeline):
     """A base pipeline for training an ML regressor. Uses LGBMRegressor by default."""
 
+    class Schema(BaseTrainingPipeline.Schema): ...  # needed for auto-docs
+
+    config: Schema
+
     def train_model(self, prepared_data: dict) -> object:
         train_features = prepared_data["features_train"]
         train_reference = prepared_data["reference_train"]
