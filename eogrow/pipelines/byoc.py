@@ -182,17 +182,18 @@ class IngestByocTilesPipeline(Pipeline):
                 # reingest or skip existing
                 if self.config.reingest_existing:
                     response = byoc_client.reingest_tile(byoc_collection, existing_tiles[tile_folder])
-                    LOGGER.info(f"Reingested tile for {tile_folder}{f'with response: {response}' if response else ''}.")
+                    msg = f"Reingested tile for {tile_folder}{f' with response: {response}' if response else ''}."
+                    LOGGER.info(msg)
                 else:
-                    LOGGER.info(f"Tile {tile_folder} already exists, skipping.")
+                    LOGGER.info("Tile %s already exists, skipping.", tile_folder)
             else:
                 tile = self._prepare_tile(tile_folder, tiff_paths)
                 if tile is None:
-                    LOGGER.info(f"Intersection of tile {tile_folder} with cover geometry is empty, skipping.")
+                    LOGGER.info("Intersection of tile %s with cover geometry is empty, skipping.", tile_folder)
                     continue
                 response = byoc_client.create_tile(byoc_collection, tile)
                 if "errors" in response:
-                    LOGGER.info(f"Creation of tile {tile_folder} failed with response: {response}.")
-                LOGGER.info(f"Created tile for {tile_folder}.")
+                    LOGGER.info("Creation of tile %s failed with response: %s.", tile_folder, response)
+                LOGGER.info("Created tile for %s.", tile_folder)
 
         return [], []
