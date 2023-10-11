@@ -256,6 +256,7 @@ def run_config(
     *,
     output_folder_key: str | None = None,
     reset_output_folder: bool = True,
+    check_logs: bool = True,
 ) -> str | None:
     """Runs a pipeline (or multiple) and checks the logs that all the executions were successful. Returns the full path
     of the output folder (if there is one) so it can be inspected further. In case of chain configs, the output folder
@@ -281,7 +282,8 @@ def run_config(
 
         pipeline.run()
 
-        check_pipeline_logs(pipeline)
+        if check_logs:
+            check_pipeline_logs(pipeline)
 
     return pipeline.storage.get_folder(output_folder_key, full_path=True) if output_folder_key else None
 
