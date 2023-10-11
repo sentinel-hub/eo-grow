@@ -13,10 +13,10 @@ import fs
 import geopandas as gpd
 import numpy as np
 import rasterio
-import shapely.ops
 from deepdiff import DeepDiff
 from fs.base import FS
 from fs.osfs import OSFS
+from shapely import MultiPolygon, Point, Polygon
 
 from eolearn.core import EOPatch, FeatureType
 from eolearn.core.eodata_io import get_filesystem_data_info
@@ -168,10 +168,14 @@ def _calculate_tiff_stats(tiff_filename: str, config: StatCalcConfig) -> JsonDic
 def _calculate_vector_stats(gdf: gpd.GeoDataFrame, config: StatCalcConfig) -> JsonDict:
     """Calculates statistics over a vector GeoDataFrame"""
 
-    def _rounder(x: float, y: float) -> tuple[float, float]:
+    def _rounder(coords: tuple[float, float] | Point) -> tuple[float, float]:
+        x, y = (coords.x, coords.y) if isinstance(coords, Point) else coords
         return _prepare_value(x, np.float64), _prepare_value(y, np.float64)
 
-    gdf.geometry = gdf.geometry.apply(lambda geometry: shapely.ops.transform(_rounder, geometry))
+    def _get_coords_sample(geom: Polygon | MultiPolygon | Any) -> list[tuple[float, float]] | None:
+        if isinstance(geom, MultiPolygon):
+            return _get_coords_sample(geom.geoms[0])
+        return [_rounder(point) for point in geom.exterior.coords[:10]] if isinstance(geom, Polygon) else None
 
     stats = {
         "columns": list(gdf),
@@ -183,9 +187,10 @@ def _calculate_vector_stats(gdf: gpd.GeoDataFrame, config: StatCalcConfig) -> Js
 
     if len(gdf):
         subsample: gpd.GeoDataFrame = gdf.sample(min(len(gdf), config.num_random_values), random_state=42)
-        subsample["centroid"] = subsample.centroid.apply(lambda point: _rounder(*point.coords[0]))
-        subsample["area"] = subsample.area.apply(lambda x: _prepare_value(x, np.float64))
-        subsample["some_coords"] = subsample.geometry.apply(lambda geom: geom.exterior.coords[:10])
+        subsample["centroid"] = subsample.centroid.apply(_rounder)
+        subsample["area"] = subsample.area.apply(_prepare_value, dtype=np.float64)
+        subsample["geometry_type"] = subsample.geometry.geom_type
+        subsample["some_coords"] = subsample.geometry.apply(_get_coords_sample)
 
         subsample_json_string = subsample.drop(columns="geometry").to_json(orient="index", date_format="iso")
         stats["random_rows"] = json.loads(subsample_json_string)

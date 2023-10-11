@@ -5,7 +5,7 @@
 When you need to write a config for a pipeline, you can avoid rummaging through documentation by using the template command `eogrow-template`.
 
 Invoking `eogrow-template "eogrow.pipelines.zipmap.ZipMapPipeline" "zipmap.json"` creates a file with the content:
-```json
+```
 {
   "pipeline": "eogrow.pipelines.zipmap.ZipMapPipeline",
   "pipeline_name": "<< Optional[str] >>",

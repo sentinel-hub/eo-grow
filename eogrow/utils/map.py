@@ -188,7 +188,7 @@ def merge_tiffs(
     if len(command) > SH_COMMAND_LIMIT or len(input_filelist) > OPEN_FILES_LIMIT:
         merged_path = Path(merged_filename)
         vrt_file_path = merged_path.with_name(f"{merged_path.stem}_temp.vrt")
-        LOGGER.info(f"Command too big or too many files to process. Creating an intermediary vrt: {vrt_file_path}")
+        LOGGER.info("Command too big or too many files to process. Creating an intermediary vrt: %s", vrt_file_path)
         # generate text file with tile names & generate vrt
         with tempfile.NamedTemporaryFile(mode="w", delete=True) as file_list:
             file_list.writelines([f"{tname}\n" for tname in input_filelist])

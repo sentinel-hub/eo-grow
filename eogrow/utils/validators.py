@@ -59,7 +59,7 @@ def optional_field_validator(
 def ensure_exactly_one_defined(first_param: str, second_param: str, **kwargs: Any) -> classmethod:
     """A validator (applied to `second_param` field) that makes sure only one of the two parameters is defined.
 
-    Make sure that the definition of `second_param` comes after `first_param˙ (in line-order).
+    Make sure that the definition of `second_param` comes after `first_param` (in line-order).
     """
 
     def ensure_exclusion(cls: type, value: Any | None, values: RawSchemaDict) -> Any | None:
@@ -79,7 +79,7 @@ def ensure_exactly_one_defined(first_param: str, second_param: str, **kwargs: An
 def ensure_defined_together(first_param: str, second_param: str, **kwargs: Any) -> classmethod:
     """A validator (applied to `second_param` field) that makes sure that the two parameters are both (un)defined.
 
-    Make sure that the definition of `second_param` comes after `first_param˙ (in line-order).
+    Make sure that the definition of `second_param` comes after `first_param` (in line-order).
     """
 
     def ensure_both(cls: type, value: Any | None, values: RawSchemaDict) -> Any | None:
