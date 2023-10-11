@@ -16,7 +16,7 @@ import rasterio
 from deepdiff import DeepDiff
 from fs.base import FS
 from fs.osfs import OSFS
-from shapely import MultiPolygon, Polygon
+from shapely import MultiPolygon, Point, Polygon
 
 from eolearn.core import EOPatch, FeatureType
 from eolearn.core.eodata_io import get_filesystem_data_info
@@ -172,9 +172,9 @@ def _calculate_vector_stats(gdf: gpd.GeoDataFrame, config: StatCalcConfig) -> Js
         x, y = (coords.x, coords.y) if isinstance(coords, Point) else coords
         return _prepare_value(x, np.float64), _prepare_value(y, np.float64)
 
-    def _get_coords(geom: Polygon | MultiPolygon | Any) -> list[tuple[float, float]] | None:
+    def _get_coords_sample(geom: Polygon | MultiPolygon | Any) -> list[tuple[float, float]] | None:
         if isinstance(geom, MultiPolygon):
-            return _get_coords(geom.geoms[0])
+            return _get_coords_sample(geom.geoms[0])
         return [_rounder(point) for point in geom.exterior.coords[:10]] if isinstance(geom, Polygon) else None
 
     stats = {
@@ -190,7 +190,7 @@ def _calculate_vector_stats(gdf: gpd.GeoDataFrame, config: StatCalcConfig) -> Js
         subsample["centroid"] = subsample.centroid.apply(_rounder)
         subsample["area"] = subsample.area.apply(_prepare_value, dtype=np.float64)
         subsample["geometry_type"] = subsample.geometry.geom_type
-        subsample["some_coords"] = subsample.geometry.apply(_get_coords)
+        subsample["some_coords"] = subsample.geometry.apply(_get_coords_sample)
 
         subsample_json_string = subsample.drop(columns="geometry").to_json(orient="index", date_format="iso")
         stats["random_rows"] = json.loads(subsample_json_string)
