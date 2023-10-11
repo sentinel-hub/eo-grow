@@ -11,10 +11,10 @@
         ],
         "basic_stats": {
           "max": 14480,
-          "mean": 2383.50235,
+          "mean": 2383.5,
           "median": 1693.0,
           "min": 6,
-          "std": 1845.28672
+          "std": 1845.29
         },
         "counts": {
           "infinite": 0,
@@ -56,10 +56,10 @@
         ],
         "subsample_basic_stats": {
           "max": 10483,
-          "mean": 2384.44727,
+          "mean": 2384.45,
           "median": 1690.0,
           "min": 6,
-          "std": 1848.58368
+          "std": 1848.58
         }
       }
     },
@@ -130,10 +130,10 @@
         ],
         "basic_stats": {
           "max": 9331,
-          "mean": 2411.86877,
+          "mean": 2411.87,
           "median": 1828.0,
           "min": 6,
-          "std": 1785.94719
+          "std": 1785.95
         },
         "counts": {
           "infinite": 0,
@@ -175,10 +175,10 @@
         ],
         "subsample_basic_stats": {
           "max": 8563,
-          "mean": 2412.52585,
+          "mean": 2412.53,
           "median": 1827.0,
           "min": 9,
-          "std": 1787.84465
+          "std": 1787.84
         }
       }
     },

@@ -66,10 +66,10 @@
         ],
         "basic_stats": {
           "max": 326,
-          "mean": 0.49725,
+          "mean": 0.497254,
           "median": 0.0,
           "min": 0,
-          "std": 12.39857
+          "std": 12.3986
         },
         "counts": {
           "infinite": 0,

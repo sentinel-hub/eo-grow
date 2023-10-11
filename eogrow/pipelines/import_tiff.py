@@ -110,6 +110,7 @@ class ImportTiffPipeline(Pipeline):
             overwrite_permission=OverwritePermission.OVERWRITE_FEATURES,
             config=self.sh_config,
             features=[self.config.output_feature],
+            use_zarr=self.storage.config.use_zarr,
         )
         save_node = EONode(save_task, inputs=[resize_node or import_node])
 

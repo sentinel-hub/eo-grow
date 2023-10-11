@@ -66,10 +66,10 @@
         ],
         "basic_stats": {
           "max": 326,
-          "mean": 0.46293,
+          "mean": 0.462926,
           "median": 0.0,
           "min": 0,
-          "std": 11.94993
+          "std": 11.9499
         },
         "counts": {
           "infinite": 0,
@@ -111,10 +111,10 @@
         ],
         "subsample_basic_stats": {
           "max": 316,
-          "mean": 0.73927,
+          "mean": 0.739274,
           "median": 0.0,
           "min": 0,
-          "std": 13.37975
+          "std": 13.3798
         }
       }
     }

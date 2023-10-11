@@ -5,7 +5,6 @@ import pytest
 from fs.errors import ResourceNotFound
 
 from eogrow.core.config import collect_configs_from_path, interpret_config_from_dict, interpret_config_from_path
-from eogrow.utils.meta import get_os_import_path
 
 CONFIG_DICT = {
     "new_param": 4,
@@ -114,19 +113,6 @@ def test_cyclic_config_error(temp_folder):
 
         with pytest.raises(ValueError):
             interpret_config_from_path(path)
-
-
-CONFIG_WITH_IMPORT_PATHS = {"eogrow": "${import_path:eogrow}/xy", "other": ["${import_path:pytest}"]}
-
-
-def test_parsing_import_paths():
-    config = interpret_config_from_dict(CONFIG_WITH_IMPORT_PATHS)
-
-    expected_dict = {
-        "eogrow": os.path.dirname(get_os_import_path("eogrow")) + "/xy",
-        "other": [os.path.dirname(get_os_import_path("pytest"))],
-    }
-    assert config == expected_dict
 
 
 CONFIG_WITH_VARIABLES = {

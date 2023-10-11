@@ -90,7 +90,7 @@ exclude_patterns = ["**.ipynb_checkpoints"]
 pygments_style = "sphinx"
 
 # Mock imports that won't and don't have to be installed in ReadTheDocs environment
-autodoc_mock_imports = ["ray"]
+autodoc_mock_imports = ["ray", "deepdiff"]
 
 # -- Options for HTML output ----------------------------------------------
 

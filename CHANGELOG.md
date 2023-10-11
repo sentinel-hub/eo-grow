@@ -1,3 +1,10 @@
+## [Version 1.6.1] - 2023-10-11
+
+- Pipelines can now save EOPatches in Zarr format
+- Testing utilities now also compare vector-based files. Numerical precision of comparison was adjusted.
+- Evalscripts are now read from storage. Removed import-path capabilities of config language.
+
+
 ## [Version 1.6.0] - 2023-09-07
 
 - Adjusted to use `eo-learn 1.5.0`

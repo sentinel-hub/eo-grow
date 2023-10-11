@@ -65,19 +65,6 @@ def import_object(import_path: str) -> Any:
     )
 
 
-def get_os_import_path(import_path: str) -> str:
-    """For a Python import path it provides OS import path.
-
-    E.g. `eogrow.utils.meta` -> `/home/ubuntu/.../eogrow/utils/meta.py`
-    """
-    module_spec = importlib.util.find_spec(import_path)
-    if module_spec is not None and module_spec.origin is not None:
-        if module_spec.origin == "frozen":  # python 3.11 optimizations preload certain core modules
-            raise ValueError(f"Given import path {import_path!r} belongs to a 'frozen' module, no path available.")
-        return module_spec.origin
-    raise ValueError(f"Given import path {import_path!r} not found")
-
-
 def get_package_versions() -> dict[str, str]:
     """A utility function that provides dependency package versions
 
