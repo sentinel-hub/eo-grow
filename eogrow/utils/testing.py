@@ -168,8 +168,8 @@ def _calculate_tiff_stats(tiff_filename: str, config: StatCalcConfig) -> JsonDic
 def _calculate_vector_stats(gdf: gpd.GeoDataFrame, config: StatCalcConfig) -> JsonDict:
     """Calculates statistics over a vector GeoDataFrame"""
 
-    def _rounder(coords: tuple[float, float]) -> tuple[float, float]:
-        x, y = coords
+    def _rounder(coords: tuple[float, float] | Point) -> tuple[float, float]:
+        x, y = (coords.x, coords.y) if isinstance(coords, Point) else coords
         return _prepare_value(x, np.float64), _prepare_value(y, np.float64)
 
     def _get_coords(geom: Polygon | MultiPolygon | Any) -> list[tuple[float, float]] | None:
@@ -187,9 +187,9 @@ def _calculate_vector_stats(gdf: gpd.GeoDataFrame, config: StatCalcConfig) -> Js
 
     if len(gdf):
         subsample: gpd.GeoDataFrame = gdf.sample(min(len(gdf), config.num_random_values), random_state=42)
-        subsample["centroid"] = subsample.centroid.apply(lambda point: _rounder(point.coords[0]))
-        subsample["area"] = subsample.area.apply(lambda x: _prepare_value(x, np.float64))
-        subsample["geometry_type"] = subsample.geometry.apply(lambda geom: geom.__class__.__name__)
+        subsample["centroid"] = subsample.centroid.apply(_rounder)
+        subsample["area"] = subsample.area.apply(_prepare_value, dtype=np.float64)
+        subsample["geometry_type"] = subsample.geometry.geom_type
         subsample["some_coords"] = subsample.geometry.apply(_get_coords)
 
         subsample_json_string = subsample.drop(columns="geometry").to_json(orient="index", date_format="iso")
