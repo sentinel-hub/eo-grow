@@ -1,3 +1,8 @@
+## [Version 1.6.2] - 2023-10-17
+
+- Fixed a bug in `BatchDownloadPipeline` where the evalscript was not read correctly.
+
+
 ## [Version 1.6.1] - 2023-10-11
 
 - Pipelines can now save EOPatches in Zarr format

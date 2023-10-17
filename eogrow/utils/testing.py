@@ -256,6 +256,7 @@ def run_config(
     *,
     output_folder_key: str | None = None,
     reset_output_folder: bool = True,
+    check_logs: bool = True,
 ) -> str | None:
     """Runs a pipeline (or multiple) and checks the logs that all the executions were successful. Returns the full path
     of the output folder (if there is one) so it can be inspected further. In case of chain configs, the output folder
@@ -264,6 +265,8 @@ def run_config(
     :param config_path: A path to the config file
     :param output_folder_key: Type of the folder containing results of the pipeline, inferred from config if None
     :param reset_output_folder: Delete the content of the results folder before running the pipeline
+    :param check_logs: If pipeline logs should be checked after the run completes. If EOWorkflows were used, the
+        function fails if there were unsuccessful executions.
     """
     crude_configs = collect_configs_from_path(config_path)
     raw_configs = [interpret_config_from_dict(config) for config in crude_configs]
@@ -281,7 +284,8 @@ def run_config(
 
         pipeline.run()
 
-        check_pipeline_logs(pipeline)
+        if check_logs:
+            check_pipeline_logs(pipeline)
 
     return pipeline.storage.get_folder(output_folder_key, full_path=True) if output_folder_key else None
 
