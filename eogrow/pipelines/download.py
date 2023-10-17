@@ -301,11 +301,7 @@ class DownloadEvalscriptPipeline(BaseDownloadPipeline):
         return self.config.features
 
     def _get_download_node(self, session_loader: SessionLoaderType) -> EONode:
-        evalscript_path = fs.path.join(
-            self.storage.get_folder(self.config.evalscript_folder_key), self.config.evalscript_path
-        )
-        with self.storage.filesystem.open(evalscript_path) as evalscript_file:
-            evalscript = evalscript_file.read()
+        evalscript = self._get_evalscript()
 
         time_diff = None if self.config.time_difference is None else dt.timedelta(minutes=self.config.time_difference)
 
@@ -325,6 +321,13 @@ class DownloadEvalscriptPipeline(BaseDownloadPipeline):
             session_loader=session_loader,
         )
         return EONode(download_task)
+
+    def _get_evalscript(self) -> str:
+        evalscript_path = fs.path.join(
+            self.storage.get_folder(self.config.evalscript_folder_key), self.config.evalscript_path
+        )
+        with self.storage.filesystem.open(evalscript_path) as evalscript_file:
+            return evalscript_file.read()
 
 
 class DownloadTimelessPipeline(BaseDownloadPipeline):

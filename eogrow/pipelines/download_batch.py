@@ -21,7 +21,6 @@ from sentinelhub import (
     SentinelHubRequest,
     monitor_batch_analysis,
     monitor_batch_job,
-    read_data,
 )
 
 from ..core.area.batch import BatchAreaManager
@@ -198,15 +197,8 @@ class BatchDownloadPipeline(Pipeline):
         if self.config.save_userdata:
             responses.append(SentinelHubRequest.output_response("userdata", MimeType.JSON))
 
-        evalscript_path = fs.path.join(
-            self.storage.get_folder(self.config.evalscript_folder_key), self.config.evalscript_path
-        )
-        with self.storage.filesystem.open(evalscript_path) as evalscript_file:
-            evalscript = evalscript_file.read()
-        evalscript = (read_data(self.config.evalscript_path, data_format=MimeType.TXT),)
-
         sentinelhub_request = SentinelHubRequest(
-            evalscript=evalscript,
+            evalscript=self._get_evalscript(),
             input_data=[
                 SentinelHubRequest.input_data(
                     data_collection=input_config.data_collection,
@@ -239,6 +231,13 @@ class BatchDownloadPipeline(Pipeline):
             ),
             description=f"eo-grow - {self.__class__.__name__} pipeline with ID {self.pipeline_id}",
         )
+
+    def _get_evalscript(self) -> str:
+        evalscript_path = fs.path.join(
+            self.storage.get_folder(self.config.evalscript_folder_key), self.config.evalscript_path
+        )
+        with self.storage.filesystem.open(evalscript_path) as evalscript_file:
+            return evalscript_file.read()
 
     def _trigger_user_action(self, batch_request: BatchRequest) -> BatchUserAction:
         """According to status and configuration parameters decide what kind of user action to perform."""
