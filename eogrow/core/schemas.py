@@ -47,6 +47,7 @@ class PipelineSchema(BaseSchema):
     workers: int = Field(
         1, description="Number of workers for parallel execution of workflows. Parameter does not affect ray clusters."
     )
+    worker_type: Optional[str] = None
     use_ray: BoolOrAuto = Field(
         "auto",
         description=(
