@@ -197,7 +197,7 @@ class Pipeline(EOGrowObject):
             filesystem=self.storage.filesystem,
             logs_filter=EOExecutionFilter(ignore_packages=self.logging_manager.config.eoexecution_ignore_packages),
             logs_handler_factory=EOExecutionHandler,
-            **extra_kwargs,
+            **extra_kwargs,  # type: ignore[arg-type]
         )
         execution_results = executor.run(**executor_run_params)
 
