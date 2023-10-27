@@ -49,9 +49,9 @@ class PipelineSchema(BaseSchema):
     )
     ray_worker_type: Optional[str] = Field(
         description=(
-            "Restricts execution of parallelized parts only to worker instances of the requested type. To declare the"
-            " type of a worker, tag by specifying (in the `cluster.yaml`) that it has a resource with a name matching"
-            " the type and set it to 1."
+            "Restricts execution of parallelized tasks only to ray worker instances of the requested type. The worker"
+            " section of the cluster.yaml file should specify the custom resource with a matching name and the value"
+            " set to 1."
         ),
     )
     use_ray: BoolOrAuto = Field(
