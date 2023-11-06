@@ -21,6 +21,7 @@ pytestmark = pytest.mark.integration
         "import_tiff_resized_scale_factors",
     ],
 )
+@pytest.mark.filterwarnings("ignore::eolearn.core.exceptions.TemporalDimensionWarning")
 def test_import_tiff_pipeline(config_and_stats_paths, experiment_name):
     config_path, stats_path = config_and_stats_paths("import_tiff", experiment_name)
 
