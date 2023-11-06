@@ -54,10 +54,6 @@ class ImportTiffPipeline(Pipeline):
         )
         dtype: Optional[np.dtype] = Field(description="Custom dtype for the imported feature.")
         _parse_dtype = optional_field_validator("dtype", parse_dtype, pre=True)
-        use_vsi: bool = Field(
-            True,
-            description="Whether to use the VSI for reading. Enabled by default as a remote filesystem is assumed.",
-        )
         resize: Optional[ResizeSchema] = Field(
             description="Settings for SpatialResizeTask applied at the end. When omitted resizing is not performed."
         )
@@ -84,7 +80,6 @@ class ImportTiffPipeline(Pipeline):
             no_data_value=self.config.no_data_value,
             filesystem=self.storage.filesystem,
             image_dtype=self.config.dtype,
-            use_vsi=self.config.use_vsi,
         )
         import_node = EONode(import_task, inputs=[create_eopatch_node])
 
