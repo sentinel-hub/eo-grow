@@ -1,4 +1,5 @@
 """Implements a pipeline that creates a finer grid and splits EOPatches accordingly."""
+
 from __future__ import annotations
 
 import itertools as it

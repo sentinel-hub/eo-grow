@@ -11,6 +11,7 @@ Mocks:
     so we mock it to prevent `rasterio.open` to fail.
 - Most request endpoints are mocked in the `requests_mock` fixture.
 """
+
 from unittest.mock import patch
 
 import pytest

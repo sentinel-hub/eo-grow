@@ -4,6 +4,7 @@ Module defining a base pipeline schema and custom fields
 For each pipeline a separate schema has to be defined which inherits from PipelineSchema. Such schema should be placed
 as an internal class of the implemented pipeline class
 """
+
 from __future__ import annotations
 
 from inspect import isclass
@@ -74,6 +75,9 @@ class PipelineSchema(BaseSchema):
             "Whether or not to skip already processed patches. In order to use this functionality a pipeline "
             "must implement the `filter_patch_list` method."
         ),
+    )
+    raise_on_temporal_mismatch: bool = Field(
+        False, description="Whether to treat `TemporalDimensionWarning` as an exception during EOExecution."
     )
 
 

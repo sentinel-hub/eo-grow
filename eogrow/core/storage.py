@@ -1,4 +1,5 @@
 """Implementation of the StorageManager class for handling project storage."""
+
 from __future__ import annotations
 
 from typing import Any, ClassVar, Dict, Literal, Optional

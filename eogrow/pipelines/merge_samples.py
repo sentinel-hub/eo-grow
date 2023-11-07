@@ -1,4 +1,5 @@
 """Implements a pipeline for merging sampled features into numpy arrays fit for training models."""
+
 from __future__ import annotations
 
 import logging

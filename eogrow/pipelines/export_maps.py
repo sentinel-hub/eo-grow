@@ -1,4 +1,5 @@
 """Implements a pipeline for exporting data to TIFF files, can be used to prepare BYOC tiles."""
+
 from __future__ import annotations
 
 import datetime as dt
@@ -186,7 +187,7 @@ class ExportMapsPipeline(Pipeline):
 
         export_to_tiff_task = ExportToTiffTask(
             self.config.feature,
-            folder=self.storage.get_folder(self.config.output_folder_key),
+            self.storage.get_folder(self.config.output_folder_key),
             filesystem=self.storage.filesystem,
             no_data_value=self.config.no_data_value,
             image_dtype=np.dtype(self.config.map_dtype),

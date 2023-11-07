@@ -1,4 +1,5 @@
 """Implementation of LoggingManager and different handlers used for logging."""
+
 from __future__ import annotations
 
 import contextlib

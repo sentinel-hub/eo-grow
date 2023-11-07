@@ -1,6 +1,7 @@
 """
 Module implementing utilities for unit testing pipeline results
 """
+
 from __future__ import annotations
 
 import json
@@ -182,7 +183,7 @@ def _calculate_vector_stats(gdf: gpd.GeoDataFrame, config: StatCalcConfig) -> Js
         "row_count": len(gdf),
         "crs": str(gdf.crs),
         "mean_area": _prepare_value(gdf.area.mean(), np.float64),
-        "total_bounds": list(gdf.total_bounds),
+        "total_bounds": [_prepare_value(x, dtype=np.float64) for x in gdf.total_bounds],
     }
 
     if len(gdf):

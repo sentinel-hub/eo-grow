@@ -1,6 +1,7 @@
 """
 Module containing utilities for working with vector data
 """
+
 from __future__ import annotations
 
 import geopandas as gpd

@@ -1,4 +1,5 @@
 """Pipeline for conversion of batch results to EOPatches."""
+
 from __future__ import annotations
 
 from typing import Any, List, Optional
@@ -174,9 +175,7 @@ class BatchToEOPatchPipeline(Pipeline):
             ), feature[1]
 
             import_task = ImportFromTiffTask(
-                tmp_timeless_feature,
-                folder=self._input_folder,
-                filesystem=self.storage.filesystem,
+                tmp_timeless_feature, self._input_folder, filesystem=self.storage.filesystem
             )
             # Filename is written into the dependency name to be used later for execution arguments:
             import_node = EONode(

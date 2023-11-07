@@ -1,4 +1,5 @@
 """Defines task needed in prediction pipelines."""
+
 from __future__ import annotations
 
 import abc

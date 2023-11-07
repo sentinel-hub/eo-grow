@@ -1,8 +1,10 @@
 """Implementation of the base AreaManager."""
+
 from __future__ import annotations
 
 import logging
 from abc import ABCMeta, abstractmethod
+from functools import partial
 from typing import Literal, Optional
 
 import fiona
@@ -131,10 +133,10 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
     def get_patch_list(self) -> PatchList:
         """Returns a list of eopatch names and appropriate BBoxes."""
 
-        named_bboxes = []
+        named_bboxes: PatchList = []
         for crs, grid in self.get_grid(filtered=True).items():
-            for _, row in grid.iterrows():
-                named_bboxes.append((row.eopatch_name, BBox(row.geometry.bounds, crs=crs)))
+            bounds = grid.geometry.bounds.apply(tuple, axis=1)
+            named_bboxes.extend(zip(grid[self.NAME_COLUMN], bounds.map(partial(BBox, crs=crs))))
 
         return named_bboxes
 
