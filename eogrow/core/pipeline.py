@@ -171,8 +171,11 @@ class Pipeline(EOGrowObject):
         executor_class: type[EOExecutor]
 
         execution_kind = self._init_processing()
+        extra_kwargs = {}
         if execution_kind is ProcessingType.RAY:
             executor_class = RayExecutor
+            if self.config.ray_worker_type is not None:
+                extra_kwargs = {"ray_remote_kwargs": {"resources": {self.config.ray_worker_type: 0.001}}}
         else:
             executor_class = EOExecutor
             executor_run_params["workers"] = self.config.workers
@@ -195,6 +198,7 @@ class Pipeline(EOGrowObject):
             logs_filter=EOExecutionFilter(ignore_packages=self.logging_manager.config.eoexecution_ignore_packages),
             logs_handler_factory=EOExecutionHandler,
             raise_on_temporal_mismatch=self.config.raise_on_temporal_mismatch,
+            **extra_kwargs,  # type: ignore[arg-type]
         )
         execution_results = executor.run(**executor_run_params)
 
