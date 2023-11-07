@@ -1,0 +1,18 @@
+image: python:3.9
+
+stages:
+  - build
+
+build_docker_image:
+  stage: build
+  needs: []
+  rules:
+    - if: $CI_COMMIT_TAG # run only on releases
+      when: always
+      variables:
+        CUSTOM_RUN_TAG: auto # this will create images with the latest tag and the version tag
+        LAYER_NAME: dotai-eo
+    - when: manual
+  trigger:
+    project: teams/eor/dotai/infra
+  allow_failure: true
