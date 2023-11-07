@@ -4,7 +4,6 @@
   "output_folder_key": "temp",
   "output_feature": ["mask_timeless", "ImportedTimelessData"],
   "input_filename": "import_test.tiff",
-  "use_vsi": false,
   "dtype": "uint16",
   "no_data_value": 100
 }
