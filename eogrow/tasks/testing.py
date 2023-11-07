@@ -1,4 +1,5 @@
 """Tasks used to generate test data."""
+
 from __future__ import annotations
 
 import datetime as dt

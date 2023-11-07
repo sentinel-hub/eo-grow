@@ -1,4 +1,5 @@
 """Tasks for spatial operations on EOPatches, used in grid-switching."""
+
 from __future__ import annotations
 
 import numpy as np

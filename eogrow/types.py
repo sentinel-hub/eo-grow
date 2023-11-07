@@ -1,5 +1,6 @@
 """ Includes custom types used in schemas
 """
+
 import datetime
 import sys
 from enum import Enum

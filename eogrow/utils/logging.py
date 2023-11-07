@@ -1,6 +1,7 @@
 """
 Utilities used for logging
 """
+
 from json.decoder import JSONDecodeError
 
 import requests

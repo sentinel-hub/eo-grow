@@ -1,4 +1,5 @@
 """Implementation of the base Pipeline class."""
+
 from __future__ import annotations
 
 import logging

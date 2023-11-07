@@ -1,4 +1,5 @@
 """Area manager implementation for custom grids."""
+
 from __future__ import annotations
 
 import logging

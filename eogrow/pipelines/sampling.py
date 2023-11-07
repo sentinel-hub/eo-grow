@@ -1,4 +1,5 @@
 """Implements different pipelines for sampling from data."""
+
 from __future__ import annotations
 
 import abc

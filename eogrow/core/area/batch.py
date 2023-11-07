@@ -1,4 +1,5 @@
 """Area manager implementation for Sentinel Hub batch grids."""
+
 from __future__ import annotations
 
 import logging

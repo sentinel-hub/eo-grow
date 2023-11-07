@@ -1,4 +1,5 @@
 """Implements a pipeline for rasterizing vector datasets."""
+
 from __future__ import annotations
 
 import logging

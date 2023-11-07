@@ -1,4 +1,5 @@
 """Implements tasks needed for calculating features in FeaturesPipeline."""
+
 from __future__ import annotations
 
 import abc

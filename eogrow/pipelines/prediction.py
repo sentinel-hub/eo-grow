@@ -1,4 +1,5 @@
 """Implements a base prediction pipeline and a LGBM specialized classification and regression pipelines."""
+
 from __future__ import annotations
 
 import abc

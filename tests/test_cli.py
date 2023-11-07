@@ -1,6 +1,7 @@
 """
 Module for testing command line interface
 """
+
 import subprocess
 
 import pytest

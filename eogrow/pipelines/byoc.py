@@ -1,4 +1,5 @@
 """Defines pipelines for ingesting and modifying BYOC collections."""
+
 from __future__ import annotations
 
 import datetime

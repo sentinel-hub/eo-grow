@@ -1,4 +1,5 @@
 """Download pipeline that works with Sentinel Hub batch service."""
+
 from __future__ import annotations
 
 import logging

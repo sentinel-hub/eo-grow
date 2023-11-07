@@ -1,4 +1,5 @@
 """Implements functions that transform raw dictionaries/JSON files according to the config language of eo-grow."""
+
 from __future__ import annotations
 
 import copy

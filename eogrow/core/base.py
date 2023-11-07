@@ -1,4 +1,5 @@
 """Base object from which all configurable eo-grow objects inherit."""
+
 from __future__ import annotations
 
 from typing import Any, TypeVar

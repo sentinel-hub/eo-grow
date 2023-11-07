@@ -1,3 +1,10 @@
+## [Version 1.6.3] - 2023-11-07
+
+- Pipelines can request specific type of worker when run on a ray cluster with the `ray_worker_type` field.
+- Area managers now generate the patch lists more efficiently.
+- Pipelines have option to fail when temporally-ill defined EOPatches are encountered with the `raise_on_temporal_mismatch` flag.
+
+
 ## [Version 1.6.2] - 2023-10-17
 
 - Fixed a bug in `BatchDownloadPipeline` where the evalscript was not read correctly.
