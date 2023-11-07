@@ -1,4 +1,5 @@
 """Implements the command line interface for `eo-grow`."""
+
 import json
 import os
 import re

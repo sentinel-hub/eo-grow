@@ -4,6 +4,7 @@ Module defining a base pipeline schema and custom fields
 For each pipeline a separate schema has to be defined which inherits from PipelineSchema. Such schema should be placed
 as an internal class of the implemented pipeline class
 """
+
 from __future__ import annotations
 
 from inspect import isclass

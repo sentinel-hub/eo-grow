@@ -1,6 +1,7 @@
 """
 Utilities for solving different problems in `eo-grow` package structure, which are mostly a pure Python magic.
 """
+
 from __future__ import annotations
 
 import importlib

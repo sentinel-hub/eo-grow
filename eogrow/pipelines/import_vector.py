@@ -1,4 +1,5 @@
 """Implements a pipeline for importing vector data from a file."""
+
 from __future__ import annotations
 
 import fs

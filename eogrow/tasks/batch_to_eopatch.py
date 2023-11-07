@@ -1,4 +1,5 @@
 """Tasks used to transform Sentinel Hub Batch results into EOPatches."""
+
 from __future__ import annotations
 
 import concurrent.futures

@@ -1,6 +1,7 @@
 """
 A module containing general utilities that haven't been sorted in any other module
 """
+
 from __future__ import annotations
 
 import datetime as dt

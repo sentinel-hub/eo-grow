@@ -1,6 +1,7 @@
 """
 Module defining common validators for schemas and validator wrappers
 """
+
 from __future__ import annotations
 
 import datetime as dt

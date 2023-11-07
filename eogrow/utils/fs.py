@@ -1,6 +1,7 @@
 """
 Module containing utilities for working with filesystems
 """
+
 from __future__ import annotations
 
 import abc

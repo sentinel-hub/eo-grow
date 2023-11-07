@@ -1,6 +1,7 @@
 """
 Module with utilities for creating maps
 """
+
 from __future__ import annotations
 
 import logging

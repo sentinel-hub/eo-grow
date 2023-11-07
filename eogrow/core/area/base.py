@@ -1,4 +1,5 @@
 """Implementation of the base AreaManager."""
+
 from __future__ import annotations
 
 import logging

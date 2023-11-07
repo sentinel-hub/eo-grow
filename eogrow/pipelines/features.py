@@ -1,4 +1,5 @@
 """Implements a pipeline to construct features for training/prediction."""
+
 from __future__ import annotations
 
 import logging

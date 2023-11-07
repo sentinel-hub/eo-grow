@@ -1,4 +1,5 @@
 """Pipeline for conversion of batch results to EOPatches."""
+
 from __future__ import annotations
 
 from typing import Any, List, Optional

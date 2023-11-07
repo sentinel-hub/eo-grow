@@ -1,4 +1,5 @@
 """Common tasks shared between pipelines."""
+
 from __future__ import annotations
 
 from functools import partial
