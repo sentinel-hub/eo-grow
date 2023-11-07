@@ -75,6 +75,9 @@ class PipelineSchema(BaseSchema):
             "must implement the `filter_patch_list` method."
         ),
     )
+    raise_on_temporal_mismatch: bool = Field(
+        False, description="Whether to treat `TemporalDimensionWarning` as an exception during EOExecution."
+    )
 
 
 def build_schema_template(
