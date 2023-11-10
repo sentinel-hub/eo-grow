@@ -3,7 +3,6 @@
 
 import datetime
 import sys
-from enum import Enum
 from typing import Any, Dict, List, Literal, Tuple, Union
 
 if sys.version_info >= (3, 10):
@@ -24,9 +23,3 @@ BoolOrAuto: TypeAlias = Union[Literal["auto"], bool]
 
 JsonDict: TypeAlias = Dict[str, Any]
 RawSchemaDict: TypeAlias = Dict[str, Any]
-
-
-class ProcessingType(Enum):
-    RAY = "ray"
-    SINGLE = "single"
-    MULTI = "multi"
