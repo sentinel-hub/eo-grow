@@ -66,11 +66,6 @@ class BasePredictionPipeline(Pipeline, metaclass=abc.ABCMeta):
     def _get_output_features(self) -> list[Feature]:
         """Lists all features that are to be saved upon the pipeline completion"""
 
-    @property
-    def _is_mp_lock_needed(self) -> bool:
-        """If a multiprocessing lock is needed when executing"""
-        return not self.config.use_ray and self.config.workers > 1
-
     def filter_patch_list(self, patch_list: PatchList) -> PatchList:
         """EOPatches are filtered according to existence of specified output features"""
         output_features = self._get_output_features()
@@ -154,7 +149,6 @@ class RegressionPredictionPipeline(BasePredictionPipeline):
             mask_feature=_optional_typed_feature(FeatureType.MASK_TIMELESS, self.config.prediction_mask_feature_name),
             output_feature=(FeatureType.DATA_TIMELESS, self.config.output_feature_name),
             output_dtype=self.config.dtype,
-            mp_lock=self._is_mp_lock_needed,
             clip_predictions=self.config.clip_predictions,
         )
         return EONode(prediction_task, inputs=[previous_node])
@@ -192,7 +186,6 @@ class ClassificationPredictionPipeline(BasePredictionPipeline):
                 FeatureType.DATA_TIMELESS, self.config.output_probability_feature_name
             ),
             output_dtype=self.config.dtype,
-            mp_lock=self._is_mp_lock_needed,
             label_encoder_filename=self.config.label_encoder_filename,
         )
         return EONode(prediction_task, inputs=[previous_node])

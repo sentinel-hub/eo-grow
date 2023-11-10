@@ -3,14 +3,14 @@
 from __future__ import annotations
 
 import abc
-from typing import Any, Callable, cast
+from typing import Any, Callable
 
 import fs
 import joblib
 import numpy as np
 from fs.base import FS
 
-from eolearn.core import EOPatch, EOTask, execute_with_mp_lock
+from eolearn.core import EOPatch, EOTask
 from eolearn.core.types import Feature
 from eolearn.core.utils.fs import pickle_fs, unpickle_fs
 
@@ -27,7 +27,6 @@ class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
         mask_feature: Feature,
         output_feature: Feature,
         output_dtype: np.dtype | None,
-        mp_lock: bool,
     ):
         """
         :param model_path: A file path to the model. The path is relative to the filesystem object.
@@ -45,8 +44,6 @@ class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
         self.mask_feature = mask_feature
         self.output_feature = output_feature
         self.output_dtype = output_dtype
-
-        self.mp_lock = mp_lock
 
     def process_data(self, eopatch: EOPatch, mask: np.ndarray) -> np.ndarray:
         """Masks and reshapes data into a form suitable for the model"""
@@ -82,12 +79,7 @@ class BasePredictionTask(EOTask, metaclass=abc.ABCMeta):
         if processed_features.shape[0] == 0 and return_on_empty is not None:
             return return_on_empty
 
-        if self.mp_lock:
-            predictions = execute_with_mp_lock(predictor, processed_features)
-        else:
-            predictions = predictor(processed_features)
-        predictions = cast(np.ndarray, predictions)
-
+        predictions: np.ndarray = predictor(processed_features)
         return predictions.astype(self.output_dtype) if self.output_dtype else predictions
 
     @abc.abstractmethod

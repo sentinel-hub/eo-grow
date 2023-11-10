@@ -12,10 +12,9 @@ import ray
 from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, LoadTask, SaveTask, WorkflowResults
 from eolearn.core.extra.ray import RayExecutor
 
-from ..types import ExecKwargs, PatchList, ProcessingType
+from ..types import ExecKwargs, PatchList
 from ..utils.general import current_timestamp
 from ..utils.meta import import_object
-from ..utils.ray import handle_ray_connection
 from .area.base import BaseAreaManager
 from .base import EOGrowObject
 from .config import RawConfig
@@ -149,13 +148,6 @@ class Pipeline(EOGrowObject):
 
             exec_kwargs[name] = patch_args
         return exec_kwargs
-
-    def _init_processing(self) -> ProcessingType:
-        """Figures out which execution mode is used and configures connection to Ray if required."""
-        is_connected = handle_ray_connection(self.config.use_ray)
-        if is_connected:
-            return ProcessingType.RAY
-        return ProcessingType.MULTI if self.config.workers > 1 else ProcessingType.SINGLE
 
     def run_execution(
         self,
