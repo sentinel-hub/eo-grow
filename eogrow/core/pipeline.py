@@ -223,7 +223,8 @@ class Pipeline(EOGrowObject):
         timestamp = current_timestamp()
         self.current_execution_name = self.get_pipeline_execution_name(timestamp)
 
-        handlers = self.logging_manager.start_logging(self.current_execution_name)
+        root_logger = logging.getLogger()
+        handlers = self.logging_manager.start_logging(root_logger, self.current_execution_name, "pipeline.log")
         try:
             self.logging_manager.update_pipeline_report(
                 pipeline_execution_name=self.current_execution_name,
@@ -260,7 +261,7 @@ class Pipeline(EOGrowObject):
                 pipeline_execution_name=self.current_execution_name, finished=finished, failed=failed
             )
         finally:
-            self.logging_manager.stop_logging(handlers)
+            self.logging_manager.stop_logging(root_logger, handlers)
 
     def run_procedure(self) -> tuple[list[str], list[str]]:
         """Execution procedure of pipeline. Can be overridden if needed.

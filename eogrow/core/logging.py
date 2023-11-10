@@ -117,7 +117,7 @@ class LoggingManager(EOGrowObject):
             return join_path(main_logs_folder, pipeline_execution_name)
         return fs.path.combine(main_logs_folder, pipeline_execution_name)
 
-    def start_logging(self, pipeline_execution_name: str) -> list[Handler]:
+    def start_logging(self, logger: logging.Logger, pipeline_execution_name: str, filename: str) -> list[Handler]:
         """Creates a folder for logs and sets up (and returns) logging handlers
 
         Supported handlers:
@@ -129,22 +129,21 @@ class LoggingManager(EOGrowObject):
             self.storage.filesystem.makedirs(logs_folder, recreate=True)
             self._add_cluster_config_to_logs(logs_folder)
 
-        global_logger = logging.getLogger()
-        global_logger.setLevel(logging.DEBUG)
+        logger.setLevel(logging.DEBUG)
 
-        for default_handler in global_logger.handlers:
+        for default_handler in logger.handlers:
             default_handler.setLevel(logging.WARNING)
 
         new_handlers: list[Handler] = []
 
         if self.config.save_logs:
-            file_handler = self._create_file_handler(pipeline_execution_name)
-            global_logger.addHandler(file_handler)
+            file_handler = self._create_file_handler(pipeline_execution_name, filename)
+            logger.addHandler(file_handler)
             new_handlers.append(file_handler)
 
         if self.config.show_logs:
             stdout_handler = self._create_stdout_handler()
-            global_logger.addHandler(stdout_handler)
+            logger.addHandler(stdout_handler)
             new_handlers.append(stdout_handler)
 
         if self.config.capture_warnings:
@@ -160,9 +159,9 @@ class LoggingManager(EOGrowObject):
             os_fs = OSFS(os_folder)  # the file is on the head node, might not be visible in storage.filesystem
             fs.copy.copy_file(os_fs, os_file, self.storage.filesystem, fs.path.join(logs_folder, "cluster.yaml"))
 
-    def _create_file_handler(self, pipeline_execution_name: str) -> Handler:
+    def _create_file_handler(self, pipeline_execution_name: str, filename: str) -> Handler:
         """Creates a logging handler to write a pipeline log to a file."""
-        logs_filename = fs.path.combine(self.get_pipeline_logs_folder(pipeline_execution_name), "pipeline.log")
+        logs_filename = fs.path.combine(self.get_pipeline_logs_folder(pipeline_execution_name), filename)
         file_handler = RegularBackupHandler(
             logs_filename,
             filesystem=self.storage.filesystem,
@@ -194,19 +193,18 @@ class LoggingManager(EOGrowObject):
 
         return stdout_handler
 
-    def stop_logging(self, handlers: list[Handler]) -> None:
+    def stop_logging(self, logger: logging.Logger, handlers: list[Handler]) -> None:
         """Updates logs, removes pipeline handlers from the global logger and puts global logging level back to
         default
         """
         if self.config.capture_warnings:
             logging.captureWarnings(False)
 
-        global_logger = logging.getLogger()
         for handler in handlers:
             handler.close()
-            global_logger.removeHandler(handler)
+            logger.removeHandler(handler)
 
-        global_logger.setLevel(logging.WARNING)
+        logger.setLevel(logging.WARNING)
 
     def update_pipeline_report(
         self,
