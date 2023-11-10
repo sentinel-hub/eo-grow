@@ -8,7 +8,7 @@ as an internal class of the implemented pipeline class
 from __future__ import annotations
 
 from inspect import isclass
-from typing import List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field
 from pydantic.fields import ModelField
@@ -48,11 +48,11 @@ class PipelineSchema(BaseSchema):
     workers: int = Field(
         1, description="Number of workers for parallel execution of workflows. Parameter does not affect ray clusters."
     )
-    ray_worker_type: Optional[str] = Field(
+    ray_remote_kwargs: Dict[str, Any] = Field(
+        default_factory=dict,
         description=(
-            "Restricts execution of parallelized tasks only to `ray` worker instances of the requested type. The worker"
-            " section of the `cluster.yaml` file should specify the custom resource with a matching name and the value"
-            " set to 1."
+            "Keyword arguments passed to ray tasks when executing via `RayExecutor`. The options are specified [here]"
+            "(https://docs.ray.io/en/latest/ray-core/api/doc/ray.remote_function.RemoteFunction.options.html)."
         ),
     )
     use_ray: BoolOrAuto = Field(
