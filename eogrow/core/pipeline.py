@@ -175,8 +175,7 @@ class Pipeline(EOGrowObject):
         extra_kwargs = {}
         if execution_kind is ProcessingType.RAY:
             executor_class = RayExecutor
-            if self.config.ray_worker_type is not None:
-                extra_kwargs = {"ray_remote_kwargs": {"resources": {self.config.ray_worker_type: 0.001}}}
+            extra_kwargs = {"ray_remote_kwargs": self.config.ray_remote_kwargs}
         else:
             executor_class = EOExecutor
             executor_run_params["workers"] = self.config.workers
