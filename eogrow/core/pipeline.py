@@ -7,7 +7,9 @@ import time
 import uuid
 from typing import Any, TypeVar
 
-from eolearn.core import CreateEOPatchTask, EOExecutor, EONode, EOWorkflow, LoadTask, SaveTask, WorkflowResults
+import ray
+
+from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, LoadTask, SaveTask, WorkflowResults
 from eolearn.core.extra.ray import RayExecutor
 
 from ..types import ExecKwargs, PatchList, ProcessingType
@@ -169,18 +171,9 @@ class Pipeline(EOGrowObject):
             self.patch_list will be used
         :return: Lists of successfully/unsuccessfully executed EOPatch names and the result of the EOWorkflow execution
         """
-        executor_class: type[EOExecutor]
+        ray.init(address="auto", ignore_reinit_error=True)
 
-        execution_kind = self._init_processing()
-        extra_kwargs = {}
-        if execution_kind is ProcessingType.RAY:
-            executor_class = RayExecutor
-            extra_kwargs = {"ray_remote_kwargs": self.config.ray_remote_kwargs}
-        else:
-            executor_class = EOExecutor
-            executor_run_params["workers"] = self.config.workers
-
-        LOGGER.info("Starting %s for %d EOPatches", executor_class.__name__, len(execution_kwargs))
+        LOGGER.info("Starting processing for %d EOPatches", len(execution_kwargs))
 
         # Unpacking manually to ensure order matches
         list_of_kwargs, execution_names = [], []
@@ -188,7 +181,7 @@ class Pipeline(EOGrowObject):
             list_of_kwargs.append(exec_kwargs)
             execution_names.append(exec_name)
 
-        executor = executor_class(
+        executor = RayExecutor(
             workflow,
             list_of_kwargs,
             execution_names=execution_names,
@@ -198,18 +191,13 @@ class Pipeline(EOGrowObject):
             logs_filter=EOExecutionFilter(ignore_packages=self.logging_manager.config.eoexecution_ignore_packages),
             logs_handler_factory=EOExecutionHandler,
             raise_on_temporal_mismatch=self.config.raise_on_temporal_mismatch,
-            **extra_kwargs,
+            ray_remote_kwargs=self.config.ray_remote_kwargs,
         )
         execution_results = executor.run(**executor_run_params)
 
         successful = [execution_names[idx] for idx in executor.get_successful_executions()]
         failed = [execution_names[idx] for idx in executor.get_failed_executions()]
-        LOGGER.info(
-            "%s finished with %d / %d success rate",
-            executor_class.__name__,
-            len(successful),
-            len(successful) + len(failed),
-        )
+        LOGGER.info("EOExecutor inished with %d / %d success rate", len(successful), len(successful) + len(failed))
 
         if self.logging_manager.config.save_logs:
             executor.make_report(include_logs=self.logging_manager.config.include_logs_to_report)
