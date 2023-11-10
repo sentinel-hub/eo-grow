@@ -51,7 +51,7 @@ class PipelineSchema(BaseSchema):
     ray_remote_kwargs: dict[str, Any] = Field(
         description=(
             "Keyword arguments passed to ray tasks when executing via `RayExecutor`. The options are specified [here]"
-            "(https://docs.ray.io/en/latest/ray-core/api/doc/ray.remote_function.RemoteFunction.options.html)"
+            "(https://docs.ray.io/en/latest/ray-core/api/doc/ray.remote_function.RemoteFunction.options.html)."
         ),
     )
     use_ray: BoolOrAuto = Field(
