@@ -13,6 +13,5 @@
   },
   "sample_size": [30, 25],
   "stride": [40, 20],
-  "mask_of_samples_name": "MASK_OF_SAMPLES",
-  "workers": 2
+  "mask_of_samples_name": "MASK_OF_SAMPLES"
 }

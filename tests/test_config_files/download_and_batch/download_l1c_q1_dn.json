@@ -12,6 +12,5 @@
     ["mask", "CLM"],
     ["mask", "dataMask"]
   ],
-  "use_dn": true,
-  "workers": 2
+  "use_dn": true
 }

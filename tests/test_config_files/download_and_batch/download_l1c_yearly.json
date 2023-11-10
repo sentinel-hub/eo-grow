@@ -12,6 +12,5 @@
     ["mask", "CLM"],
     ["mask", "dataMask"]
   ],
-  "workers": 2,
   "threads_per_worker": null
 }

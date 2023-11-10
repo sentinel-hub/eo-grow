@@ -14,6 +14,5 @@
   "sample_size": [25, 30],
   "fraction_of_samples": 0.001,
   "mask_of_samples_name": "MASK_OF_SAMPLES",
-  "seed": 100,
-  "workers": 2
+  "seed": 100
 }

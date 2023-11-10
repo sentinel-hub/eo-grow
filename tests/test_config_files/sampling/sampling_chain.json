@@ -14,6 +14,5 @@
   },
   "fraction_of_samples": 0.03,
   "exclude_values": [0],
-  "mask_of_samples_name": "MASK_OF_SAMPLES",
-  "workers": 2
+  "mask_of_samples_name": "MASK_OF_SAMPLES"
 }
