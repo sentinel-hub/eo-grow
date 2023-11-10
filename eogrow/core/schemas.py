@@ -49,6 +49,7 @@ class PipelineSchema(BaseSchema):
         1, description="Number of workers for parallel execution of workflows. Parameter does not affect ray clusters."
     )
     ray_remote_kwargs: Dict[str, Any] = Field(
+        default_factory=dict,
         description=(
             "Keyword arguments passed to ray tasks when executing via `RayExecutor`. The options are specified [here]"
             "(https://docs.ray.io/en/latest/ray-core/api/doc/ray.remote_function.RemoteFunction.options.html)."
