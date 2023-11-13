@@ -43,7 +43,7 @@ class MergeSamplesPipeline(Pipeline):
             )
         )
         suffix: str = Field("", description="String to append to array filenames")
-        workers: int = Field(1, description="Number of threads used to load data from EOPatches in parallel.")
+        num_threads: int = Field(1, description="Number of threads used to load data from EOPatches in parallel.")
         skip_existing: Literal[False] = False
 
     config: Schema
@@ -78,7 +78,7 @@ class MergeSamplesPipeline(Pipeline):
             logs_handler_factory=EOExecutionHandler,
             raise_on_temporal_mismatch=self.config.raise_on_temporal_mismatch,
         )
-        execution_results = executor.run(multiprocess=True, workers=self.config.workers)
+        execution_results = executor.run(multiprocess=True, workers=self.config.num_threads)
 
         successful = [execution_names[idx] for idx in executor.get_successful_executions()]
         failed = [execution_names[idx] for idx in executor.get_failed_executions()]
