@@ -58,7 +58,7 @@ class PipelineSchema(BaseSchema):
     use_ray: BoolOrAuto = Field(
         "auto",
         description=(
-            "Whether to run the pipeline locally or using a (local or remote) ray cluster. When using `auto` the"
+            "Run the pipeline locally or using a (local or remote) ray cluster. When using `auto` the"
             " pipeline checks if it can connect to a cluster, and if none are available runs locally."
         ),
     )
@@ -77,7 +77,7 @@ class PipelineSchema(BaseSchema):
         ),
     )
     raise_on_temporal_mismatch: bool = Field(
-        False, description="Whether to treat `TemporalDimensionWarning` as an exception during EOExecution."
+        False, description="Treat `TemporalDimensionWarning` as an exception during EOExecution."
     )
 
 
