@@ -69,9 +69,7 @@ class PipelineSchema(BaseSchema):
     raise_on_temporal_mismatch: bool = Field(
         False, description="Treat `TemporalDimensionWarning` as an exception during EOExecution."
     )
-    debug: bool = Field(
-        False, description="Run pipeline without the `ray` wrapper to enable debugging."
-    )
+    debug: bool = Field(False, description="Run pipeline without the `ray` wrapper to enable debugging.")
 
 
 def build_schema_template(

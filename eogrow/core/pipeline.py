@@ -163,7 +163,13 @@ class Pipeline(EOGrowObject):
             self.patch_list will be used
         :return: Lists of successfully/unsuccessfully executed EOPatch names and the result of the EOWorkflow execution
         """
-        ray.init(address="auto", ignore_reinit_error=True)
+        if self.config.debug:
+            executor_class = EOExecutor
+            executor_kwargs = {}
+        else:
+            ray.init(address="auto", ignore_reinit_error=True)
+            executor_class = RayExecutor
+            executor_kwargs = {"ray_remote_kwargs": self.config.ray_remote_kwargs}
 
         LOGGER.info("Starting processing for %d EOPatches", len(execution_kwargs))
 
@@ -173,8 +179,6 @@ class Pipeline(EOGrowObject):
             list_of_kwargs.append(exec_kwargs)
             execution_names.append(exec_name)
 
-        executor_class = RayExecutor if not self.config.debug else EOExecutor
-        executor_kwargs = {"ray_remote_kwargs": self.config.ray_remote_kwargs} if not self.config.debug else {}
         executor = executor_class(
             workflow,
             list_of_kwargs,
