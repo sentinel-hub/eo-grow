@@ -208,7 +208,7 @@ def get_array_slices(
     :param slice_bbox: A bounding box of array to be sliced.
     :param resolution: A working resolution in CRS units.
     :param size: A working size.
-    :param raise_misaligned: Whether to raise an error if the slice would be pixel misaligned the initial array.
+    :param raise_misaligned: Raise an error if the slice would be pixel misaligned the initial array.
     :param limit_x: If provided it will clip the horizontal slice to a given interval, should be used to clip
         slice_bbox to bbox.
     :param limit_y: If provided it will clip the vertical slice to a given interval, should be used to clip slice_bbox

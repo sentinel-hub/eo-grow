@@ -242,7 +242,7 @@ class DownloadPipeline(BaseDownloadPipeline):
         bands: Optional[List[str]] = Field(description="Names of bands to download")
         additional_data: List[Feature] = Field(default_factory=list, description="Additional data to download")
         use_dn: bool = Field(
-            False, description="Whether to save bands as float32 reflectance (default), or int16 digital numbers."
+            False, description="Save bands as float32 reflectance (default), or int16 digital numbers."
         )
 
     config: Schema
