@@ -189,7 +189,7 @@ class Pipeline(EOGrowObject):
 
         successful = [execution_names[idx] for idx in executor.get_successful_executions()]
         failed = [execution_names[idx] for idx in executor.get_failed_executions()]
-        LOGGER.info("EOExecutor inished with %d / %d success rate", len(successful), len(successful) + len(failed))
+        LOGGER.info("EOExecutor finished with %d / %d success rate", len(successful), len(successful) + len(failed))
 
         if self.logging_manager.config.save_logs:
             executor.make_report(include_logs=self.logging_manager.config.include_logs_to_report)
