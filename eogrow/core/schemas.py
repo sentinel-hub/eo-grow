@@ -67,7 +67,7 @@ class PipelineSchema(BaseSchema):
         ),
     )
     raise_on_temporal_mismatch: bool = Field(
-        False, description="Whether to treat `TemporalDimensionWarning` as an exception during EOExecution."
+        False, description="Treat `TemporalDimensionWarning` as an exception during EOExecution."
     )
 
 

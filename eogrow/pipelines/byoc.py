@@ -74,7 +74,7 @@ class IngestByocTilesPipeline(Pipeline):
         cover_geometry: Optional[str] = Field(description="Specifies a geometry file describing the cover geometry.")
         _ensure_cover_geometry = ensure_defined_together("cover_geometry_folder_key", "cover_geometry")
 
-        reingest_existing: bool = Field(False, description="Whether to reingest or skip already ingested tiles.")
+        reingest_existing: bool = Field(False, description="Reingest or skip already ingested tiles.")
 
     config: Schema
 

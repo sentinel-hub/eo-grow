@@ -36,7 +36,7 @@ def convert_to_int(values: np.ndarray, raise_diff: bool, error: float = 1e-8) ->
     """Converts an array of floats into array of integers.
 
     :param values: An array of float values to be converted.
-    :param raise_diff: Whether to raise an error if float values differ from integer values for more than the expected
+    :param raise_diff: Raise an error if float values differ from integer values for more than the expected
         error.
     :param error: A joined maximal expected numerical error.
     """

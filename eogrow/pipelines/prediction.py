@@ -132,7 +132,7 @@ class RegressionPredictionPipeline(BasePredictionPipeline):
         output_feature_name: str
         model_filename: str = Field(description="A filename of a regression model to be used for prediction.")
         clip_predictions: Optional[Tuple[float, float]] = Field(
-            description="Whether to clip values of predictions to specified interval"
+            description="Clip values of predictions to specified interval"
         )
 
     config: Schema

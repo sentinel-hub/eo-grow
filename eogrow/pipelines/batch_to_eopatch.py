@@ -77,9 +77,7 @@ class BatchToEOPatchPipeline(Pipeline):
                 ), "At least one of `userdata_feature_name`, `userdata_timestamp_reader`, or `mapping` has to be set."
             return value
 
-        remove_batch_data: bool = Field(
-            True, description="Whether to remove the raw batch data after the conversion is complete"
-        )
+        remove_batch_data: bool = Field(True, description="Remove the raw batch data after the conversion is complete")
 
     config: Schema
 

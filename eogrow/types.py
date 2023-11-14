@@ -3,7 +3,7 @@
 
 import datetime
 import sys
-from typing import Any, Dict, List, Literal, Tuple, Union
+from typing import Any, Dict, List, Tuple
 
 if sys.version_info >= (3, 10):
     from typing import TypeAlias
@@ -18,8 +18,6 @@ ExecKwargs: TypeAlias = Dict[str, Dict[EONode, Dict[str, object]]]
 
 ImportPath: TypeAlias = str
 TimePeriod: TypeAlias = Tuple[datetime.date, datetime.date]
-
-BoolOrAuto: TypeAlias = Union[Literal["auto"], bool]
 
 JsonDict: TypeAlias = Dict[str, Any]
 RawSchemaDict: TypeAlias = Dict[str, Any]
