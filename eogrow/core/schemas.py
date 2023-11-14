@@ -70,7 +70,7 @@ class PipelineSchema(BaseSchema):
         False, description="Treat `TemporalDimensionWarning` as an exception during EOExecution."
     )
     debug: bool = Field(
-        False, description="Run pipeline with less parallelization to enable coupling with the debugger."
+        False, description="Run pipeline without the `ray` wrapper to enable debugging."
     )
 
 
