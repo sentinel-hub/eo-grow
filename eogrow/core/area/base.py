@@ -114,7 +114,7 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
         LOGGER.info("Saving grid to %s", grid_path)
 
         with LocalFile(grid_path, mode="w", filesystem=self.storage.filesystem) as local_file:
-            for _, crs_grid in grid.items():
+            for crs_grid in grid.values():
                 crs_grid.to_file(
                     local_file.path,
                     driver="GPKG",

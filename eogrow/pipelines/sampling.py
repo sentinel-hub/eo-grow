@@ -95,7 +95,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
                     raise ValueError(f"Only spatial features can be sampled, but found {feature_type}: {feature_names}")
 
                 for feature_name in feature_names:
-                    load_features.append((feature_type, feature_name))
+                    load_features.append((feature_type, feature_name))  # noqa: PERF401
 
             load_task = LoadTask(
                 self.storage.get_folder(folder_name),
@@ -118,7 +118,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
     def _get_features_to_sample(self) -> list[tuple[FeatureType, str, str]]:
         """Get a list of features that will be sampled, together with their new names"""
         features_to_sample = []
-        for _, features in self.config.apply_to.items():
+        for features in self.config.apply_to.values():
             for feature_type, feature_names in features.items():
                 for feature_name in feature_names:
                     if self.config.sampled_suffix is None:
@@ -169,7 +169,7 @@ class BaseRandomSamplingPipeline(BaseSamplingPipeline, metaclass=abc.ABCMeta):  
 
         generator = np.random.default_rng(seed=self.config.seed)
 
-        for _, patch_args in exec_args.items():
+        for patch_args in exec_args.values():
             patch_args[sampling_node] = dict(seed=generator.integers(low=0, high=2**32))
 
         return exec_args
