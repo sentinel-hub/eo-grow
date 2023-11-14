@@ -161,14 +161,14 @@ class GenerateDataPipeline(Pipeline):
 
         for node, node_seed in per_node_seeds.items():
             if isinstance(node.task, CreateEOPatchTask):
-                for _, patch_args in exec_args.items():
+                for patch_args in exec_args.values():
                     patch_args[node]["meta_info"] = self.config.meta_info
             if isinstance(node.task, GenerateTimestampsTask) and same_timestamps:
-                for _, patch_args in exec_args.items():
+                for patch_args in exec_args.values():
                     patch_args[node] = dict(seed=node_seed)
             elif isinstance(node.task, (GenerateRasterFeatureTask, GenerateTimestampsTask)):
                 node_rng = np.random.default_rng(seed=node_seed)
-                for _, patch_args in exec_args.items():
+                for patch_args in exec_args.values():
                     patch_args[node] = dict(seed=node_rng.integers(low=0, high=2**32))
 
         return exec_args
