@@ -164,7 +164,7 @@ class Pipeline(EOGrowObject):
         :return: Lists of successfully/unsuccessfully executed EOPatch names and the result of the EOWorkflow execution
         """
         if self.config.debug:
-            executor_class = EOExecutor
+            executor_class: type[EOExecutor] = EOExecutor
             executor_kwargs = {}
         else:
             ray.init(address="auto", ignore_reinit_error=True)
