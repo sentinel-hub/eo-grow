@@ -192,7 +192,7 @@ class Pipeline(EOGrowObject):
         successful = [execution_names[idx] for idx in executor.get_successful_executions()]
         failed = [execution_names[idx] for idx in executor.get_failed_executions()]
         LOGGER.info(
-            "%s inished with %d / %d success rate",
+            "%s finished with %d / %d success rate",
             executor_class.__name__,
             len(successful),
             len(successful) + len(failed),
