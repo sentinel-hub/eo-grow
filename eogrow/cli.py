@@ -1,5 +1,6 @@
 """Implements the command line interface for `eo-grow`."""
 
+import ast
 import json
 import os
 import re
@@ -66,7 +67,7 @@ def run_pipeline(
 
     raw_configs = collect_configs_from_path(config_path)
     cli_variable_mapping = dict(_parse_cli_variable(cli_var) for cli_var in cli_variables)
-    ray_kwargs = json.loads(ray_remote_kwargs)
+    ray_kwargs = ast.literal_eval(ray_remote_kwargs)
 
     configs = []
     for raw_config in raw_configs:
@@ -112,7 +113,7 @@ def run_pipeline_on_cluster(
     use_tmux: bool,
     cli_variables: Tuple[str, ...],
     test_patches: Tuple[int, ...],
-    ray_remote_kwargs_option: str,
+    ray_remote_kwargs: str,
 ) -> None:
     """Command for running an eo-grow pipeline on a remote Ray cluster of AWS EC2 instances. The provided config is
     fully constructed and uploaded to the cluster head in the `~/.synced_configs/` directory, where it is then
@@ -139,7 +140,7 @@ def run_pipeline_on_cluster(
         f"eogrow {remote_path}"
         + "".join(f' -v "{cli_var_spec}"' for cli_var_spec in cli_variables)  # B028
         + "".join(f" -t {patch_index}" for patch_index in test_patches)
-        + f" --ray_remote_kwargs {ray_remote_kwargs_option!r}"
+        + rf' --ray_remote_kwargs "{ray_remote_kwargs}"'
     )
     exec_flags = "--tmux" if use_tmux else ""
 
