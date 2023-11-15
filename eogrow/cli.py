@@ -85,6 +85,7 @@ def run_pipeline(
         if config.get("debug", False):
             load_pipeline_class(config).from_raw_config(config).run()
         else:
+            ray.init(address="auto", ignore_reinit_error=True)
             ray.get(_pipeline_spawner.options(**ray_kwargs).remote(config))  # type: ignore[attr-defined]
 
 
