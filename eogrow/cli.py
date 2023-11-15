@@ -37,13 +37,26 @@ test_patches_option = click.option(
         "Example: -t 0 -t 42 will run the pipeline for EOPatches with indices 0 and 42."
     ),
 )
+ray_remote_kwargs_option = click.option(
+    "--ray_remote_kwargs",
+    "ray_remote_kwargs",
+    type=str,
+    help=(
+        "String representation of a dictionary that is passed to the `ray.remote` when spawning the main pipeline"
+        " process. Example: \"{'num_cpus': 2, 'resources': {'BigWorker': 1}}\""
+    ),
+    default="{}",
+)
 
 
 @click.command()
 @click.argument("config_path", type=click.Path())
 @variables_option
 @test_patches_option
-def run_pipeline(config_path: str, cli_variables: Tuple[str, ...], test_patches: Tuple[int, ...]) -> None:
+@ray_remote_kwargs_option
+def run_pipeline(
+    config_path: str, cli_variables: Tuple[str, ...], test_patches: Tuple[int, ...], ray_remote_kwargs: str
+) -> None:
     """Execute eo-grow pipeline using CLI.
 
     \b
@@ -53,6 +66,7 @@ def run_pipeline(config_path: str, cli_variables: Tuple[str, ...], test_patches:
 
     raw_configs = collect_configs_from_path(config_path)
     cli_variable_mapping = dict(_parse_cli_variable(cli_var) for cli_var in cli_variables)
+    ray_kwargs = json.loads(ray_remote_kwargs)
 
     configs = []
     for raw_config in raw_configs:
@@ -67,7 +81,7 @@ def run_pipeline(config_path: str, cli_variables: Tuple[str, ...], test_patches:
         if config.get("debug", False):
             load_pipeline_class(config).from_raw_config(config).run()
         else:
-            ray.get(_pipeline_spawner.remote(config))
+            ray.get(_pipeline_spawner.options(**ray_kwargs).remote(config))
 
 
 @ray.remote
