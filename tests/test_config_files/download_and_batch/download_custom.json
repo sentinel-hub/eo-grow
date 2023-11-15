@@ -8,6 +8,5 @@
   "resolution": 10,
   "maxcc": 0.3,
   "time_difference": 120,
-  "additional_data": [["mask", "dataMask"]],
-  "workers": 2
+  "additional_data": [["mask", "dataMask"]]
 }

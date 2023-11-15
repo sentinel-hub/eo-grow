@@ -23,6 +23,5 @@
   "additional_data": [
     ["mask", "CLM"],
     ["mask", "dataMask"]
-  ],
-  "workers": 2
+  ]
 }

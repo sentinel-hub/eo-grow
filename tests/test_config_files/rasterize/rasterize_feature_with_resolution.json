@@ -8,6 +8,5 @@
   "resolution": 10,
   "overlap_value": 0,
   "dtype": "int16",
-  "workers": 2,
   "**global_config": "${config_path}/../global_config.json"
 }

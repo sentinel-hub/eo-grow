@@ -5,6 +5,5 @@
   "output_folder_key": "temp",
   "data_collection": "DEM",
   "feature_name": "DEM",
-  "resolution": 10,
-  "workers": 2
+  "resolution": 10
 }

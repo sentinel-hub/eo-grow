@@ -9,10 +9,11 @@ import fs
 import numpy as np
 from pydantic import Field
 
-from eolearn.core import EOPatch, EOWorkflow, FeatureType, LoadTask, OutputTask, linearly_connect_tasks
+from eolearn.core import EOExecutor, EOPatch, EOWorkflow, FeatureType, LoadTask, OutputTask, linearly_connect_tasks
 from eolearn.core.types import Feature
 from eolearn.core.utils.fs import get_full_path
 
+from ..core.logging import EOExecutionFilter, EOExecutionHandler
 from ..core.pipeline import Pipeline
 from ..utils.validators import ensure_storage_key_presence
 
@@ -42,8 +43,7 @@ class MergeSamplesPipeline(Pipeline):
             )
         )
         suffix: str = Field("", description="String to append to array filenames")
-        workers: int = Field(1, description="Number of threads used to load data from EOPatches in parallel.")
-        use_ray: Literal[False] = Field(False, description="Pipeline does not parallelize properly.")
+        num_threads: int = Field(1, description="Number of threads used to load data from EOPatches in parallel.")
         skip_existing: Literal[False] = False
 
     config: Schema
@@ -59,9 +59,36 @@ class MergeSamplesPipeline(Pipeline):
         # It doesn't make sense to parallelize loading over a cluster, but it would # make sense to parallelize over
         # features that have to be concatenated or, if we would concatenate into multiple files, parallelize creating
         # batches of features
-        successful, failed, results = self.run_execution(workflow, exec_args, multiprocess=False)
+        LOGGER.info("Starting processing for %d EOPatches", len(exec_args))
 
-        result_patches = [cast(EOPatch, result.outputs.get(self._OUTPUT_NAME)) for result in results]
+        # Unpacking manually to ensure order matches
+        list_of_kwargs, execution_names = [], []
+        for exec_name, exec_kwargs in exec_args.items():
+            list_of_kwargs.append(exec_kwargs)
+            execution_names.append(exec_name)
+
+        executor = EOExecutor(
+            workflow,
+            list_of_kwargs,
+            execution_names=execution_names,
+            save_logs=self.logging_manager.config.save_logs,
+            logs_folder=self.logging_manager.get_pipeline_logs_folder(self.current_execution_name),
+            filesystem=self.storage.filesystem,
+            logs_filter=EOExecutionFilter(ignore_packages=self.logging_manager.config.eoexecution_ignore_packages),
+            logs_handler_factory=EOExecutionHandler,
+            raise_on_temporal_mismatch=self.config.raise_on_temporal_mismatch,
+        )
+        execution_results = executor.run(multiprocess=True, workers=self.config.num_threads)
+
+        successful = [execution_names[idx] for idx in executor.get_successful_executions()]
+        failed = [execution_names[idx] for idx in executor.get_failed_executions()]
+        LOGGER.info("EOExecutor finished with %d / %d success rate", len(successful), len(successful) + len(failed))
+
+        if self.logging_manager.config.save_logs:
+            executor.make_report(include_logs=self.logging_manager.config.include_logs_to_report)
+            LOGGER.info("Saved EOExecution report to %s", executor.get_report_path(full_path=True))
+
+        result_patches = [cast(EOPatch, result.outputs.get(self._OUTPUT_NAME)) for result in execution_results]
 
         self.merge_and_save_features(result_patches)
 

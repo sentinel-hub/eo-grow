@@ -7,13 +7,14 @@ import time
 import uuid
 from typing import Any, TypeVar
 
+import ray
+
 from eolearn.core import CreateEOPatchTask, EOExecutor, EONode, EOWorkflow, LoadTask, SaveTask, WorkflowResults
 from eolearn.core.extra.ray import RayExecutor
 
-from ..types import ExecKwargs, PatchList, ProcessingType
+from ..types import ExecKwargs, PatchList
 from ..utils.general import current_timestamp
 from ..utils.meta import import_object
-from ..utils.ray import handle_ray_connection
 from .area.base import BaseAreaManager
 from .base import EOGrowObject
 from .config import RawConfig
@@ -148,13 +149,6 @@ class Pipeline(EOGrowObject):
             exec_kwargs[name] = patch_args
         return exec_kwargs
 
-    def _init_processing(self) -> ProcessingType:
-        """Figures out which execution mode is used and configures connection to Ray if required."""
-        is_connected = handle_ray_connection(self.config.use_ray)
-        if is_connected:
-            return ProcessingType.RAY
-        return ProcessingType.MULTI if self.config.workers > 1 else ProcessingType.SINGLE
-
     def run_execution(
         self,
         workflow: EOWorkflow,
@@ -169,18 +163,15 @@ class Pipeline(EOGrowObject):
             self.patch_list will be used
         :return: Lists of successfully/unsuccessfully executed EOPatch names and the result of the EOWorkflow execution
         """
-        executor_class: type[EOExecutor]
-
-        execution_kind = self._init_processing()
-        extra_kwargs = {}
-        if execution_kind is ProcessingType.RAY:
-            executor_class = RayExecutor
-            extra_kwargs = {"ray_remote_kwargs": self.config.ray_remote_kwargs}
+        if self.config.debug:
+            executor_class: type[EOExecutor] = EOExecutor
+            executor_kwargs = {}
         else:
-            executor_class = EOExecutor
-            executor_run_params["workers"] = self.config.workers
+            ray.init(address="auto", ignore_reinit_error=True)
+            executor_class = RayExecutor
+            executor_kwargs = {"ray_remote_kwargs": self.config.ray_remote_kwargs}
 
-        LOGGER.info("Starting %s for %d EOPatches", executor_class.__name__, len(execution_kwargs))
+        LOGGER.info("Starting processing for %d EOPatches", len(execution_kwargs))
 
         # Unpacking manually to ensure order matches
         list_of_kwargs, execution_names = [], []
@@ -198,7 +189,7 @@ class Pipeline(EOGrowObject):
             logs_filter=EOExecutionFilter(ignore_packages=self.logging_manager.config.eoexecution_ignore_packages),
             logs_handler_factory=EOExecutionHandler,
             raise_on_temporal_mismatch=self.config.raise_on_temporal_mismatch,
-            **extra_kwargs,
+            **executor_kwargs,
         )
         execution_results = executor.run(**executor_run_params)
 

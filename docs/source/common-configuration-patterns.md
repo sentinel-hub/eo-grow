@@ -9,8 +9,6 @@ Invoking `eogrow-template "eogrow.pipelines.zipmap.ZipMapPipeline" "zipmap.json"
 {
   "pipeline": "eogrow.pipelines.zipmap.ZipMapPipeline",
   "pipeline_name": "<< Optional[str] >>",
-  "workers": "<< 1 : int >>",
-  "use_ray": "<< 'auto' : Union[Literal['auto'], bool] >>",
   "input_features": {
     "<< type >>": "List[InputFeatureSchema]",
     "<< nested schema >>": "<class 'eogrow.pipelines.zipmap.InputFeatureSchema'>",

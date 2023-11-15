@@ -5,7 +5,6 @@ from __future__ import annotations
 import abc
 import datetime as dt
 import logging
-from contextlib import nullcontext
 from typing import Any, Callable, List, Optional, Tuple
 
 import fs
@@ -24,12 +23,11 @@ from sentinelhub import (
     SentinelHubSession,
     Unit,
 )
-from sentinelhub.download import SessionSharing, collect_shared_session
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..tasks.common import LinearFunctionTask
-from ..types import ExecKwargs, PatchList, ProcessingType, TimePeriod
+from ..types import ExecKwargs, PatchList, TimePeriod
 from ..utils.filter import get_patches_with_missing_features
 from ..utils.validators import (
     ensure_exactly_one_defined,
@@ -116,12 +114,10 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
     def _get_download_node(self, session_loader: SessionLoaderType) -> EONode:
         """Provides node for downloading data."""
 
-    def _create_session_loader(self, execution_kind: ProcessingType) -> SessionLoaderType:
-        if execution_kind is ProcessingType.RAY:
-            session = SentinelHubSession(self.sh_config)
-            actor = RaySessionActor.remote(session)  # type: ignore[attr-defined]
-            return lambda: ray.get(actor.get_valid_session.remote())
-        return collect_shared_session if execution_kind is ProcessingType.MULTI else None
+    def _create_session_loader(self) -> SessionLoaderType:
+        session = SentinelHubSession(self.sh_config)
+        actor = RaySessionActor.remote(session)  # type: ignore[attr-defined]
+        return lambda: ray.get(actor.get_valid_session.remote())
 
     @staticmethod
     def get_postprocessing_node(postprocessing_config: PostprocessingRescale, previous_node: EONode) -> EONode:
@@ -176,18 +172,11 @@ class BaseDownloadPipeline(Pipeline, metaclass=abc.ABCMeta):
         return exec_args
 
     def run_procedure(self) -> tuple[list[str], list[str]]:
-        execution_kind = self._init_processing()
-        session_loader = self._create_session_loader(execution_kind)
-
         patch_list = self.get_patch_list()
-        workflow = self.build_workflow(session_loader)
+        workflow = self.build_workflow(self._create_session_loader())
         exec_args = self.get_execution_arguments(workflow, patch_list)
 
-        context: SessionSharing | nullcontext = nullcontext()
-        if execution_kind is ProcessingType.MULTI:
-            context = SessionSharing(SentinelHubSession(self.sh_config))
-        with context:
-            finished, failed, _ = self.run_execution(workflow, exec_args)
+        finished, failed, _ = self.run_execution(workflow, exec_args)
 
         return finished, failed
 

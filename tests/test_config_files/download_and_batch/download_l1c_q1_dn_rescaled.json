@@ -20,6 +20,5 @@
         "features_to_rescale": [["data", "BANDS-S2-L1C"]]
       }
     ]
-  },
-  "workers": 2
+  }
 }
