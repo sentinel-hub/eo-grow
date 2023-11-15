@@ -8,6 +8,7 @@ from tempfile import NamedTemporaryFile
 from typing import Optional, Tuple
 
 import click
+import ray
 
 from .core.config import collect_configs_from_path, interpret_config_from_dict
 from .core.logging import CLUSTER_FILE_LOCATION_ON_HEAD
@@ -53,16 +54,25 @@ def run_pipeline(config_path: str, cli_variables: Tuple[str, ...], test_patches:
     raw_configs = collect_configs_from_path(config_path)
     cli_variable_mapping = dict(_parse_cli_variable(cli_var) for cli_var in cli_variables)
 
-    pipelines = []
+    configs = []
     for raw_config in raw_configs:
         config = interpret_config_from_dict(raw_config, cli_variable_mapping)
         if test_patches:
             config["test_subset"] = list(test_patches)
 
-        pipelines.append(load_pipeline_class(config).from_raw_config(config))
+        load_pipeline_class(config).from_raw_config(config)  # quickly validates all pipelines
+        configs.append(config)
 
-    for pipeline in pipelines:
-        pipeline.run()
+    for config in configs:
+        if config.get("debug", False):
+            load_pipeline_class(config).from_raw_config(config).run()
+        else:
+            ray.get(_pipeline_spawner.remote(config))
+
+
+@ray.remote
+def _pipeline_spawner(config: dict) -> None:
+    load_pipeline_class(config).from_raw_config(config).run()
 
 
 @click.command()
