@@ -1,10 +1,10 @@
 """Implements the command line interface for `eo-grow`."""
 
-import ast
 import json
 import os
 import re
 import subprocess
+from collections import defaultdict
 from tempfile import NamedTemporaryFile
 from typing import Optional, Tuple
 
@@ -39,14 +39,15 @@ test_patches_option = click.option(
     ),
 )
 ray_remote_kwargs_option = click.option(
+    "-r",
     "--ray_remote_kwargs",
     "ray_remote_kwargs",
+    multiple=True,
     type=str,
     help=(
-        "String representation of a dictionary that is passed to the `ray.remote` when spawning the main pipeline"
-        " process. Example: \"{'num_cpus': 2, 'resources': {'BigWorker': 1}}\""
+        'Specify parameters passed to `ray.remote` in form of `"num_cpus:2"` or `"resources.my_resource:1"` for values'
+        " passed to the `resources` parameter of `ray.remote`."
     ),
-    default="{}",
 )
 
 
@@ -56,7 +57,7 @@ ray_remote_kwargs_option = click.option(
 @test_patches_option
 @ray_remote_kwargs_option
 def run_pipeline(
-    config_path: str, cli_variables: Tuple[str, ...], test_patches: Tuple[int, ...], ray_remote_kwargs: str
+    config_path: str, cli_variables: Tuple[str, ...], test_patches: Tuple[int, ...], ray_remote_kwargs: Tuple[str, ...]
 ) -> None:
     """Execute eo-grow pipeline using CLI.
 
@@ -66,8 +67,8 @@ def run_pipeline(
     """
 
     raw_configs = collect_configs_from_path(config_path)
-    cli_variable_mapping = dict(_parse_cli_variable(cli_var) for cli_var in cli_variables)
-    ray_kwargs = ast.literal_eval(ray_remote_kwargs)
+    cli_variable_mapping = dict(_parse_cli_mapping(cli_var) for cli_var in cli_variables)
+    ray_kwargs = _parse_ray_remote_kwargs(ray_remote_kwargs)
 
     configs = []
     for raw_config in raw_configs:
@@ -140,7 +141,7 @@ def run_pipeline_on_cluster(
         f"eogrow {remote_path}"
         + "".join(f' -v "{cli_var_spec}"' for cli_var_spec in cli_variables)  # B028
         + "".join(f" -t {patch_index}" for patch_index in test_patches)
-        + rf' --ray_remote_kwargs "{ray_remote_kwargs}"'
+        + "".join(f' -r "{ray_kwarg}"' for ray_kwarg in ray_remote_kwargs)  # B028
     )
     exec_flags = "--tmux" if use_tmux else ""
 
@@ -254,10 +255,20 @@ def run_test_pipeline(config_path: str) -> None:
         pipeline.run()
 
 
-def _parse_cli_variable(mapping_str: str) -> Tuple[str, str]:
+def _parse_cli_mapping(mapping_str: str) -> Tuple[str, str]:
     """Checks that the input is of shape `name:value` and then splits it into a tuple"""
     match = re.match(r"(?P<name>.+?):(?P<value>.+)", mapping_str)
     if match is None:
-        raise ValueError(f'CLI variable input {mapping_str} is not of form `"name:value"`')
+        raise ValueError(f'CLI input {mapping_str} is not of form `"name:value"`')
     parsed = match.groupdict()
     return parsed["name"], parsed["value"]
+
+
+def _parse_ray_remote_kwargs(ray_remote_kwargs):
+    ray_kwargs = defaultdict(dict)
+    for param, value in map(_parse_cli_mapping, ray_remote_kwargs):
+        if param.startswith("resources."):
+            ray_kwargs["resources"][param.replace("resources.", "")] = int(value)
+        else:
+            ray_kwargs[param] = int(value)
+    return ray_kwargs
