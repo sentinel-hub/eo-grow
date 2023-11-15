@@ -1,17 +1,19 @@
 """Implements the command line interface for `eo-grow`."""
 
+from __future__ import annotations
+
 import json
 import os
 import re
 import subprocess
 from collections import defaultdict
 from tempfile import NamedTemporaryFile
-from typing import Optional, Tuple
+from typing import Any
 
 import click
 import ray
 
-from .core.config import collect_configs_from_path, interpret_config_from_dict
+from .core.config import RawConfig, collect_configs_from_path, interpret_config_from_dict
 from .core.logging import CLUSTER_FILE_LOCATION_ON_HEAD
 from .core.schemas import build_schema_template
 from .pipelines.testing import TestPipeline
@@ -57,7 +59,7 @@ ray_remote_kwargs_option = click.option(
 @test_patches_option
 @ray_remote_kwargs_option
 def run_pipeline(
-    config_path: str, cli_variables: Tuple[str, ...], test_patches: Tuple[int, ...], ray_remote_kwargs: Tuple[str, ...]
+    config_path: str, cli_variables: tuple[str, ...], test_patches: tuple[int, ...], ray_remote_kwargs: tuple[str, ...]
 ) -> None:
     """Execute eo-grow pipeline using CLI.
 
@@ -83,11 +85,11 @@ def run_pipeline(
         if config.get("debug", False):
             load_pipeline_class(config).from_raw_config(config).run()
         else:
-            ray.get(_pipeline_spawner.options(**ray_kwargs).remote(config))
+            ray.get(_pipeline_spawner.options(**ray_kwargs).remote(config))  # type: ignore[attr-defined]
 
 
 @ray.remote
-def _pipeline_spawner(config: dict) -> None:
+def _pipeline_spawner(config: RawConfig) -> None:
     load_pipeline_class(config).from_raw_config(config).run()
 
 
@@ -112,8 +114,8 @@ def run_pipeline_on_cluster(
     cluster_yaml: str,
     start_cluster: bool,
     use_tmux: bool,
-    cli_variables: Tuple[str, ...],
-    test_patches: Tuple[int, ...],
+    cli_variables: tuple[str, ...],
+    test_patches: tuple[int, ...],
     ray_remote_kwargs: str,
 ) -> None:
     """Command for running an eo-grow pipeline on a remote Ray cluster of AWS EC2 instances. The provided config is
@@ -185,7 +187,7 @@ def run_pipeline_on_cluster(
 )
 def make_template(
     import_path: str,
-    template_path: Optional[str],
+    template_path: str | None,
     force_override: bool,
     template_format: str,
     required_only: bool,
@@ -255,7 +257,7 @@ def run_test_pipeline(config_path: str) -> None:
         pipeline.run()
 
 
-def _parse_cli_mapping(mapping_str: str) -> Tuple[str, str]:
+def _parse_cli_mapping(mapping_str: str) -> tuple[str, str]:
     """Checks that the input is of shape `name:value` and then splits it into a tuple"""
     match = re.match(r"(?P<name>.+?):(?P<value>.+)", mapping_str)
     if match is None:
@@ -264,11 +266,9 @@ def _parse_cli_mapping(mapping_str: str) -> Tuple[str, str]:
     return parsed["name"], parsed["value"]
 
 
-def _parse_ray_remote_kwargs(ray_remote_kwargs):
-    ray_kwargs = defaultdict(dict)
+def _parse_ray_remote_kwargs(ray_remote_kwargs: tuple[str, ...]) -> dict[str, Any]:
+    ray_kwargs: dict[str, Any] = defaultdict(dict)
     for param, value in map(_parse_cli_mapping, ray_remote_kwargs):
-        if param.startswith("resources."):
-            ray_kwargs["resources"][param.replace("resources.", "")] = int(value)
-        else:
-            ray_kwargs[param] = int(value)
+        kwargs = ray_kwargs["resources"] if param.startswith("resources.") else ray_kwargs
+        kwargs[param] = float(value)
     return ray_kwargs
