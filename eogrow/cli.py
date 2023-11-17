@@ -12,7 +12,7 @@ import click
 
 from .core.config import CrudeConfig, RawConfig, collect_configs_from_path, interpret_config_from_dict
 from .core.logging import CLUSTER_FILE_LOCATION_ON_HEAD
-from .core.pipeline_chain import validate_chain
+from .core.pipeline_chain import run_pipeline_chain, validate_chain
 from .core.schemas import build_schema_template
 from .pipelines.testing import TestPipeline
 from .utils.general import jsonify
@@ -63,9 +63,7 @@ def run_pipeline(config_path: str, cli_variables: tuple[str, ...], test_patches:
     else:
         pipeline_chain = [_prepare_config(config, cli_variable_mapping, test_patches) for config in crude_config]
         validate_chain(pipeline_chain)
-
-        for config in pipeline_chain:
-            load_pipeline_class(config).from_raw_config(config).run()
+        run_pipeline_chain(pipeline_chain)
 
 
 @click.command()
@@ -204,9 +202,12 @@ def validate_config(config_path: str) -> None:
     Example:
         eogrow-validate config_files/config.json
     """
-    for config in collect_configs_from_path(config_path):
-        raw_config = interpret_config_from_dict(config)
-        load_pipeline_class(config).Schema.parse_obj(raw_config)
+    config = collect_configs_from_path(config_path)
+    if isinstance(config, dict):
+        config = _prepare_config(config, {}, ())
+        collect_schema(load_pipeline_class(config)).parse_obj(config)
+    else:
+        validate_chain([_prepare_config(run_config, {}, ()) for run_config in config])
 
     click.echo("Config validation succeeded!")
 
@@ -227,7 +228,7 @@ def run_test_pipeline(config_path: str) -> None:
         pipeline.run()
 
 
-def _prepare_config(config: CrudeConfig, variables: dict[str, str], test_patches: list[int | str]) -> RawConfig:
+def _prepare_config(config: CrudeConfig, variables: dict[str, str], test_patches: tuple[int]) -> RawConfig:
     config = interpret_config_from_dict(config, variables)
     if test_patches:
         config["test_subset"] = list(test_patches)
