@@ -7,6 +7,7 @@ import os
 import re
 import subprocess
 from tempfile import NamedTemporaryFile
+from typing import Iterable
 
 import click
 
@@ -204,8 +205,8 @@ def validate_config(config_path: str) -> None:
     """
     config = collect_configs_from_path(config_path)
     if isinstance(config, dict):
-        config = _prepare_config(config, {}, ())
-        collect_schema(load_pipeline_class(config)).parse_obj(config)
+        pipeline_config = _prepare_config(config, {}, ())
+        collect_schema(load_pipeline_class(pipeline_config)).parse_obj(pipeline_config)
     else:
         validate_chain([_prepare_config(run_config, {}, ()) for run_config in config])
 
@@ -228,11 +229,11 @@ def run_test_pipeline(config_path: str) -> None:
         pipeline.run()
 
 
-def _prepare_config(config: CrudeConfig, variables: dict[str, str], test_patches: tuple[int]) -> RawConfig:
-    config = interpret_config_from_dict(config, variables)
+def _prepare_config(config: CrudeConfig, variables: dict[str, str], test_patches: Iterable[int]) -> RawConfig:
+    raw_config = interpret_config_from_dict(config, variables)
     if test_patches:
-        config["test_subset"] = list(test_patches)
-    return config
+        raw_config["test_subset"] = list(test_patches)
+    return raw_config
 
 
 def _parse_cli_variable(mapping_str: str) -> tuple[str, str]:

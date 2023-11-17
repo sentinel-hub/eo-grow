@@ -5,7 +5,7 @@ from __future__ import annotations
 import copy
 import re
 from functools import reduce
-from typing import Any, Callable, NewType, cast
+from typing import Any, Callable, List, NewType, Union, cast
 
 import fs.path
 import rapidjson
@@ -38,9 +38,9 @@ def collect_configs_from_path(path: str, used_config_paths: set[str] | None = No
 
     config = _recursive_config_build(config, used_config_paths)
 
-    if isinstance(config, (dict, list)):
-        return config
-    raise ValueError(f"When interpreting config from {path} a dictionary or list was expected, got {type(config)}.")
+    if not isinstance(config, (dict, list)):
+        raise ValueError(f"When interpreting config from {path} a dictionary or list was expected, got {type(config)}.")
+    return cast(Union[CrudeConfig, List[CrudeConfig]], config)
 
 
 def _recursive_config_build(config: object, used_config_paths: set[str]) -> object:

@@ -15,7 +15,7 @@ class PipelineRunSchema(BaseSchema):
     ray_remote_kwargs: dict = Field(default_factory=dict)
 
 
-def validate_chain(pipeline_chain: list[RawConfig]):
+def validate_chain(pipeline_chain: list[RawConfig]) -> None:
     for i, run_config in enumerate(pipeline_chain):
         try:
             run_schema = PipelineRunSchema.parse_obj(run_config)
@@ -29,13 +29,13 @@ def validate_chain(pipeline_chain: list[RawConfig]):
         pipeline_schema.parse_obj(run_schema.pipeline_config)
 
 
-def run_pipeline_chain(pipeline_chain: list[RawConfig]):
+def run_pipeline_chain(pipeline_chain: list[RawConfig]) -> None:
     for run_config in pipeline_chain:
         run_schema = PipelineRunSchema.parse_obj(run_config)
-        runner = _pipeline_runner.options(**run_schema.ray_remote_kwargs)
+        runner = _pipeline_runner.options(**run_schema.ray_remote_kwargs)  # type: ignore[attr-defined]
         ray.get(runner.remote(run_schema.pipeline_config))
 
 
 @ray.remote
-def _pipeline_runner(config: RawConfig):
+def _pipeline_runner(config: RawConfig) -> None:
     return load_pipeline_class(config).from_raw_config(config).run()
