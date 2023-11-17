@@ -12,11 +12,11 @@ import click
 
 from .core.config import CrudeConfig, RawConfig, collect_configs_from_path, interpret_config_from_dict
 from .core.logging import CLUSTER_FILE_LOCATION_ON_HEAD
-from .core.pipeline_chain import run_pipeline_chain, validate_chain
 from .core.schemas import build_schema_template
 from .pipelines.testing import TestPipeline
 from .utils.general import jsonify
 from .utils.meta import collect_schema, import_object, load_pipeline_class
+from .utils.pipeline_chain import run_pipeline_chain, validate_chain
 from .utils.ray import generate_cluster_config_path, start_cluster_if_needed
 
 variables_option = click.option(

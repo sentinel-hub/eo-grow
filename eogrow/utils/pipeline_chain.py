@@ -5,9 +5,9 @@ from __future__ import annotations
 import ray
 from pydantic import Field, ValidationError
 
-from ..utils.meta import collect_schema, load_pipeline_class
-from .config import RawConfig
-from .schemas import BaseSchema
+from ..core.config import RawConfig
+from ..core.schemas import BaseSchema
+from .meta import collect_schema, load_pipeline_class
 
 
 class PipelineRunSchema(BaseSchema):
