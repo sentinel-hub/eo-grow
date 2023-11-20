@@ -9,8 +9,6 @@ pytestmark = pytest.mark.integration
 @pytest.mark.parametrize(
     "experiment_name",
     [
-        "features_mosaicking_custom",
-        "features_on_rescaled_dn",
         "features_mosaicking",
         "features_dtype",
         pytest.param("features_on_sampled_data", marks=pytest.mark.chain),

@@ -15,7 +15,7 @@
     ],
     "has_cloud_coverage": true
   },
-  "time_period": ["season", 2018],
+  "time_period": ["Q3", 2020],
   "bands_feature_name": "BANDS-S2-L1C",
   "resolution": 10,
   "maxcc": 0.3,
