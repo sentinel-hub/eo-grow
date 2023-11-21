@@ -12,12 +12,7 @@ from eolearn.core.types import Feature
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
-from ..tasks.testing import (
-    GenerateRasterFeatureTask,
-    GenerateTimestampsTask,
-    NormalDistribution,
-    UniformDistribution,
-)
+from ..tasks.testing import GenerateRasterFeatureTask, GenerateTimestampsTask, NormalDistribution, UniformDistribution
 from ..types import ExecKwargs, PatchList, TimePeriod
 from ..utils.validators import ensure_storage_key_presence, field_validator, parse_dtype, parse_time_period
 
