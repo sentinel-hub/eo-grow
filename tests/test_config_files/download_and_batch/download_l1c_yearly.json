@@ -11,6 +11,5 @@
   "additional_data": [
     ["mask", "CLM"],
     ["mask", "dataMask"]
-  ],
-  "threads_per_worker": null
+  ]
 }

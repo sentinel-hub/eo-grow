@@ -169,7 +169,7 @@ class Pipeline(EOGrowObject):
         else:
             ray.init(address="auto", ignore_reinit_error=True)
             executor_class = RayExecutor
-            executor_kwargs = {"ray_remote_kwargs": self.config.ray_remote_kwargs}
+            executor_kwargs = {"ray_remote_kwargs": self.config.worker_resources}
 
         LOGGER.info("Starting processing for %d EOPatches", len(execution_kwargs))
 

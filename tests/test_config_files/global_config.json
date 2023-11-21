@@ -24,8 +24,6 @@
     "structure": {
       "data": "data",
       "batch_data": "batch-data",
-      "data_2019": "data-2019",
-      "data_custom_range": "data-custom-range",
       "data_sampled": "data-sampled",
       "features": "features",
       "features_sampled": "features-sampled",

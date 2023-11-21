@@ -45,7 +45,7 @@ class PipelineSchema(BaseSchema):
     logging: ManagerSchema = Field(description="A schema of an implementation of LoggingManager class")
     validate_logging = field_validator("logging", validate_manager, pre=True)
 
-    ray_remote_kwargs: Dict[str, Any] = Field(
+    worker_resources: Dict[str, Any] = Field(
         default_factory=dict,
         description=(
             "Keyword arguments passed to ray tasks when executing via `RayExecutor`. The options are specified [here]"
