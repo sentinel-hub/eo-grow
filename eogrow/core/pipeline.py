@@ -81,7 +81,7 @@ class Pipeline(EOGrowObject):
     def _load_manager(manager_config: ManagerSchema, **manager_params: Any) -> Any:
         """Loads a manager class and back-propagates parsed config
 
-        :param manager_key: A config key name of a sub-config with manager parameters
+        :param manager_config: A sub-config with manager parameters
         :param manager_params: Other parameters to initialize a manager class
         """
         if manager_config.manager is None:
@@ -94,7 +94,7 @@ class Pipeline(EOGrowObject):
         return f"{pipeline_timestamp}-{self._pipeline_name}-{self.pipeline_id}"
 
     def get_patch_list(self) -> PatchList:
-        """Method which at the initialization prepares the list of EOPatches which will be used"""
+        """Method that prepares the list of EOPatches for which to run the pipeline execution."""
         patch_list = self.area_manager.get_patch_list()
 
         if self.config.test_subset is not None:
@@ -130,7 +130,7 @@ class Pipeline(EOGrowObject):
         """Prepares execution arguments for each eopatch from a list of patches.
 
         The output should be a dictionary of form `{execution_name: {node: node_kwargs}}`. Execution names are usually
-         names of EOPatches, but can be anything.
+        names of EOPatches, but can be anything.
 
         :param workflow: A workflow for which arguments will be prepared
         """
@@ -262,8 +262,7 @@ class Pipeline(EOGrowObject):
         """
         if not hasattr(self, "build_workflow"):
             raise NotImplementedError(
-                "Default implementation of the `run_procedure` method requires implementation of the `build_workflow`"
-                " method."
+                "Implementation of the `run_procedure` method requires implementation of the `build_workflow` method."
             )
         workflow = self.build_workflow()
         patch_list = self.get_patch_list()
