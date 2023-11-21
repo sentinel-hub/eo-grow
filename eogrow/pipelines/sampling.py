@@ -92,7 +92,7 @@ class BaseSamplingPipeline(Pipeline, metaclass=abc.ABCMeta):
                 feature_type = FeatureType(feature_type_str)
 
                 if not feature_type.is_spatial():
-                    raise ValueError(f"Only spatial features can be sampled, but found {feature_type}: {feature_names}")
+                    raise TypeError(f"Only spatial features can be sampled, but found {feature_type}: {feature_names}")
 
                 for feature_name in feature_names:
                     load_features.append((feature_type, feature_name))  # noqa: PERF401
