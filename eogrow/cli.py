@@ -17,7 +17,7 @@ from .core.schemas import build_schema_template
 from .pipelines.testing import TestPipeline
 from .utils.general import jsonify
 from .utils.meta import collect_schema, import_object, load_pipeline_class
-from .utils.pipeline_chain import run_pipeline_chain, validate_chain
+from .utils.pipeline_chain import run_pipeline_chain, validate_pipeline_chain
 from .utils.ray import generate_cluster_config_path, start_cluster_if_needed
 
 variables_option = click.option(
@@ -63,7 +63,7 @@ def run_pipeline(config_path: str, cli_variables: tuple[str, ...], test_patches:
 
     else:
         pipeline_chain = [_prepare_config(config, cli_variable_mapping, test_patches) for config in crude_config]
-        validate_chain(pipeline_chain)
+        validate_pipeline_chain(pipeline_chain)
         run_pipeline_chain(pipeline_chain)
 
 
@@ -208,7 +208,7 @@ def validate_config(config_path: str) -> None:
         pipeline_config = _prepare_config(config, {}, ())
         collect_schema(load_pipeline_class(pipeline_config)).parse_obj(pipeline_config)
     else:
-        validate_chain([_prepare_config(run_config, {}, ()) for run_config in config])
+        validate_pipeline_chain([_prepare_config(run_config, {}, ()) for run_config in config])
 
     click.echo("Config validation succeeded!")
 

@@ -23,7 +23,7 @@ class PipelineRunSchema(BaseSchema):
     )
 
 
-def validate_chain(pipeline_chain: list[RawConfig]) -> None:
+def validate_pipeline_chain(pipeline_chain: list[RawConfig]) -> None:
     for i, run_config in enumerate(pipeline_chain):
         try:
             run_schema = PipelineRunSchema.parse_obj(run_config)
