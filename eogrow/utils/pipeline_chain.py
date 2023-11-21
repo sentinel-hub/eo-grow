@@ -1,4 +1,4 @@
-"""Implementation of the base Pipeline class."""
+"""Module implementing utilities for chained configs."""
 
 from __future__ import annotations
 
