@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any, Dict
+
 import ray
 from pydantic import Field, ValidationError
 
@@ -12,7 +14,13 @@ from .meta import collect_schema, load_pipeline_class
 
 class PipelineRunSchema(BaseSchema):
     pipeline_config: dict
-    ray_remote_kwargs: dict = Field(default_factory=dict)
+    pipeline_resources: Dict[str, Any] = Field(
+        default_factory=dict,
+        description=(
+            "Keyword arguments passed to ray when executing the main pipeline process. The options are specified [here]"
+            "(https://docs.ray.io/en/latest/ray-core/api/doc/ray.remote_function.RemoteFunction.options.html)."
+        ),
+    )
 
 
 def validate_chain(pipeline_chain: list[RawConfig]) -> None:
@@ -22,7 +30,7 @@ def validate_chain(pipeline_chain: list[RawConfig]) -> None:
         except ValidationError as e:
             raise TypeError(
                 f"Pipeline-chain element {i} should be a dictionary with the fields `pipeline_config` and the optional"
-                " `ray_remote_kwargs`."
+                " `pipeline_resources`."
             ) from e
 
         pipeline_schema = collect_schema(load_pipeline_class(run_schema.pipeline_config))
@@ -32,7 +40,7 @@ def validate_chain(pipeline_chain: list[RawConfig]) -> None:
 def run_pipeline_chain(pipeline_chain: list[RawConfig]) -> None:
     for run_config in pipeline_chain:
         run_schema = PipelineRunSchema.parse_obj(run_config)
-        runner = _pipeline_runner.options(**run_schema.ray_remote_kwargs)  # type: ignore[attr-defined]
+        runner = _pipeline_runner.options(**run_schema.pipeline_resources)  # type: ignore[attr-defined]
         ray.get(runner.remote(run_schema.pipeline_config))
 
 
