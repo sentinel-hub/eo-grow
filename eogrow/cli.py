@@ -14,7 +14,6 @@ import click
 from .core.config import CrudeConfig, RawConfig, collect_configs_from_path, interpret_config_from_dict
 from .core.logging import CLUSTER_FILE_LOCATION_ON_HEAD
 from .core.schemas import build_schema_template
-from .pipelines.testing import TestPipeline
 from .utils.general import jsonify
 from .utils.meta import collect_schema, import_object, load_pipeline_class
 from .utils.pipeline_chain import run_pipeline_chain, validate_pipeline_chain
@@ -211,22 +210,6 @@ def validate_config(config_path: str) -> None:
         validate_pipeline_chain([_prepare_config(run_config, {}, ()) for run_config in config])
 
     click.echo("Config validation succeeded!")
-
-
-@click.command()
-@click.argument("config_path", type=click.Path())
-def run_test_pipeline(config_path: str) -> None:
-    """Runs a test pipeline that only makes sure the managers work correctly. This can be used to select best
-    area manager parameters.
-
-    \b
-    Example:
-        eogrow-test any_pipeline_config.json
-    """
-    for crude_config in collect_configs_from_path(config_path):
-        raw_config = interpret_config_from_dict(crude_config)
-        pipeline = TestPipeline.with_defaults(raw_config)
-        pipeline.run()
 
 
 def _prepare_config(config: CrudeConfig, variables: dict[str, str], test_patches: Iterable[int]) -> RawConfig:

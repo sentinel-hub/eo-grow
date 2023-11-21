@@ -39,7 +39,7 @@ def collect_configs_from_path(path: str, used_config_paths: set[str] | None = No
     config = _recursive_config_build(config, used_config_paths)
 
     if not isinstance(config, (dict, list)):
-        raise ValueError(f"When interpreting config from {path} a dictionary or list was expected, got {type(config)}.")
+        raise TypeError(f"When interpreting config from {path} a dictionary or list was expected, got {type(config)}.")
     return cast(Union[CrudeConfig, List[CrudeConfig]], config)
 
 
@@ -57,7 +57,7 @@ def _recursive_config_build(config: object, used_config_paths: set[str]) -> obje
 
         for key, value in config.items():
             if not isinstance(key, str):
-                raise ValueError(f"Dictionary keys should always be strings, but found: {key}")
+                raise TypeError(f"Dictionary keys should always be strings, but found: {key}")
 
             if key.startswith("**"):
                 if value in used_config_paths:
@@ -89,6 +89,9 @@ def interpret_config_from_dict(config: CrudeConfig, external_variables: dict[str
     """
     _recursive_check_config(config)
 
+    if not isinstance(config, dict):
+        raise TypeError(f"Can only interpret dictionary objects, got {type(config)}.")
+
     config = cast(CrudeConfig, config.copy())
     variable_mapping = config.pop("variables", {})
     if external_variables:
@@ -101,10 +104,6 @@ def interpret_config_from_dict(config: CrudeConfig, external_variables: dict[str
     config_with_variables = _recursive_apply_to_strings(
         config, lambda config_str: _resolve_variables(config_str, variable_mapping)
     )
-    if not isinstance(config_with_variables, dict):
-        raise ValueError(
-            f"Interpretation resulted in object of type {type(config_with_variables)} but a dictionary was expected."
-        )
 
     return cast(RawConfig, config_with_variables)
 
@@ -153,14 +152,11 @@ def _recursive_apply_to_strings(config: object, function: Callable) -> object:
 
 
 def _recursive_check_config(config: object) -> None:
-    """Recursively checks if the config satisfies basic conditions for being JSON serializable.
-
-    :raises: ValueError
-    """
+    """Recursively checks if the config satisfies basic conditions for being JSON serializable."""
     if isinstance(config, dict):
         for key, value in config.items():
             if not isinstance(key, str):
-                raise ValueError(f"Config keys should be strings but {key} found")
+                raise TypeError(f"Config keys should be strings but {key} found")
             _recursive_check_config(value)
 
     elif isinstance(config, list):

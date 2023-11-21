@@ -131,7 +131,7 @@ class ExportMapsPipeline(Pipeline):
         successful, failed, _ = self.run_execution(workflow, exec_args)
 
         if not successful:
-            raise ValueError("Failed to extract tiff files from any of EOPatches.")
+            raise RuntimeError("Failed to extract tiff files from any of EOPatches.")
 
         feature_type, _ = self.config.feature
         output_folder = self.storage.get_folder(self.config.output_folder_key)
