@@ -269,7 +269,8 @@ def run_config(
     :param check_logs: If pipeline logs should be checked after the run completes. If EOWorkflows were used, the
         function fails if there were unsuccessful executions.
     """
-    crude_configs = collect_configs_from_path(config_path)
+    collected_configs = collect_configs_from_path(config_path)
+    crude_configs = collected_configs if isinstance(collected_configs, list) else [collected_configs]
     raw_configs = [interpret_config_from_dict(config) for config in crude_configs]
 
     for config in raw_configs:

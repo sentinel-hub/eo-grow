@@ -14,25 +14,26 @@ CONFIG_DICT = {
 CONFIG_LIST = [CONFIG_DICT, CONFIG_DICT]
 
 
-@pytest.mark.parametrize("config_object", [CONFIG_DICT, CONFIG_LIST])
-def test_config_from_file(config_object, temp_folder):
+def test_config_from_file_single(temp_folder):
     path = os.path.join(temp_folder, "config.json")
     with open(path, "w") as fp:
-        json.dump(config_object, fp)
+        json.dump(CONFIG_DICT, fp)
 
-    config_list = list(map(interpret_config_from_dict, collect_configs_from_path(path)))
-    if isinstance(config_object, dict):
-        directly_loaded_config = interpret_config_from_path(path)
-        assert len(config_list) == 1
-        assert isinstance(directly_loaded_config, dict)
-        assert isinstance(config_list[0], dict)
-        assert directly_loaded_config == config_object
-        assert config_list[0] == config_object
+    directly_loaded_config = interpret_config_from_path(path)
+    assert isinstance(directly_loaded_config, dict)
+    assert directly_loaded_config == CONFIG_DICT
+    assert directly_loaded_config == interpret_config_from_dict(collect_configs_from_path(path))
 
-    else:
-        assert isinstance(config_list, list)
-        assert all(isinstance(config, dict) for config in config_list)
-        assert config_list == config_object
+
+def test_config_from_file_chain(temp_folder):
+    path = os.path.join(temp_folder, "config.json")
+    with open(path, "w") as fp:
+        json.dump(CONFIG_LIST, fp)
+
+    config_list = collect_configs_from_path(path)
+    assert isinstance(config_list, list)
+    assert all(isinstance(config, dict) for config in config_list)
+    assert config_list == CONFIG_LIST
 
 
 def test_missing_config_loading():

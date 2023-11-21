@@ -26,19 +26,28 @@ Additional notes:
 
 ### Pipeline chains
 
-A typical configuration is a dictionary with pipeline parameters. However, it can also be a list of dictionaries. In this case each dictionary must contain parameters of a single pipeline. The order of dictionaries defines the consecutive order in which pipelines will be run. Example:
+A typical configuration is a dictionary with pipeline parameters. However, it can also be a list of pipeline-execution dictionaries that specify:
+- `pipeline_config`: a configuration for a single pipeline,
+- `pipeline_resources` (optional): a dictionary that is passed to `ray.remote` to configure which resources the main pipeline process will request from the cluster (see [here](https://docs.ray.io/en/latest/ray-core/api/doc/ray.remote_function.RemoteFunction.options.html) for options). The pipeline requests 1 CPU by default (and nothing else).
+
+The order of dictionaries defines the consecutive order in which pipelines will be run. Example:
 
 ```
 [
   {
-    "pipeline": "FirstPipeline",
-    "param1": "value1",
-    ...
+    "pipeline_config": {
+      "pipeline": "FirstPipeline",
+      "param1": "value1",
+      ...
+    },
   },
   {
-    "pipeline": "SecondPipeline",
-    "param2": "value2",
-    ...
+    "pipeline_config": {
+      "pipeline": "SecondPipeline",
+      "param2": "value2",
+      ...
+    },
+    "pipeline_resources": {"num_cpus": 2}
   },
   ...
 ]
