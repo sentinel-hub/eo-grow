@@ -54,8 +54,8 @@ def get_patches_with_missing_features(
     :param patches_folder: A path to folder with EOPatches, relative to `filesystem` object.
     :param patch_list: A list of EOPatch names.
     :param features: A list of EOPatch features.
-    :param check_bbox: Whether to make sure that the bbox is present.
-    :param check_timestamps: Whether to make sure that the timestamps are present.
+    :param check_bbox: Make sure that the bbox is present.
+    :param check_timestamps: Make sure that the timestamps are present.
     :return: A sublist of `patch_list` with only EOPatch names that are missing some features.
     """
     eopatch_paths = [fs.path.combine(patches_folder, eopatch) for eopatch, _ in patch_list]

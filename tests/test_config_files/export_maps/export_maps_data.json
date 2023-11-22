@@ -14,6 +14,5 @@
   "band_indices": [0, 1],
   "cogify": true,
   "interim_results_suffix": "no-clash-plz",
-  "warp_resampling": "bilinear",
-  "workers": 1
+  "warp_resampling": "bilinear"
 }

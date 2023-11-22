@@ -7,13 +7,14 @@ import time
 import uuid
 from typing import Any, TypeVar
 
+import ray
+
 from eolearn.core import CreateEOPatchTask, EOExecutor, EONode, EOWorkflow, LoadTask, SaveTask, WorkflowResults
 from eolearn.core.extra.ray import RayExecutor
 
-from ..types import ExecKwargs, PatchList, ProcessingType
+from ..types import ExecKwargs, PatchList
 from ..utils.general import current_timestamp
 from ..utils.meta import import_object
-from ..utils.ray import handle_ray_connection
 from .area.base import BaseAreaManager
 from .base import EOGrowObject
 from .config import RawConfig
@@ -80,7 +81,7 @@ class Pipeline(EOGrowObject):
     def _load_manager(manager_config: ManagerSchema, **manager_params: Any) -> Any:
         """Loads a manager class and back-propagates parsed config
 
-        :param manager_key: A config key name of a sub-config with manager parameters
+        :param manager_config: A sub-config with manager parameters
         :param manager_params: Other parameters to initialize a manager class
         """
         if manager_config.manager is None:
@@ -93,7 +94,7 @@ class Pipeline(EOGrowObject):
         return f"{pipeline_timestamp}-{self._pipeline_name}-{self.pipeline_id}"
 
     def get_patch_list(self) -> PatchList:
-        """Method which at the initialization prepares the list of EOPatches which will be used"""
+        """Method that prepares the list of EOPatches for which to run the pipeline execution."""
         patch_list = self.area_manager.get_patch_list()
 
         if self.config.test_subset is not None:
@@ -129,7 +130,7 @@ class Pipeline(EOGrowObject):
         """Prepares execution arguments for each eopatch from a list of patches.
 
         The output should be a dictionary of form `{execution_name: {node: node_kwargs}}`. Execution names are usually
-         names of EOPatches, but can be anything.
+        names of EOPatches, but can be anything.
 
         :param workflow: A workflow for which arguments will be prepared
         """
@@ -148,13 +149,6 @@ class Pipeline(EOGrowObject):
             exec_kwargs[name] = patch_args
         return exec_kwargs
 
-    def _init_processing(self) -> ProcessingType:
-        """Figures out which execution mode is used and configures connection to Ray if required."""
-        is_connected = handle_ray_connection(self.config.use_ray)
-        if is_connected:
-            return ProcessingType.RAY
-        return ProcessingType.MULTI if self.config.workers > 1 else ProcessingType.SINGLE
-
     def run_execution(
         self,
         workflow: EOWorkflow,
@@ -169,19 +163,15 @@ class Pipeline(EOGrowObject):
             self.patch_list will be used
         :return: Lists of successfully/unsuccessfully executed EOPatch names and the result of the EOWorkflow execution
         """
-        executor_class: type[EOExecutor]
-
-        execution_kind = self._init_processing()
-        extra_kwargs = {}
-        if execution_kind is ProcessingType.RAY:
-            executor_class = RayExecutor
-            if self.config.ray_worker_type is not None:
-                extra_kwargs = {"ray_remote_kwargs": {"resources": {self.config.ray_worker_type: 0.001}}}
+        if self.config.debug:
+            executor_class: type[EOExecutor] = EOExecutor
+            executor_kwargs = {}
         else:
-            executor_class = EOExecutor
-            executor_run_params["workers"] = self.config.workers
+            ray.init(address="auto", ignore_reinit_error=True)
+            executor_class = RayExecutor
+            executor_kwargs = {"ray_remote_kwargs": self.config.worker_resources}
 
-        LOGGER.info("Starting %s for %d EOPatches", executor_class.__name__, len(execution_kwargs))
+        LOGGER.info("Starting processing for %d EOPatches", len(execution_kwargs))
 
         # Unpacking manually to ensure order matches
         list_of_kwargs, execution_names = [], []
@@ -199,7 +189,7 @@ class Pipeline(EOGrowObject):
             logs_filter=EOExecutionFilter(ignore_packages=self.logging_manager.config.eoexecution_ignore_packages),
             logs_handler_factory=EOExecutionHandler,
             raise_on_temporal_mismatch=self.config.raise_on_temporal_mismatch,
-            **extra_kwargs,
+            **executor_kwargs,
         )
         execution_results = executor.run(**executor_run_params)
 
@@ -223,7 +213,8 @@ class Pipeline(EOGrowObject):
         timestamp = current_timestamp()
         self.current_execution_name = self.get_pipeline_execution_name(timestamp)
 
-        handlers = self.logging_manager.start_logging(self.current_execution_name)
+        root_logger = logging.getLogger()
+        handlers = self.logging_manager.start_logging(root_logger, self.current_execution_name, "pipeline.log")
         try:
             self.logging_manager.update_pipeline_report(
                 pipeline_execution_name=self.current_execution_name,
@@ -260,7 +251,7 @@ class Pipeline(EOGrowObject):
                 pipeline_execution_name=self.current_execution_name, finished=finished, failed=failed
             )
         finally:
-            self.logging_manager.stop_logging(handlers)
+            self.logging_manager.stop_logging(root_logger, handlers)
 
     def run_procedure(self) -> tuple[list[str], list[str]]:
         """Execution procedure of pipeline. Can be overridden if needed.
@@ -271,8 +262,7 @@ class Pipeline(EOGrowObject):
         """
         if not hasattr(self, "build_workflow"):
             raise NotImplementedError(
-                "Default implementation of the `run_procedure` method requires implementation of the `build_workflow`"
-                " method."
+                "Implementation of the `run_procedure` method requires implementation of the `build_workflow` method."
             )
         workflow = self.build_workflow()
         patch_list = self.get_patch_list()

@@ -5,7 +5,7 @@ from __future__ import annotations
 import copy
 import re
 from functools import reduce
-from typing import Any, Callable, NewType, cast
+from typing import Any, Callable, List, NewType, Union, cast
 
 import fs.path
 import rapidjson
@@ -16,7 +16,7 @@ CrudeConfig = NewType("CrudeConfig", dict)
 RawConfig = NewType("RawConfig", dict)
 
 
-def collect_configs_from_path(path: str, used_config_paths: set[str] | None = None) -> list[CrudeConfig]:
+def collect_configs_from_path(path: str, used_config_paths: set[str] | None = None) -> CrudeConfig | list[CrudeConfig]:
     """Loads and builds a list of config dictionaries defined by the parameters stored in files
 
     This function performs the 1st stage of language interpretation as described in
@@ -38,11 +38,9 @@ def collect_configs_from_path(path: str, used_config_paths: set[str] | None = No
 
     config = _recursive_config_build(config, used_config_paths)
 
-    if isinstance(config, dict):
-        config = [config]
-    if isinstance(config, list):
-        return config
-    raise ValueError(f"When interpreting config from {path} a dictionary or list was expected, got {type(config)}.")
+    if not isinstance(config, (dict, list)):
+        raise TypeError(f"When interpreting config from {path} a dictionary or list was expected, got {type(config)}.")
+    return cast(Union[CrudeConfig, List[CrudeConfig]], config)
 
 
 def _recursive_config_build(config: object, used_config_paths: set[str]) -> object:
@@ -59,19 +57,19 @@ def _recursive_config_build(config: object, used_config_paths: set[str]) -> obje
 
         for key, value in config.items():
             if not isinstance(key, str):
-                raise ValueError(f"Dictionary keys should always be strings, but found: {key}")
+                raise TypeError(f"Dictionary keys should always be strings, but found: {key}")
 
             if key.startswith("**"):
                 if value in used_config_paths:
                     raise ValueError("Detected a cyclic import of configs")
 
-                imported_config_list = collect_configs_from_path(value, used_config_paths=used_config_paths)
-                if len(imported_config_list) != 1:
+                imported_config = collect_configs_from_path(value, used_config_paths=used_config_paths)
+                if not isinstance(imported_config, dict):
                     raise ValueError(
                         "Config lists cannot be imported inside configs. Found a config list when resolving key"
                         f" {key} for path {value}"
                     )
-                imported_configs.append(imported_config_list[0])
+                imported_configs.append(imported_config)
             else:
                 joint_config[key] = _recursive_config_build(value, used_config_paths)
 
@@ -91,6 +89,9 @@ def interpret_config_from_dict(config: CrudeConfig, external_variables: dict[str
     """
     _recursive_check_config(config)
 
+    if not isinstance(config, dict):
+        raise TypeError(f"Can only interpret dictionary objects, got {type(config)}.")
+
     config = cast(CrudeConfig, config.copy())
     variable_mapping = config.pop("variables", {})
     if external_variables:
@@ -103,20 +104,16 @@ def interpret_config_from_dict(config: CrudeConfig, external_variables: dict[str
     config_with_variables = _recursive_apply_to_strings(
         config, lambda config_str: _resolve_variables(config_str, variable_mapping)
     )
-    if not isinstance(config_with_variables, dict):
-        raise ValueError(
-            f"Interpretation resulted in object of type {type(config_with_variables)} but a dictionary was expected."
-        )
 
     return cast(RawConfig, config_with_variables)
 
 
 def interpret_config_from_path(path: str) -> RawConfig:
     """Loads from path in applies both steps of the config language."""
-    configs = collect_configs_from_path(path)
-    if len(configs) != 1:
-        raise ValueError(f"The JSON file {path} was expected to contain a single dictionary, got {len(configs)}")
-    return interpret_config_from_dict(configs[0])
+    config = collect_configs_from_path(path)
+    if isinstance(config, dict):
+        return interpret_config_from_dict(config)
+    raise ValueError(f"The JSON file {path} was expected to contain a single dictionary, got {len(config)}")
 
 
 def _resolve_config_paths(config_str: str, config_path: str) -> str:
@@ -155,14 +152,11 @@ def _recursive_apply_to_strings(config: object, function: Callable) -> object:
 
 
 def _recursive_check_config(config: object) -> None:
-    """Recursively checks if the config satisfies basic conditions for being JSON serializable.
-
-    :raises: ValueError
-    """
+    """Recursively checks if the config satisfies basic conditions for being JSON serializable."""
     if isinstance(config, dict):
         for key, value in config.items():
             if not isinstance(key, str):
-                raise ValueError(f"Config keys should be strings but {key} found")
+                raise TypeError(f"Config keys should be strings but {key} found")
             _recursive_check_config(value)
 
     elif isinstance(config, list):

@@ -14,7 +14,6 @@ import pytest
         "eogrow-ray",
         "eogrow-template",
         "eogrow-validate",
-        "eogrow-test",
     ],
 )
 def test_help(command):

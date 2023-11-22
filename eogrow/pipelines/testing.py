@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-import logging
-from typing import List, Literal, Optional, Tuple, TypeVar, Union
+from typing import List, Literal, Optional, Tuple, Union
 
 import numpy as np
 from pydantic import Field
@@ -11,57 +10,11 @@ from pydantic import Field
 from eolearn.core import CreateEOPatchTask, EONode, EOWorkflow, OverwritePermission, SaveTask
 from eolearn.core.types import Feature
 
-from ..core.config import RawConfig, recursive_config_join
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
-from ..tasks.testing import (
-    GenerateRasterFeatureTask,
-    GenerateTimestampsTask,
-    NormalDistribution,
-    UniformDistribution,
-)
+from ..tasks.testing import GenerateRasterFeatureTask, GenerateTimestampsTask, NormalDistribution, UniformDistribution
 from ..types import ExecKwargs, PatchList, TimePeriod
 from ..utils.validators import ensure_storage_key_presence, field_validator, parse_dtype, parse_time_period
-
-Self = TypeVar("Self", bound="TestPipeline")
-LOGGER = logging.getLogger(__name__)
-
-
-class TestPipeline(Pipeline):
-    """Pipeline that just tests if all managers works correctly. It can be used to check if area manager creates a
-    correct grid.
-    """
-
-    class Schema(Pipeline.Schema):
-        class Config:
-            extra = "allow"
-
-    _DEFAULT_CONFIG_PARAMS = {  # noqa: RUF012
-        "pipeline": "eogrow.pipelines.testing.TestPipeline",
-        "logging": {"manager": "eogrow.logging.LoggingManager", "show_logs": True},
-    }
-
-    @classmethod
-    def with_defaults(cls: type[Self], config: RawConfig) -> Self:
-        config = recursive_config_join(config, cls._DEFAULT_CONFIG_PARAMS)  # type: ignore[assignment]
-        return cls.from_raw_config(config)
-
-    def run_procedure(self) -> tuple[list, list]:
-        """Performs basic tests of managers"""
-        if self.storage.filesystem.exists("/"):
-            LOGGER.info("Project folder %s exists", self.storage.config.project_folder)
-        else:
-            LOGGER.info("Project folder %s does not exist", self.storage.config.project_folder)
-
-        self.area_manager.get_area_geometry()
-        grid = self.area_manager.get_grid()
-        num_patches = sum(map(len, grid.values()))
-        LOGGER.info("Grid has %d EOPatches and is split over %d CRS zones", num_patches, len(grid))
-
-        patch_list = self.area_manager.get_patch_list()
-        LOGGER.info("The first EOPatch has a name %s", patch_list[0][0])
-
-        return [], []
 
 
 class UniformDistributionSchema(BaseSchema):
@@ -161,14 +114,14 @@ class GenerateDataPipeline(Pipeline):
 
         for node, node_seed in per_node_seeds.items():
             if isinstance(node.task, CreateEOPatchTask):
-                for _, patch_args in exec_args.items():
+                for patch_args in exec_args.values():
                     patch_args[node]["meta_info"] = self.config.meta_info
             if isinstance(node.task, GenerateTimestampsTask) and same_timestamps:
-                for _, patch_args in exec_args.items():
+                for patch_args in exec_args.values():
                     patch_args[node] = dict(seed=node_seed)
             elif isinstance(node.task, (GenerateRasterFeatureTask, GenerateTimestampsTask)):
                 node_rng = np.random.default_rng(seed=node_seed)
-                for _, patch_args in exec_args.items():
+                for patch_args in exec_args.values():
                     patch_args[node] = dict(seed=node_rng.integers(low=0, high=2**32))
 
         return exec_args

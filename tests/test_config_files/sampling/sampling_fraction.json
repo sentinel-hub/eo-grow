@@ -15,6 +15,5 @@
   },
   "exclude_values": [0, 1],
   "mask_of_samples_name": "MASK_OF_SAMPLES",
-  "seed": 21,
-  "workers": 2
+  "seed": 21
 }

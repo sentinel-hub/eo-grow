@@ -8,12 +8,12 @@ as an internal class of the implemented pipeline class
 from __future__ import annotations
 
 from inspect import isclass
-from typing import List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field
 from pydantic.fields import ModelField
 
-from ..types import BoolOrAuto, ImportPath
+from ..types import ImportPath
 from ..utils.validators import field_validator, validate_manager
 from .base import EOGrowObject
 
@@ -45,21 +45,11 @@ class PipelineSchema(BaseSchema):
     logging: ManagerSchema = Field(description="A schema of an implementation of LoggingManager class")
     validate_logging = field_validator("logging", validate_manager, pre=True)
 
-    workers: int = Field(
-        1, description="Number of workers for parallel execution of workflows. Parameter does not affect ray clusters."
-    )
-    ray_worker_type: Optional[str] = Field(
+    worker_resources: Dict[str, Any] = Field(
+        default_factory=dict,
         description=(
-            "Restricts execution of parallelized tasks only to `ray` worker instances of the requested type. The worker"
-            " section of the `cluster.yaml` file should specify the custom resource with a matching name and the value"
-            " set to 1."
-        ),
-    )
-    use_ray: BoolOrAuto = Field(
-        "auto",
-        description=(
-            "Whether to run the pipeline locally or using a (local or remote) ray cluster. When using `auto` the"
-            " pipeline checks if it can connect to a cluster, and if none are available runs locally."
+            "Keyword arguments passed to ray tasks when executing via `RayExecutor`. The options are specified [here]"
+            "(https://docs.ray.io/en/latest/ray-core/api/doc/ray.remote_function.RemoteFunction.options.html)."
         ),
     )
 
@@ -77,8 +67,9 @@ class PipelineSchema(BaseSchema):
         ),
     )
     raise_on_temporal_mismatch: bool = Field(
-        False, description="Whether to treat `TemporalDimensionWarning` as an exception during EOExecution."
+        False, description="Treat `TemporalDimensionWarning` as an exception during EOExecution."
     )
+    debug: bool = Field(False, description="Run pipeline without the `ray` wrapper to enable debugging.")
 
 
 def build_schema_template(

@@ -1,20 +1,22 @@
 """Implements the command line interface for `eo-grow`."""
 
+from __future__ import annotations
+
 import json
 import os
 import re
 import subprocess
 from tempfile import NamedTemporaryFile
-from typing import Optional, Tuple
+from typing import Iterable
 
 import click
 
-from .core.config import collect_configs_from_path, interpret_config_from_dict
+from .core.config import CrudeConfig, RawConfig, collect_configs_from_path, interpret_config_from_dict
 from .core.logging import CLUSTER_FILE_LOCATION_ON_HEAD
 from .core.schemas import build_schema_template
-from .pipelines.testing import TestPipeline
 from .utils.general import jsonify
 from .utils.meta import collect_schema, import_object, load_pipeline_class
+from .utils.pipeline_chain import run_pipeline_chain, validate_pipeline_chain
 from .utils.ray import generate_cluster_config_path, start_cluster_if_needed
 
 variables_option = click.option(
@@ -42,7 +44,7 @@ test_patches_option = click.option(
 @click.argument("config_path", type=click.Path())
 @variables_option
 @test_patches_option
-def run_pipeline(config_path: str, cli_variables: Tuple[str, ...], test_patches: Tuple[int, ...]) -> None:
+def run_pipeline(config_path: str, cli_variables: tuple[str, ...], test_patches: tuple[int, ...]) -> None:
     """Execute eo-grow pipeline using CLI.
 
     \b
@@ -50,19 +52,18 @@ def run_pipeline(config_path: str, cli_variables: Tuple[str, ...], test_patches:
         eogrow config_files/config.json
     """
 
-    raw_configs = collect_configs_from_path(config_path)
+    crude_config = collect_configs_from_path(config_path)
     cli_variable_mapping = dict(_parse_cli_variable(cli_var) for cli_var in cli_variables)
 
-    pipelines = []
-    for raw_config in raw_configs:
-        config = interpret_config_from_dict(raw_config, cli_variable_mapping)
-        if test_patches:
-            config["test_subset"] = list(test_patches)
-
-        pipelines.append(load_pipeline_class(config).from_raw_config(config))
-
-    for pipeline in pipelines:
+    if isinstance(crude_config, dict):
+        config = _prepare_config(crude_config, cli_variable_mapping, test_patches)
+        pipeline = load_pipeline_class(config).from_raw_config(config)
         pipeline.run()
+
+    else:
+        pipeline_chain = [_prepare_config(config, cli_variable_mapping, test_patches) for config in crude_config]
+        validate_pipeline_chain(pipeline_chain)
+        run_pipeline_chain(pipeline_chain)
 
 
 @click.command()
@@ -85,8 +86,8 @@ def run_pipeline_on_cluster(
     cluster_yaml: str,
     start_cluster: bool,
     use_tmux: bool,
-    cli_variables: Tuple[str, ...],
-    test_patches: Tuple[int, ...],
+    cli_variables: tuple[str, ...],
+    test_patches: tuple[int, ...],
 ) -> None:
     """Command for running an eo-grow pipeline on a remote Ray cluster of AWS EC2 instances. The provided config is
     fully constructed and uploaded to the cluster head in the `~/.synced_configs/` directory, where it is then
@@ -99,11 +100,9 @@ def run_pipeline_on_cluster(
     if start_cluster:
         start_cluster_if_needed(cluster_yaml)
 
-    raw_configs = [interpret_config_from_dict(config) for config in collect_configs_from_path(config_path)]
     remote_path = generate_cluster_config_path(config_path)
-
     with NamedTemporaryFile(mode="w", delete=True, suffix=".json") as local_path:
-        json.dump(raw_configs, local_path)
+        json.dump(collect_configs_from_path(config_path), local_path)
         local_path.flush()  # without this the sync can happen before the file content is written
 
         subprocess.run(f"ray rsync_up {cluster_yaml} {local_path.name!r} {remote_path!r}", shell=True)
@@ -156,7 +155,7 @@ def run_pipeline_on_cluster(
 )
 def make_template(
     import_path: str,
-    template_path: Optional[str],
+    template_path: str | None,
     force_override: bool,
     template_format: str,
     required_only: bool,
@@ -203,30 +202,24 @@ def validate_config(config_path: str) -> None:
     Example:
         eogrow-validate config_files/config.json
     """
-    for config in collect_configs_from_path(config_path):
-        raw_config = interpret_config_from_dict(config)
-        load_pipeline_class(config).Schema.parse_obj(raw_config)
+    config = collect_configs_from_path(config_path)
+    if isinstance(config, dict):
+        pipeline_config = _prepare_config(config, {}, ())
+        collect_schema(load_pipeline_class(pipeline_config)).parse_obj(pipeline_config)
+    else:
+        validate_pipeline_chain([_prepare_config(run_config, {}, ()) for run_config in config])
 
     click.echo("Config validation succeeded!")
 
 
-@click.command()
-@click.argument("config_path", type=click.Path())
-def run_test_pipeline(config_path: str) -> None:
-    """Runs a test pipeline that only makes sure the managers work correctly. This can be used to select best
-    area manager parameters.
-
-    \b
-    Example:
-        eogrow-test any_pipeline_config.json
-    """
-    for crude_config in collect_configs_from_path(config_path):
-        raw_config = interpret_config_from_dict(crude_config)
-        pipeline = TestPipeline.with_defaults(raw_config)
-        pipeline.run()
+def _prepare_config(config: CrudeConfig, variables: dict[str, str], test_patches: Iterable[int]) -> RawConfig:
+    raw_config = interpret_config_from_dict(config, variables)
+    if test_patches:
+        raw_config["test_subset"] = list(test_patches)
+    return raw_config
 
 
-def _parse_cli_variable(mapping_str: str) -> Tuple[str, str]:
+def _parse_cli_variable(mapping_str: str) -> tuple[str, str]:
     """Checks that the input is of shape `name:value` and then splits it into a tuple"""
     match = re.match(r"(?P<name>.+?):(?P<value>.+)", mapping_str)
     if match is None:

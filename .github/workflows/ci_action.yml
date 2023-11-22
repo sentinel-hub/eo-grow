@@ -90,6 +90,11 @@ jobs:
           pip install -e .[DEV,ML]
           pip install gdal==$(gdal-config --version)
 
+      - name: Set up local cluster # we need to install async-timeout until ray 2.9.0 fixes the issue
+        run: |
+          pip install async-timeout
+          ray start --head
+
       - name: Run fast tests
         if: ${{ !matrix.full_test_suite }}
         run: pytest -m "not integration"
@@ -113,3 +118,20 @@ jobs:
           files: coverage.xml
           fail_ci_if_error: true
           verbose: false
+
+  mirror-to-gitlab:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Mirror + trigger CI
+        uses: SvanBoxel/gitlab-mirror-and-ci-action@master
+        with:
+          args: "https://git.sinergise.com/eo/code/eo-grow"
+        env:
+          FOLLOW_TAGS: "true"
+          GITLAB_HOSTNAME: "git.sinergise.com"
+          GITLAB_USERNAME: "github-action"
+          GITLAB_PASSWORD: ${{ secrets.GITLAB_PASSWORD }}
+          GITLAB_PROJECT_ID: "878"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
