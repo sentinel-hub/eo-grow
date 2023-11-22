@@ -102,11 +102,11 @@ In certain use cases we have multiple pipelines that are meant to be run in a ce
 But the user still needs to run them in the correct order and by hand. This we can automate with a simple pipeline chain that links them together:
 ```
 [ // end_to_end_run.json
-  {"**download": "${config_path}/01_download.json"},
-  {"**preprocess": "${config_path}/02_preprocess_data.json"},
-  {"**predict": "${config_path}/03_use_model.json"},
-  {"**export": "${config_path}/04_export_maps.json"},
-  {"**ingest": "${config_path}/05_ingest_byoc.json"},
+  {"pipeline_config": {"**download": "${config_path}/01_download.json"}},
+  {"pipeline_config": {"**preprocess": "${config_path}/02_preprocess_data.json"}},
+  {"pipeline_config": {"**predict": "${config_path}/03_use_model.json"}},
+  {"pipeline_config": {"**export": "${config_path}/04_export_maps.json"}},
+  {"pipeline_config": {"**ingest": "${config_path}/05_ingest_byoc.json"}},
 ]
 ```
 
@@ -119,27 +119,58 @@ In experimentation we often want to run the same pipeline for multiple parameter
 ```
 [ // run_threshold_experiments.json
   {
-    "variables": {"threshold": 0.1},
-    "**pipeline": "${config_path}/extract_trees.json"
+    "pipeline_config:{
+      "variables": {"threshold": 0.1},
+      "**pipeline": "${config_path}/extract_trees.json"
+    },
   },
   {
-    "variables": {"threshold": 0.2},
-    "**pipeline": "${config_path}/extract_trees.json"
+    "pipeline_config:{
+      "variables": {"threshold": 0.2},
+      "**pipeline": "${config_path}/extract_trees.json"
+    },
   },
   {
-    "variables": {"threshold": 0.3},
-    "**pipeline": "${config_path}/extract_trees.json"
+    "pipeline_config:{
+      "variables": {"threshold": 0.3},
+      "**pipeline": "${config_path}/extract_trees.json"
+    },
   },
   {
-    "variables": {"threshold": 0.4},
-    "**pipeline": "${config_path}/extract_trees.json"
+    "pipeline_config:{
+      "variables": {"threshold": 0.4},
+      "**pipeline": "${config_path}/extract_trees.json"
+     }
   }
 ]
 ```
 
-### Using variables with pipelines
+### Using variables with pipeline chains
 
 While there is no syntactic sugar for specifying pipeline-chain-wide variables in JSON files, one can do that through CLI. Running `eogrow end_to_end_run.json -v "year:2019"` will set the variable `year` to 2019 for all pipelines in the chain.
+
+### Specifying resources for pipeline execution
+
+Pipeline chains also allow the user to specify resources needed by the main process of each pipeline in a similar way that a pipeline config can specify resources needed by its workers.
+
+```
+[ // end_to_end_run.json
+  {
+    "pipeline_config": {"**download": "${config_path}/01_download.json"}
+  }
+  {
+    "pipeline_config": {"**predict": "${config_path}/03_use_model.json"},
+    "pipeline_resources": {"memory": 2e9} // ~ 2GB RAM reserved for the main process
+  }
+  {
+    "pipeline_config": {"**export": "${config_path}/04_export_maps.json"}
+  }
+]
+```
+
+This also allows us to run certain pipelines on specially tagged workers. When setting up the cluster, one can tag workers with custom resources, for instance a `r5.4xlarge` worker with `big_RAM_worker: 1`. If we set `"pipeline_resources": {"resources": {"big_RAM_worker": 1}}` then the pipeline will run ONLY on such workers, and the whole worker instance will be assigned to it. This is great for pipelines which have a large workload in the main process.
+
+Pipeline chains can be 1 pipeline long, so this can also be used with a single pipeline.
 
 ## Path modification via variables
 

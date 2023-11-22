@@ -1,3 +1,14 @@
+## [Version 1.7.0] - 2023-11-22
+With this release we push `eo-grow` towards a more `ray` centered execution model.
+
+- The local EOExecutor models with multiprocessing/multithreading have been removed. (Most) pipelines no longer have the `use_ray` and `workers` parameters. In order to run instances locally one has to set up a local cluster (via `ray start --head`). We included a `debug` parameter that uses `EOExecutor` instead of `RayExecutor` so that IDE breakpoints work in most pipelines.
+- Pipeline chain configs have been adjusted. The user can now specify what kind of resources the main pipeline process would require. This also allows one to run pipelines entirely on worker instances.
+- The `ray_worker_type` field was replaced with `worker_resources` that allows for precise resource request specifications.
+- Fixed a but where CLI variables were not applied for config chains.
+- Removed `TestPipeline` and the `eogrow-test` command.
+- Some `ValueError` exceptions were changed to `TypeError`.
+
+
 ## [Version 1.6.3] - 2023-11-07
 
 - Pipelines can request specific type of worker when run on a ray cluster with the `ray_worker_type` field.
