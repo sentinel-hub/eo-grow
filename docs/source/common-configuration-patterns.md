@@ -168,7 +168,7 @@ Pipeline chains also allow the user to specify resources needed by the main proc
 ]
 ```
 
-This also allows us to run certain pipelines on specially tagged workers. When setting up the cluster, one can tag workers with custom resources, for instance a `m5.4xlarge` worker with `big_RAM_worker: 1`. If we set `"pipeline_resources": {"resources": {"big_RAM_worker": 1}}` then the pipeline will run ONLY on such workers, and the whole worker instance will be assigned to it. This is great for pipelines which have a large workload in the main process.
+This also allows us to run certain pipelines on specially tagged workers. When setting up the cluster, one can tag workers with custom resources, for instance a `r5.4xlarge` worker with `big_RAM_worker: 1`. If we set `"pipeline_resources": {"resources": {"big_RAM_worker": 1}}` then the pipeline will run ONLY on such workers, and the whole worker instance will be assigned to it. This is great for pipelines which have a large workload in the main process.
 
 Pipeline chains can be 1 pipeline long, so this can also be used with a single pipeline.
 
