@@ -211,7 +211,7 @@ def validate_config(config_path: str) -> None:
             if "pipeline_config" not in run_config:
                 raise ValueError(f"Pipeline-chain element {i} is missing the field `pipeline_config`.")
             run_config["pipeline_config"] = _prepare_config(run_config["pipeline_config"], {}, ())
-        validate_pipeline_chain(config)
+        validate_pipeline_chain(config)  # type: ignore[arg-type]
 
     click.echo("Config validation succeeded!")
 
