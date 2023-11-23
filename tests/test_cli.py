@@ -21,6 +21,11 @@ def test_help(command):
     assert subprocess.call(f"{command} --help", shell=True) == 0
 
 
+def test_pipeline_chain_validation(config_folder):
+    """Tests a simple execution from command line"""
+    assert subprocess.call(f"eogrow-validate {config_folder}/chain_pipeline_to_validate.json", shell=True) == 0
+
+
 @pytest.mark.parametrize(
     "command_params",
     [
