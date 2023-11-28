@@ -1,3 +1,7 @@
+## [Version 1.7.2] - 2023-11-28
+
+- Fix pipeline-chain execution when using CLI
+
 ## [Version 1.7.1] - 2023-11-23
 
 - Fixed `eogrow-validate` command when validating pipeline chains that use variables.
