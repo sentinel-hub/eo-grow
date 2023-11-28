@@ -207,13 +207,23 @@ def validate_config(config_path: str) -> None:
         pipeline_config = _prepare_config(config, {}, ())
         collect_schema(load_pipeline_class(pipeline_config)).parse_obj(pipeline_config)
     else:
-        for i, run_config in enumerate(config):
-            if "pipeline_config" not in run_config:
-                raise ValueError(f"Pipeline-chain element {i} is missing the field `pipeline_config`.")
-            run_config["pipeline_config"] = _prepare_config(run_config["pipeline_config"], {}, ())
-        validate_pipeline_chain(config)  # type: ignore[arg-type]
+        chain_config = _prepare_chain(config, {}, ())
+        validate_pipeline_chain(chain_config)
 
     click.echo("Config validation succeeded!")
+
+
+def _prepare_chain(
+    config: list[CrudeConfig], variables: dict[str, str], test_patches: Iterable[int]
+) -> list[RawConfig]:
+    raw_chain = []
+    for i, run_config in enumerate(config):
+        if "pipeline_config" not in run_config:
+            raise ValueError(f"Pipeline-chain element {i} is missing the field `pipeline_config`.")
+        raw_chain.append({
+            **run_config, "pipeline_config": _prepare_config(run_config["pipeline_config"], variables, test_patches)
+        })
+    return raw_chain
 
 
 def _prepare_config(config: CrudeConfig, variables: dict[str, str], test_patches: Iterable[int]) -> RawConfig:
