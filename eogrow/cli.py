@@ -61,7 +61,7 @@ def run_pipeline(config_path: str, cli_variables: tuple[str, ...], test_patches:
         pipeline.run()
 
     else:
-        pipeline_chain = [_prepare_config(config, cli_variable_mapping, test_patches) for config in crude_config]
+        pipeline_chain = _prepare_chain(crude_config, cli_variable_mapping, test_patches)
         validate_pipeline_chain(pipeline_chain)
         run_pipeline_chain(pipeline_chain)
 
