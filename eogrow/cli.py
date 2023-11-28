@@ -223,10 +223,11 @@ def _prepare_chain(
         raw_chain.append({
             **run_config, "pipeline_config": _prepare_config(run_config["pipeline_config"], variables, test_patches)
         })
-    return raw_chain
+    return raw_chain  # type: ignore[return-value]
 
 
 def _prepare_config(config: CrudeConfig, variables: dict[str, str], test_patches: Iterable[int]) -> RawConfig:
+    # injects CLI variables and test patches
     raw_config = interpret_config_from_dict(config, variables)
     if test_patches:
         raw_config["test_subset"] = list(test_patches)

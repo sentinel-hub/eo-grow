@@ -1,0 +1,12 @@
+[
+  {
+    "pipeline_config": {
+      "**pipeline": "${config_path}/zipmap/zipmap.json",
+      "variables": { "dtype": "int16" }
+    }
+  },
+  {
+    "pipeline_config": { "**pipeline": "${config_path}/zipmap/zipmap.json" },
+    "pipeline_resources": { "memory": 1e2 }
+  }
+]

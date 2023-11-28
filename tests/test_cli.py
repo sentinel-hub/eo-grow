@@ -23,7 +23,13 @@ def test_help(command):
 
 def test_pipeline_chain_validation(config_folder):
     """Tests a simple execution from command line"""
-    assert subprocess.call(f"eogrow-validate {config_folder}/chain_pipeline_to_validate.json", shell=True) == 0
+    assert subprocess.call(f"eogrow-validate {config_folder}/chain_pipeline.json", shell=True) == 0
+
+
+@pytest.mark.order(after=["test_zipmap.py::test_zipmap_pipeline"])
+def test_pipeline_chain_execution(config_folder):
+    """Tests a simple execution from command line"""
+    assert subprocess.call(f"eogrow {config_folder}/chain_pipeline.json", shell=True) == 0
 
 
 @pytest.mark.parametrize(
