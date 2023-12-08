@@ -55,7 +55,7 @@ dependencies = [
     "python-rapidjson",
     "rasterio",
     "ray[default]",
-    "sentinelhub>=3.6.2",
+    "sentinelhub>=3.9.0",
     "shapely>=1.8.0",
     "typing-extensions>=4.5.0",
 ]
