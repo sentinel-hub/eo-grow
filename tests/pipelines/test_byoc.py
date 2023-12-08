@@ -33,7 +33,9 @@ pytestmark = pytest.mark.integration
 @pytest.fixture(name="configured_requests_mock")
 def request_mock_setup(requests_mock):
     requests_mock.get(url="/latest/dynamic/instance-identity/document", real_http=True)  # logging
-    requests_mock.post(url="/oauth/token", real_http=True)
+    requests_mock.post(
+        url="https://services.sentinel-hub.com/auth/realms/main/protocol/openid-connect/token", real_http=True
+    )
 
     # creating a new collection
     requests_mock.post(url="/api/v1/byoc/collections", response_list=[{"json": {"data": {"id": "mock-collection"}}}])
@@ -79,7 +81,7 @@ def test_timeless_byoc(config_and_stats_paths, preparation_config, config, confi
     pipeline, requests = run_byoc_pipeline(config_path, configured_requests_mock)
 
     auth_request = requests.pop(0)
-    assert auth_request.url == "https://services.sentinel-hub.com/oauth/token"
+    assert auth_request.url == "https://services.sentinel-hub.com/auth/realms/main/protocol/openid-connect/token"
 
     creation_request = requests.pop(0)
     assert creation_request.url == "https://services.sentinel-hub.com/api/v1/byoc/collections"
@@ -111,7 +113,7 @@ def test_temporal_byoc(config_and_stats_paths, preparation_config, config, confi
     pipeline, requests = run_byoc_pipeline(config_path, configured_requests_mock)
 
     auth_request = requests.pop(0)
-    assert auth_request.url == "https://services.sentinel-hub.com/oauth/token"
+    assert auth_request.url == "https://services.sentinel-hub.com/auth/realms/main/protocol/openid-connect/token"
 
     creation_request = requests.pop(0)
     assert creation_request.url == "https://services.sentinel-hub.com/api/v1/byoc/collections"
@@ -124,12 +126,41 @@ def test_temporal_byoc(config_and_stats_paths, preparation_config, config, confi
     assert check_request.method == "GET"
 
     timestamps = [
-        "2019-01-04T07:48:37Z",
-        "2019-01-24T07:48:39Z",
-        "2019-02-13T07:48:39Z",
-        "2019-02-18T07:48:36Z",
-        "2019-02-23T07:49:38Z",
-        "2019-03-05T07:55:53Z",
+        "2018-01-19T07:42:27Z",
+        "2018-02-28T07:46:50Z",
+        "2018-03-05T07:38:03Z",
+        "2018-03-25T07:44:17Z",
+        "2018-04-09T07:38:40Z",
+        "2018-04-19T07:43:26Z",
+        "2018-04-24T07:46:03Z",
+        "2018-05-09T07:36:10Z",
+        "2018-05-19T07:45:29Z",
+        "2018-06-08T07:43:25Z",
+        "2018-06-13T07:43:56Z",
+        "2018-06-18T07:42:58Z",
+        "2018-06-23T07:46:07Z",
+        "2018-06-28T07:45:41Z",
+        "2018-07-03T07:36:13Z",
+        "2018-07-08T07:42:00Z",
+        "2018-07-13T07:44:13Z",
+        "2018-08-02T07:36:12Z",
+        "2018-08-07T07:41:24Z",
+        "2018-08-17T07:47:30Z",
+        "2018-08-22T07:45:09Z",
+        "2018-08-27T07:39:47Z",
+        "2018-09-01T07:36:10Z",
+        "2018-09-06T07:40:44Z",
+        "2018-09-11T07:44:09Z",
+        "2018-09-16T07:41:35Z",
+        "2018-09-21T07:46:13Z",
+        "2018-09-26T07:47:11Z",
+        "2018-10-01T07:37:17Z",
+        "2018-10-21T07:39:34Z",
+        "2018-10-31T07:41:47Z",
+        "2018-11-10T07:48:34Z",
+        "2018-11-20T07:48:33Z",
+        "2018-12-15T07:48:33Z",
+        "2018-12-30T07:48:33Z",
     ]
     for tile_request in requests:
         assert tile_request.url == "https://services.sentinel-hub.com/api/v1/byoc/collections/mock-collection/tiles"

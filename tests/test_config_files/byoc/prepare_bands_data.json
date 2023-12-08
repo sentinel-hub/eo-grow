@@ -6,7 +6,7 @@
       "maps": "maps/BANDS-S2-L1C"
     }
   },
-  "input_folder_key": "data_2019",
+  "input_folder_key": "data",
   "output_folder_key": "maps",
   "feature": ["data", "BANDS-S2-L1C"],
   "map_dtype": "float32",
