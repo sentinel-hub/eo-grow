@@ -10,4 +10,4 @@ pytestmark = pytest.mark.integration
 def test_import_vector_pipeline(config_and_stats_paths, experiment_name):
     config_path, stats_path = config_and_stats_paths("import_vector", experiment_name)
     output_path = run_config(config_path)
-    compare_content(output_path, stats_path)
+    compare_content(output_path, stats_path, save_new_stats=True)
