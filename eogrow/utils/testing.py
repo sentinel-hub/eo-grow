@@ -8,6 +8,7 @@ import json
 import os
 from collections import defaultdict
 from dataclasses import dataclass
+from functools import partial
 from typing import Any, Iterable, cast
 
 import fs
@@ -189,9 +190,12 @@ def _calculate_vector_stats(gdf: gpd.GeoDataFrame, config: StatCalcConfig) -> Js
     if len(gdf):
         subsample: gpd.GeoDataFrame = gdf.sample(min(len(gdf), config.num_random_values), random_state=42)
         subsample["centroid"] = subsample.centroid.apply(_rounder)
-        subsample["area"] = subsample.area.apply(_prepare_value, dtype=np.float64)
+        subsample["area"] = subsample.area
         subsample["geometry_type"] = subsample.geometry.geom_type
         subsample["some_coords"] = subsample.geometry.apply(_get_coords_sample)
+
+        for col in subsample.select_dtypes(include="number").columns.values:
+            subsample[col] = subsample[col].apply(partial(_prepare_value, dtype=subsample[col].dtype))
 
         subsample_json_string = subsample.drop(columns="geometry").to_json(orient="index", date_format="iso")
         stats["random_rows"] = json.loads(subsample_json_string)

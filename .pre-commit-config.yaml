@@ -13,7 +13,7 @@ repos:
       - id: debug-statements
 
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: "v3.1.0"
+    rev: "v4.0.0-alpha.4"
     hooks:
       - id: prettier
         exclude: "tests/(test_stats|test_project)/"
@@ -26,12 +26,12 @@ repos:
         language_version: python3
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "v0.1.6"
+    rev: "v0.1.7"
     hooks:
       - id: ruff
 
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.7.0
+    rev: 1.7.1
     hooks:
       - id: nbqa-black
       - id: nbqa-ruff
