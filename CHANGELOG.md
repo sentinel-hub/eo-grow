@@ -1,11 +1,19 @@
+## [Version 1.7.3] - 2023-12-11
+
+- Fix bug with versions of `sentinelhub-py >= 3.10.0` due to bad version string comparison.
+- Adjust rounding of statistics for vector data.
+
+
 ## [Version 1.7.2] - 2023-11-28
 
 - Fix pipeline-chain execution when using CLI
+
 
 ## [Version 1.7.1] - 2023-11-23
 
 - Fixed `eogrow-validate` command when validating pipeline chains that use variables.
 - Restricted version of `typing_extensions`
+
 
 ## [Version 1.7.0] - 2023-11-22
 With this release we push `eo-grow` towards a more `ray` centered execution model.
