@@ -98,8 +98,8 @@ def test_get_patch_list_filtration_error(test_subset: List[Union[int, str]], sim
         pipeline.get_patch_list()
 
 
-@pytest.mark.parametrize("fails", [True, False])
-@pytest.mark.parametrize("raises", [True, False])
+@pytest.mark.parametrize("fail", [True, False])
+@pytest.mark.parametrize("raise_if_failed", [True, False])
 def test_pipeline_raises_on_failure(fail: bool, raise_if_failed: bool, simple_config_filename: str):
     config = interpret_config_from_path(simple_config_filename)
     config.pop("test_param")
