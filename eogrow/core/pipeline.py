@@ -27,6 +27,10 @@ Self = TypeVar("Self", bound="Pipeline")
 LOGGER = logging.getLogger(__name__)
 
 
+class PipelineExecutionError(RuntimeError):
+    """Raised when the pipeline failed some executions."""
+
+
 class Pipeline(EOGrowObject):
     """A base class for execution of processing procedures which may or may not include running EOWorkflows, running
     EOExecutions, creating maps, etc.
@@ -212,6 +216,7 @@ class Pipeline(EOGrowObject):
         """The main method for pipeline execution. It sets up logging and runs the pipeline procedure."""
         timestamp = current_timestamp()
         self.current_execution_name = self.get_pipeline_execution_name(timestamp)
+        log_folder = self.logging_manager.get_pipeline_logs_folder(self.current_execution_name, full_path=True)
 
         root_logger = logging.getLogger()
         handlers = self.logging_manager.start_logging(root_logger, self.current_execution_name, "pipeline.log")
@@ -231,10 +236,7 @@ class Pipeline(EOGrowObject):
             elapsed_time = time.time() - pipeline_start
 
             if failed:
-                LOGGER.info(
-                    "Pipeline finished with some errors! Check %s",
-                    self.logging_manager.get_pipeline_logs_folder(self.current_execution_name, full_path=True),
-                )
+                LOGGER.info("Pipeline finished with some errors! Check %s", log_folder)
             else:
                 LOGGER.info("Pipeline finished successfully!")
 
@@ -250,6 +252,9 @@ class Pipeline(EOGrowObject):
             self.logging_manager.save_eopatch_execution_status(
                 pipeline_execution_name=self.current_execution_name, finished=finished, failed=failed
             )
+
+            if failed and self.config.raise_if_failed:
+                raise PipelineExecutionError(f"Pipeline failed some executions. Check {log_folder}.")
         finally:
             self.logging_manager.stop_logging(root_logger, handlers)
 
