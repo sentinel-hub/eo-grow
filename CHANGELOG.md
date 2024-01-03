@@ -1,3 +1,8 @@
+## [Version 1.7.4] - 2024-01-03
+
+- Pipelines now have an additional parameter `raise_if_failed` to raise an error if the pipeline failed.
+
+
 ## [Version 1.7.3] - 2023-12-11
 
 - Fix bug with versions of `sentinelhub-py >= 3.10.0` due to bad version string comparison.
