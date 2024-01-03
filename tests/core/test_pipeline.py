@@ -8,7 +8,7 @@ from eolearn.core import EOWorkflow
 from sentinelhub import CRS, BBox
 
 from eogrow.core.config import interpret_config_from_path
-from eogrow.core.pipeline import Pipeline
+from eogrow.core.pipeline import Pipeline, PipelineExecutionError
 
 
 @pytest.fixture(scope="session", name="simple_config_filename")
@@ -31,6 +31,14 @@ class SimplePipeline(Pipeline):
         finished, failed, _ = self.run_execution(workflow, exec_args)
 
         return finished[:-1], finished[-1:] + failed
+
+
+class FailingPipeline(Pipeline):
+    class Schema(Pipeline.Schema):
+        fail: bool
+
+    def run_procedure(self) -> Tuple[List[str], List[str]]:
+        return [], ([0] if self.config.fail else [])
 
 
 def test_pipeline_execution(simple_config_filename: str) -> None:
@@ -88,3 +96,17 @@ def test_get_patch_list_filtration_error(test_subset: List[Union[int, str]], sim
     pipeline = SimplePipeline.from_raw_config(config)
     with pytest.raises(ValueError):
         pipeline.get_patch_list()
+
+
+@pytest.mark.parametrize("fail", [True, False])
+@pytest.mark.parametrize("raise_if_failed", [True, False])
+def test_pipeline_raises_on_failure(fail: bool, raise_if_failed: bool, simple_config_filename: str):
+    config = interpret_config_from_path(simple_config_filename)
+    config.pop("test_param")
+    pipeline = FailingPipeline.from_raw_config({"fail": fail, "raise_if_failed": raise_if_failed, **config})
+
+    if fail and raise_if_failed:
+        with pytest.raises(PipelineExecutionError):
+            pipeline.run()
+    else:
+        pipeline.run()
