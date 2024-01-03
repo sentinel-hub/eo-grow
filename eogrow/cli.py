@@ -220,9 +220,9 @@ def _prepare_chain(
     for i, run_config in enumerate(config):
         if "pipeline_config" not in run_config:
             raise ValueError(f"Pipeline-chain element {i} is missing the field `pipeline_config`.")
-        raw_chain.append({
-            **run_config, "pipeline_config": _prepare_config(run_config["pipeline_config"], variables, test_patches)
-        })
+        raw_chain.append(
+            {**run_config, "pipeline_config": _prepare_config(run_config["pipeline_config"], variables, test_patches)}
+        )
     return raw_chain  # type: ignore[return-value]
 
 
