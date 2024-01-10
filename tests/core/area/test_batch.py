@@ -24,7 +24,9 @@ from eogrow.core.area.batch import MissingBatchIdError
 
 @pytest.fixture(name="configured_requests_mock")
 def request_mock_setup(requests_mock):
-    requests_mock.post(url="/oauth/token", real_http=True)
+    requests_mock.post(
+        url="https://services.sentinel-hub.com/auth/realms/main/protocol/openid-connect/token", real_http=True
+    )
 
     batch_bounds = {
         "geometry": {
