@@ -8,5 +8,6 @@
     "save_logs": true,
     "show_logs": true,
     "capture_warnings": true
-  }
+  },
+  "raise_on_failure": false
 }
