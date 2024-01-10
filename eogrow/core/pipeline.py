@@ -253,7 +253,7 @@ class Pipeline(EOGrowObject):
                 pipeline_execution_name=self.current_execution_name, finished=finished, failed=failed
             )
 
-            if failed and self.config.raise_if_failed:
+            if failed and self.config.raise_on_failure:
                 raise PipelineExecutionError(f"Pipeline failed some executions. Check {log_folder}.")
         finally:
             self.logging_manager.stop_logging(root_logger, handlers)
