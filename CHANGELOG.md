@@ -1,3 +1,9 @@
+## [Version 1.7.4] - 2024-01-10
+
+- Parameter `raise_if_failed` renamed to `raise_on_failure` and is now enabled by default.
+- Numpy version restricted in anticipation of numpy 2.0 release.
+
+
 ## [Version 1.7.4] - 2024-01-03
 
 - Pipelines now have an additional parameter `raise_if_failed` to raise an error if the pipeline failed.
