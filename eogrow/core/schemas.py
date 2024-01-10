@@ -69,8 +69,8 @@ class PipelineSchema(BaseSchema):
     raise_on_temporal_mismatch: bool = Field(
         False, description="Treat `TemporalDimensionWarning` as an exception during EOExecution."
     )
-    raise_if_failed: bool = Field(
-        False, description="Raise an exception if `run_procedure` returns some executions in `failed`."
+    raise_on_failure: bool = Field(
+        True, description="Raise an exception if `run_procedure` returns some executions in `failed`."
     )
     debug: bool = Field(False, description="Run pipeline without the `ray` wrapper to enable debugging.")
 

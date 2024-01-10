@@ -99,13 +99,13 @@ def test_get_patch_list_filtration_error(test_subset: List[Union[int, str]], sim
 
 
 @pytest.mark.parametrize("fail", [True, False])
-@pytest.mark.parametrize("raise_if_failed", [True, False])
-def test_pipeline_raises_on_failure(fail: bool, raise_if_failed: bool, simple_config_filename: str):
+@pytest.mark.parametrize("raise_on_failure", [True, False])
+def test_pipeline_raises_on_failure(fail: bool, raise_on_failure: bool, simple_config_filename: str):
     config = interpret_config_from_path(simple_config_filename)
     config.pop("test_param")
-    pipeline = FailingPipeline.from_raw_config({"fail": fail, "raise_if_failed": raise_if_failed, **config})
+    pipeline = FailingPipeline.from_raw_config({"fail": fail, "raise_on_failure": raise_on_failure, **config})
 
-    if fail and raise_if_failed:
+    if fail and raise_on_failure:
         with pytest.raises(PipelineExecutionError):
             pipeline.run()
     else:
