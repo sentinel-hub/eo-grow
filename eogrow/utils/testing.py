@@ -14,11 +14,12 @@ from typing import Any, Iterable, cast
 import fs
 import geopandas as gpd
 import numpy as np
+import pandas as pd
 import rasterio
 from deepdiff import DeepDiff
 from fs.base import FS
 from fs.osfs import OSFS
-from shapely import MultiPolygon, Point, Polygon
+from shapely import MultiPolygon, Point, Polygon, wkb, wkt
 
 from eolearn.core import EOPatch, FeatureType
 from eolearn.core.eodata_io import get_filesystem_data_info
@@ -90,11 +91,24 @@ def calculate_statistics(folder: str, config: StatCalcConfig) -> JsonDict:
         elif content_path.endswith((".geojson", ".gpkg")):
             stats[content] = _calculate_vector_stats(gpd.read_file(content_path), config)
         elif content_path.endswith(".parquet"):
-            stats[content] = _calculate_vector_stats(gpd.read_parquet(content_path), config)
+            try:
+                data = gpd.read_parquet(content_path)
+            except Exception:
+                data = _load_as_geoparquet(content_path)
+            stats[content] = _calculate_vector_stats(data, config)
         else:
             stats[content] = None
 
     return stats
+
+
+def _load_as_geoparquet(path: str) -> gpd.GeoDataFrame:
+    data = pd.read_parquet(path)
+    if isinstance(data.geometry.iloc[0], str):
+        data.geometry = data.geometry.apply(wkt.loads)
+    elif isinstance(data.geometry.iloc[0], bytes):
+        data.geometry = data.geometry.apply(wkb.loads)
+    return gpd.GeoDataFrame(data, geometry="geometry", crs=data.utm_crs.iloc[0])
 
 
 def _calculate_eopatch_stats(eopatch: EOPatch, config: StatCalcConfig) -> JsonDict:
