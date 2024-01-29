@@ -43,6 +43,7 @@ classifiers = [
 dependencies = [
     "click",
     "colorlog",
+    "dateutil",
     "boto3<=1.29.6",
     "eo-learn[VISUALIZATION]>=1.5.0",
     "fiona",
