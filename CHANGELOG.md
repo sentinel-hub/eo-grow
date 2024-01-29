@@ -1,4 +1,10 @@
-## [Version 1.7.4] - 2024-01-10
+## [Version 1.7.6] - 2024-01-29
+
+- Pipelines that are run as part of a pipeline-chain execution will now no longer be retried by ray in the case when an exception occurs.
+- Parsing time ranges now has support for more formats.
+
+
+## [Version 1.7.5] - 2024-01-10
 
 - Parameter `raise_if_failed` renamed to `raise_on_failure` and is now enabled by default.
 - Numpy version restricted in anticipation of numpy 2.0 release.

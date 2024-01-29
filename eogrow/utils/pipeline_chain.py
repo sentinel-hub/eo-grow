@@ -44,6 +44,6 @@ def run_pipeline_chain(pipeline_chain: list[RawConfig]) -> None:
         ray.get(runner.remote(run_schema.pipeline_config))
 
 
-@ray.remote
+@ray.remote(max_retries=0)
 def _pipeline_runner(config: RawConfig) -> None:
     return load_pipeline_class(config).from_raw_config(config).run()

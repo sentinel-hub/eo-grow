@@ -7,6 +7,7 @@ Mocks:
 - Batch request definition endpoint.
 - Tiling grid request endpoints.
 - Mocking requests of iter_tiles would be too much effort, so the `_make_new_split` of the splitter is mocked instead.
+
 """
 
 from unittest.mock import patch

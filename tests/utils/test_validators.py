@@ -170,18 +170,19 @@ def test_ensure_storage_key_presence_optional_precedence(config):
 
 
 @pytest.mark.parametrize(
-    ("time_period", "year", "expected_start_date", "expected_end_date"),
+    ("first_param", "second_param", "expected_start_date", "expected_end_date"),
     [
-        ("yearly", 2020, "2020-01-01", "2020-12-31"),
-        ("Q2", 2021, "2021-04-01", "2021-06-30"),
-        ("Q2-yearly", 2021, "2020-07-01", "2021-06-30"),
+        ("yearly", 2020, "2020-01-01T00:00:00", "2020-12-31T00:00:00"),
+        ("Q2", 2021, "2021-04-01T00:00:00", "2021-06-30T00:00:00"),
+        ("Q2-yearly", 2021, "2020-07-01T00:00:00", "2021-06-30T00:00:00"),
+        ("2022-02-02", "2022-02-22T22:22:02", "2022-02-02T00:00:00", "2022-02-22T22:22:02"),
     ],
 )
-def test_parse_time_period(time_period, year, expected_start_date, expected_end_date):
-    start_date, end_date = parse_time_period([time_period, year])
+def test_parse_time_period(first_param, second_param, expected_start_date, expected_end_date):
+    start_date, end_date = parse_time_period([first_param, second_param])
 
-    assert isinstance(start_date, dt.date)
-    assert isinstance(end_date, dt.date)
+    assert isinstance(start_date, dt.datetime)
+    assert isinstance(end_date, dt.datetime)
 
     assert start_date.isoformat() == expected_start_date
     assert end_date.isoformat() == expected_end_date

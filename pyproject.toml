@@ -52,6 +52,7 @@ dependencies = [
     "opencv-python-headless",
     "pandas",
     "pydantic>=1.8.0, <2.0",
+    "python-dateutil",
     "python-rapidjson",
     "rasterio",
     "ray[default]",
@@ -72,6 +73,7 @@ docs = [
 dev = [
     "eo-grow[ML]",
     "boto3",
+    "boto3-stubs",
     "build",
     "deepdiff",
     "fs_s3fs",
@@ -85,6 +87,7 @@ dev = [
     "requests-mock",
     "scipy",
     "twine",
+    "types-python-dateutil",
     "types-mock",
     "types-requests",
     "types-setuptools",
