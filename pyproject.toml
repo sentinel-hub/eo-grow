@@ -72,6 +72,7 @@ docs = [
 dev = [
     "eo-grow[ML]",
     "boto3",
+    "boto3-stubs",
     "build",
     "deepdiff",
     "fs_s3fs",

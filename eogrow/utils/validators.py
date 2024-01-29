@@ -4,11 +4,11 @@ Module defining common validators for schemas and validator wrappers
 
 from __future__ import annotations
 
-import datetime as dt
 import inspect
 from typing import TYPE_CHECKING, Any, Callable, Iterable, Tuple, Union
 
 import numpy as np
+from dateutil.parser import isoparse
 from pydantic import BaseModel, Field, validator
 
 from eolearn.core import FeatureType
@@ -144,8 +144,8 @@ def parse_time_period(value: tuple[str, str]) -> TimePeriod:
         }
         value = start_dates[kind], end_dates[kind]
 
-    start = dt.datetime.strptime(value[0], "%Y-%m-%d").date()
-    end = dt.datetime.strptime(value[1], "%Y-%m-%d").date()
+    start = isoparse(value[0])
+    end = isoparse(value[1])
     assert start <= end, "Invalid start and end dates provided. End date must follow the start date"
     return start, end
 
