@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from fs.tempfs import TempFS
 from fs_s3fs import S3FS
-from moto import mock_s3
+from moto import mock_aws
 
 from eolearn.core import EOPatch, FeatureType
 from sentinelhub import CRS, BBox
@@ -41,7 +41,7 @@ def eopatch_fixture():
 
 @pytest.fixture(name="mock_s3fs", scope="session")
 def mock_s3fs_fixture(eopatch):
-    with mock_s3():
+    with mock_aws():
         s3resource = boto3.resource("s3", region_name="eu-central-1")
         s3resource.create_bucket(Bucket=BUCKET_NAME, CreateBucketConfiguration={"LocationConstraint": "eu-central-1"})
         mock_s3fs = S3FS(BUCKET_NAME)
