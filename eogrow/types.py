@@ -1,5 +1,4 @@
-""" Includes custom types used in schemas
-"""
+"""Includes custom types used in schemas"""
 
 import datetime
 import sys

@@ -241,7 +241,7 @@ def parse_data_collection(value: str | dict | DataCollection) -> DataCollection:
 
 
 def restrict_types(
-    allowed_feature_types: Iterable[FeatureType] | Callable[[FeatureType], bool]
+    allowed_feature_types: Iterable[FeatureType] | Callable[[FeatureType], bool],
 ) -> Callable[[Feature], Feature]:
     """Validates a field representing a feature, where it restricts the possible feature types."""
 
