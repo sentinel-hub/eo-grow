@@ -43,7 +43,6 @@ classifiers = [
 dependencies = [
     "click",
     "colorlog",
-    "dateutil",
     "boto3<=1.29.6",
     "eo-learn[VISUALIZATION]>=1.5.0",
     "fiona",
@@ -53,6 +52,7 @@ dependencies = [
     "opencv-python-headless",
     "pandas",
     "pydantic>=1.8.0, <2.0",
+    "python-dateutil",
     "python-rapidjson",
     "rasterio",
     "ray[default]",
