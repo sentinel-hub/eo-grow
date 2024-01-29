@@ -4,7 +4,7 @@ import boto3
 import pytest
 from fs.tempfs import TempFS
 from fs_s3fs import S3FS
-from moto import mock_s3
+from moto import mock_aws
 
 from eolearn.core import EOExecutor, EONode, EOTask, EOWorkflow
 
@@ -17,7 +17,7 @@ class CheckValueTask(EOTask):
             raise ValueError(f"Value is {value}")
 
 
-@mock_s3
+@mock_aws
 def _create_new_s3_fs():
     """Creates a new empty mocked s3 bucket. If one such bucket already exists it deletes it first."""
     bucket_name = "mocked-test-bucket"
@@ -35,7 +35,7 @@ def _create_new_s3_fs():
     return S3FS(bucket_name=bucket_name)
 
 
-@mock_s3
+@mock_aws
 @pytest.mark.parametrize("fs_loader", [TempFS, _create_new_s3_fs])
 @pytest.mark.parametrize(
     "logs_handler_factory", [EOExecutionHandler, functools.partial(RegularBackupHandler, backup_interval=0.01)]
