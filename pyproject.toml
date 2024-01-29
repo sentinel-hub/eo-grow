@@ -87,6 +87,7 @@ dev = [
     "requests-mock",
     "scipy",
     "twine",
+    "types-python-dateutil",
     "types-mock",
     "types-requests",
     "types-setuptools",
