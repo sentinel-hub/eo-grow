@@ -3,22 +3,9 @@
     "bbox": "BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS('32638'))",
     "mask_timeless": {
       "LULC_ID_MAPPED": {
-        "array_shape": [
-          121,
-          264,
-          1
-        ],
+        "array_shape": [121, 264, 1],
         "dtype": "uint16",
-        "random_values": [
-          0,
-          2,
-          0,
-          0,
-          0,
-          2,
-          2,
-          2
-        ],
+        "random_values": [0, 2, 0, 0, 0, 2, 2, 2],
         "values": [
           {
             "count": 24314,
@@ -40,22 +27,9 @@
     "bbox": "BBox(((729480.0, 4391145.0), (732120.0, 4392355.0)), crs=CRS('32638'))",
     "mask_timeless": {
       "LULC_ID_MAPPED": {
-        "array_shape": [
-          121,
-          264,
-          1
-        ],
+        "array_shape": [121, 264, 1],
         "dtype": "uint16",
-        "random_values": [
-          2,
-          0,
-          2,
-          0,
-          2,
-          2,
-          2,
-          2
-        ],
+        "random_values": [2, 0, 2, 0, 2, 2, 2, 2],
         "values": [
           {
             "count": 15317,
