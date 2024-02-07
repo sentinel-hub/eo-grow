@@ -2,22 +2,9 @@
   "UTM_32638": {
     "CLM.tiff": {
       "image": {
-        "array_shape": [
-          6,
-          231,
-          264
-        ],
+        "array_shape": [6, 231, 264],
         "dtype": "uint16",
-        "random_values": [
-          0,
-          0,
-          0,
-          1,
-          1,
-          0,
-          0,
-          0
-        ],
+        "random_values": [0, 0, 0, 1, 1, 0, 0, 0],
         "values": [
           {
             "count": 186408,
@@ -30,10 +17,7 @@
         ]
       },
       "mask": {
-        "array_shape": [
-          231,
-          264
-        ],
+        "array_shape": [231, 264],
         "dtype": "uint8",
         "values": [
           {
