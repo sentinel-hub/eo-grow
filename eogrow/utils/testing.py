@@ -19,7 +19,7 @@ import rasterio
 from deepdiff import DeepDiff
 from fs.base import FS
 from fs.osfs import OSFS
-from shapely import MultiPolygon, Point, Polygon, wkb, wkt
+from shapely import MultiPolygon, Point, Polygon
 
 from eolearn.core import EOPatch, FeatureType
 from eolearn.core.eodata_io import get_filesystem_data_info
@@ -93,22 +93,14 @@ def calculate_statistics(folder: str, config: StatCalcConfig) -> JsonDict:
         elif content_path.endswith(".parquet"):
             try:
                 data = gpd.read_parquet(content_path)
+                stats[content] = _calculate_vector_stats(data, config)
             except Exception:
-                data = _load_as_geoparquet(content_path)
-            stats[content] = _calculate_vector_stats(data, config)
+                data = pd.read_parquet(content_path)
+                stats[content] = _calculate_parquet_stats(data, config)
         else:
             stats[content] = None
 
     return stats
-
-
-def _load_as_geoparquet(path: str) -> gpd.GeoDataFrame:
-    data = pd.read_parquet(path)
-    if isinstance(data.geometry.iloc[0], str):
-        data.geometry = data.geometry.apply(wkt.loads)
-    elif isinstance(data.geometry.iloc[0], bytes):
-        data.geometry = data.geometry.apply(wkb.loads)
-    return gpd.GeoDataFrame(data, geometry="geometry", crs=data.utm_crs.iloc[0])
 
 
 def _calculate_eopatch_stats(eopatch: EOPatch, config: StatCalcConfig) -> JsonDict:
@@ -214,6 +206,19 @@ def _calculate_vector_stats(gdf: gpd.GeoDataFrame, config: StatCalcConfig) -> Js
         subsample_json_string = subsample.drop(columns="geometry").to_json(orient="index", date_format="iso")
         stats["random_rows"] = json.loads(subsample_json_string)
 
+    return stats
+
+
+def _calculate_parquet_stats(data: pd.DataFrame, config: StatCalcConfig) -> JsonDict:
+    stats = {"columns": list(data), "row_count": len(data)}
+
+    if len(data):
+        subsample: gpd.GeoDataFrame = data.sample(min(len(data), config.num_random_values), random_state=42)
+        for col in subsample.select_dtypes(include="number").columns.values:
+            subsample[col] = subsample[col].apply(partial(_prepare_value, dtype=subsample[col].dtype))
+
+        subsample_json_string = subsample.to_json(orient="index", date_format="iso")
+        stats["random_rows"] = json.loads(subsample_json_string)
     return stats
 
 
