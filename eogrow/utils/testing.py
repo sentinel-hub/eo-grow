@@ -19,7 +19,7 @@ import rasterio
 from deepdiff import DeepDiff
 from fs.base import FS
 from fs.osfs import OSFS
-from shapely import MultiPolygon, Point, Polygon, wkb
+from shapely import MultiPolygon, Point, Polygon, to_wkt, wkb
 
 from eolearn.core import EOPatch, FeatureType
 from eolearn.core.eodata_io import get_filesystem_data_info
@@ -92,21 +92,27 @@ def calculate_statistics(folder: str, config: StatCalcConfig) -> JsonDict:
         elif content_path.endswith((".geojson", ".gpkg")):
             stats[content] = _calculate_vector_stats(gpd.read_file(content_path), config)
         elif content_path.endswith(".parquet"):
-            try:
-                data = gpd.read_parquet(content_path)
-                stats[content] = _calculate_vector_stats(data, config)
-            except Exception:
-                data = pd.read_parquet(content_path)
-                if config.parquet_epsg:
-                    data.geometry = data.geometry.apply(wkb.loads)
-                    parsed_data = gpd.GeoDataFrame(data, geometry="geometry", crs=config.parquet_epsg)
-                    stats[content] = _calculate_vector_stats(parsed_data, config)
-                else:
-                    stats[content] = _calculate_parquet_stats(data, config)
+            stats[content] = _get_parquet_stats(content_path, config)
         else:
             stats[content] = None
 
     return stats
+
+
+def _get_parquet_stats(content_path: str, config: StatCalcConfig) -> JsonDict:
+    try:
+        data = gpd.read_parquet(content_path)
+        return _calculate_vector_stats(data, config)
+    except Exception:
+        data = pd.read_parquet(content_path)
+        if config.parquet_epsg:
+            data.geometry = data.geometry.apply(wkb.loads)
+            parsed_data = gpd.GeoDataFrame(data, geometry="geometry", crs=config.parquet_epsg)
+            return _calculate_vector_stats(parsed_data, config)
+
+        if "geometry" in data:
+            data.geometry = data.geometry.apply(wkb.loads).apply(to_wkt)
+        return _calculate_parquet_stats(data, config)
 
 
 def _calculate_eopatch_stats(eopatch: EOPatch, config: StatCalcConfig) -> JsonDict:
