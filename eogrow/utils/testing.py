@@ -331,6 +331,7 @@ def compare_content(
     folder_path: str | None,
     stats_path: str,
     *,
+    config: StatCalcConfig | None = None,
     save_new_stats: bool = False,
 ) -> None:
     """Compares the results from a pipeline run with the saved statistics. Constructed to be coupled with `run_config`
@@ -342,8 +343,8 @@ def compare_content(
     """
     if folder_path is None:
         raise ValueError("The given path is None. The pipeline likely has no `output_folder_key` parameter.")
-
-    stats = calculate_statistics(folder_path, config=StatCalcConfig())
+    config = StatCalcConfig() if config is None else config
+    stats = calculate_statistics(folder_path, config=config)
 
     if save_new_stats:
         save_statistics(stats, stats_path)
