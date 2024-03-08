@@ -1,5 +1,7 @@
 import logging
 import os
+from contextlib import suppress
+from pathlib import Path
 from typing import List, Tuple, Union
 
 import pytest
@@ -96,6 +98,23 @@ def test_get_patch_list_filtration_error(test_subset: List[Union[int, str]], sim
     pipeline = SimplePipeline.from_raw_config(config)
     with pytest.raises(ValueError):
         pipeline.get_patch_list()
+
+
+def test_pipeline_logs_exception(simple_config_filename: str) -> None:
+    def cookie_alarm():
+        raise RuntimeError("Oh no, someone stole my cookie! :(")
+
+    config = interpret_config_from_path(simple_config_filename)
+    pipeline = SimplePipeline.from_raw_config(config)
+    pipeline.run_procedure = cookie_alarm
+
+    with suppress(RuntimeError):
+        pipeline.run()
+
+    log_folder = pipeline.logging_manager.get_pipeline_logs_folder(pipeline.current_execution_name, full_path=True)
+    log_path = Path(log_folder) / "failure.log"
+    assert log_path.exists()
+    assert "Oh no, someone stole my cookie! :(" in log_path.read_text()
 
 
 @pytest.mark.parametrize("fail", [True, False])

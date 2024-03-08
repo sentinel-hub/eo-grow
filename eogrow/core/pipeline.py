@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import logging
 import time
+import traceback
 import uuid
 from typing import Any, TypeVar
 
+import fs
 import ray
 
 from eolearn.core import CreateEOPatchTask, EOExecutor, EONode, EOWorkflow, LoadTask, SaveTask, WorkflowResults
@@ -255,6 +257,14 @@ class Pipeline(EOGrowObject):
 
             if failed and self.config.raise_on_failure:
                 raise PipelineExecutionError(f"Pipeline failed some executions. Check {log_folder}.")
+        except Exception as e:
+            # store any exception info you can
+            failure_log_path = fs.path.join(
+                self.logging_manager.get_pipeline_logs_folder(self.current_execution_name), "failure.log"
+            )
+            with self.storage.filesystem.open(failure_log_path, mode="w") as log_file:
+                log_file.writelines(traceback.format_exc())
+            raise e
         finally:
             self.logging_manager.stop_logging(root_logger, handlers)
 
