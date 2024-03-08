@@ -213,7 +213,7 @@ def _calculate_parquet_stats(data: pd.DataFrame, config: StatCalcConfig) -> Json
     stats = {"columns": list(data), "row_count": len(data)}
 
     if len(data):
-        subsample: pd.GeoDataFrame = data.sample(min(len(data), config.num_random_values), random_state=42)
+        subsample: pd.DataFrame = data.sample(min(len(data), config.num_random_values), random_state=42)
         for col in subsample.select_dtypes(include="number").columns.values:
             subsample[col] = subsample[col].apply(partial(_prepare_value, dtype=subsample[col].dtype))
 
