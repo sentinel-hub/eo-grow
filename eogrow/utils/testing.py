@@ -9,7 +9,7 @@ import os
 from collections import defaultdict
 from dataclasses import dataclass
 from functools import partial
-from typing import Any, Iterable, cast
+from typing import Any, Iterable, Optional, cast
 
 import fs
 import geopandas as gpd
@@ -19,7 +19,7 @@ import rasterio
 from deepdiff import DeepDiff
 from fs.base import FS
 from fs.osfs import OSFS
-from shapely import MultiPolygon, Point, Polygon
+from shapely import MultiPolygon, Point, Polygon, wkb
 
 from eolearn.core import EOPatch, FeatureType
 from eolearn.core.eodata_io import get_filesystem_data_info
@@ -38,6 +38,7 @@ class StatCalcConfig:
     unique_values_limit: int = 8
     histogram_bin_num: int = 8
     num_random_values: int = 8
+    parquet_epsg: Optional[int] = None  # if set, tries to load parquet as a geoparquet
 
 
 def compare_with_saved(stats: JsonDict, filename: str) -> DeepDiff:
@@ -96,7 +97,12 @@ def calculate_statistics(folder: str, config: StatCalcConfig) -> JsonDict:
                 stats[content] = _calculate_vector_stats(data, config)
             except Exception:
                 data = pd.read_parquet(content_path)
-                stats[content] = _calculate_parquet_stats(data, config)
+                if config.parquet_epsg:
+                    data.geometry = data.geometry.apply(wkb.loads)
+                    parsed_data = gpd.GeoDataFrame(data, geometry="geometry", crs=config.parquet_epsg)
+                    stats[content] = _calculate_vector_stats(parsed_data, config)
+                else:
+                    stats[content] = _calculate_parquet_stats(data, config)
         else:
             stats[content] = None
 
