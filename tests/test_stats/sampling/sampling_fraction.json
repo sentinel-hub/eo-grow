@@ -3,22 +3,9 @@
     "bbox": "BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS('32638'))",
     "mask_timeless": {
       "LULC_ID": {
-        "array_shape": [
-          9104,
-          1,
-          1
-        ],
+        "array_shape": [9104, 1, 1],
         "dtype": "int16",
-        "random_values": [
-          8,
-          8,
-          8,
-          8,
-          8,
-          8,
-          8,
-          8
-        ],
+        "random_values": [8, 8, 8, 8, 8, 8, 8, 8],
         "values": [
           {
             "count": 28,
@@ -31,22 +18,9 @@
         ]
       },
       "MASK_OF_SAMPLES": {
-        "array_shape": [
-          121,
-          264,
-          1
-        ],
+        "array_shape": [121, 264, 1],
         "dtype": "uint8",
-        "random_values": [
-          0,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0
-        ],
+        "random_values": [0, 0, 0, 0, 1, 0, 0, 0],
         "values": [
           {
             "count": 22840,
@@ -59,11 +33,7 @@
         ]
       },
       "POLYGON_ID": {
-        "array_shape": [
-          9104,
-          1,
-          1
-        ],
+        "array_shape": [9104, 1, 1],
         "basic_stats": {
           "max": 326,
           "mean": 0.497254,
@@ -77,38 +47,12 @@
         },
         "dtype": "int32",
         "histogram": {
-          "counts": [
-            9089,
-            0,
-            0,
-            0,
-            2,
-            0,
-            0,
-            13
-          ],
+          "counts": [9089, 0, 0, 0, 2, 0, 0, 13],
           "edges": [
-            0.0,
-            40.75,
-            81.5,
-            122.25,
-            163.0,
-            203.75,
-            244.5,
-            285.25,
-            326.0
+            0.0, 40.75, 81.5, 122.25, 163.0, 203.75, 244.5, 285.25, 326.0
           ]
         },
-        "random_values": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
+        "random_values": [0, 0, 0, 0, 0, 0, 0, 0],
         "subsample_basic_stats": {
           "max": 0,
           "mean": 0.0,
@@ -123,22 +67,9 @@
     "bbox": "BBox(((729480.0, 4391145.0), (732120.0, 4392355.0)), crs=CRS('32638'))",
     "mask_timeless": {
       "LULC_ID": {
-        "array_shape": [
-          5807,
-          1,
-          1
-        ],
+        "array_shape": [5807, 1, 1],
         "dtype": "int16",
-        "random_values": [
-          8,
-          8,
-          8,
-          8,
-          8,
-          8,
-          8,
-          8
-        ],
+        "random_values": [8, 8, 8, 8, 8, 8, 8, 8],
         "values": [
           {
             "count": 17,
@@ -151,22 +82,9 @@
         ]
       },
       "MASK_OF_SAMPLES": {
-        "array_shape": [
-          121,
-          264,
-          1
-        ],
+        "array_shape": [121, 264, 1],
         "dtype": "uint8",
-        "random_values": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
+        "random_values": [0, 0, 0, 0, 0, 0, 0, 0],
         "values": [
           {
             "count": 26137,
@@ -179,22 +97,9 @@
         ]
       },
       "POLYGON_ID": {
-        "array_shape": [
-          5807,
-          1,
-          1
-        ],
+        "array_shape": [5807, 1, 1],
         "dtype": "int32",
-        "random_values": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
-        ],
+        "random_values": [0, 0, 0, 0, 0, 0, 0, 0],
         "values": [
           {
             "count": 5773,

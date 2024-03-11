@@ -3,11 +3,7 @@
     "2019-01-04T07-48-37": {
       "CLM.tiff": {
         "image": {
-          "array_shape": [
-            1,
-            231,
-            264
-          ],
+          "array_shape": [1, 231, 264],
           "dtype": "uint16",
           "values": [
             {
@@ -17,10 +13,7 @@
           ]
         },
         "mask": {
-          "array_shape": [
-            231,
-            264
-          ],
+          "array_shape": [231, 264],
           "dtype": "uint8",
           "values": [
             {
@@ -34,11 +27,7 @@
     "2019-01-24T07-48-39": {
       "CLM.tiff": {
         "image": {
-          "array_shape": [
-            1,
-            231,
-            264
-          ],
+          "array_shape": [1, 231, 264],
           "dtype": "uint16",
           "values": [
             {
@@ -48,10 +37,7 @@
           ]
         },
         "mask": {
-          "array_shape": [
-            231,
-            264
-          ],
+          "array_shape": [231, 264],
           "dtype": "uint8",
           "values": [
             {
@@ -65,22 +51,9 @@
     "2019-02-13T07-48-39": {
       "CLM.tiff": {
         "image": {
-          "array_shape": [
-            1,
-            231,
-            264
-          ],
+          "array_shape": [1, 231, 264],
           "dtype": "uint16",
-          "random_values": [
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1
-          ],
+          "random_values": [1, 1, 1, 1, 1, 1, 1, 1],
           "values": [
             {
               "count": 3456,
@@ -93,21 +66,9 @@
           ]
         },
         "mask": {
-          "array_shape": [
-            231,
-            264
-          ],
+          "array_shape": [231, 264],
           "dtype": "uint8",
-          "random_values": [
-            255,
-            255,
-            255,
-            255,
-            255,
-            255,
-            255,
-            255
-          ],
+          "random_values": [255, 255, 255, 255, 255, 255, 255, 255],
           "values": [
             {
               "count": 3456,
@@ -124,11 +85,7 @@
     "2019-02-18T07-48-36": {
       "CLM.tiff": {
         "image": {
-          "array_shape": [
-            1,
-            231,
-            264
-          ],
+          "array_shape": [1, 231, 264],
           "dtype": "uint16",
           "values": [
             {
@@ -138,10 +95,7 @@
           ]
         },
         "mask": {
-          "array_shape": [
-            231,
-            264
-          ],
+          "array_shape": [231, 264],
           "dtype": "uint8",
           "values": [
             {
@@ -155,11 +109,7 @@
     "2019-02-23T07-49-38": {
       "CLM.tiff": {
         "image": {
-          "array_shape": [
-            1,
-            231,
-            264
-          ],
+          "array_shape": [1, 231, 264],
           "dtype": "uint16",
           "values": [
             {
@@ -169,10 +119,7 @@
           ]
         },
         "mask": {
-          "array_shape": [
-            231,
-            264
-          ],
+          "array_shape": [231, 264],
           "dtype": "uint8",
           "values": [
             {
@@ -186,11 +133,7 @@
     "2019-03-05T07-55-53": {
       "CLM.tiff": {
         "image": {
-          "array_shape": [
-            1,
-            231,
-            264
-          ],
+          "array_shape": [1, 231, 264],
           "dtype": "uint16",
           "values": [
             {
@@ -200,10 +143,7 @@
           ]
         },
         "mask": {
-          "array_shape": [
-            231,
-            264
-          ],
+          "array_shape": [231, 264],
           "dtype": "uint8",
           "values": [
             {

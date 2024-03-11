@@ -3,22 +3,9 @@
     "bbox": "BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS('32638'))",
     "data_timeless": {
       "FLOAT_FEATURE": {
-        "array_shape": [
-          121,
-          264,
-          1
-        ],
+        "array_shape": [121, 264, 1],
         "dtype": "float32",
-        "random_values": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          3.5,
-          0.0
-        ],
+        "random_values": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.5, 0.0],
         "values": [
           {
             "count": 29638,
@@ -36,22 +23,9 @@
     "bbox": "BBox(((729480.0, 4391145.0), (732120.0, 4392355.0)), crs=CRS('32638'))",
     "data_timeless": {
       "FLOAT_FEATURE": {
-        "array_shape": [
-          121,
-          264,
-          1
-        ],
+        "array_shape": [121, 264, 1],
         "dtype": "float32",
-        "random_values": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          3.5,
-          0.0,
-          0.0
-        ],
+        "random_values": [0.0, 0.0, 0.0, 0.0, 0.0, 3.5, 0.0, 0.0],
         "values": [
           {
             "count": 25328,

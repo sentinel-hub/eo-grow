@@ -1,3 +1,8 @@
+## [Version 1.7.7] - 2024-03-11
+
+- When a Pipeline raises an error it now saves the stack-trace to the `failure.log` file in the logs folder.
+
+
 ## [Version 1.7.6] - 2024-01-29
 
 - Pipelines that are run as part of a pipeline-chain execution will now no longer be retried by ray in the case when an exception occurs.
