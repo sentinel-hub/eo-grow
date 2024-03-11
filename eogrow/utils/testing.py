@@ -76,7 +76,7 @@ def calculate_statistics(folder: str, config: StatCalcConfig) -> JsonDict:
     for content in os.listdir(folder):
         content_path = fs.path.combine(folder, content)
 
-        if os.path.isdir(content_path):
+        if os.path.isdir(content_path) and not content_path.endswith("parquet"):
             fs_data_info = get_filesystem_data_info(OSFS("/"), content_path)
             if fs_data_info.bbox is not None:
                 load_timestamps = fs_data_info.timestamps is not None
