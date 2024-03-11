@@ -110,7 +110,7 @@ def _get_parquet_stats(content_path: str, config: StatCalcConfig) -> JsonDict:
             parsed_data = gpd.GeoDataFrame(data, geometry="geometry", crs=config.parquet_epsg)
             return _calculate_vector_stats(parsed_data, config)
 
-        if "geometry" in data:
+        if "geometry" in data and isinstance(data.geometry.iloc[0], bytes):
             data.geometry = data.geometry.apply(wkb.loads).apply(to_wkt)
         return _calculate_parquet_stats(data, config)
 
