@@ -19,7 +19,7 @@ import rasterio
 from deepdiff import DeepDiff
 from fs.base import FS
 from fs.osfs import OSFS
-from shapely import MultiPolygon, Point, Polygon, to_wkt, wkb, wkt
+from shapely import MultiPolygon, Point, Polygon, wkb, wkt
 
 from eolearn.core import EOPatch, FeatureType
 from eolearn.core.eodata_io import get_filesystem_data_info
@@ -105,14 +105,17 @@ def _get_parquet_stats(content_path: str, config: StatCalcConfig) -> JsonDict:
         return _calculate_vector_stats(data, config)
     except Exception:
         data = pd.read_parquet(content_path)
+        if "geometry" not in data:
+            return _calculate_parquet_stats(data, config)
+
+        loader = wkb.loads if isinstance(data.geometry.iloc[0], bytes) else wkt.loads
+        data.geometry = data.geometry.apply(loader)
+
         if config.parquet_epsg:
-            loader = wkb.loads if isinstance(data.geometry.iloc[0], bytes) else wkt.loads
-            data.geometry = data.geometry.apply(loader)
             parsed_data = gpd.GeoDataFrame(data, geometry="geometry", crs=config.parquet_epsg)
             return _calculate_vector_stats(parsed_data, config)
 
-        if "geometry" in data and isinstance(data.geometry.iloc[0], bytes):
-            data.geometry = data.geometry.apply(wkb.loads).apply(to_wkt)
+        data.geometry = data.geometry.apply(wkt.dumps)
         return _calculate_parquet_stats(data, config)
 
 
