@@ -1,6 +1,6 @@
 ## [Version 1.7.7] - 2024-03-11
 
-- When Pipelines raise an error, the try to save the stack-trace to the logs folder into `failure.log`.
+- When a Pipeline raises an error it now saves the stack-trace to the `failure.log` file in the logs folder.
 - Test utilities have better support for parquet.
 
 
