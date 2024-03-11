@@ -54,7 +54,7 @@ class LoadUserDataTask(EOTask):
             reader = import_object(userdata_timestamp_reader)
             time_strings = reader(userdata)
         except (ImportError, ValueError):
-            time_strings = eval(userdata_timestamp_reader)  # pylint: disable=eval-used  # noqa: PGH001
+            time_strings = eval(userdata_timestamp_reader)  # pylint: disable=eval-used
 
         return [parse_time(time_string, force_datetime=True, ignoretz=True) for time_string in time_strings]
 
