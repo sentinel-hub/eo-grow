@@ -20,18 +20,18 @@ repos:
         types_or: [json]
 
   - repo: https://github.com/psf/black
-    rev: 24.1.1
+    rev: 24.2.0
     hooks:
       - id: black
         language_version: python3
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "v0.1.14"
+    rev: "v0.3.2"
     hooks:
       - id: ruff
 
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.7.1
+    rev: 1.8.4
     hooks:
       - id: nbqa-black
       - id: nbqa-ruff
