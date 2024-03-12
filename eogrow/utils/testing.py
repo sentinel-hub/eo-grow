@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 import os
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import partial
 from typing import Any, Iterable, Optional, cast
 
@@ -92,8 +92,8 @@ def calculate_statistics(folder: str, config: StatCalcConfig) -> JsonDict:
         elif content_path.endswith((".geojson", ".gpkg")):
             stats[content] = _calculate_vector_stats(gpd.read_file(content_path, engine="pyogrio"), config)
         elif content_path.endswith(".parquet"):
-            config = StatCalcConfig(**config.dict(), num_random_values=0)  # due to non-determinism in parquet row order
-            stats[content] = _get_parquet_stats(content_path, config)
+            # don't sample random rows due to non-determinism in parquet row order
+            stats[content] = _get_parquet_stats(content_path, replace(config, num_random_values=0))
         else:
             stats[content] = None
 
