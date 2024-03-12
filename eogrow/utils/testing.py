@@ -203,7 +203,7 @@ def _calculate_vector_stats(gdf: gpd.GeoDataFrame, config: StatCalcConfig) -> Js
         return [_rounder(point) for point in geom.exterior.coords[:10]] if isinstance(geom, Polygon) else None
 
     stats = {
-        "columns": list(gdf),
+        "columns_and_dtypes": list(gdf.dtypes.astype(str).sort_index().items()),
         "row_count": len(gdf),
         "crs": str(gdf.crs),
         "mean_area": _prepare_value(gdf.area.mean(), np.float64),
@@ -227,7 +227,10 @@ def _calculate_vector_stats(gdf: gpd.GeoDataFrame, config: StatCalcConfig) -> Js
 
 
 def _calculate_parquet_stats(data: pd.DataFrame, config: StatCalcConfig) -> JsonDict:
-    stats = {"columns": list(data), "row_count": len(data)}
+    stats = {
+        "columns_and_dtypes": list(data.dtypes.astype(str).sort_index().items()),
+        "row_count": len(data),
+    }
 
     if len(data):
         subsample: pd.DataFrame = data.sample(min(len(data), config.num_random_values), random_state=42)
