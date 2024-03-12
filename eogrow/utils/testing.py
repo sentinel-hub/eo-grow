@@ -102,7 +102,7 @@ def calculate_statistics(folder: str, config: StatCalcConfig) -> JsonDict:
 
 def _get_parquet_stats(content_path: str, config: StatCalcConfig) -> JsonDict:
     try:
-        data = gpd.read_parquet(content_path)
+        data = gpd.read_parquet(content_path, engine="pyogrio")
         return _calculate_vector_stats(data, config)
     except Exception:
         data = pd.read_parquet(content_path)
