@@ -90,7 +90,7 @@ def calculate_statistics(folder: str, config: StatCalcConfig) -> JsonDict:
         elif content_path.endswith(".npy"):
             stats[content] = _calculate_numpy_stats(np.load(content_path, allow_pickle=True), config)
         elif content_path.endswith((".geojson", ".gpkg")):
-            stats[content] = _calculate_vector_stats(gpd.read_file(content_path), config)
+            stats[content] = _calculate_vector_stats(gpd.read_file(content_path, engine="pyogrio"), config)
         elif content_path.endswith(".parquet"):
             config = StatCalcConfig(**config.dict(), num_random_values=0)  # due to non-determinism in parquet row order
             stats[content] = _get_parquet_stats(content_path, config)
