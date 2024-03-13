@@ -207,6 +207,7 @@ def _calculate_vector_stats(gdf: gpd.GeoDataFrame, config: StatCalcConfig) -> Js
         "crs": str(gdf.crs),
         "mean_area": _prepare_value(gdf.area.mean(), np.float64),
         "total_bounds": [_prepare_value(x, dtype=np.float64) for x in gdf.total_bounds],
+        "agg_stats": _extract_dataframe_stats(gdf),
     }
 
     if len(gdf):
@@ -229,6 +230,7 @@ def _calculate_parquet_stats(data: pd.DataFrame, config: StatCalcConfig) -> Json
     stats = {
         "columns_and_dtypes": list(data.dtypes.astype(str).sort_index().items()),
         "row_count": len(data),
+        "agg_stats": _extract_dataframe_stats(data),
     }
 
     if len(data):
@@ -252,6 +254,17 @@ def _calculate_basic_stats(values: np.ndarray) -> dict[str, float]:
         "median": _prepare_value(np.median(values), np.float32),
         "std": _prepare_value(np.std(values), np.float32),
     }
+
+
+def _extract_dataframe_stats(data: pd.DataFrame | gpd.GeoDataFrame) -> dict[str, Any]:
+    cols_f32 = data.columns[data.dtypes == "float32"]
+    data_stats = data.describe().loc[["mean", "std", "min", "max"]]
+
+    for col in data_stats.columns:
+        _prepare_value_func = partial(_prepare_value, dtype=np.float32 if col in cols_f32 else np.float64)
+        data_stats[col] = data_stats[col].apply(_prepare_value_func)
+
+    return data_stats.to_dict()
 
 
 def _get_random_values(raster: np.ndarray, config: StatCalcConfig) -> list[float]:
