@@ -256,10 +256,13 @@ def _calculate_basic_stats(values: np.ndarray) -> dict[str, float]:
     }
 
 
-def _extract_dataframe_stats(data: pd.DataFrame | gpd.GeoDataFrame) -> dict[str, Any]:
-    cols_f32 = data.columns[data.dtypes == "float32"]
-    data_stats = data.describe().loc[["mean", "std", "min", "max"]]
+def _extract_dataframe_stats(data: pd.DataFrame | gpd.GeoDataFrame) -> dict[str, Any] | None:
+    cols_num = data.select_dtypes(include="number").columns
+    if not len(cols_num):
+        return None
 
+    cols_f32 = data.columns[data.dtypes == "float32"]
+    data_stats = data[cols_num].describe().loc[["mean", "std", "min", "max"]]
     for col in data_stats.columns:
         _prepare_value_func = partial(_prepare_value, dtype=np.float32 if col in cols_f32 else np.float64)
         data_stats[col] = data_stats[col].apply(_prepare_value_func)
