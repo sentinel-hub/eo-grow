@@ -3,7 +3,33 @@
     "bbox": "BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS('32638'))",
     "vector_timeless": {
       "LULC_vector": {
-        "columns": ["LULC", "LULC_ID", "LULC_POLYGON_ID", "area", "geometry"],
+        "agg_stats": {
+          "LULC_ID": {
+            "max": 9.0,
+            "mean": 5.3737051793,
+            "min": 0.0,
+            "std": 3.4493061816
+          },
+          "LULC_POLYGON_ID": {
+            "max": 2149.0,
+            "mean": 982.9561753,
+            "min": 5.0,
+            "std": 494.43910402
+          },
+          "area": {
+            "max": 1445567.532,
+            "mean": 5226.2068038,
+            "min": 0.077909185493,
+            "std": 44121.719048
+          }
+        },
+        "columns_and_dtypes": [
+          ["LULC", "object"],
+          ["LULC_ID", "int64"],
+          ["LULC_POLYGON_ID", "int64"],
+          ["area", "float64"],
+          ["geometry", "geometry"]
+        ],
         "crs": "EPSG:32638",
         "mean_area": 2654.0304164,
         "random_rows": {
@@ -165,7 +191,33 @@
     "bbox": "BBox(((729480.0, 4391145.0), (732120.0, 4392355.0)), crs=CRS('32638'))",
     "vector_timeless": {
       "LULC_vector": {
-        "columns": ["LULC", "LULC_ID", "LULC_POLYGON_ID", "area", "geometry"],
+        "agg_stats": {
+          "LULC_ID": {
+            "max": 9.0,
+            "mean": 4.200729927,
+            "min": 0.0,
+            "std": 3.6711035527
+          },
+          "LULC_POLYGON_ID": {
+            "max": 2145.0,
+            "mean": 876.00547445,
+            "min": 5.0,
+            "std": 650.91998596
+          },
+          "area": {
+            "max": 440499.93262,
+            "mean": 9875.5129663,
+            "min": 0.43074247771,
+            "std": 30295.081901
+          }
+        },
+        "columns_and_dtypes": [
+          ["LULC", "object"],
+          ["LULC_ID", "int64"],
+          ["LULC_POLYGON_ID", "int64"],
+          ["area", "float64"],
+          ["geometry", "geometry"]
+        ],
         "crs": "EPSG:32638",
         "mean_area": 5832.1912169,
         "random_rows": {
