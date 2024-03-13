@@ -3,7 +3,12 @@
     "bbox": "BBox(((729480.0, 4390045.0), (732120.0, 4391255.0)), crs=CRS('32638'))",
     "vector": {
       "crop": {
-        "columns": ["CROP_TYPE", "TIMESTAMP", "geometry"],
+        "agg_stats": null,
+        "columns_and_dtypes": [
+          ["CROP_TYPE", "object"],
+          ["TIMESTAMP", "datetime64[ns]"],
+          ["geometry", "geometry"]
+        ],
         "crs": "EPSG:32638",
         "mean_area": 11132.309525,
         "random_rows": {
@@ -45,7 +50,12 @@
     "bbox": "BBox(((729480.0, 4391145.0), (732120.0, 4392355.0)), crs=CRS('32638'))",
     "vector": {
       "crop": {
-        "columns": ["CROP_TYPE", "TIMESTAMP", "geometry"],
+        "agg_stats": null,
+        "columns_and_dtypes": [
+          ["CROP_TYPE", "object"],
+          ["TIMESTAMP", "datetime64[ns]"],
+          ["geometry", "geometry"]
+        ],
         "crs": "EPSG:32638",
         "mean_area": 7090.734867,
         "random_rows": {
