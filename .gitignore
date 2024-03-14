@@ -103,4 +103,4 @@ ENV/
 Pipfile*
 
 # example misc
-examples/project/*
+examples/lulc_project/*
