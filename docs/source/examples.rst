@@ -10,7 +10,7 @@ Basic tutorial
     examples/basic-tutorial.ipynb
 
 
-How to train an machine learning model
+How to train a machine learning model
 --------------------------------------
 
 .. toctree::
