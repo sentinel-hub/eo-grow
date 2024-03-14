@@ -149,6 +149,8 @@ process_readme()
 # Copy examples
 EXAMPLES_FOLDER = "./examples"
 shutil.rmtree(EXAMPLES_FOLDER, ignore_errors=True)
+os.mkdir(EXAMPLES_FOLDER)
+
 for filename in os.listdir("../../examples"):
     shutil.copyfile(os.path.join("../../examples", filename), os.path.join(EXAMPLES_FOLDER, filename))
 
