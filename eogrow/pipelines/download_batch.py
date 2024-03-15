@@ -96,6 +96,9 @@ class BatchDownloadPipeline(Pipeline):
                 " method of `SentinelHubBatch` during the creation process."
             ),
         )
+        num_retries_on_partial: int = Field(
+            0, ge=0, description="How many times to retry the batch job if the resulting status is PARTIAL."
+        )
 
         analysis_only: bool = Field(
             False,
@@ -162,12 +165,16 @@ class BatchDownloadPipeline(Pipeline):
             return [], []
 
         LOGGER.info("Monitoring batch job with ID %s", batch_request.request_id)
-        results = monitor_batch_job(
-            batch_request,
-            config=self.sh_config,
-            sleep_time=self.config.monitoring_sleep_time,
-            analysis_sleep_time=self.config.monitoring_analysis_sleep_time,
-        )
+        results = self._monitor_job(batch_request)
+
+        # retry partial
+        for _ in range(self.config.num_retries_on_partial):
+            batch_request = self.batch_client.get_request(batch_request)
+            if batch_request.status != BatchRequestStatus.PARTIAL:
+                break
+            LOGGER.info("Retrying due to PARTIAL status.")
+            self.batch_client.restart_job(batch_request)
+            results = self._monitor_job(batch_request)
 
         processed = self._get_tile_names_from_results(results, BatchTileStatus.PROCESSED)
         failed = self._get_tile_names_from_results(results, BatchTileStatus.FAILED)
@@ -281,6 +288,14 @@ class BatchDownloadPipeline(Pipeline):
         self.area_manager._injected_batch_id = request_id  # noqa: SLF001
 
         self.area_manager.get_grid()  # this caches the grid for later use
+
+    def _monitor_job(self, batch_request: BatchRequest) -> defaultdict[BatchTileStatus, list[dict]]:
+        return monitor_batch_job(
+            batch_request,
+            config=self.sh_config,
+            sleep_time=self.config.monitoring_sleep_time,
+            analysis_sleep_time=self.config.monitoring_analysis_sleep_time,
+        )
 
     @staticmethod
     def _get_tile_names_from_results(
