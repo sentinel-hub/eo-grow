@@ -1,3 +1,9 @@
+## [Version 1.7.8] - 2024-03-20
+
+- `BatchDownloadPipeline` now has an option to automatically retry the download if the status is `PARTIAL`.
+- Added a new example that showcases how to train a LightGBM model with `eo-grow`.
+
+
 ## [Version 1.7.7] - 2024-03-11
 
 - When a Pipeline raises an error it now saves the stack-trace to the `failure.log` file in the logs folder.

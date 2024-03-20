@@ -34,7 +34,21 @@
     },
     "vector_timeless": {
       "CROPS_VECTOR": {
-        "columns": ["CROP_TYPE", "POLYGON_ID", "DATE", "ORIGIN", "geometry"],
+        "agg_stats": {
+          "POLYGON_ID": {
+            "max": 327.0,
+            "mean": 222.13793103,
+            "min": 11.0,
+            "std": 108.78639757
+          }
+        },
+        "columns_and_dtypes": [
+          ["CROP_TYPE", "object"],
+          ["DATE", "object"],
+          ["ORIGIN", "object"],
+          ["POLYGON_ID", "int64"],
+          ["geometry", "geometry"]
+        ],
         "crs": "EPSG:32638",
         "mean_area": 7950.3082411,
         "random_rows": {
@@ -216,7 +230,21 @@
     },
     "vector_timeless": {
       "CROPS_VECTOR": {
-        "columns": ["CROP_TYPE", "POLYGON_ID", "DATE", "ORIGIN", "geometry"],
+        "agg_stats": {
+          "POLYGON_ID": {
+            "max": 334.0,
+            "mean": 169.15625,
+            "min": 9.0,
+            "std": 99.074787449
+          }
+        },
+        "columns_and_dtypes": [
+          ["CROP_TYPE", "object"],
+          ["DATE", "object"],
+          ["ORIGIN", "object"],
+          ["POLYGON_ID", "int64"],
+          ["geometry", "geometry"]
+        ],
         "crs": "EPSG:32638",
         "mean_area": 20700.107806,
         "random_rows": {
