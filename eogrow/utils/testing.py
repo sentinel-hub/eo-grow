@@ -210,7 +210,7 @@ def _calculate_vector_stats(gdf: gpd.GeoDataFrame, config: StatCalcConfig) -> Js
         "agg_stats": _extract_dataframe_stats(gdf),
     }
 
-    if len(gdf):
+    if len(gdf) and config.num_random_values > 0:
         subsample: gpd.GeoDataFrame = gdf.sample(min(len(gdf), config.num_random_values), random_state=42)
         subsample["centroid"] = subsample.centroid.apply(_rounder)
         subsample["area"] = subsample.area
