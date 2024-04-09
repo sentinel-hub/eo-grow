@@ -1,3 +1,8 @@
+## [Version 1.7.9] - 2024-04-09
+
+- Improved test utilities for vector files.
+
+
 ## [Version 1.7.8] - 2024-03-20
 
 - `BatchDownloadPipeline` now has an option to automatically retry the download if the status is `PARTIAL`.
