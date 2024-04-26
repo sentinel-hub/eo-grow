@@ -111,13 +111,13 @@ jobs:
             pytest -m "chain or not integration"
           fi
 
-      - name: Upload code coverage
-        if: ${{ matrix.full_test_suite && github.event_name == 'push' }}
-        uses: codecov/codecov-action@v3
-        with:
-          files: coverage.xml
-          fail_ci_if_error: true
-          verbose: false
+      # - name: Upload code coverage
+      #   if: ${{ matrix.full_test_suite && github.event_name == 'push' }}
+      #   uses: codecov/codecov-action@v3
+      #   with:
+      #     files: coverage.xml
+      #     fail_ci_if_error: true
+      #     verbose: false
 
   mirror-to-gitlab:
     if: github.event_name == 'push'
