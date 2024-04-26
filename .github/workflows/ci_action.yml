@@ -6,7 +6,6 @@ on:
     branches:
       - "main"
       - "develop"
-      - "test-migration-mirroring"
   workflow_call:
 
 concurrency:
@@ -56,69 +55,69 @@ jobs:
       - name: Run mypy
         run: mypy eogrow
 
-  # test-on-github:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       python-version:
-  #         - "3.8"
-  #         - "3.10"
-  #         - "3.11"
-  #       include:
-  #         # A flag marks whether full or partial tests should be run
-  #         # We don't run integration tests on pull requests from outside repos, because they don't have secrets
-  #         - python-version: "3.9"
-  #           full_test_suite: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
-  #   steps:
-  #     - name: Checkout branch
-  #       uses: actions/checkout@v3
-  #       with:
-  #         ref: ${{ env.CHECKOUT_BRANCH }}
+  test-on-github:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - "3.8"
+          - "3.10"
+          - "3.11"
+        include:
+          # A flag marks whether full or partial tests should be run
+          # We don't run integration tests on pull requests from outside repos, because they don't have secrets
+          - python-version: "3.9"
+            full_test_suite: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.CHECKOUT_BRANCH }}
 
-  #     - name: Setup Python
-  #       uses: actions/setup-python@v4
-  #       with:
-  #         python-version: ${{ matrix.python-version }}
-  #         cache: pip
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
 
-  #     - name: Install packages
-  #       run: |
-  #         sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable -y
-  #         sudo apt-get update
-  #         sudo apt-get install -y build-essential gdal-bin libgdal-dev graphviz proj-bin gcc libproj-dev libspatialindex-dev  libboost-all-dev
-  #         export CPLUS_INCLUDE_PATH=/usr/include/gdal
-  #         export C_INCLUDE_PATH=/usr/include/gdal
-  #         pip install -e .[DEV,ML]
-  #         pip install gdal==$(gdal-config --version)
+      - name: Install packages
+        run: |
+          sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable -y
+          sudo apt-get update
+          sudo apt-get install -y build-essential gdal-bin libgdal-dev graphviz proj-bin gcc libproj-dev libspatialindex-dev  libboost-all-dev
+          export CPLUS_INCLUDE_PATH=/usr/include/gdal
+          export C_INCLUDE_PATH=/usr/include/gdal
+          pip install -e .[DEV,ML]
+          pip install gdal==$(gdal-config --version)
 
-  #     - name: Set up local cluster # we need to install async-timeout until ray 2.9.0 fixes the issue
-  #       run: |
-  #         pip install async-timeout
-  #         ray start --head
+      - name: Set up local cluster # we need to install async-timeout until ray 2.9.0 fixes the issue
+        run: |
+          pip install async-timeout
+          ray start --head
 
-  #     - name: Run fast tests
-  #       if: ${{ !matrix.full_test_suite }}
-  #       run: pytest -m "not integration"
+      - name: Run fast tests
+        if: ${{ !matrix.full_test_suite }}
+        run: pytest -m "not integration"
 
-  #     - name: Run fast and chain integration tests, create code coverage
-  #       if: ${{ matrix.full_test_suite }}
-  #       run: |
-  #         sentinelhub.config \
-  #           --sh_client_id "${{ secrets.SH_CLIENT_ID }}" \
-  #           --sh_client_secret "${{ secrets.SH_CLIENT_SECRET }}"
-  #         if [ ${{ github.event_name }} == 'push' ]; then
-  #           pytest -m "chain or not integration" --cov --cov-report=term --cov-report=xml
-  #         else
-  #           pytest -m "chain or not integration"
-  #         fi
+      - name: Run fast and chain integration tests, create code coverage
+        if: ${{ matrix.full_test_suite }}
+        run: |
+          sentinelhub.config \
+            --sh_client_id "${{ secrets.SH_CLIENT_ID }}" \
+            --sh_client_secret "${{ secrets.SH_CLIENT_SECRET }}"
+          if [ ${{ github.event_name }} == 'push' ]; then
+            pytest -m "chain or not integration" --cov --cov-report=term --cov-report=xml
+          else
+            pytest -m "chain or not integration"
+          fi
 
-  #     - name: Upload code coverage
-  #       if: ${{ matrix.full_test_suite && github.event_name == 'push' }}
-  #       uses: codecov/codecov-action@v3
-  #       with:
-  #         files: coverage.xml
-  #         fail_ci_if_error: true
-  #         verbose: false
+      - name: Upload code coverage
+        if: ${{ matrix.full_test_suite && github.event_name == 'push' }}
+        uses: codecov/codecov-action@v3
+        with:
+          files: coverage.xml
+          fail_ci_if_error: true
+          verbose: false
 
   mirror-to-gitlab:
     if: github.event_name == 'push'
@@ -128,11 +127,11 @@ jobs:
       - name: Mirror + trigger CI
         uses: SvanBoxel/gitlab-mirror-and-ci-action@master
         with:
-          args: "https://hello.planet.com/code/test-eo/code/eo-grow"
+          args: "https://hello.planet.com/code/eo/code/eo-grow"
         env:
           FOLLOW_TAGS: "true"
           GITLAB_HOSTNAME: "hello.planet.com/code"
           GITLAB_USERNAME: "github-action"
           GITLAB_PASSWORD: ${{ secrets.GITLAB_PASSWORD_MIGRATION_TEST }}
-          GITLAB_PROJECT_ID: "9398"
+          GITLAB_PROJECT_ID: "9704"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
