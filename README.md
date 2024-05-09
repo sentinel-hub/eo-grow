@@ -83,4 +83,4 @@ See [LICENSE](https://github.com/sentinel-hub/eo-grow/blob/main/LICENSE).
 
 ## Acknowledgements
 
-This project has received funding from the European Union’s Horizon 2020 research and innovation programme under Grant Agreement No. 101004112.
+This project has received funding from the European Union’s Horizon 2020 research and innovation programme under Grant Agreement No. 101004112. The project is co-funded also by the European Union’s Horizon 2020 research and innovation programme under Grant Agreement No. 101086461.
