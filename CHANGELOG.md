@@ -1,4 +1,4 @@
-## [Version 1.7.9] - 2024-05-13
+## [Version 1.7.10] - 2024-05-13
 
 - Minor changes to documentation.
 
