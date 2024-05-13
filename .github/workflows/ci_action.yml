@@ -111,13 +111,13 @@ jobs:
             pytest -m "chain or not integration"
           fi
 
-      - name: Upload code coverage
-        if: ${{ matrix.full_test_suite && github.event_name == 'push' }}
-        uses: codecov/codecov-action@v3
-        with:
-          files: coverage.xml
-          fail_ci_if_error: true
-          verbose: false
+      # - name: Upload code coverage
+      #   if: ${{ matrix.full_test_suite && github.event_name == 'push' }}
+      #   uses: codecov/codecov-action@v3
+      #   with:
+      #     files: coverage.xml
+      #     fail_ci_if_error: true
+      #     verbose: false
 
   mirror-to-gitlab:
     if: github.event_name == 'push'
@@ -127,11 +127,11 @@ jobs:
       - name: Mirror + trigger CI
         uses: SvanBoxel/gitlab-mirror-and-ci-action@master
         with:
-          args: "https://git.sinergise.com/eo/code/eo-grow"
+          args: "https://hello.planet.com/code/eo/code/eo-grow"
         env:
           FOLLOW_TAGS: "true"
-          GITLAB_HOSTNAME: "git.sinergise.com"
+          GITLAB_HOSTNAME: "hello.planet.com/code"
           GITLAB_USERNAME: "github-action"
           GITLAB_PASSWORD: ${{ secrets.GITLAB_PASSWORD }}
-          GITLAB_PROJECT_ID: "878"
+          GITLAB_PROJECT_ID: "9704"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
