@@ -82,6 +82,7 @@ class FixImportedTimeDependentFeatureTask(EOTask):
 
     It performs the following:
 
+    -  If the timestamps are empty (but not `None`) and all the data is `0` then it creates an empty eopatch.
     -  rotates bands axis to time axis,
     -  reverses order of timestamps and feature
     -  potentially removes redundant timeframes according to timestamps. This is necessary because in case there were
@@ -100,6 +101,11 @@ class FixImportedTimeDependentFeatureTask(EOTask):
 
         data = data[np.newaxis, ...]
         data = np.swapaxes(data, 0, -1)
+
+        if eopatch.timestamps == [] and list(np.unique(data)) == [0]:
+            # there is no actual data
+            shape = data.shape
+            data = np.empty((0, *shape[1:]), dtype=data.dtype)
 
         if eopatch.timestamps:
             timeframe_num = len(eopatch.timestamps)
