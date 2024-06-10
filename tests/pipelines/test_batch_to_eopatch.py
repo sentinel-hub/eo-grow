@@ -5,6 +5,7 @@ from typing import Iterable, Optional
 import fs
 import numpy as np
 import pytest
+import rasterio
 from fs.base import FS
 
 from sentinelhub import BBox
@@ -75,6 +76,45 @@ def test_batch_to_eopatch_pipeline(config_and_stats_paths, experiment_name):
             add_userdata=add_userdata,
             timestamp_shuffle_seed=17,
         )
+
+    output_path = run_config(config_path)
+    compare_content(output_path, stats_path)
+
+
+@pytest.mark.parametrize("experiment_name", [pytest.param("batch_to_eopatch_empty", marks=pytest.mark.chain)])
+def test_batch_to_eopatch_pipeline_no_timestamps(config_and_stats_paths, experiment_name):
+    config_path, stats_path = config_and_stats_paths("download_and_batch", experiment_name)
+
+    pipeline = BatchToEOPatchPipeline.from_path(config_path)
+
+    filesystem = pipeline.storage.filesystem
+    input_folder = pipeline.storage.get_folder(pipeline.config.input_folder_key)
+    output_folder = pipeline.storage.get_folder(pipeline.config.output_folder_key)
+    filesystem.removetree(input_folder)
+    filesystem.removetree(output_folder)
+
+    # tiffs are made by hand so that they only contain zeros
+    height, width = 200, 300
+    for patch_name, bbox in pipeline.get_patch_list():
+        patch_path = fs.path.combine(input_folder, patch_name)
+        filesystem.makedirs(patch_path, recreate=True)
+
+        for filename in ["B01.tif", "B02.tif", "B03.tif"]:
+            with filesystem.openbin(fs.path.join(patch_path, filename), "w") as file_handle:
+                with rasterio.open(
+                    file_handle,
+                    "w",
+                    driver="GTiff",
+                    width=200,
+                    height=300,
+                    count=1,
+                    dtype=np.int16,
+                    transform=rasterio.transform.from_bounds(*bbox, width=width, height=height),
+                    crs=bbox.crs.ogc_string(),
+                ) as dst:
+                    dst.write(np.zeros((1, height, width)))
+
+        filesystem.writetext(fs.path.combine(patch_path, "userdata.json"), json.dumps({"timestamps": []}))
 
     output_path = run_config(config_path)
     compare_content(output_path, stats_path)
