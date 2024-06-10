@@ -47,6 +47,14 @@ class FeatureMappingSchema(BaseSchema):
 
 
 class BatchToEOPatchPipeline(Pipeline):
+    """Transforms the `tiff` files into `EOPatch` objects.
+
+    Temporal tiffs are expected to be of shape `(h, w, t)` and one tiff per band.
+
+    If the pipeline knows that `timestamps=[]` (through `userdata.json`) and the tiffs contain only `0` elements, it
+    transforms them into "temporally empty" `EOPatch` objects of shape `(0, h, w, b)`.
+    """
+
     class Schema(Pipeline.Schema):
         input_folder_key: str = Field(description="Storage manager key pointing to the path with Batch results")
         _ensure_input_folder_key = ensure_storage_key_presence("input_folder_key")
