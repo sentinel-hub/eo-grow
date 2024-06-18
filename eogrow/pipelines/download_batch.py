@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import logging
+import time
 from collections import defaultdict
 from typing import Any, List, Literal, Optional
 
 import fs
+import requests
 from pydantic import Field
 
 from sentinelhub import (
@@ -23,6 +25,7 @@ from sentinelhub import (
     monitor_batch_analysis,
     monitor_batch_job,
 )
+from sentinelhub.exceptions import DownloadFailedException
 
 from ..core.area.batch import BatchAreaManager
 from ..core.pipeline import Pipeline
@@ -290,11 +293,27 @@ class BatchDownloadPipeline(Pipeline):
         self.area_manager.get_grid()  # this caches the grid for later use
 
     def _monitor_job(self, batch_request: BatchRequest) -> defaultdict[BatchTileStatus, list[dict]]:
-        return monitor_batch_job(
-            batch_request,
-            config=self.sh_config,
-            sleep_time=self.config.monitoring_sleep_time,
-            analysis_sleep_time=self.config.monitoring_analysis_sleep_time,
+        for wait_time in [0, 10, 100]:
+            time.sleep(wait_time)  # if we start monitoring too soon we might hit a 404
+            try:
+                return monitor_batch_job(
+                    batch_request,
+                    config=self.sh_config,
+                    sleep_time=self.config.monitoring_sleep_time,
+                    analysis_sleep_time=self.config.monitoring_analysis_sleep_time,
+                )
+            except DownloadFailedException as e:
+                if (
+                    e.request_exception is not None
+                    and e.request_exception.response is not None
+                    and e.request_exception.response.status_code == requests.status_codes.codes.NOT_FOUND
+                ):
+                    LOGGER.info("Received error 404 on monitoring endpoint. Retrying in a while.")
+                    continue  # we retry on 404
+                raise e
+
+        raise RuntimeError(
+            "Unable to monitor batch download (due to 404 errors). Cannot proceed without the download status."
         )
 
     @staticmethod
