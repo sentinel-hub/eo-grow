@@ -48,7 +48,7 @@ P = ParamSpec("P")
 
 def _retry_on_404(func: Callable[P, T]) -> Callable[P, T]:
     @wraps(func)
-    def retrying_func(*args: P.args, **kwargs: P.kwargs) -> None:
+    def retrying_func(*args: P.args, **kwargs: P.kwargs) -> T:
         for wait_time in [0, 10, 100]:
             time.sleep(wait_time)  # if we start monitoring too soon we might hit a 404
             try:
