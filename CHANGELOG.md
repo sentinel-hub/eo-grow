@@ -1,3 +1,8 @@
+## [Version 1.7.11] - 2024-06-19
+
+- `BatchDownloadPipeline` retries if the first connection to batch-id specific endpoints fails with a 404.
+
+
 ## [Version 1.7.10] - 2024-05-13
 
 - Minor changes to documentation.
