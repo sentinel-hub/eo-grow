@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 import logging
+import time
 from collections import defaultdict
-from typing import Any, List, Literal, Optional
+from functools import wraps
+from typing import Any, Callable, List, Literal, Optional, TypeVar
 
 import fs
+import requests
 from pydantic import Field
+from typing_extensions import ParamSpec
 
 from sentinelhub import (
     BatchRequest,
@@ -23,6 +27,7 @@ from sentinelhub import (
     monitor_batch_analysis,
     monitor_batch_job,
 )
+from sentinelhub.exceptions import DownloadFailedException
 
 from ..core.area.batch import BatchAreaManager
 from ..core.pipeline import Pipeline
@@ -37,6 +42,31 @@ from ..utils.validators import (
 )
 
 LOGGER = logging.getLogger(__name__)
+T = TypeVar("T")
+P = ParamSpec("P")
+
+
+def _retry_on_404(func: Callable[P, T]) -> Callable[P, T]:
+    @wraps(func)
+    def retrying_func(*args: P.args, **kwargs: P.kwargs) -> T:
+        for wait_time in [0, 10, 100]:
+            time.sleep(wait_time)  # if we start monitoring too soon we might hit a 404
+            try:
+                return func(*args, **kwargs)
+            except DownloadFailedException as e:
+                if (
+                    e.request_exception is not None
+                    and e.request_exception.response is not None
+                    and e.request_exception.response.status_code == requests.status_codes.codes.NOT_FOUND
+                ):
+                    LOGGER.info("Received error 404 on monitoring endpoint. Retrying in a while.")
+                    continue  # we retry on 404
+                raise e
+
+        time.sleep(wait_time)  # uses longest wait time from loop
+        return func(*args, **kwargs)  # try one last time and fail explicitly
+
+    return retrying_func
 
 
 class InputDataSchema(BaseSchema):
@@ -247,6 +277,7 @@ class BatchDownloadPipeline(Pipeline):
         with self.storage.filesystem.open(evalscript_path) as evalscript_file:
             return evalscript_file.read()
 
+    @_retry_on_404
     def _trigger_user_action(self, batch_request: BatchRequest) -> BatchUserAction:
         """According to status and configuration parameters decide what kind of user action to perform."""
         if self.config.analysis_only:
