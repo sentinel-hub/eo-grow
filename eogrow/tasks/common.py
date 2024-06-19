@@ -46,7 +46,7 @@ class ClassFilterTask(EOTask):
 
         for label in self.labels:
             label_mask = np.squeeze((mask == label).astype(np.uint8), axis=-1)
-            mask_mod = morp_func(label_mask) * label  # type: ignore[operator]
+            mask_mod: np.ndarray = morp_func(label_mask) * label  # type: ignore[assignment]
             mask_mod = mask_mod[..., np.newaxis]
             mask[mask == label] = mask_mod[mask == label]
 
