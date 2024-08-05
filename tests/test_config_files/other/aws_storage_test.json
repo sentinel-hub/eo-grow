@@ -1,7 +1,6 @@
 {
   "manager": "eogrow.core.storage.StorageManager",
   "project_folder": "s3://eogrow-test-storage/test",
-  "aws_profile": null,
   "structure": {
     "batch": "tiffs",
     "eopatches": "eopatches"
