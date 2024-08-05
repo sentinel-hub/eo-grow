@@ -60,8 +60,8 @@ class StorageManager(EOGrowObject):
         will show a warning and return a config without AWS credentials."""
         sh_config = SHConfig()
 
-        if self.is_on_s3() and os.environ["AWS_PROFILE"]:
-            sh_config = get_aws_credentials(aws_profile=os.environ["AWS_PROFILE"], config=sh_config)
+        if self.is_on_s3() and os.getenv("AWS_PROFILE"):
+            sh_config = get_aws_credentials(aws_profile=os.getenv("AWS_PROFILE"), config=sh_config)
 
         return sh_config
 
