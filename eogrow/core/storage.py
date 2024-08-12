@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, ClassVar, Dict, Literal, Optional
+import os
+from typing import Any, ClassVar, Dict, Literal
 
 import fs
 from pydantic import BaseSettings, Field
@@ -22,13 +23,6 @@ class StorageManager(EOGrowObject):
             description=(
                 "The root project folder. Can be either local or on AWS S3 Bucket."
                 "If on AWS, the path must be prefixed with s3://."
-            ),
-        )
-        aws_profile: Optional[str] = Field(
-            env="AWS_PROFILE",
-            description=(
-                "The AWS profile with credentials needed to access the S3 buckets. In case the profile isn't specified"
-                " with a parameter it can be read from an environmental variable."
             ),
         )
         filesystem_kwargs: Dict[str, Any] = Field(
@@ -66,8 +60,9 @@ class StorageManager(EOGrowObject):
         will show a warning and return a config without AWS credentials."""
         sh_config = SHConfig()
 
-        if self.is_on_s3() and self.config.aws_profile:
-            sh_config = get_aws_credentials(aws_profile=self.config.aws_profile, config=sh_config)
+        aws_profile = os.getenv("AWS_PROFILE")
+        if self.is_on_s3() and aws_profile is not None:
+            sh_config = get_aws_credentials(aws_profile=aws_profile, config=sh_config)
 
         return sh_config
 
