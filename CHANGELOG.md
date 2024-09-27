@@ -1,3 +1,9 @@
+## [Version 1.7.12] - 2024-09-27
+
+- Remove `aws_profile` from storage manager schema.
+- Remove `numpy<2` restriction.
+
+
 ## [Version 1.7.11] - 2024-06-19
 
 - `BatchDownloadPipeline` retries if the first connection to batch-id specific endpoints fails with a 404.
