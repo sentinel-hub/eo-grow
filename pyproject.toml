@@ -79,6 +79,7 @@ dev = [
     "build",
     "deepdiff",
     "fs_s3fs",
+    "numpy>=2",
     "moto[s3]>=5.0.0",
     "mypy>=0.990",
     "pre-commit",
