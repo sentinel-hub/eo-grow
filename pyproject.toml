@@ -48,7 +48,7 @@ dependencies = [
     "fiona",
     "fs>=2.2.0",
     "geopandas>=0.8.1",
-    "numpy<2",
+    "numpy",
     "opencv-python-headless",
     "pandas",
     "pydantic>=1.8.0, <2.0",
