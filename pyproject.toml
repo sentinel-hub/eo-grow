@@ -165,7 +165,7 @@ lint.ignore = [
     "PT011", # complains for `pytest.raises(ValueError)` but we use it a lot
 ]
 lint.per-file-ignores = { "__init__.py" = ["F401"] }
-exclude = [".git", "__pycache__", "build", "dist"]
+exclude = [".git", "__pycache__", "build", "dist", "*.ipynb"]
 
 
 [tool.ruff.lint.isort]

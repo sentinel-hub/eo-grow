@@ -12,7 +12,7 @@ def test_rasterize_file(config_and_stats_paths, experiment_name):
     compare_content(output_path, stats_path)
 
 
-@pytest.mark.chain()
+@pytest.mark.chain
 @pytest.mark.order(before="test_rasterize_feature_with_resolution")
 @pytest.mark.parametrize(("preparation_config", "config"), [("load_crops_vector_data", "rasterize_feature_with_shape")])
 def test_rasterize_feature_with_shape(config_and_stats_paths, preparation_config, config):
@@ -24,7 +24,7 @@ def test_rasterize_feature_with_shape(config_and_stats_paths, preparation_config
     compare_content(output_path, stats_path)
 
 
-@pytest.mark.chain()
+@pytest.mark.chain
 @pytest.mark.parametrize(
     ("preparation_config", "config"), [("load_lulc_vector_data", "rasterize_feature_with_resolution")]
 )

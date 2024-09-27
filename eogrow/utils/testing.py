@@ -355,7 +355,7 @@ def compare_content(
     stats_path: str,
     *,
     config: StatCalcConfig | None = None,
-    save_new_stats: bool = True,
+    save_new_stats: bool = False,
 ) -> None:
     """Compares the results from a pipeline run with the saved statistics. Constructed to be coupled with `run_config`
     hence the `Optional` input.
