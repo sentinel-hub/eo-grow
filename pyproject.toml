@@ -45,10 +45,12 @@ dependencies = [
     "colorlog",
     "boto3<=1.29.6",
     "eo-learn[VISUALIZATION]>=1.5.0",
-    "fiona",
+    "fiona>=1.8.18; python_version>='3.9'",
+    "fiona>=1.8.18,<1.10; python_version<'3.9'",
     "fs>=2.2.0",
-    "geopandas>=0.8.1",
-    "numpy<2",
+    "geopandas>=0.14.4,<1; python_version>='3.9'",
+    "geopandas>=0.11.0,<1; python_version<'3.9'",
+    "numpy",
     "opencv-python-headless",
     "pandas",
     "pydantic>=1.8.0, <2.0",
@@ -77,6 +79,7 @@ dev = [
     "build",
     "deepdiff",
     "fs_s3fs",
+    "numpy>=2.0.0; python_version>='3.9'",
     "moto[s3]>=5.0.0",
     "mypy>=0.990",
     "pre-commit",
@@ -165,7 +168,7 @@ lint.ignore = [
     "PT011", # complains for `pytest.raises(ValueError)` but we use it a lot
 ]
 lint.per-file-ignores = { "__init__.py" = ["F401"] }
-exclude = [".git", "__pycache__", "build", "dist"]
+exclude = [".git", "__pycache__", "build", "dist", "*.ipynb"]
 
 
 [tool.ruff.lint.isort]

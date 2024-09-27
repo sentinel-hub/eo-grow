@@ -31,12 +31,12 @@ def test_linear_function_task():
         [data_feature, mask_timeless_feature],
         [data_result_feature, mask_timeless_result_feature],
         slope=2,
-        intercept=-5,
+        intercept=+5,
     )
     task_double_minus_five(eopatch)
-    expected_result = np.arange(np.prod(data_shape)).reshape(data_shape).astype(float) * 2 - 5
+    expected_result = np.arange(np.prod(data_shape)).reshape(data_shape).astype(float) * 2 + 5
     assert np.array_equal(eopatch[data_result_feature], expected_result)
-    assert np.array_equal(eopatch[mask_timeless_result_feature], np.ones(mask_shape) * 2 - 5)
+    assert np.array_equal(eopatch[mask_timeless_result_feature], np.ones(mask_shape) * 2 + 5)
     assert eopatch[data_result_feature].dtype == np.float32
     # The value of the mask timeless changes here
 
