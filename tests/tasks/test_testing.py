@@ -16,7 +16,7 @@ from eogrow.tasks.testing import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def dummy_eopatch() -> EOPatch:
     return EOPatch(bbox=BBox((0, 0, 1, 1), CRS.POP_WEB))
 

@@ -5,7 +5,7 @@ from eogrow.utils.testing import compare_content, run_config
 pytestmark = pytest.mark.integration
 
 
-@pytest.mark.chain()
+@pytest.mark.chain
 @pytest.mark.order(before=["test_download_pipeline"])
 @pytest.mark.usefixtures("storage")
 def test_preparation():

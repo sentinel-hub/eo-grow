@@ -70,7 +70,7 @@ def run_byoc_pipeline(config_path: str, requests_mock):
     return pipeline, relevant_requests
 
 
-@pytest.mark.chain()
+@pytest.mark.chain
 @pytest.mark.parametrize(("preparation_config", "config"), [("prepare_lulc_data", "ingest_lulc")])
 @pytest.mark.order(after=["test_rasterize.py::test_rasterize_feature_with_resolution"])
 def test_timeless_byoc(config_and_stats_paths, preparation_config, config, configured_requests_mock):
