@@ -49,7 +49,7 @@ P = ParamSpec("P")
 def _retry_on_404(func: Callable[P, T]) -> Callable[P, T]:
     @wraps(func)
     def retrying_func(*args: P.args, **kwargs: P.kwargs) -> T:
-        for wait_time in [0, 10, 100]:
+        for wait_time in [0, 10, 20, 100]:
             time.sleep(wait_time)  # if we start monitoring too soon we might hit a 404
             try:
                 return func(*args, **kwargs)
@@ -178,6 +178,7 @@ class BatchDownloadPipeline(Pipeline):
         batch_request = self._create_or_collect_batch_request()
 
         user_action = self._trigger_user_action(batch_request)
+        self._wait_for_sh_db_sync(batch_request)
 
         if user_action is BatchUserAction.ANALYSE or (
             user_action is BatchUserAction.START and batch_request.status is not BatchRequestStatus.ANALYSIS_DONE
@@ -307,6 +308,11 @@ class BatchDownloadPipeline(Pipeline):
         status = None if batch_request.status is None else batch_request.status.value
         LOGGER.info("Didn't trigger batch job because current batch request status is %s", status)
         return BatchUserAction.NONE
+
+    @_retry_on_404
+    def _wait_for_sh_db_sync(self, batch_request: BatchRequest) -> None:
+        """Wait for SH read/write databases to sync."""
+        self.batch_client.get_request(batch_request)
 
     def cache_batch_area_manager_grid(self, request_id: str) -> None:
         """This method ensures that area manager caches batch grid into the storage."""

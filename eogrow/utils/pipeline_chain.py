@@ -40,8 +40,8 @@ def validate_pipeline_chain(pipeline_chain: list[RawConfig]) -> None:
 def run_pipeline_chain(pipeline_chain: list[RawConfig]) -> None:
     for run_config in pipeline_chain:
         run_schema = PipelineRunSchema.parse_obj(run_config)
-        runner = _pipeline_runner.options(**run_schema.pipeline_resources)  # type: ignore[attr-defined]
-        ray.get(runner.remote(run_schema.pipeline_config))
+        runner = _pipeline_runner.options(**run_schema.pipeline_resources)
+        ray.get(runner.remote(run_schema.pipeline_config))  # type: ignore [arg-type]
 
 
 @ray.remote(max_retries=0)
