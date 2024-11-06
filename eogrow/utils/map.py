@@ -64,7 +64,7 @@ def cogify_inplace(
         floats and NEAREST for integers.
     :param quiet: The process does not produce logs.
     """
-    temp_file = NamedTemporaryFile()
+    temp_file = NamedTemporaryFile()  # noqa: SIM115
     temp_file.close()
 
     cogify(

@@ -1,3 +1,8 @@
+## [Version 1.7.13] - 2024-11-06
+
+- Improve batch download retrying in case of temporary 404 errors
+
+
 ## [Version 1.7.12] - 2024-09-27
 
 - Remove `aws_profile` from storage manager schema.
