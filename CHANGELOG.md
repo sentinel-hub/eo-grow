@@ -1,3 +1,8 @@
+## [Version 1.7.14] - 2024-11-08
+
+- Improve batch download retries in case of partial downloads.
+
+
 ## [Version 1.7.13] - 2024-11-06
 
 - Improve batch download retrying in case of temporary 404 errors
