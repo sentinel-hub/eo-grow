@@ -50,7 +50,7 @@ jobs:
           cache: pip # caching the entire environment is faster when cache exists but slower for cache creation
 
       - name: Install packages
-        run: pip install -e .[DEV,ML]
+        run: pip install -U -e .[DEV,ML]
 
       - name: Run mypy
         run: mypy eogrow
@@ -87,12 +87,12 @@ jobs:
           sudo apt-get install -y build-essential gdal-bin libgdal-dev graphviz proj-bin gcc libproj-dev libspatialindex-dev  libboost-all-dev
           export CPLUS_INCLUDE_PATH=/usr/include/gdal
           export C_INCLUDE_PATH=/usr/include/gdal
-          pip install -e .[DEV,ML]
-          pip install gdal==$(gdal-config --version)
+          pip install -U -e .[DEV,ML]
+          pip install -U gdal==$(gdal-config --version)
 
       - name: Set up local cluster # we need to install async-timeout until ray 2.9.0 fixes the issue
         run: |
-          pip install async-timeout
+          pip install -U async-timeout
           ray start --head
 
       - name: Run fast tests
