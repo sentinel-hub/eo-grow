@@ -8,9 +8,8 @@ import eogrow
 from eogrow.core.config import collect_configs_from_path, interpret_config_from_dict
 from eogrow.utils.meta import load_pipeline_class
 
-CONFIG_REGEX = re.compile(r"^(?!global_).*\.json$")
 IGNORED_FOLDERS = ["other"]
-IGNORED_PIPELINES = ["eogrow.pipelines.zipmap.ZipMapPipeline"]
+CONFIG_REGEX = re.compile(r"^(?!global_).*\.json$")
 
 
 def pytest_generate_tests(metafunc):
@@ -21,11 +20,15 @@ def pytest_generate_tests(metafunc):
 
 
 def test_validate_configs(config_file):
-    crude_configs = collect_configs_from_path(config_file)
-    crude_configs = crude_configs if isinstance(crude_configs, list) else [crude_configs]
+    crude_config = collect_configs_from_path(config_file)
+    if isinstance(crude_config, list):
+        crude_configs = [conf["pipeline_config"] for conf in crude_config]
+    else:
+        crude_configs = [crude_config]
+
     for crude_config in crude_configs:
         pipeline = crude_config.get("pipeline")
-        if pipeline is None or pipeline in IGNORED_PIPELINES:
+        if pipeline is None:
             pytest.skip(f"Config with pipeline {pipeline} will be ignored. Skipping.")
 
         config = interpret_config_from_dict(crude_config)
