@@ -127,7 +127,7 @@ jobs:
       - name: Mirror + trigger CI
         uses: SvanBoxel/gitlab-mirror-and-ci-action@master
         with:
-          args: "https://hello.planet.com/code/eo/code/eo-grow"
+          args: "https://hello.planet.com/code/solution-enablement/eo/code/eo-grow"
         env:
           FOLLOW_TAGS: "true"
           GITLAB_HOSTNAME: "hello.planet.com/code"
