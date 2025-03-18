@@ -90,10 +90,8 @@ jobs:
           pip install -e .[DEV,ML]
           pip install gdal==$(gdal-config --version)
 
-      - name: Set up local cluster # we need to install async-timeout until ray 2.9.0 fixes the issue
-        run: |
-          pip install async-timeout
-          ray start --head
+      - name: Set up local cluster
+        run: ray start --head
 
       - name: Run fast tests
         if: ${{ !matrix.full_test_suite }}
