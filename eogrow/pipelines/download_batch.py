@@ -10,15 +10,18 @@ from typing import Any, Callable, List, Literal, Optional, TypeVar
 
 import fs
 import requests
+from geopandas import GeoDataFrame
 from pydantic import Field
 from typing_extensions import ParamSpec
 
 from sentinelhub import (
+    CRS,
     BatchRequest,
     BatchRequestStatus,
     BatchTileStatus,
     BatchUserAction,
     DataCollection,
+    Geometry,
     MimeType,
     MosaickingOrder,
     ResamplingType,
@@ -28,6 +31,8 @@ from sentinelhub import (
     monitor_batch_job,
 )
 from sentinelhub.exceptions import DownloadFailedException
+
+from eogrow.core.area.utm import create_utm_zone_grid
 
 from ..core.area.batch import BatchAreaManager
 from ..core.pipeline import Pipeline
@@ -329,3 +334,34 @@ class BatchDownloadPipeline(Pipeline):
         """Collects tile names from a dictionary of batch tile results ordered by status"""
         tile_list = results[tile_status]
         return [tile["name"] for tile in tile_list]
+
+
+def create_batch_grid(
+    area_geometry: Geometry,
+    bbox_size: tuple[int, int],
+    bbox_offset: tuple[int, int],
+    bbox_buffer: tuple[float, float],
+    image_size: tuple[int, int],
+    resolution: int,
+) -> dict[CRS, GeoDataFrame]:
+    """
+    Creates a grid of bounding boxes covering the given area geometry.
+    The format of the grid is suitable for use with Batch V2 Processing API
+    """
+
+    grid = create_utm_zone_grid(
+        area_geometry=area_geometry,
+        name_column="identifier",
+        bbox_size=bbox_size,
+        bbox_offset=bbox_offset,
+        bbox_buffer=bbox_buffer,
+    )
+
+    width, height = image_size
+    for crs, gdf in grid.items():
+        gdf["width"] = width
+        gdf["height"] = height
+        gdf["resolution"] = resolution
+        grid[crs] = gdf
+
+    return grid
