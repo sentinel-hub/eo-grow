@@ -27,7 +27,6 @@ def test_create_batch_grid():
     for gdf, n_expected_tiles in zip(grid.values(), (15, 15)):
         assert isinstance(gdf, GeoDataFrame)
         assert set(gdf.columns) == {"id", "identifier", "geometry", "width", "height", "resolution"}
-        assert isinstance(gdf, GeoDataFrame)
         assert len(gdf.index) == n_expected_tiles
         assert all(gdf["width"] == image_size[0])
         assert all(gdf["height"] == image_size[1])
