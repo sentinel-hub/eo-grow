@@ -344,10 +344,7 @@ def create_batch_grid(
     image_size: tuple[int, int],
     resolution: int,
 ) -> dict[CRS, GeoDataFrame]:
-    """
-    Creates a grid of bounding boxes covering the given area geometry.
-    The format of the grid is suitable for use with Batch V2 Processing API
-    """
+    """Creates a grid of bounding boxes covering the given area that is suitable for use with Batch Processing API."""
     grid = create_utm_zone_grid(
         area_geometry=area_geometry,
         name_column="identifier",
