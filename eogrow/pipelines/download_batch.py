@@ -348,7 +348,6 @@ def create_batch_grid(
     Creates a grid of bounding boxes covering the given area geometry.
     The format of the grid is suitable for use with Batch V2 Processing API
     """
-
     grid = create_utm_zone_grid(
         area_geometry=area_geometry,
         name_column="identifier",
