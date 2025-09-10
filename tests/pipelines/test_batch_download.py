@@ -13,8 +13,8 @@ def test_create_batch_grid():
     )  # Covers UTM zones 33N and 34N
 
     bbox_size = (5000, 5000)
-    bbox_offset = (0, 0)
-    bbox_buffer = (0, 0)
+    bbox_offset = (10, 20)
+    bbox_buffer = (30, 40)
     image_size = (512, 512)
     resolution = 10
 
@@ -41,7 +41,7 @@ def test_create_batch_grid():
         "resolution": 10,
         "width": 512,
         "geometry": Polygon(
-            [[710000, 5305000], [710000, 5310000], [715000, 5310000], [715000, 5305000], [710000, 5305000]]
+            [[709980, 5304980], [709980, 5310060], [715040, 5310060], [715040, 5304980], [709980, 5304980]]
         ),
     }
     assert grid[CRS("32634")].iloc[-1].to_dict() == {
@@ -51,6 +51,6 @@ def test_create_batch_grid():
         "resolution": 10,
         "width": 512,
         "geometry": Polygon(
-            [[285000, 5325000], [285000, 5330000], [290000, 5330000], [290000, 5325000], [285000, 5325000]]
+            [[284980, 5324980], [284980, 5330060], [290040, 5330060], [290040, 5324980], [284980, 5324980]]
         ),
     }
