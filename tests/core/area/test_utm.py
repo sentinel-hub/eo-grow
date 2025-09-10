@@ -1,5 +1,6 @@
 import pytest
 from geopandas import GeoDataFrame
+from shapely import Polygon
 
 from sentinelhub import CRS, Geometry
 
@@ -63,11 +64,25 @@ def test_create_utm_zone_grid():
 
     assert isinstance(grid, dict)
     assert len(grid) == 2
-    assert CRS("32633") in grid
-    assert CRS("32634") in grid
+    assert set(grid.keys()) == {CRS("32633"), CRS("32634")}
 
     for gdf, n_expected_tiles in zip(grid.values(), (15, 15)):
         assert isinstance(gdf, GeoDataFrame)
         assert set(gdf.columns) == {"id", name_column, "geometry"}
-        assert isinstance(gdf, GeoDataFrame)
         assert len(gdf.index) == n_expected_tiles
+
+    # explicit check for a few tiles
+    assert grid[CRS("32633")].iloc[0].to_dict() == {
+        "id": 0,
+        "eopatch_name": "eopatch-id-00-col-0-row-0",
+        "geometry": Polygon(
+            [[710000, 5305000], [710000, 5310000], [715000, 5310000], [715000, 5305000], [710000, 5305000]]
+        ),
+    }
+    assert grid[CRS("32634")].iloc[-1].to_dict() == {
+        "id": 29,
+        "eopatch_name": "eopatch-id-29-col-2-row-4",
+        "geometry": Polygon(
+            [[285000, 5325000], [285000, 5330000], [290000, 5330000], [290000, 5325000], [285000, 5325000]]
+        ),
+    }
