@@ -126,9 +126,6 @@ class BatchDownloadPipeline(Pipeline):
                 " method of `SentinelHubBatch` during the creation process."
             ),
         )
-        num_retries: int = Field(
-            0, ge=0, description="How many times to retry the batch job if the resulting status is PARTIAL."
-        )
 
         analysis_only: bool = Field(
             False,
@@ -197,16 +194,6 @@ class BatchDownloadPipeline(Pipeline):
 
         LOGGER.info("Monitoring batch job with ID %s", batch_request.request_id)
         results = self._monitor_job(batch_request)
-
-        # retry partial
-        for _ in range(self.config.num_retries):
-            batch_request = self.batch_client.get_request(batch_request)
-            if batch_request.status != BatchRequestStatus.PARTIAL:
-                break
-            LOGGER.info("Retrying due to PARTIAL status.")
-            self.batch_client.restart_job(batch_request)
-            batch_request = self._wait_for_partial_status_update(batch_request)
-            results = self._monitor_job(batch_request)
 
         processed = self._get_tile_names_from_results(results, BatchTileStatus.PROCESSED)
         failed = self._get_tile_names_from_results(results, BatchTileStatus.FAILED)

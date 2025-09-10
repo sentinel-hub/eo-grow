@@ -205,6 +205,7 @@ warn_unreachable = true
 strict_equality = true
 pretty = true
 plugins = ["pydantic.mypy"]
+files = ["eogrow"]
 
 [tool.pydantic-mypy]
 # init_forbid_extra = true  # cant be used unless we change managers
