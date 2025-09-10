@@ -16,7 +16,7 @@ name = "eo-grow"
 dynamic = ["version"]
 description = "Earth observation framework for scaled-up processing in Python"
 readme = "README.md"
-requires-python = ">= 3.8"
+requires-python = ">= 3.9"
 license = { file = "LICENSE" }
 authors = [
     { name = "Sinergise EO research team", email = "eoresearch@sinergise.com" },
