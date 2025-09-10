@@ -202,17 +202,6 @@ class BatchDownloadPipeline(Pipeline):
         LOGGER.info(log_msg)
         return processed, failed
 
-    def _wait_for_partial_status_update(self, batch_request: BatchRequest) -> BatchRequest:
-        """Wait for the batch job to update the status to PARTIAL with an exponential backoff."""
-        wait_time, max_wait_time = 1, 5 * 60
-        while wait_time < max_wait_time:
-            time.sleep(wait_time)
-            wait_time *= 2
-            if self.batch_client.get_request(batch_request).status != BatchRequestStatus.PARTIAL:
-                break
-
-        return self.batch_client.get_request(batch_request)
-
     def _create_or_collect_batch_request(self) -> BatchRequest:
         """Either creates a new batch request or collects information about an existing one."""
         if not self.config.batch_id:
