@@ -96,11 +96,10 @@ def create_utm_zone_grid(
     for i, (bbox, info) in enumerate(zip(bbox_list, info_list)):
         i_x, i_y = info["index_x"], info["index_y"]
         name = f"eopatch-id-{i:0{zfill_length}}-col-{i_x}-row-{i_y}"
-        crs_to_patches[bbox.crs].append((name, bbox.geometry))
+        crs_to_patches[bbox.crs].append({"id": i, name_column: name, "geometry": bbox.geometry})
 
     grid = {}
     for crs, named_bbox_geoms in crs_to_patches.items():
-        names, geoms = zip(*named_bbox_geoms)
-        grid[crs] = gpd.GeoDataFrame({name_column: names}, geometry=list(geoms), crs=crs.pyproj_crs())
+        grid[crs] = gpd.GeoDataFrame(named_bbox_geoms, geometry="geometry", crs=crs.pyproj_crs())
 
     return grid
