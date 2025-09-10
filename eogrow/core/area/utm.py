@@ -82,7 +82,7 @@ def create_utm_zone_grid(
     area_geometry: Geometry,
     name_column: str,
     bbox_size: tuple[int, int],
-    bbox_offset: tuple[int, int],
+    bbox_offset: tuple[float, float],
     bbox_buffer: tuple[float, float],
 ) -> dict[CRS, GeoDataFrame]:
     """Creates a grid of bounding boxes covering the given area geometry."""
