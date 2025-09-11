@@ -339,7 +339,7 @@ class BatchDownloadPipeline(Pipeline):
 def create_batch_grid(
     area_geometry: Geometry,
     bbox_size: tuple[int, int],
-    bbox_offset: tuple[int, int],
+    bbox_offset: tuple[float, float],
     bbox_buffer: tuple[float, float],
     image_size: tuple[int, int],
     resolution: int,
