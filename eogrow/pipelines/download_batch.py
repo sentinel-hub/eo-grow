@@ -184,7 +184,6 @@ class BatchDownloadPipeline(Pipeline):
         skip_existing: Literal[False] = False
 
     config: Schema
-    area_manager: CustomGridAreaManager
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
