@@ -115,7 +115,12 @@ class BatchGridSchema(BaseSchema):
 
 
 class BatchDownloadPipeline(Pipeline):
-    """Pipeline to start and monitor a Sentinel Hub batch job"""
+    """
+    Pipeline to start and monitor a Sentinel Hub Batch Process API job
+
+    The pipeline creates a custom grid using the UtmZoneSplitter under the hood and saves it to the grid location
+    provided via the CustomGridAreaManager.
+    """
 
     class Schema(Pipeline.Schema):
         area: CustomGridAreaManager.Schema
