@@ -100,14 +100,7 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
     def _load_grid(self, grid_path: str) -> dict[CRS, gpd.GeoDataFrame]:
         """A method that loads the bounding box grid from the cache folder."""
         LOGGER.info("Loading grid from %s", grid_path)
-
-        grid = {}
-        with LocalFile(grid_path, mode="r", filesystem=self.storage.filesystem) as local_file:
-            for crs_layer in fiona.listlayers(local_file.path):
-                data = gpd.read_file(local_file.path, layer=crs_layer, engine=self.storage.config.geopandas_backend)
-                grid[CRS(data.crs)] = data
-
-        return grid
+        return load_grid(grid_path, self.storage)
 
     def _save_grid(self, grid: dict[CRS, gpd.GeoDataFrame], grid_path: str) -> None:
         """A method that saves the bounding box grid to the cache folder."""
@@ -140,6 +133,17 @@ def get_geometry_from_file(
         area_df = gpd.read_file(local_file.path, engine=geopandas_engine)
         area_shape = shapely.ops.unary_union(area_df.geometry)
         return Geometry(area_shape, CRS(area_df.crs))
+
+
+def load_grid(grid_path: str, storage: StorageManager) -> dict[CRS, gpd.GeoDataFrame]:
+    """A method that loads the bounding box grid from the cache folder."""
+    grid = {}
+    with LocalFile(grid_path, mode="r", filesystem=storage.filesystem) as local_file:
+        for crs_layer in fiona.listlayers(local_file.path):
+            data = gpd.read_file(local_file.path, layer=crs_layer, engine=storage.config.geopandas_backend)
+            grid[CRS(data.crs)] = data
+
+    return grid
 
 
 def save_grid(grid: dict[CRS, gpd.GeoDataFrame], grid_path: str, storage: StorageManager) -> None:
