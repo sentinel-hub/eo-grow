@@ -234,7 +234,7 @@ class BatchDownloadPipeline(Pipeline):
             LOGGER.info("Created a new batch request with ID %s", batch_request.request_id)
             return batch_request
 
-        batch_request = self.batch_client.get_request(self.config.batch_id)
+        batch_request = self.batch_client.get_request(self.config.batch_id)  # do we need a get_request_by_id?
         batch_request.raise_for_status(status=[BatchRequestStatus.FAILED, BatchRequestStatus.CANCELED])
         LOGGER.info("Collected existing batch request with ID %s", batch_request.request_id)
         return batch_request
