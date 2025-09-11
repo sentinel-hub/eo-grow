@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import time
-from collections import defaultdict
 from functools import wraps
 from typing import Any, Callable, List, Literal, Optional, TypeVar
 
@@ -16,25 +15,26 @@ from typing_extensions import ParamSpec
 
 from sentinelhub import (
     CRS,
-    BatchRequest,
+    BatchProcessClient,
+    BatchProcessRequest,
     BatchRequestStatus,
-    BatchTileStatus,
     BatchUserAction,
     DataCollection,
     Geometry,
     MimeType,
     MosaickingOrder,
     ResamplingType,
-    SentinelHubBatch,
     SentinelHubRequest,
-    monitor_batch_analysis,
-    monitor_batch_job,
+    monitor_batch_process_analysis,
+    monitor_batch_process_job,
 )
+from sentinelhub.api.utils import s3_specification
 from sentinelhub.exceptions import DownloadFailedException
 
+from eogrow.core.area.base import get_geometry_from_file, save_grid
+from eogrow.core.area.custom_grid import CustomGridAreaManager
 from eogrow.core.area.utm import create_utm_zone_grid
 
-from ..core.area.batch import BatchAreaManager
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..types import TimePeriod
@@ -101,16 +101,38 @@ class InputDataSchema(BaseSchema):
     )
 
 
+class BatchGridSchema(BaseSchema):
+    """Configuration for the batch grid."""
+
+    geometry_filename: str = Field(
+        description="Name of the file that defines the AoI geometry, located in the input data folder."
+    )
+    bbox_size: tuple[int, int] = Field(description="Size of the bounding box in meters.")
+    bbox_offset: tuple[float, float] = Field(description="Offset of the bounding box in meters.")
+    bbox_buffer: tuple[float, float] = Field(description="Buffer of the bounding box in meters.")
+    image_size: tuple[int, int] = Field(description="Size of the image in pixels.")
+    resolution: int = Field(description="Resolution of the image in meters.")
+
+
 class BatchDownloadPipeline(Pipeline):
-    """Pipeline to start and monitor a Sentinel Hub batch job"""
+    """
+    Pipeline to start and monitor a Sentinel Hub Batch Process API job
+
+    The pipeline creates a custom grid using the UtmZoneSplitter under the hood and saves it to the grid location
+    provided via the CustomGridAreaManager.
+    """
 
     class Schema(Pipeline.Schema):
-        area: BatchAreaManager.Schema
+        area: CustomGridAreaManager.Schema
+
+        iam_role_arn: str = Field(description="IAM role ARN for the batch job.")
 
         output_folder_key: str = Field(
             description="Storage manager key pointing to the path where batch results will be saved."
         )
         _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
+
+        grid: BatchGridSchema = Field(description="Configuration for the batch grid.")
 
         inputs: List[InputDataSchema]
 
@@ -128,7 +150,7 @@ class BatchDownloadPipeline(Pipeline):
             default_factory=dict,
             description=(
                 "Any other arguments to be added to a dictionary of parameters. Passed as `**kwargs` to the `output`"
-                " method of `SentinelHubBatch` during the creation process."
+                " method of `BatchProcessClient` during the creation process."
             ),
         )
 
@@ -168,12 +190,12 @@ class BatchDownloadPipeline(Pipeline):
         skip_existing: Literal[False] = False
 
     config: Schema
-    area_manager: BatchAreaManager
+    area_manager: CustomGridAreaManager
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
-        self.batch_client = SentinelHubBatch(config=self.sh_config)
+        self.batch_client = BatchProcessClient(config=self.sh_config)
 
     def run_procedure(self) -> tuple[list[str], list[str]]:
         """Procedure that uses Sentinel Hub batch service to download data to an S3 bucket."""
@@ -186,28 +208,29 @@ class BatchDownloadPipeline(Pipeline):
             user_action is BatchUserAction.START and batch_request.status is not BatchRequestStatus.ANALYSIS_DONE
         ):
             LOGGER.info("Waiting to finish analyzing job with ID %s", batch_request.request_id)
-            monitor_batch_analysis(
-                batch_request,
-                config=self.sh_config,
+            monitor_batch_process_analysis(
+                request=batch_request,
+                client=self.batch_client,
                 sleep_time=self.config.monitoring_analysis_sleep_time,
             )
-
-        self.cache_batch_area_manager_grid(batch_request.request_id)
 
         if self.config.analysis_only:
             return [], []
 
         LOGGER.info("Monitoring batch job with ID %s", batch_request.request_id)
-        results = self._monitor_job(batch_request)
+        self._monitor_job(batch_request)
 
-        processed = self._get_tile_names_from_results(results, BatchTileStatus.PROCESSED)
-        failed = self._get_tile_names_from_results(results, BatchTileStatus.FAILED)
+        processed: list[str] = []
+        failed: list[str] = []
+        # TODO: get this from feature Manifest
+        # processed = self._get_tile_names_from_results(results, BatchTileStatus.PROCESSED)
+        # failed = self._get_tile_names_from_results(results, BatchTileStatus.FAILED)
         log_msg = f"Successfully downloaded {len(processed)} tiles"
         log_msg += f", but {len(failed)} tiles failed." if failed else "."
         LOGGER.info(log_msg)
         return processed, failed
 
-    def _create_or_collect_batch_request(self) -> BatchRequest:
+    def _create_or_collect_batch_request(self) -> BatchProcessRequest:
         """Either creates a new batch request or collects information about an existing one."""
         if not self.config.batch_id:
             batch_request = self._create_new_batch_request()
@@ -215,13 +238,38 @@ class BatchDownloadPipeline(Pipeline):
             return batch_request
 
         batch_request = self.batch_client.get_request(self.config.batch_id)
-        batch_request.raise_for_status(status=[BatchRequestStatus.FAILED, BatchRequestStatus.CANCELED])
+        batch_request.raise_for_status(status=BatchRequestStatus.FAILED)
         LOGGER.info("Collected existing batch request with ID %s", batch_request.request_id)
         return batch_request
 
-    def _create_new_batch_request(self) -> BatchRequest:
+    def _get_aoi_geometry(self) -> Geometry:
+        """Gets the geometry from the input data folder."""
+        geom_path = fs.path.join(self.storage.get_input_data_folder(), self.config.grid.geometry_filename)
+        return get_geometry_from_file(
+            filesystem=self.storage.filesystem,
+            file_path=geom_path,
+            geopandas_engine=self.storage.config.geopandas_backend,
+        )
+
+    def _create_and_save_batch_grid(self) -> str:
+        """Creates a saves the grid used for Batch Process API"""
+        grid = create_batch_grid(
+            geometry=self._get_aoi_geometry(),
+            bbox_size=self.config.grid.bbox_size,
+            bbox_offset=self.config.grid.bbox_offset,
+            bbox_buffer=self.config.grid.bbox_buffer,
+            image_size=self.config.grid.image_size,
+            resolution=self.config.grid.resolution,
+        )
+        grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key, full_path=True)
+        grid_path = fs.path.join(grid_folder, self.area_manager.config.grid_filename)
+        save_grid(grid, grid_path, self.storage)
+        return grid_path
+
+    def _create_new_batch_request(self) -> BatchProcessRequest:
         """Defines a new batch request."""
-        geometry = self.area_manager.get_area_geometry()
+        geometry = self._get_aoi_geometry()
+        grid_path = self._create_and_save_batch_grid()
 
         responses = [
             SentinelHubRequest.output_response(tiff_output, MimeType.TIFF) for tiff_output in self.config.tiff_outputs
@@ -251,16 +299,21 @@ class BatchDownloadPipeline(Pipeline):
         if not self.storage.is_on_s3():
             raise ValueError(f"The data folder path should be on s3 bucket, got {data_folder}")
 
+        geopackage_input = BatchProcessClient.geopackage_input(
+            s3_specification(url=grid_path, iam_role_arn=self.config.iam_role_arn)
+        )
+
+        raster_output = BatchProcessClient.raster_output(
+            delivery=s3_specification(
+                url=f"{data_folder}/<tileName>/<outputId>.<format>", iam_role_arn=self.config.iam_role_arn
+            ),
+            **self.config.batch_output_kwargs,
+        )
+
         return self.batch_client.create(
-            sentinelhub_request,
-            tiling_grid=SentinelHubBatch.tiling_grid(
-                grid_id=self.config.area.tiling_grid_id,
-                resolution=self.config.area.resolution,
-                buffer=(self.config.area.tile_buffer_x, self.config.area.tile_buffer_y),
-            ),
-            output=SentinelHubBatch.output(
-                default_tile_path=f"{data_folder}/<tileName>/<outputId>.<format>", **self.config.batch_output_kwargs
-            ),
+            process_request=sentinelhub_request,
+            input=geopackage_input,
+            output=raster_output,
             description=f"eo-grow - {self.__class__.__name__} pipeline with ID {self.pipeline_id}",
         )
 
@@ -272,7 +325,7 @@ class BatchDownloadPipeline(Pipeline):
             return evalscript_file.read()
 
     @_retry_on_404
-    def _trigger_user_action(self, batch_request: BatchRequest) -> BatchUserAction:
+    def _trigger_user_action(self, batch_request: BatchProcessRequest) -> BatchUserAction:
         """According to status and configuration parameters decide what kind of user action to perform."""
         if self.config.analysis_only:
             if batch_request.status is BatchRequestStatus.CREATED:
@@ -293,60 +346,35 @@ class BatchDownloadPipeline(Pipeline):
             LOGGER.info("Started running batch job.")
             return BatchUserAction.START
 
-        if batch_request.status is BatchRequestStatus.PARTIAL:
-            self.batch_client.restart_job(batch_request)
-            LOGGER.info("Restarted partially failed batch job.")
-            return BatchUserAction.START
-
         status = None if batch_request.status is None else batch_request.status.value
         LOGGER.info("Didn't trigger batch job because current batch request status is %s", status)
         return BatchUserAction.NONE
 
     @_retry_on_404
-    def _wait_for_sh_db_sync(self, batch_request: BatchRequest) -> None:
+    def _wait_for_sh_db_sync(self, batch_request: BatchProcessRequest) -> None:
         """Wait for SH read/write databases to sync."""
         self.batch_client.get_request(batch_request)
 
-    def cache_batch_area_manager_grid(self, request_id: str) -> None:
-        """This method ensures that area manager caches batch grid into the storage."""
-        if self.area_manager.config.batch_id and self.area_manager.config.batch_id != request_id:
-            raise ValueError(
-                f"{self.area_manager.__class__.__name__} is set to use batch request with ID "
-                f"{self.area_manager.config.batch_id} but {self.__class__.__name__} is using batch request with ID "
-                f"{request_id}. Make sure that you use the same IDs."
-            )
-        self.area_manager._injected_batch_id = request_id  # noqa: SLF001
-
-        self.area_manager.get_grid()  # this caches the grid for later use
-
-    def _monitor_job(self, batch_request: BatchRequest) -> defaultdict[BatchTileStatus, list[dict]]:
-        return monitor_batch_job(
-            batch_request,
-            config=self.sh_config,
+    def _monitor_job(self, batch_request: BatchProcessRequest) -> BatchProcessRequest:
+        return monitor_batch_process_job(
+            request=batch_request,
+            client=self.batch_client,
             sleep_time=self.config.monitoring_sleep_time,
             analysis_sleep_time=self.config.monitoring_analysis_sleep_time,
         )
 
-    @staticmethod
-    def _get_tile_names_from_results(
-        results: defaultdict[BatchTileStatus, list[dict]], tile_status: BatchTileStatus
-    ) -> list[str]:
-        """Collects tile names from a dictionary of batch tile results ordered by status"""
-        tile_list = results[tile_status]
-        return [tile["name"] for tile in tile_list]
-
 
 def create_batch_grid(
-    area_geometry: Geometry,
+    geometry: Geometry,
     bbox_size: tuple[int, int],
-    bbox_offset: tuple[int, int],
+    bbox_offset: tuple[float, float],
     bbox_buffer: tuple[float, float],
     image_size: tuple[int, int],
     resolution: int,
 ) -> dict[CRS, GeoDataFrame]:
     """Creates a grid of bounding boxes covering the given area that is suitable for use with Batch Processing API."""
     grid = create_utm_zone_grid(
-        area_geometry=area_geometry,
+        geometry=geometry,
         name_column="identifier",
         bbox_size=bbox_size,
         bbox_offset=bbox_offset,

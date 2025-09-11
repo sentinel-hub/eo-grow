@@ -103,7 +103,6 @@ class BatchAreaManager(BaseAreaManager):
                 BatchRequestStatus.CREATED,  # tiles not available prior to analysis
                 BatchRequestStatus.ANALYSING,  # tiles not available prior to analysis
                 BatchRequestStatus.FAILED,
-                BatchRequestStatus.CANCELED,
             )
         )
 
