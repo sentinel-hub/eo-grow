@@ -31,7 +31,7 @@ from sentinelhub import (
 from sentinelhub.api.utils import s3_specification
 from sentinelhub.exceptions import DownloadFailedException
 
-from eogrow.core.area.base import get_geometry_from_file, save_grid
+from eogrow.core.area.base import get_geometry_from_file, load_grid, save_grid
 from eogrow.core.area.custom_grid import CustomGridAreaManager
 from eogrow.core.area.utm import create_utm_zone_grid
 
@@ -218,12 +218,15 @@ class BatchDownloadPipeline(Pipeline):
             return [], []
 
         LOGGER.info("Monitoring batch job with ID %s", batch_request.request_id)
-        monitor_batch_process_job(
+        batch_request = monitor_batch_process_job(
             request=batch_request,
             client=self.batch_client,
             sleep_time=self.config.monitoring_sleep_time,
             analysis_sleep_time=self.config.monitoring_analysis_sleep_time,
         )
+
+        LOGGER.info("Using feature manifest to update the batch grid")
+        self._update_batch_grid(batch_request.request_id)
 
         processed: list[str] = []
         failed: list[str] = []
@@ -270,6 +273,21 @@ class BatchDownloadPipeline(Pipeline):
         grid_path = fs.path.join(grid_folder, self.area_manager.config.grid_filename)
         save_grid(grid, grid_path, self.storage)
         return grid_path
+
+    def _update_batch_grid(self, batch_request_id: str) -> None:
+        """Updates the batch grid using the features manifest."""
+        grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key, full_path=True)
+        grid_path = fs.path.join(grid_folder, self.area_manager.config.grid_filename)
+        grid = load_grid(grid_path, self.storage)
+
+        fm_folder = self.storage.get_folder(self.config.output_folder_key, full_path=True)
+        fm_path = fs.path.join(fm_folder, f"featureManifest-{batch_request_id}.gpkg")
+        fm = load_grid(fm_path, self.storage)
+
+        for crs, crs_grid in grid.items():
+            grid[crs] = crs_grid[crs_grid.identifier.isin(fm[crs].identifier.unique())]
+
+        save_grid(grid, grid_path, self.storage)
 
     def _create_new_batch_request(self) -> BatchProcessRequest:
         """Defines a new batch request."""
