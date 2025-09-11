@@ -112,7 +112,7 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
     def _save_grid(self, grid: dict[CRS, gpd.GeoDataFrame], grid_path: str) -> None:
         """A method that saves the bounding box grid to the cache folder."""
         LOGGER.info("Saving grid to %s", grid_path)
-        cache_grid(grid, grid_path, self.storage)
+        save_grid(grid, grid_path, self.storage)
 
     @abstractmethod
     def get_grid_cache_filename(self) -> str:
@@ -142,7 +142,7 @@ def get_geometry_from_file(
         return Geometry(area_shape, CRS(area_df.crs))
 
 
-def cache_grid(grid: dict[CRS, gpd.GeoDataFrame], grid_path: str, storage: StorageManager) -> None:
+def save_grid(grid: dict[CRS, gpd.GeoDataFrame], grid_path: str, storage: StorageManager) -> None:
     """A method that saves the bounding box grid to the cache folder."""
     with LocalFile(grid_path, mode="w", filesystem=storage.filesystem) as local_file:
         for crs_grid in grid.values():
