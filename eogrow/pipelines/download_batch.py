@@ -209,8 +209,6 @@ class BatchDownloadPipeline(Pipeline):
                 sleep_time=self.config.monitoring_analysis_sleep_time,
             )
 
-        self.cache_batch_area_manager_grid(batch_request.request_id)
-
         if self.config.analysis_only:
             return [], []
 
