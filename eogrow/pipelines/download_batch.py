@@ -218,7 +218,12 @@ class BatchDownloadPipeline(Pipeline):
             return [], []
 
         LOGGER.info("Monitoring batch job with ID %s", batch_request.request_id)
-        self._monitor_job(batch_request)
+        monitor_batch_process_job(
+            request=batch_request,
+            client=self.batch_client,
+            sleep_time=self.config.monitoring_sleep_time,
+            analysis_sleep_time=self.config.monitoring_analysis_sleep_time,
+        )
 
         processed: list[str] = []
         failed: list[str] = []
@@ -354,14 +359,6 @@ class BatchDownloadPipeline(Pipeline):
     def _wait_for_sh_db_sync(self, batch_request: BatchProcessRequest) -> None:
         """Wait for SH read/write databases to sync."""
         self.batch_client.get_request(batch_request)
-
-    def _monitor_job(self, batch_request: BatchProcessRequest) -> BatchProcessRequest:
-        return monitor_batch_process_job(
-            request=batch_request,
-            client=self.batch_client,
-            sleep_time=self.config.monitoring_sleep_time,
-            analysis_sleep_time=self.config.monitoring_analysis_sleep_time,
-        )
 
 
 def create_batch_grid(
