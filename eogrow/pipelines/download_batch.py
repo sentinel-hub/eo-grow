@@ -122,6 +122,8 @@ class BatchDownloadPipeline(Pipeline):
     class Schema(Pipeline.Schema):
         area: CustomGridAreaManager.Schema
 
+        iam_role_arn: str = Field(description="IAM role ARN for the batch job.")
+
         output_folder_key: str = Field(
             description="Storage manager key pointing to the path where batch results will be saved."
         )
