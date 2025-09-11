@@ -69,7 +69,7 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
             grid = self._load_grid(grid_path)
         else:
             grid = self._create_grid()
-            self._save_grid(grid, grid_path)
+            self.save_grid(grid, grid_path)
 
         if filtered and self.config.patch_names is not None:
             folder_path = self.storage.get_folder(self.config.patch_names.input_folder_key)
@@ -109,7 +109,7 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
 
         return grid
 
-    def _save_grid(self, grid: dict[CRS, gpd.GeoDataFrame], grid_path: str) -> None:
+    def save_grid(self, grid: dict[CRS, gpd.GeoDataFrame], grid_path: str) -> None:
         """A method that saves the bounding box grid to the cache folder."""
         LOGGER.info("Saving grid to %s", grid_path)
 
