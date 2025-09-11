@@ -6,6 +6,7 @@ import logging
 import time
 from collections import defaultdict
 from functools import wraps
+from multiprocessing import process
 from typing import Any, Callable, List, Literal, Optional, TypeVar
 
 import fs
@@ -16,6 +17,7 @@ from typing_extensions import ParamSpec
 
 from sentinelhub import (
     CRS,
+    BatchProcessClient,
     BatchRequest,
     BatchRequestStatus,
     BatchTileStatus,
@@ -30,6 +32,7 @@ from sentinelhub import (
     monitor_batch_analysis,
     monitor_batch_job,
 )
+from sentinelhub.api.utils import s3_specification
 from sentinelhub.exceptions import DownloadFailedException
 
 from eogrow.core.area.base import get_geometry_from_file
