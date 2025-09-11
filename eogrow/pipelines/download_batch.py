@@ -17,7 +17,6 @@ from typing_extensions import ParamSpec
 from sentinelhub import (
     CRS,
     BatchProcessClient,
-    BatchRequest,
     BatchRequestStatus,
     BatchTileStatus,
     BatchUserAction,
@@ -28,8 +27,9 @@ from sentinelhub import (
     ResamplingType,
     SentinelHubRequest,
     monitor_batch_analysis,
-    monitor_batch_job,
 )
+from sentinelhub.api.batch.process_v2 import BatchProcessRequest
+from sentinelhub.api.batch.utils import monitor_batch_process_job
 from sentinelhub.api.utils import s3_specification
 from sentinelhub.exceptions import DownloadFailedException
 
@@ -224,7 +224,7 @@ class BatchDownloadPipeline(Pipeline):
         LOGGER.info(log_msg)
         return processed, failed
 
-    def _create_or_collect_batch_request(self) -> BatchRequest:
+    def _create_or_collect_batch_request(self) -> BatchProcessRequest:
         """Either creates a new batch request or collects information about an existing one."""
         if not self.config.batch_id:
             batch_request = self._create_new_batch_request()
@@ -260,7 +260,7 @@ class BatchDownloadPipeline(Pipeline):
         self.area_manager.save_grid(grid, grid_path)
         return grid_path
 
-    def _create_new_batch_request(self) -> BatchRequest:
+    def _create_new_batch_request(self) -> BatchProcessRequest:
         """Defines a new batch request."""
         geometry = self._get_aoi_geometry()
         grid_path = self._create_and_save_batch_grid()
@@ -319,7 +319,7 @@ class BatchDownloadPipeline(Pipeline):
             return evalscript_file.read()
 
     @_retry_on_404
-    def _trigger_user_action(self, batch_request: BatchRequest) -> BatchUserAction:
+    def _trigger_user_action(self, batch_request: BatchProcessRequest) -> BatchUserAction:
         """According to status and configuration parameters decide what kind of user action to perform."""
         if self.config.analysis_only:
             if batch_request.status is BatchRequestStatus.CREATED:
@@ -350,7 +350,7 @@ class BatchDownloadPipeline(Pipeline):
         return BatchUserAction.NONE
 
     @_retry_on_404
-    def _wait_for_sh_db_sync(self, batch_request: BatchRequest) -> None:
+    def _wait_for_sh_db_sync(self, batch_request: BatchProcessRequest) -> None:
         """Wait for SH read/write databases to sync."""
         self.batch_client.get_request(batch_request)
 
@@ -366,10 +366,10 @@ class BatchDownloadPipeline(Pipeline):
 
         self.area_manager.get_grid()  # this caches the grid for later use
 
-    def _monitor_job(self, batch_request: BatchRequest) -> defaultdict[BatchTileStatus, list[dict]]:
-        return monitor_batch_job(
-            batch_request,
-            config=self.sh_config,
+    def _monitor_job(self, batch_request: BatchProcessRequest) -> defaultdict[BatchTileStatus, list[dict]]:
+        return monitor_batch_process_job(
+            request=batch_request,
+            client=self.batch_client,
             sleep_time=self.config.monitoring_sleep_time,
             analysis_sleep_time=self.config.monitoring_analysis_sleep_time,
         )
