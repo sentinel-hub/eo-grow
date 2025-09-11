@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import logging
+import sqlite3
 import time
 from functools import wraps
 from typing import Any, Callable, List, Literal, Optional, TypeVar
 
 import fs
+import pandas as pd
 import requests
 from geopandas import GeoDataFrame
 from pydantic import Field
@@ -34,6 +36,7 @@ from sentinelhub.exceptions import DownloadFailedException
 from eogrow.core.area.base import get_geometry_from_file, load_grid, save_grid
 from eogrow.core.area.custom_grid import CustomGridAreaManager
 from eogrow.core.area.utm import create_utm_zone_grid
+from eogrow.utils.fs import LocalFile
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
@@ -228,11 +231,10 @@ class BatchDownloadPipeline(Pipeline):
         LOGGER.info("Using feature manifest to update the batch grid")
         self._update_batch_grid(batch_request.request_id)
 
-        processed: list[str] = []
-        failed: list[str] = []
-        # TODO: get this from feature Manifest
-        # processed = self._get_tile_names_from_results(results, BatchTileStatus.PROCESSED)
-        # failed = self._get_tile_names_from_results(results, BatchTileStatus.FAILED)
+        tiles_dict = self._get_tiles_per_status(batch_request.request_id)
+        processed = tiles_dict.get("DONE", [])
+        failed = tiles_dict.get("FATAL", [])
+
         log_msg = f"Successfully downloaded {len(processed)} tiles"
         log_msg += f", but {len(failed)} tiles failed." if failed else "."
         LOGGER.info(log_msg)
@@ -377,6 +379,22 @@ class BatchDownloadPipeline(Pipeline):
     def _wait_for_sh_db_sync(self, batch_request: BatchProcessRequest) -> None:
         """Wait for SH read/write databases to sync."""
         self.batch_client.get_request(batch_request)
+
+    def _get_tiles_per_status(self, batch_request_id: str) -> dict[str, list[str]]:
+        """
+        Collects tile status counts from the batch request execution sqlite database for the PENDING, DONE and FAILED
+        statuses.
+
+        DONE: Feature was successfully processed.
+        FATAL: Feature has failed X amount of times and will not be retried.
+        PENDING: The feature is waiting to be processed.
+        """
+        db_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key, full_path=True)
+        db_path = fs.path.join(db_folder, f"execution-{batch_request_id}.gpkg")
+        with LocalFile(db_path, mode="r", filesystem=self.storage.filesystem) as local_file:
+            conn = sqlite3.connect(local_file.path)
+            db_df = pd.read_sql("SELECT * FROM features", conn)
+            return db_df.groupby("status").name.apply(list).to_dict()
 
 
 def create_batch_grid(
