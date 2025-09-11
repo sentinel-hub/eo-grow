@@ -30,7 +30,7 @@ from sentinelhub.api.batch.utils import monitor_batch_process_analysis, monitor_
 from sentinelhub.api.utils import s3_specification
 from sentinelhub.exceptions import DownloadFailedException
 
-from eogrow.core.area.base import get_geometry_from_file
+from eogrow.core.area.base import cache_grid, get_geometry_from_file
 from eogrow.core.area.custom_grid import CustomGridAreaManager
 from eogrow.core.area.utm import create_utm_zone_grid
 
@@ -257,7 +257,7 @@ class BatchDownloadPipeline(Pipeline):
         )
         grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key, full_path=True)
         grid_path = fs.path.join(grid_folder, self.area_manager.config.grid_filename)
-        self.area_manager.save_grid(grid, grid_path)
+        cache_grid(grid, grid_path, self.storage)
         return grid_path
 
     def _create_new_batch_request(self) -> BatchProcessRequest:

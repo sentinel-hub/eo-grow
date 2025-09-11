@@ -69,7 +69,7 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
             grid = self._load_grid(grid_path)
         else:
             grid = self._create_grid()
-            self.save_grid(grid, grid_path)
+            self._save_grid(grid, grid_path)
 
         if filtered and self.config.patch_names is not None:
             folder_path = self.storage.get_folder(self.config.patch_names.input_folder_key)
@@ -109,19 +109,10 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
 
         return grid
 
-    def save_grid(self, grid: dict[CRS, gpd.GeoDataFrame], grid_path: str) -> None:
+    def _save_grid(self, grid: dict[CRS, gpd.GeoDataFrame], grid_path: str) -> None:
         """A method that saves the bounding box grid to the cache folder."""
         LOGGER.info("Saving grid to %s", grid_path)
-
-        with LocalFile(grid_path, mode="w", filesystem=self.storage.filesystem) as local_file:
-            for crs_grid in grid.values():
-                crs_grid.to_file(
-                    local_file.path,
-                    driver="GPKG",
-                    encoding="utf-8",
-                    layer=f"Grid EPSG:{crs_grid.crs.to_epsg()}",
-                    engine=self.storage.config.geopandas_backend,
-                )
+        cache_grid(grid, grid_path, self.storage)
 
     @abstractmethod
     def get_grid_cache_filename(self) -> str:
@@ -149,3 +140,16 @@ def get_geometry_from_file(
         area_df = gpd.read_file(local_file.path, engine=geopandas_engine)
         area_shape = shapely.ops.unary_union(area_df.geometry)
         return Geometry(area_shape, CRS(area_df.crs))
+
+
+def cache_grid(grid: dict[CRS, gpd.GeoDataFrame], grid_path: str, storage: StorageManager) -> None:
+    """A method that saves the bounding box grid to the cache folder."""
+    with LocalFile(grid_path, mode="w", filesystem=storage.filesystem) as local_file:
+        for crs_grid in grid.values():
+            crs_grid.to_file(
+                local_file.path,
+                driver="GPKG",
+                encoding="utf-8",
+                layer=f"Grid EPSG:{crs_grid.crs.to_epsg()}",
+                engine=storage.config.geopandas_backend,
+            )
