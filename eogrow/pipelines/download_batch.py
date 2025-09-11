@@ -16,6 +16,7 @@ from typing_extensions import ParamSpec
 from sentinelhub import (
     CRS,
     BatchProcessClient,
+    BatchProcessRequest,
     BatchRequestStatus,
     BatchUserAction,
     DataCollection,
@@ -24,9 +25,9 @@ from sentinelhub import (
     MosaickingOrder,
     ResamplingType,
     SentinelHubRequest,
+    monitor_batch_process_analysis,
+    monitor_batch_process_job,
 )
-from sentinelhub.api.batch.process import BatchProcessRequest
-from sentinelhub.api.batch.utils import monitor_batch_process_analysis, monitor_batch_process_job
 from sentinelhub.api.utils import s3_specification
 from sentinelhub.exceptions import DownloadFailedException
 
