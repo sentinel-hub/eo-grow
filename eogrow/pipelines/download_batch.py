@@ -32,6 +32,7 @@ from sentinelhub import (
 )
 from sentinelhub.exceptions import DownloadFailedException
 
+from eogrow.core.area.base import get_geometry_from_file
 from eogrow.core.area.custom_grid import CustomGridAreaManager
 from eogrow.core.area.utm import create_utm_zone_grid
 
@@ -234,10 +235,19 @@ class BatchDownloadPipeline(Pipeline):
         LOGGER.info("Collected existing batch request with ID %s", batch_request.request_id)
         return batch_request
 
+    def _get_aoi_geometry(self) -> Geometry:
+        """Gets the geometry from the input data folder."""
+        geom_path = fs.path.join(self.storage.get_input_data_folder(), self.config.geometry_filename)
+        return get_geometry_from_file(
+            filesystem=self.storage.filesystem,
+            file_path=geom_path,
+            geopandas_engine=self.storage.config.geopandas_backend,
+        )  # TODO what to do with crs here?
+
     def _create_and_save_batch_grid(self) -> None:
         """Creates a saves the grid used for Batch Process API"""
         grid = create_batch_grid(
-            geometry=self.config.grid.geometry_filename,
+            geometry=self._get_aoi_geometry(),
             bbox_size=self.config.grid.bbox_size,
             bbox_offset=self.config.grid.bbox_offset,
             bbox_buffer=self.config.grid.bbox_buffer,
@@ -245,12 +255,12 @@ class BatchDownloadPipeline(Pipeline):
             resolution=self.config.grid.resolution,
         )
         grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key, full_path=True)
-        grid_path = fs.path.combine(grid_folder, self.area_manager.config.grid_filename)
+        grid_path = fs.path.join(grid_folder, self.area_manager.config.grid_filename)
         self.area_manager.save_grid(grid, grid_path)
 
     def _create_new_batch_request(self) -> BatchRequest:
         """Defines a new batch request."""
-        geometry = self.area_manager.get_area_geometry()
+        geometry = self._get_aoi_geometry()
 
         responses = [
             SentinelHubRequest.output_response(tiff_output, MimeType.TIFF) for tiff_output in self.config.tiff_outputs
