@@ -249,7 +249,7 @@ class BatchDownloadPipeline(Pipeline):
             filesystem=self.storage.filesystem,
             file_path=geom_path,
             geopandas_engine=self.storage.config.geopandas_backend,
-        )  # TODO what to do with crs here?
+        )
 
     def _create_and_save_batch_grid(self) -> str:
         """Creates a saves the grid used for Batch Process API"""
