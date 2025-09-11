@@ -202,9 +202,9 @@ class BatchDownloadPipeline(Pipeline):
             user_action is BatchUserAction.START and batch_request.status is not BatchRequestStatus.ANALYSIS_DONE
         ):
             LOGGER.info("Waiting to finish analyzing job with ID %s", batch_request.request_id)
-            monitor_batch_analysis(
-                batch_request,
-                config=self.sh_config,
+            monitor_batch_process_analysis(
+                request=batch_request,
+                client=self.batch_client,
                 sleep_time=self.config.monitoring_analysis_sleep_time,
             )
 
@@ -238,7 +238,7 @@ class BatchDownloadPipeline(Pipeline):
 
     def _get_aoi_geometry(self) -> Geometry:
         """Gets the geometry from the input data folder."""
-        geom_path = fs.path.join(self.storage.get_input_data_folder(), self.config.geometry_filename)
+        geom_path = fs.path.join(self.storage.get_input_data_folder(), self.config.grid.geometry_filename)
         return get_geometry_from_file(
             filesystem=self.storage.filesystem,
             file_path=geom_path,
