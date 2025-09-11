@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import time
-from collections import defaultdict
 from functools import wraps
 from typing import Any, Callable, List, Literal, Optional, TypeVar
 
@@ -18,7 +17,6 @@ from sentinelhub import (
     CRS,
     BatchProcessClient,
     BatchRequestStatus,
-    BatchTileStatus,
     BatchUserAction,
     DataCollection,
     Geometry,
@@ -26,10 +24,9 @@ from sentinelhub import (
     MosaickingOrder,
     ResamplingType,
     SentinelHubRequest,
-    monitor_batch_analysis,
 )
 from sentinelhub.api.batch.process_v2 import BatchProcessRequest
-from sentinelhub.api.batch.utils import monitor_batch_process_job
+from sentinelhub.api.batch.utils import monitor_batch_process_analysis, monitor_batch_process_job
 from sentinelhub.api.utils import s3_specification
 from sentinelhub.exceptions import DownloadFailedException
 
@@ -340,11 +337,6 @@ class BatchDownloadPipeline(Pipeline):
             LOGGER.info("Started running batch job.")
             return BatchUserAction.START
 
-        if batch_request.status is BatchRequestStatus.PARTIAL:
-            self.batch_client.restart_job(batch_request)
-            LOGGER.info("Restarted partially failed batch job.")
-            return BatchUserAction.START
-
         status = None if batch_request.status is None else batch_request.status.value
         LOGGER.info("Didn't trigger batch job because current batch request status is %s", status)
         return BatchUserAction.NONE
@@ -354,33 +346,13 @@ class BatchDownloadPipeline(Pipeline):
         """Wait for SH read/write databases to sync."""
         self.batch_client.get_request(batch_request)
 
-    def cache_batch_area_manager_grid(self, request_id: str) -> None:
-        """This method ensures that area manager caches batch grid into the storage."""
-        if self.area_manager.config.batch_id and self.area_manager.config.batch_id != request_id:
-            raise ValueError(
-                f"{self.area_manager.__class__.__name__} is set to use batch request with ID "
-                f"{self.area_manager.config.batch_id} but {self.__class__.__name__} is using batch request with ID "
-                f"{request_id}. Make sure that you use the same IDs."
-            )
-        self.area_manager._injected_batch_id = request_id  # noqa: SLF001
-
-        self.area_manager.get_grid()  # this caches the grid for later use
-
-    def _monitor_job(self, batch_request: BatchProcessRequest) -> defaultdict[BatchTileStatus, list[dict]]:
+    def _monitor_job(self, batch_request: BatchProcessRequest) -> BatchProcessRequest:
         return monitor_batch_process_job(
             request=batch_request,
             client=self.batch_client,
             sleep_time=self.config.monitoring_sleep_time,
             analysis_sleep_time=self.config.monitoring_analysis_sleep_time,
         )
-
-    @staticmethod
-    def _get_tile_names_from_results(
-        results: defaultdict[BatchTileStatus, list[dict]], tile_status: BatchTileStatus
-    ) -> list[str]:
-        """Collects tile names from a dictionary of batch tile results ordered by status"""
-        tile_list = results[tile_status]
-        return [tile["name"] for tile in tile_list]
 
 
 def create_batch_grid(
