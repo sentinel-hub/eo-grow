@@ -32,6 +32,7 @@ from sentinelhub import (
 )
 from sentinelhub.exceptions import DownloadFailedException
 
+from eogrow.core.area.custom_grid import CustomGridAreaManager
 from eogrow.core.area.utm import create_utm_zone_grid
 
 from ..core.area.batch import BatchAreaManager
@@ -101,16 +102,26 @@ class InputDataSchema(BaseSchema):
     )
 
 
+class BatchGridSchema(BaseSchema):
+    bbox_size: tuple[int, int] = Field(description="Size of the bounding box in meters.")
+    bbox_offset: tuple[float, float] = Field(description="Offset of the bounding box in meters.")
+    bbox_buffer: tuple[float, float] = Field(description="Buffer of the bounding box in meters.")
+    image_size: tuple[int, int] = Field(description="Size of the image in pixels.")
+    resolution: int = Field(description="Resolution of the image in meters.")
+
+
 class BatchDownloadPipeline(Pipeline):
     """Pipeline to start and monitor a Sentinel Hub batch job"""
 
     class Schema(Pipeline.Schema):
-        area: BatchAreaManager.Schema
+        area: CustomGridAreaManager.Schema
 
         output_folder_key: str = Field(
             description="Storage manager key pointing to the path where batch results will be saved."
         )
         _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
+
+        grid: BatchGridSchema = Field(description="Configuration for the batch grid.")
 
         inputs: List[InputDataSchema]
 
@@ -168,7 +179,7 @@ class BatchDownloadPipeline(Pipeline):
         skip_existing: Literal[False] = False
 
     config: Schema
-    area_manager: BatchAreaManager
+    area_manager: CustomGridAreaManager
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
