@@ -25,7 +25,7 @@ from sentinelhub import (
     ResamplingType,
     SentinelHubRequest,
 )
-from sentinelhub.api.batch.process_v2 import BatchProcessRequest
+from sentinelhub.api.batch.process import BatchProcessRequest
 from sentinelhub.api.batch.utils import monitor_batch_process_analysis, monitor_batch_process_job
 from sentinelhub.api.utils import s3_specification
 from sentinelhub.exceptions import DownloadFailedException
@@ -232,7 +232,7 @@ class BatchDownloadPipeline(Pipeline):
             return batch_request
 
         batch_request = self.batch_client.get_request(self.config.batch_id)
-        batch_request.raise_for_status(status=[BatchRequestStatus.FAILED, BatchRequestStatus.CANCELED])
+        batch_request.raise_for_status(status=BatchRequestStatus.FAILED)
         LOGGER.info("Collected existing batch request with ID %s", batch_request.request_id)
         return batch_request
 
