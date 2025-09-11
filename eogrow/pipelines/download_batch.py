@@ -212,10 +212,13 @@ class BatchDownloadPipeline(Pipeline):
             return [], []
 
         LOGGER.info("Monitoring batch job with ID %s", batch_request.request_id)
-        results = self._monitor_job(batch_request)
+        self._monitor_job(batch_request)
 
-        processed = self._get_tile_names_from_results(results, BatchTileStatus.PROCESSED)
-        failed = self._get_tile_names_from_results(results, BatchTileStatus.FAILED)
+        processed: list[str] = []
+        failed: list[str] = []
+        # TODO: get this from feature Manifest
+        # processed = self._get_tile_names_from_results(results, BatchTileStatus.PROCESSED)
+        # failed = self._get_tile_names_from_results(results, BatchTileStatus.FAILED)
         log_msg = f"Successfully downloaded {len(processed)} tiles"
         log_msg += f", but {len(failed)} tiles failed." if failed else "."
         LOGGER.info(log_msg)
