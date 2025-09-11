@@ -193,6 +193,7 @@ class BatchDownloadPipeline(Pipeline):
 
     def run_procedure(self) -> tuple[list[str], list[str]]:
         """Procedure that uses Sentinel Hub batch service to download data to an S3 bucket."""
+        self._create_and_save_batch_grid()
         batch_request = self._create_or_collect_batch_request()
 
         user_action = self._trigger_user_action(batch_request)
@@ -234,6 +235,20 @@ class BatchDownloadPipeline(Pipeline):
         batch_request.raise_for_status(status=[BatchRequestStatus.FAILED, BatchRequestStatus.CANCELED])
         LOGGER.info("Collected existing batch request with ID %s", batch_request.request_id)
         return batch_request
+
+    def _create_and_save_batch_grid(self) -> None:
+        """Creates a saves the grid used for Batch Process API"""
+        grid = create_batch_grid(
+            geometry=self.config.grid.geometry_filename,
+            bbox_size=self.config.grid.bbox_size,
+            bbox_offset=self.config.grid.bbox_offset,
+            bbox_buffer=self.config.grid.bbox_buffer,
+            image_size=self.config.grid.image_size,
+            resolution=self.config.grid.resolution,
+        )
+        grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key, full_path=True)
+        grid_path = fs.path.combine(grid_folder, self.area_manager.config.grid_filename)
+        self.area_manager.save_grid(grid, grid_path)
 
     def _create_new_batch_request(self) -> BatchRequest:
         """Defines a new batch request."""
