@@ -6,7 +6,6 @@ import logging
 import time
 from collections import defaultdict
 from functools import wraps
-from multiprocessing import process
 from typing import Any, Callable, List, Literal, Optional, TypeVar
 
 import fs
@@ -27,7 +26,6 @@ from sentinelhub import (
     MimeType,
     MosaickingOrder,
     ResamplingType,
-    SentinelHubBatch,
     SentinelHubRequest,
     monitor_batch_analysis,
     monitor_batch_job,
@@ -39,7 +37,6 @@ from eogrow.core.area.base import get_geometry_from_file
 from eogrow.core.area.custom_grid import CustomGridAreaManager
 from eogrow.core.area.utm import create_utm_zone_grid
 
-from ..core.area.batch import BatchAreaManager
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..types import TimePeriod
