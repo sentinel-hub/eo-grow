@@ -199,7 +199,6 @@ class BatchDownloadPipeline(Pipeline):
 
     def run_procedure(self) -> tuple[list[str], list[str]]:
         """Procedure that uses Sentinel Hub batch service to download data to an S3 bucket."""
-        self._create_and_save_batch_grid()
         batch_request = self._create_or_collect_batch_request()
 
         user_action = self._trigger_user_action(batch_request)
@@ -249,7 +248,7 @@ class BatchDownloadPipeline(Pipeline):
             geopandas_engine=self.storage.config.geopandas_backend,
         )  # TODO what to do with crs here?
 
-    def _create_and_save_batch_grid(self) -> None:
+    def _create_and_save_batch_grid(self) -> str:
         """Creates a saves the grid used for Batch Process API"""
         grid = create_batch_grid(
             geometry=self._get_aoi_geometry(),
@@ -262,10 +261,12 @@ class BatchDownloadPipeline(Pipeline):
         grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key, full_path=True)
         grid_path = fs.path.join(grid_folder, self.area_manager.config.grid_filename)
         self.area_manager.save_grid(grid, grid_path)
+        return grid_path
 
     def _create_new_batch_request(self) -> BatchRequest:
         """Defines a new batch request."""
         geometry = self._get_aoi_geometry()
+        grid_path = self._create_and_save_batch_grid()
 
         responses = [
             SentinelHubRequest.output_response(tiff_output, MimeType.TIFF) for tiff_output in self.config.tiff_outputs
