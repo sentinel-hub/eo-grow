@@ -271,18 +271,18 @@ class BatchDownloadPipeline(Pipeline):
             image_size=self.config.grid.image_size,
             resolution=self.config.grid.resolution,
         )
-        grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key, full_path=True)
+        grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key)
         grid_path = fs.path.join(grid_folder, self.area_manager.config.grid_filename)
         save_grid(grid, grid_path, self.storage)
         return grid_path
 
     def _update_batch_grid(self, batch_request_id: str) -> None:
         """Updates the batch grid using the features manifest."""
-        grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key, full_path=True)
+        grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key)
         grid_path = fs.path.join(grid_folder, self.area_manager.config.grid_filename)
         grid = load_grid(grid_path, self.storage)
 
-        fm_folder = self.storage.get_folder(self.config.output_folder_key, full_path=True)
+        fm_folder = self.storage.get_folder(self.config.output_folder_key)
         fm_path = fs.path.join(fm_folder, f"featureManifest-{batch_request_id}.gpkg")
         fm = load_grid(fm_path, self.storage)
 
@@ -389,7 +389,7 @@ class BatchDownloadPipeline(Pipeline):
         FATAL: Feature has failed X amount of times and will not be retried.
         PENDING: The feature is waiting to be processed.
         """
-        db_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key, full_path=True)
+        db_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key)
         db_path = fs.path.join(db_folder, f"execution-{batch_request_id}.gpkg")
         with LocalFile(db_path, mode="r", filesystem=self.storage.filesystem) as local_file:
             conn = sqlite3.connect(local_file.path)
