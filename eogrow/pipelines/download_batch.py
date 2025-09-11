@@ -353,7 +353,7 @@ class BatchDownloadPipeline(Pipeline):
 
 
 def create_batch_grid(
-    area_geometry: Geometry,
+    geometry: Geometry,
     bbox_size: tuple[int, int],
     bbox_offset: tuple[float, float],
     bbox_buffer: tuple[float, float],
@@ -362,7 +362,7 @@ def create_batch_grid(
 ) -> dict[CRS, GeoDataFrame]:
     """Creates a grid of bounding boxes covering the given area that is suitable for use with Batch Processing API."""
     grid = create_utm_zone_grid(
-        area_geometry=area_geometry,
+        geometry=geometry,
         name_column="identifier",
         bbox_size=bbox_size,
         bbox_offset=bbox_offset,
