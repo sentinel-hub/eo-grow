@@ -51,32 +51,14 @@ class UtmZoneAreaManager(BaseAreaManager):
         """Uses UtmZoneSplitter to create a grid"""
         area_geometry = self.get_area_geometry()
         LOGGER.info("Splitting area geometry into UTM zone grid")
-        splitter = UtmZoneSplitter(
-            [area_geometry.geometry],
-            crs=area_geometry.crs,
-            bbox_size=(self.config.patch.size_x, self.config.patch.size_y),
-            offset=(self.config.offset_x, self.config.offset_y),
+
+        return create_utm_zone_grid(
+            area_geometry,
+            self.NAME_COLUMN,
+            (self.config.patch.size_x, self.config.patch.size_y),
+            (self.config.offset_x, self.config.offset_y),
+            (self.config.patch.buffer_x, self.config.patch.buffer_y),
         )
-
-        bbox_list, info_list = splitter.get_bbox_list(), splitter.get_info_list()
-
-        absolute_buffer = self.config.patch.buffer_x, self.config.patch.buffer_y
-        if absolute_buffer != (0, 0):
-            bbox_list = [bbox.buffer(absolute_buffer, relative=False) for bbox in bbox_list]
-
-        crs_to_patches = defaultdict(list)
-        zfill_length = len(str(len(bbox_list) - 1))
-        for i, (bbox, info) in enumerate(zip(bbox_list, info_list)):
-            i_x, i_y = info["index_x"], info["index_y"]
-            name = f"eopatch-id-{i:0{zfill_length}}-col-{i_x}-row-{i_y}"
-            crs_to_patches[bbox.crs].append((name, bbox.geometry))
-
-        grid = {}
-        for crs, named_bbox_geoms in crs_to_patches.items():
-            names, geoms = zip(*named_bbox_geoms)
-            grid[crs] = gpd.GeoDataFrame({self.NAME_COLUMN: names}, geometry=list(geoms), crs=crs.pyproj_crs())
-
-        return grid
 
     def get_grid_cache_filename(self) -> str:
         input_filename = fs.path.basename(self.config.geometry_filename)
@@ -94,3 +76,28 @@ class UtmZoneAreaManager(BaseAreaManager):
         params = [str(param) for param in raw_params]
 
         return f"{self.__class__.__name__}_{'_'.join(params)}.gpkg"
+
+
+def create_utm_zone_grid(
+    area_geometry: Geometry,
+    name_column: str,
+    bbox_size: tuple[int, int],
+    bbox_offset: tuple[float, float],
+    bbox_buffer: tuple[float, float],
+) -> dict[CRS, GeoDataFrame]:
+    """Creates a grid of bounding boxes covering the given area geometry."""
+    splitter = UtmZoneSplitter([area_geometry.geometry], crs=area_geometry.crs, bbox_size=bbox_size, offset=bbox_offset)
+    bbox_list, info_list = splitter.get_bbox_list(), splitter.get_info_list()
+    if bbox_buffer != (0, 0):
+        bbox_list = [bbox.buffer(bbox_buffer, relative=False) for bbox in bbox_list]
+
+    tiles_dict = defaultdict(list)
+    zfill_length = len(str(len(bbox_list) - 1))
+    for i, (bbox, info) in enumerate(zip(bbox_list, info_list)):
+        i_x, i_y = info["index_x"], info["index_y"]
+        name = f"eopatch-id-{i:0{zfill_length}}-col-{i_x}-row-{i_y}"
+        tiles_dict[bbox.crs].append({"id": i, name_column: name, "geometry": bbox.geometry})
+
+    return {
+        crs: gpd.GeoDataFrame(tiles, geometry="geometry", crs=crs.pyproj_crs()) for crs, tiles in tiles_dict.items()
+    }
