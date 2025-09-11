@@ -150,7 +150,7 @@ class BatchDownloadPipeline(Pipeline):
             default_factory=dict,
             description=(
                 "Any other arguments to be added to a dictionary of parameters. Passed as `**kwargs` to the `output`"
-                " method of `SentinelHubBatch` during the creation process."
+                " method of `BatchProcessClient` during the creation process."
             ),
         )
 
@@ -195,7 +195,7 @@ class BatchDownloadPipeline(Pipeline):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
-        self.batch_client = SentinelHubBatch(config=self.sh_config)
+        self.batch_client = BatchProcessClient(config=self.sh_config)
 
     def run_procedure(self) -> tuple[list[str], list[str]]:
         """Procedure that uses Sentinel Hub batch service to download data to an S3 bucket."""
@@ -295,16 +295,21 @@ class BatchDownloadPipeline(Pipeline):
         if not self.storage.is_on_s3():
             raise ValueError(f"The data folder path should be on s3 bucket, got {data_folder}")
 
+        geopackage_input = BatchProcessClient.geopackage_input(
+            s3_specification(url=grid_path, iam_role_arn=self.config.iam_role_arn)
+        )
+
+        raster_output = BatchProcessClient.raster_output(
+            delivery=s3_specification(
+                url=f"{data_folder}/<tileName>/<outputId>.<format>", iam_role_arn=self.config.iam_role_arn
+            ),
+            **self.config.batch_output_kwargs,
+        )
+
         return self.batch_client.create(
-            sentinelhub_request,
-            tiling_grid=SentinelHubBatch.tiling_grid(
-                grid_id=self.config.area.tiling_grid_id,
-                resolution=self.config.area.resolution,
-                buffer=(self.config.area.tile_buffer_x, self.config.area.tile_buffer_y),
-            ),
-            output=SentinelHubBatch.output(
-                default_tile_path=f"{data_folder}/<tileName>/<outputId>.<format>", **self.config.batch_output_kwargs
-            ),
+            process_request=sentinelhub_request,
+            input=geopackage_input,
+            output=raster_output,
             description=f"eo-grow - {self.__class__.__name__} pipeline with ID {self.pipeline_id}",
         )
 
