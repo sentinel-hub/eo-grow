@@ -11,12 +11,10 @@ from typing import Any, Callable, List, Literal, Optional, TypeVar
 import fs
 import pandas as pd
 import requests
-from geopandas import GeoDataFrame
 from pydantic import Field, validator
 from typing_extensions import ParamSpec
 
 from sentinelhub import (
-    CRS,
     BatchProcessClient,
     BatchProcessRequest,
     BatchRequestStatus,
