@@ -11,12 +11,10 @@ from typing import Any, Callable, List, Literal, Optional, TypeVar
 import fs
 import pandas as pd
 import requests
-from geopandas import GeoDataFrame
-from pydantic import Field
+from pydantic import Field, validator
 from typing_extensions import ParamSpec
 
 from sentinelhub import (
-    CRS,
     BatchProcessClient,
     BatchProcessRequest,
     BatchRequestStatus,
@@ -125,8 +123,22 @@ class BatchDownloadPipeline(Pipeline):
     provided via the CustomGridAreaManager.
     """
 
+    NAME_COLUMN = "identifier"
+
     class Schema(Pipeline.Schema):
         area: CustomGridAreaManager.Schema
+
+        @validator("area")
+        def _parse_area_name_column(cls, area: CustomGridAreaManager.Schema) -> CustomGridAreaManager.Schema:
+            name_column = area.name_column
+            if name_column != BatchDownloadPipeline.NAME_COLUMN:
+                raise AssertionError(
+                    (
+                        "Name column of CustomGridAreaManager used in BatchDownloadPipeline should be "
+                        f"set to '{BatchDownloadPipeline.NAME_COLUMN}' for proper functionality."
+                    )
+                )
+            return area
 
         iam_role_arn: str = Field(description="IAM role ARN for the batch job.")
 
@@ -263,14 +275,21 @@ class BatchDownloadPipeline(Pipeline):
 
     def _create_and_save_batch_grid(self) -> str:
         """Creates a saves the grid used for Batch Process API"""
-        grid = create_batch_grid(
+        grid = create_utm_zone_grid(
             geometry=self._get_aoi_geometry(),
+            name_column=self.NAME_COLUMN,
             bbox_size=self.config.grid.bbox_size,
             bbox_offset=self.config.grid.bbox_offset,
             bbox_buffer=self.config.grid.bbox_buffer,
-            image_size=self.config.grid.image_size,
-            resolution=self.config.grid.resolution,
         )
+
+        width, height = self.config.grid.image_size
+        for crs, gdf in grid.items():
+            gdf["width"] = width
+            gdf["height"] = height
+            gdf["resolution"] = self.config.grid.resolution
+            grid[crs] = gdf
+
         grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key)
         grid_path = fs.path.join(grid_folder, self.area_manager.config.grid_filename)
         save_grid(grid, grid_path, self.storage)
@@ -287,7 +306,7 @@ class BatchDownloadPipeline(Pipeline):
         fm = load_grid(fm_path, self.storage)
 
         for crs, crs_grid in grid.items():
-            grid[crs] = crs_grid[crs_grid.identifier.isin(fm[crs].identifier.unique())]
+            grid[crs] = crs_grid[crs_grid[self.NAME_COLUMN].isin(fm[crs][self.NAME_COLUMN].unique())]
 
         save_grid(grid, grid_path, self.storage)
 
@@ -395,30 +414,3 @@ class BatchDownloadPipeline(Pipeline):
             conn = sqlite3.connect(local_file.path)
             db_df = pd.read_sql("SELECT * FROM features", conn)
             return db_df.groupby("status").name.apply(list).to_dict()
-
-
-def create_batch_grid(
-    geometry: Geometry,
-    bbox_size: tuple[int, int],
-    bbox_offset: tuple[float, float],
-    bbox_buffer: tuple[float, float],
-    image_size: tuple[int, int],
-    resolution: int,
-) -> dict[CRS, GeoDataFrame]:
-    """Creates a grid of bounding boxes covering the given area that is suitable for use with Batch Processing API."""
-    grid = create_utm_zone_grid(
-        geometry=geometry,
-        name_column="identifier",
-        bbox_size=bbox_size,
-        bbox_offset=bbox_offset,
-        bbox_buffer=bbox_buffer,
-    )
-
-    width, height = image_size
-    for crs, gdf in grid.items():
-        gdf["width"] = width
-        gdf["height"] = height
-        gdf["resolution"] = resolution
-        grid[crs] = gdf
-
-    return grid
