@@ -280,7 +280,10 @@ class BatchDownloadPipeline(Pipeline):
             bbox_offset=self.config.grid.bbox_offset,
             bbox_buffer=self.config.grid.bbox_buffer,
         )
-        grid = to_batch_grid_format(grid, self.config.grid.image_size, self.config.grid.resolution)
+
+        resolution = self.config.grid.resolution
+        width, height = self.config.grid.image_size
+        grid = {crs: gdf.assign(width=width, height=height, resolution=resolution) for crs, gdf in grid.items()}
 
         grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key)
         grid_path = fs.path.join(grid_folder, self.area_manager.config.grid_filename)
@@ -406,17 +409,3 @@ class BatchDownloadPipeline(Pipeline):
             conn = sqlite3.connect(local_file.path)
             db_df = pd.read_sql("SELECT * FROM features", conn)
             return db_df.groupby("status").name.apply(list).to_dict()
-
-
-def to_batch_grid_format(
-    grid: dict[CRS, GeoDataFrame], image_size: tuple[int, int], resolution: int
-) -> dict[CRS, GeoDataFrame]:
-    """Updates a grid to a format suitable for use with Batch Processing API."""
-    width, height = image_size
-    for crs, gdf in grid.items():
-        gdf["width"] = width
-        gdf["height"] = height
-        gdf["resolution"] = resolution
-        grid[crs] = gdf
-
-    return grid
