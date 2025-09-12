@@ -411,8 +411,8 @@ class BatchDownloadPipeline(Pipeline):
         FATAL: Feature has failed X amount of times and will not be retried.
         PENDING: The feature is waiting to be processed.
         """
-        db_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key)
-        db_path = fs.path.join(db_folder, f"execution-{batch_request_id}.gpkg")
+        db_folder = self.storage.get_folder(self.config.output_folder_key)
+        db_path = fs.path.join(db_folder, f"execution-{batch_request_id}.sqlite")
         with LocalFile(db_path, mode="r", filesystem=self.storage.filesystem) as local_file:
             conn = sqlite3.connect(local_file.path)
             db_df = pd.read_sql("SELECT * FROM features", conn)
