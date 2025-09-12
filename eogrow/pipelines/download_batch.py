@@ -40,6 +40,7 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..types import TimePeriod
 from ..utils.validators import (
+    ensure_exactly_one_defined,
     ensure_storage_key_presence,
     field_validator,
     optional_field_validator,
@@ -109,10 +110,10 @@ class BatchGridSchema(BaseSchema):
         description="Name of the file that defines the AoI geometry, located in the input data folder."
     )
     bbox_size: tuple[int, int] = Field(description="Size of the bounding box in meters.")
-    bbox_offset: tuple[float, float] = Field(description="Offset of the bounding box in meters.")
-    bbox_buffer: tuple[float, float] = Field(description="Buffer of the bounding box in meters.")
-    image_size: tuple[int, int] = Field(description="Size of the image in pixels.")
-    resolution: int = Field(description="Resolution of the image in meters.")
+    image_size: Optional[tuple[int, int]] = Field(default=None, description="Size of the image in pixels.")
+    resolution: Optional[int] = Field(default=None, description="Resolution of the image in meters.")
+
+    _check_image_size_and_resolution = ensure_exactly_one_defined("image_size", "resolution")
 
 
 class BatchDownloadPipeline(Pipeline):
@@ -279,9 +280,13 @@ class BatchDownloadPipeline(Pipeline):
             bbox_buffer=self.config.grid.bbox_buffer,
         )
 
-        resolution = self.config.grid.resolution
-        width, height = self.config.grid.image_size
-        grid = {crs: gdf.assign(width=width, height=height, resolution=resolution) for crs, gdf in grid.items()}
+        if self.config.grid.resolution is not None:
+            batch_columns = {"resolution": self.config.grid.resolution}
+        else:
+            width, height = self.config.grid.image_size
+            batch_columns = {"width": width, "height": height}
+
+        grid = {crs: gdf.assign(**batch_columns) for crs, gdf in grid.items()}
 
         grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key)
         grid_path = fs.path.join(grid_folder, self.area_manager.config.grid_filename)
