@@ -349,7 +349,7 @@ class BatchDownloadPipeline(Pipeline):
             **self.config.batch_output_kwargs,
         )
 
-        grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key, full_path=True)
+        grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key, full_path=True).rstrip("/")
         geopackage_input = BatchProcessClient.geopackage_input(
             s3_specification(
                 url=f"{grid_folder}/{self.area_manager.config.grid_filename}",
