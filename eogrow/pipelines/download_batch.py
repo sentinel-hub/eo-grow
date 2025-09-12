@@ -110,6 +110,8 @@ class BatchGridSchema(BaseSchema):
         description="Name of the file that defines the AoI geometry, located in the input data folder."
     )
     bbox_size: tuple[int, int] = Field(description="Size of the bounding box in meters.")
+    bbox_offset: tuple[float, float] = Field(default=(0, 0), description="Offset of the bounding box in meters.")
+    bbox_buffer: tuple[float, float] = Field(default=(0, 0), description="Buffer of the bounding box in meters.")
     image_size: Optional[tuple[int, int]] = Field(default=None, description="Size of the image in pixels.")
     resolution: Optional[int] = Field(default=None, description="Resolution of the image in meters.")
 
