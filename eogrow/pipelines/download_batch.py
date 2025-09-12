@@ -3,18 +3,18 @@
 from __future__ import annotations
 
 import logging
+import sqlite3
 import time
 from functools import wraps
 from typing import Any, Callable, List, Literal, Optional, TypeVar
 
 import fs
+import pandas as pd
 import requests
-from geopandas import GeoDataFrame
-from pydantic import Field
+from pydantic import Field, validator
 from typing_extensions import ParamSpec
 
 from sentinelhub import (
-    CRS,
     BatchProcessClient,
     BatchProcessRequest,
     BatchRequestStatus,
@@ -31,9 +31,10 @@ from sentinelhub import (
 from sentinelhub.api.utils import s3_specification
 from sentinelhub.exceptions import DownloadFailedException
 
-from eogrow.core.area.base import get_geometry_from_file, save_grid
+from eogrow.core.area.base import get_geometry_from_file, load_grid, save_grid
 from eogrow.core.area.custom_grid import CustomGridAreaManager
 from eogrow.core.area.utm import create_utm_zone_grid
+from eogrow.utils.fs import LocalFile
 
 from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
@@ -122,8 +123,18 @@ class BatchDownloadPipeline(Pipeline):
     provided via the CustomGridAreaManager.
     """
 
+    NAME_COLUMN = "identifier"
+
     class Schema(Pipeline.Schema):
         area: CustomGridAreaManager.Schema
+
+        @validator("area")
+        def _parse_area_name_column(cls, area: CustomGridAreaManager.Schema) -> CustomGridAreaManager.Schema:
+            assert area.name_column == BatchDownloadPipeline.NAME_COLUMN, (
+                "Name column of CustomGridAreaManager used in BatchDownloadPipeline should be "
+                f"set to '{BatchDownloadPipeline.NAME_COLUMN}' for proper functionality."
+            )
+            return area
 
         iam_role_arn: str = Field(description="IAM role ARN for the batch job.")
 
@@ -218,13 +229,20 @@ class BatchDownloadPipeline(Pipeline):
             return [], []
 
         LOGGER.info("Monitoring batch job with ID %s", batch_request.request_id)
-        self._monitor_job(batch_request)
+        batch_request = monitor_batch_process_job(
+            request=batch_request,
+            client=self.batch_client,
+            sleep_time=self.config.monitoring_sleep_time,
+            analysis_sleep_time=self.config.monitoring_analysis_sleep_time,
+        )
 
-        processed: list[str] = []
-        failed: list[str] = []
-        # TODO: get this from feature Manifest
-        # processed = self._get_tile_names_from_results(results, BatchTileStatus.PROCESSED)
-        # failed = self._get_tile_names_from_results(results, BatchTileStatus.FAILED)
+        LOGGER.info("Using feature manifest to update the batch grid")
+        self._update_batch_grid(batch_request.request_id)
+
+        tiles_dict = self._get_tiles_per_status(batch_request.request_id)
+        processed = tiles_dict.get("DONE", [])
+        failed = tiles_dict.get("FATAL", [])
+
         log_msg = f"Successfully downloaded {len(processed)} tiles"
         log_msg += f", but {len(failed)} tiles failed." if failed else "."
         LOGGER.info(log_msg)
@@ -253,18 +271,37 @@ class BatchDownloadPipeline(Pipeline):
 
     def _create_and_save_batch_grid(self) -> str:
         """Creates a saves the grid used for Batch Process API"""
-        grid = create_batch_grid(
+        grid = create_utm_zone_grid(
             geometry=self._get_aoi_geometry(),
+            name_column=self.NAME_COLUMN,
             bbox_size=self.config.grid.bbox_size,
             bbox_offset=self.config.grid.bbox_offset,
             bbox_buffer=self.config.grid.bbox_buffer,
-            image_size=self.config.grid.image_size,
-            resolution=self.config.grid.resolution,
         )
-        grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key, full_path=True)
+
+        resolution = self.config.grid.resolution
+        width, height = self.config.grid.image_size
+        grid = {crs: gdf.assign(width=width, height=height, resolution=resolution) for crs, gdf in grid.items()}
+
+        grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key)
         grid_path = fs.path.join(grid_folder, self.area_manager.config.grid_filename)
         save_grid(grid, grid_path, self.storage)
         return grid_path
+
+    def _update_batch_grid(self, batch_request_id: str) -> None:
+        """Updates the batch grid using the features manifest."""
+        grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key)
+        grid_path = fs.path.join(grid_folder, self.area_manager.config.grid_filename)
+        grid = load_grid(grid_path, self.storage)
+
+        fm_folder = self.storage.get_folder(self.config.output_folder_key)
+        fm_path = fs.path.join(fm_folder, f"featureManifest-{batch_request_id}.gpkg")
+        fm = load_grid(fm_path, self.storage)
+
+        for crs, crs_grid in grid.items():
+            grid[crs] = crs_grid[crs_grid[self.NAME_COLUMN].isin(fm[crs][self.NAME_COLUMN].unique())]
+
+        save_grid(grid, grid_path, self.storage)
 
     def _create_new_batch_request(self) -> BatchProcessRequest:
         """Defines a new batch request."""
@@ -355,37 +392,18 @@ class BatchDownloadPipeline(Pipeline):
         """Wait for SH read/write databases to sync."""
         self.batch_client.get_request(batch_request)
 
-    def _monitor_job(self, batch_request: BatchProcessRequest) -> BatchProcessRequest:
-        return monitor_batch_process_job(
-            request=batch_request,
-            client=self.batch_client,
-            sleep_time=self.config.monitoring_sleep_time,
-            analysis_sleep_time=self.config.monitoring_analysis_sleep_time,
-        )
+    def _get_tiles_per_status(self, batch_request_id: str) -> dict[str, list[str]]:
+        """
+        Collects tile status counts from the batch request execution sqlite database for the PENDING, DONE and FAILED
+        statuses.
 
-
-def create_batch_grid(
-    geometry: Geometry,
-    bbox_size: tuple[int, int],
-    bbox_offset: tuple[float, float],
-    bbox_buffer: tuple[float, float],
-    image_size: tuple[int, int],
-    resolution: int,
-) -> dict[CRS, GeoDataFrame]:
-    """Creates a grid of bounding boxes covering the given area that is suitable for use with Batch Processing API."""
-    grid = create_utm_zone_grid(
-        geometry=geometry,
-        name_column="identifier",
-        bbox_size=bbox_size,
-        bbox_offset=bbox_offset,
-        bbox_buffer=bbox_buffer,
-    )
-
-    width, height = image_size
-    for crs, gdf in grid.items():
-        gdf["width"] = width
-        gdf["height"] = height
-        gdf["resolution"] = resolution
-        grid[crs] = gdf
-
-    return grid
+        DONE: Feature was successfully processed.
+        FATAL: Feature has failed X amount of times and will not be retried.
+        PENDING: The feature is waiting to be processed.
+        """
+        db_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key)
+        db_path = fs.path.join(db_folder, f"execution-{batch_request_id}.gpkg")
+        with LocalFile(db_path, mode="r", filesystem=self.storage.filesystem) as local_file:
+            conn = sqlite3.connect(local_file.path)
+            db_df = pd.read_sql("SELECT * FROM features", conn)
+            return db_df.groupby("status").name.apply(list).to_dict()
