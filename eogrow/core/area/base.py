@@ -66,10 +66,12 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
         grid_path = fs.path.combine(self.storage.get_cache_folder(), self.get_grid_cache_filename())
 
         if self.storage.filesystem.exists(grid_path):
-            grid = self._load_grid(grid_path)
+            LOGGER.info("Loading grid from %s", grid_path)
+            grid = load_grid(grid_path, self.storage)
         else:
             grid = self._create_grid()
-            self._save_grid(grid, grid_path)
+            LOGGER.info("Saving grid to %s", grid_path)
+            save_grid(grid, grid_path, self.storage)
 
         if filtered and self.config.patch_names is not None:
             folder_path = self.storage.get_folder(self.config.patch_names.input_folder_key)
@@ -96,16 +98,6 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
         The grid is split into different CRS zones. The `bounds` properties of the geometries are taken as BBox
         definitions. EOPatch names are stored in a column with identifier `self.NAME_COLUMN`.
         """
-
-    def _load_grid(self, grid_path: str) -> dict[CRS, gpd.GeoDataFrame]:
-        """A method that loads the bounding box grid from the cache folder."""
-        LOGGER.info("Loading grid from %s", grid_path)
-        return load_grid(grid_path, self.storage)
-
-    def _save_grid(self, grid: dict[CRS, gpd.GeoDataFrame], grid_path: str) -> None:
-        """A method that saves the bounding box grid to the cache folder."""
-        LOGGER.info("Saving grid to %s", grid_path)
-        save_grid(grid, grid_path, self.storage)
 
     @abstractmethod
     def get_grid_cache_filename(self) -> str:
