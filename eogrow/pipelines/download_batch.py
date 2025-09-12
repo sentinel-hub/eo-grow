@@ -130,14 +130,10 @@ class BatchDownloadPipeline(Pipeline):
 
         @validator("area")
         def _parse_area_name_column(cls, area: CustomGridAreaManager.Schema) -> CustomGridAreaManager.Schema:
-            name_column = area.name_column
-            if name_column != BatchDownloadPipeline.NAME_COLUMN:
-                raise AssertionError(
-                    (
-                        "Name column of CustomGridAreaManager used in BatchDownloadPipeline should be "
-                        f"set to '{BatchDownloadPipeline.NAME_COLUMN}' for proper functionality."
-                    )
-                )
+            assert area.name_column == BatchDownloadPipeline.NAME_COLUMN, (
+                "Name column of CustomGridAreaManager used in BatchDownloadPipeline should be "
+                f"set to '{BatchDownloadPipeline.NAME_COLUMN}' for proper functionality."
+            )
             return area
 
         iam_role_arn: str = Field(description="IAM role ARN for the batch job.")
