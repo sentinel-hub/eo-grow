@@ -1,5 +1,4 @@
 from geopandas import GeoDataFrame
-from shapely import Polygon
 
 from sentinelhub import CRS, Geometry
 
