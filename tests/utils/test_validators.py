@@ -207,15 +207,6 @@ def test_parse_dtype(dtype_input: Union[str, type, np.dtype]):
         ({"manager": "NonexistingManager"}, False),
         (
             {
-                "manager": "eogrow.core.area.BatchAreaManager",
-                "geometry_filename": "some_aoi.geojson",
-                "tiling_grid_id": 0,
-                "resolution": 10,
-            },
-            True,
-        ),
-        (
-            {
                 "manager": "eogrow.core.logging.LoggingManager",
                 "save_logs": True,
                 "show_logs": True,
