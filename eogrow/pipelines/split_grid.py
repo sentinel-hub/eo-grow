@@ -189,7 +189,7 @@ class SplitGridPipeline(Pipeline):
 
     def save_new_grid(self, bbox_splits: list[tuple[NamedBBox, list[NamedBBox]]]) -> None:
         """Organizes BBoxes into multiple GeoDataFrames that are then saved as layers of a GPKG file."""
-        crs_groups = defaultdict(list)
+        crs_groups: dict[CRS, list[tuple]] = defaultdict(list)
         for _, new_bboxes in bbox_splits:
             for name, bbox in new_bboxes:
                 crs_groups[bbox.crs].append((name, bbox))

@@ -82,7 +82,7 @@ class BatchAreaManager(BaseAreaManager):
         splitter = BatchSplitter(batch_request=batch_request, config=self.storage.sh_config)
         bbox_list, info_list = splitter.get_bbox_list(), splitter.get_info_list()
 
-        crs_to_patches = defaultdict(list)
+        crs_to_patches: dict[CRS, list[tuple]] = defaultdict(list)
         # they are returned in random order, so we sort them by name beforehand
         for bbox, info in sorted(zip(bbox_list, info_list), key=lambda x: x[1]["name"]):  # type: ignore # noqa: PGH003
             crs_to_patches[bbox.crs].append((info["name"], bbox.geometry))

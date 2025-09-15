@@ -40,6 +40,7 @@ from ..core.pipeline import Pipeline
 from ..core.schemas import BaseSchema
 from ..types import TimePeriod
 from ..utils.validators import (
+    ensure_exactly_one_defined,
     ensure_storage_key_presence,
     field_validator,
     optional_field_validator,
@@ -109,10 +110,12 @@ class BatchGridSchema(BaseSchema):
         description="Name of the file that defines the AoI geometry, located in the input data folder."
     )
     bbox_size: tuple[int, int] = Field(description="Size of the bounding box in meters.")
-    bbox_offset: tuple[float, float] = Field(description="Offset of the bounding box in meters.")
-    bbox_buffer: tuple[float, float] = Field(description="Buffer of the bounding box in meters.")
-    image_size: tuple[int, int] = Field(description="Size of the image in pixels.")
-    resolution: int = Field(description="Resolution of the image in meters.")
+    bbox_offset: tuple[float, float] = Field(default=(0, 0), description="Offset of the bounding box in meters.")
+    bbox_buffer: tuple[float, float] = Field(default=(0, 0), description="Buffer of the bounding box in meters.")
+    image_size: Optional[tuple[int, int]] = Field(default=None, description="Size of the image in pixels.")
+    resolution: Optional[int] = Field(default=None, description="Resolution of the image in meters.")
+
+    _check_image_size_and_resolution = ensure_exactly_one_defined("image_size", "resolution")
 
 
 class BatchDownloadPipeline(Pipeline):
@@ -269,8 +272,8 @@ class BatchDownloadPipeline(Pipeline):
             geopandas_engine=self.storage.config.geopandas_backend,
         )
 
-    def _create_and_save_batch_grid(self) -> str:
-        """Creates a saves the grid used for Batch Process API"""
+    def _create_and_save_batch_grid(self) -> None:
+        """Creates a saves the grid used for Batch Process API."""
         grid = create_utm_zone_grid(
             geometry=self._get_aoi_geometry(),
             name_column=self.NAME_COLUMN,
@@ -279,14 +282,19 @@ class BatchDownloadPipeline(Pipeline):
             bbox_buffer=self.config.grid.bbox_buffer,
         )
 
-        resolution = self.config.grid.resolution
-        width, height = self.config.grid.image_size
-        grid = {crs: gdf.assign(width=width, height=height, resolution=resolution) for crs, gdf in grid.items()}
+        if self.config.grid.image_size is not None:
+            width, height = self.config.grid.image_size
+            batch_kwargs = {"width": width, "height": height}
+        elif self.config.grid.resolution is not None:
+            batch_kwargs = {"resolution": self.config.grid.resolution}
+        else:
+            raise RuntimeError("This should have been caught by the validator.")
+
+        grid = {crs: gdf.assign(**batch_kwargs) for crs, gdf in grid.items()}
 
         grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key)
         grid_path = fs.path.join(grid_folder, self.area_manager.config.grid_filename)
         save_grid(grid, grid_path, self.storage)
-        return grid_path
 
     def _update_batch_grid(self, batch_request_id: str) -> None:
         """Updates the batch grid using the features manifest."""
@@ -305,8 +313,8 @@ class BatchDownloadPipeline(Pipeline):
 
     def _create_new_batch_request(self) -> BatchProcessRequest:
         """Defines a new batch request."""
-        geometry = self._get_aoi_geometry()
-        grid_path = self._create_and_save_batch_grid()
+        LOGGER.info("Creating a new batch grid")
+        self._create_and_save_batch_grid()
 
         responses = [
             SentinelHubRequest.output_response(tiff_output, MimeType.TIFF) for tiff_output in self.config.tiff_outputs
@@ -329,22 +337,26 @@ class BatchDownloadPipeline(Pipeline):
                 for input_config in self.config.inputs
             ],
             responses=responses,
-            geometry=geometry,
+            geometry=self._get_aoi_geometry(),
         )
 
         data_folder = self.storage.get_folder(self.config.output_folder_key, full_path=True).rstrip("/")
         if not self.storage.is_on_s3():
             raise ValueError(f"The data folder path should be on s3 bucket, got {data_folder}")
 
-        geopackage_input = BatchProcessClient.geopackage_input(
-            s3_specification(url=grid_path, iam_role_arn=self.config.iam_role_arn)
-        )
-
         raster_output = BatchProcessClient.raster_output(
             delivery=s3_specification(
                 url=f"{data_folder}/<tileName>/<outputId>.<format>", iam_role_arn=self.config.iam_role_arn
             ),
             **self.config.batch_output_kwargs,
+        )
+
+        grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key, full_path=True).rstrip("/")
+        geopackage_input = BatchProcessClient.geopackage_input(
+            s3_specification(
+                url=f"{grid_folder}/{self.area_manager.config.grid_filename}",
+                iam_role_arn=self.config.iam_role_arn,
+            )
         )
 
         return self.batch_client.create(
@@ -401,8 +413,8 @@ class BatchDownloadPipeline(Pipeline):
         FATAL: Feature has failed X amount of times and will not be retried.
         PENDING: The feature is waiting to be processed.
         """
-        db_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key)
-        db_path = fs.path.join(db_folder, f"execution-{batch_request_id}.gpkg")
+        db_folder = self.storage.get_folder(self.config.output_folder_key)
+        db_path = fs.path.join(db_folder, f"execution-{batch_request_id}.sqlite")
         with LocalFile(db_path, mode="r", filesystem=self.storage.filesystem) as local_file:
             conn = sqlite3.connect(local_file.path)
             db_df = pd.read_sql("SELECT * FROM features", conn)

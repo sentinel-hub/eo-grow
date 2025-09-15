@@ -79,7 +79,7 @@ dev = [
     "fs_s3fs",
     "numpy>=2.0.0",
     "moto[s3]>=5.0.0",
-    "mypy>=0.990,<1.18.1",
+    "mypy>=0.990",
     "pre-commit",
     "pyogrio",
     "pytest-cov",

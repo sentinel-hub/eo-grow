@@ -106,7 +106,7 @@ class IngestByocTilesPipeline(Pipeline):
         """
         tiff_paths = self._get_tiff_paths()
 
-        folder_to_filename_map = defaultdict(list)
+        folder_to_filename_map: dict[str, list[str]] = defaultdict(list)
         for folder, filename in map(fs.path.split, tiff_paths):
             folder_to_filename_map[folder].append(filename)
 

@@ -91,7 +91,7 @@ def create_utm_zone_grid(
     if bbox_buffer != (0, 0):
         bbox_list = [bbox.buffer(bbox_buffer, relative=False) for bbox in bbox_list]
 
-    tiles_dict = defaultdict(list)
+    tiles_dict: dict[CRS, list[dict]] = defaultdict(list)
     zfill_length = len(str(len(bbox_list) - 1))
     for i, (bbox, info) in enumerate(zip(bbox_list, info_list)):
         i_x, i_y = info["index_x"], info["index_y"]
