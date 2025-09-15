@@ -282,13 +282,10 @@ class BatchDownloadPipeline(Pipeline):
             bbox_buffer=self.config.grid.bbox_buffer,
         )
 
-        if self.config.grid.image_size is not None:
-            width, height = self.config.grid.image_size
-            batch_columns = {"width": width, "height": height}
-        else:
-            batch_columns = {"resolution": self.config.grid.resolution}
-
-        grid = {crs: gdf.assign(**batch_columns) for crs, gdf in grid.items()}
+        width, height = self.config.grid.image_size or (None, None)
+        batch_kwargs = {"width": width, "height": height, "resolution": self.config.grid.resolution}
+        batch_kwargs = {k: v for k, v in batch_kwargs.items() if v is not None}
+        grid = {crs: gdf.assign(**batch_kwargs) for crs, gdf in grid.items()}
 
         grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key)
         grid_path = fs.path.join(grid_folder, self.area_manager.config.grid_filename)
