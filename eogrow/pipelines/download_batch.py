@@ -282,9 +282,14 @@ class BatchDownloadPipeline(Pipeline):
             bbox_buffer=self.config.grid.bbox_buffer,
         )
 
-        width, height = self.config.grid.image_size or (None, None)
-        batch_kwargs = {"width": width, "height": height, "resolution": self.config.grid.resolution}
-        batch_kwargs = {k: v for k, v in batch_kwargs.items() if v is not None}
+        if self.config.grid.image_size is not None:
+            width, height = self.config.grid.image_size
+            batch_kwargs = {"width": width, "height": height}
+        elif self.config.grid.resolution is not None:
+            batch_kwargs = {"resolution": self.config.grid.resolution}
+        else:
+            raise RuntimeError("This should have been caught by the validator.")
+
         grid = {crs: gdf.assign(**batch_kwargs) for crs, gdf in grid.items()}
 
         grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key)
