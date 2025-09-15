@@ -6,7 +6,7 @@ import logging
 import sqlite3
 import time
 from functools import wraps
-from typing import Any, Callable, List, Literal, Optional, TypeVar, cast
+from typing import Any, Callable, List, Literal, Optional, TypeVar
 
 import fs
 import pandas as pd
@@ -282,11 +282,11 @@ class BatchDownloadPipeline(Pipeline):
             bbox_buffer=self.config.grid.bbox_buffer,
         )
 
-        if self.config.grid.resolution is not None:
-            batch_columns = {"resolution": self.config.grid.resolution}
-        else:
-            width, height = cast(tuple[int, int], self.config.grid.image_size)
+        if self.config.grid.image_size is not None:
+            width, height = self.config.grid.image_size
             batch_columns = {"width": width, "height": height}
+        else:
+            batch_columns = {"resolution": self.config.grid.resolution}
 
         grid = {crs: gdf.assign(**batch_columns) for crs, gdf in grid.items()}
 
