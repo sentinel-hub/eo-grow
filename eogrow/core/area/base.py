@@ -66,10 +66,12 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
         grid_path = fs.path.combine(self.storage.get_cache_folder(), self.get_grid_cache_filename())
 
         if self.storage.filesystem.exists(grid_path):
-            grid = self._load_grid(grid_path)
+            LOGGER.info("Loading grid from %s", grid_path)
+            grid = load_grid(grid_path, self.storage)
         else:
             grid = self._create_grid()
-            self._save_grid(grid, grid_path)
+            LOGGER.info("Saving grid to %s", grid_path)
+            save_grid(grid, grid_path, self.storage)
 
         if filtered and self.config.patch_names is not None:
             folder_path = self.storage.get_folder(self.config.patch_names.input_folder_key)
@@ -97,32 +99,6 @@ class BaseAreaManager(EOGrowObject, metaclass=ABCMeta):
         definitions. EOPatch names are stored in a column with identifier `self.NAME_COLUMN`.
         """
 
-    def _load_grid(self, grid_path: str) -> dict[CRS, gpd.GeoDataFrame]:
-        """A method that loads the bounding box grid from the cache folder."""
-        LOGGER.info("Loading grid from %s", grid_path)
-
-        grid = {}
-        with LocalFile(grid_path, mode="r", filesystem=self.storage.filesystem) as local_file:
-            for crs_layer in fiona.listlayers(local_file.path):
-                data = gpd.read_file(local_file.path, layer=crs_layer, engine=self.storage.config.geopandas_backend)
-                grid[CRS(data.crs)] = data
-
-        return grid
-
-    def _save_grid(self, grid: dict[CRS, gpd.GeoDataFrame], grid_path: str) -> None:
-        """A method that saves the bounding box grid to the cache folder."""
-        LOGGER.info("Saving grid to %s", grid_path)
-
-        with LocalFile(grid_path, mode="w", filesystem=self.storage.filesystem) as local_file:
-            for crs_grid in grid.values():
-                crs_grid.to_file(
-                    local_file.path,
-                    driver="GPKG",
-                    encoding="utf-8",
-                    layer=f"Grid EPSG:{crs_grid.crs.to_epsg()}",
-                    engine=self.storage.config.geopandas_backend,
-                )
-
     @abstractmethod
     def get_grid_cache_filename(self) -> str:
         """Provides a filename that is used for caching the grid, including the file extensions (likely .gpkg).
@@ -149,3 +125,27 @@ def get_geometry_from_file(
         area_df = gpd.read_file(local_file.path, engine=geopandas_engine)
         area_shape = shapely.ops.unary_union(area_df.geometry)
         return Geometry(area_shape, CRS(area_df.crs))
+
+
+def load_grid(grid_path: str, storage: StorageManager) -> dict[CRS, gpd.GeoDataFrame]:
+    """A method that loads the bounding box grid from the cache folder."""
+    grid = {}
+    with LocalFile(grid_path, mode="r", filesystem=storage.filesystem) as local_file:
+        for crs_layer in fiona.listlayers(local_file.path):
+            data = gpd.read_file(local_file.path, layer=crs_layer, engine=storage.config.geopandas_backend)
+            grid[CRS(data.crs)] = data
+
+    return grid
+
+
+def save_grid(grid: dict[CRS, gpd.GeoDataFrame], grid_path: str, storage: StorageManager) -> None:
+    """A method that saves the bounding box grid to the cache folder."""
+    with LocalFile(grid_path, mode="w", filesystem=storage.filesystem) as local_file:
+        for crs_grid in grid.values():
+            crs_grid.to_file(
+                local_file.path,
+                driver="GPKG",
+                encoding="utf-8",
+                layer=f"Grid EPSG:{crs_grid.crs.to_epsg()}",
+                engine=storage.config.geopandas_backend,
+            )

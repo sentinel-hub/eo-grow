@@ -16,7 +16,6 @@ from eolearn.core.types import Feature
 from sentinelhub import CRS, BBox
 from sentinelhub.geometry import Geometry
 
-from ..core.area.batch import BatchAreaManager
 from ..core.area.utm import UtmZoneAreaManager
 from ..core.pipeline import Pipeline
 from ..tasks.common import SkippableSaveTask
@@ -136,9 +135,6 @@ class SplitGridPipeline(Pipeline):
         area_config = self.area_manager.config
         if isinstance(area_config, UtmZoneAreaManager.Schema):
             return area_config.patch.buffer_x, area_config.patch.buffer_y
-        if isinstance(area_config, BatchAreaManager.Schema):
-            res = area_config.resolution
-            return area_config.tile_buffer_x * res, area_config.tile_buffer_y * res
         raise ValueError(
             f"Cannot infer buffer from area manager `{type(self.area_manager)}`. Please set the `buffer` parameter."
         )
@@ -189,7 +185,7 @@ class SplitGridPipeline(Pipeline):
 
     def save_new_grid(self, bbox_splits: list[tuple[NamedBBox, list[NamedBBox]]]) -> None:
         """Organizes BBoxes into multiple GeoDataFrames that are then saved as layers of a GPKG file."""
-        crs_groups = defaultdict(list)
+        crs_groups: dict[CRS, list[tuple]] = defaultdict(list)
         for _, new_bboxes in bbox_splits:
             for name, bbox in new_bboxes:
                 crs_groups[bbox.crs].append((name, bbox))

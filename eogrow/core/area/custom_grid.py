@@ -12,7 +12,7 @@ from pydantic import Field
 from sentinelhub import CRS, Geometry
 
 from ...utils.vector import concat_gdf
-from .base import BaseAreaManager
+from .base import BaseAreaManager, load_grid
 
 LOGGER = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ class CustomGridAreaManager(BaseAreaManager):
 
     def _create_grid(self) -> dict[CRS, gpd.GeoDataFrame]:
         grid_path = fs.path.combine(self.storage.get_folder(self.config.grid_folder_key), self.config.grid_filename)
-        grid = self._load_grid(grid_path)
+        grid = load_grid(grid_path, self.storage)
 
         for crs, crs_gdf in grid.items():
             # Correct name of eopatch-name-column, drop all non-significant ones

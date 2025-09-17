@@ -368,11 +368,11 @@ def compare_content(
         raise ValueError("The given path is None. The pipeline likely has no `output_folder_key` parameter.")
     config = StatCalcConfig() if config is None else config
     stats = calculate_statistics(folder_path, config=config)
+    stats_difference = compare_with_saved(stats, stats_path)
 
     if save_new_stats:
         save_statistics(stats, stats_path)
 
-    stats_difference = compare_with_saved(stats, stats_path)
     if stats_difference:
         stats_difference_repr = stats_difference.to_json(indent=2, sort_keys=True)
         raise AssertionError(f"Expected and obtained stats differ:\n{stats_difference_repr}")
