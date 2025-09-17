@@ -37,7 +37,7 @@ def test_pipeline_chain_execution(config_folder):
     "command_params",
     [
         "eogrow.core.storage.StorageManager --template-format open-api",
-        "eogrow.core.area.batch.BatchAreaManager",
+        "eogrow.core.area.custom_grid.CustomGridAreaManager",
         "eogrow.pipelines.download.DownloadPipeline",
         "eogrow.pipelines.export_maps.ExportMapsPipeline",
     ],

@@ -108,14 +108,6 @@ The `UtmZoneAreaManager` is probably the most commonly used area manager and mos
 
 For users which have a very specific way of splitting the AOI in mind, we provide the `CustomGridAreaManager`, which accepts a grid file of an already split AOI. The user only needs to provide the grid file folder key and name, along with the `name_column` parameter, which points to the column containing the patch names to be used. The folder key by default points to the `input_data` location, but could be any other location defined by the storage structure. Read the [API docs](reference/eogrow.core.area.custom_grid.html#eogrow.core.area.custom_grid.CustomGridAreaManager.Schema) on the `CustomGridAreaManager` for more info.
 
-#### Batch Area Manager
-
-For users working with [Sentinel Hub Batch API](https://docs.sentinel-hub.com/api/latest/api/batch/), we have prepared the `BatchAreaManager`, which splits the area according to [Sentinel Hub tiling grids](https://docs.sentinel-hub.com/api/latest/api/batch/#tiling-grids). This area manager is meant for larger projects focusing on larger areas.
-
-The interface of the `BatchAreaManager` relies heavily on the predefined configuration options defined for the Batch API, so be sure to provide sensible values for the parameters. For example, the `tiling_grid_id` and `resolution` parameters should correspond to values stated in the [docs](https://docs.sentinel-hub.com/api/latest/api/batch/#tiling-grids).
-
-For existing projects involving Batch API, it is possible to provide the `batch_id` parameter, which will search for existing grids corresponding to the batch request. If the `batch_id` is not provided (this is by default), the `BatchAreaManager` will generate a new batch job with the given parameters. Read the [API docs](reference/eogrow.core.area.batch.html#eogrow.core.area.batch.BatchAreaManager.Schema) on the `BatchAreaManager` for more info.
-
 ### Logging Manager
 
 The logging manager ensures that logging handlers are set up and configured correctly. It allows adjusting which packages to log to files, which to stdout, and which to ignore. It is unlikely you'll ever need to access any of it's methods directly. Use the standard `LOGGER = logging.getLogger(__name__)` for logging.
