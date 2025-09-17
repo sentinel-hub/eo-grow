@@ -1,3 +1,9 @@
+## [Version 1.7.15] - 2025-09-17
+
+- Switch to Batch Process API V2 in BatchDownloadPipeline
+- Remove BatchAreaManager
+- Add config validation tests
+
 ## [Version 1.7.14] - 2024-11-08
 
 - Improve batch download retries in case of partial downloads.
