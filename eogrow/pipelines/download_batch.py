@@ -31,9 +31,10 @@ from sentinelhub import (
 from sentinelhub.api.utils import s3_specification
 from sentinelhub.exceptions import DownloadFailedException
 
-from eogrow.core.area.base import get_geometry_from_file, load_grid, save_grid
+from eogrow.core.area.base import PatchListSchema, get_geometry_from_file, load_grid, save_grid
 from eogrow.core.area.custom_grid import CustomGridAreaManager
 from eogrow.core.area.utm import create_utm_zone_grid
+from eogrow.utils.eopatch_list import save_names
 from eogrow.utils.fs import LocalFile
 
 from ..core.pipeline import Pipeline
@@ -124,6 +125,8 @@ class BatchDownloadPipeline(Pipeline):
 
     The pipeline creates a custom grid using the UtmZoneSplitter under the hood and saves it to the grid location
     provided via the CustomGridAreaManager.
+
+    If a patch list schema is provided, it will be used to save the patches which were successfully processed.
     """
 
     NAME_COLUMN = "identifier"
@@ -147,6 +150,8 @@ class BatchDownloadPipeline(Pipeline):
         _ensure_output_folder_key = ensure_storage_key_presence("output_folder_key")
 
         grid: BatchGridSchema = Field(description="Configuration for the batch grid.")
+
+        patch_list: Optional[PatchListSchema] = Field(description="Configuration for saving the patch list.")
 
         inputs: List[InputDataSchema]
 
@@ -199,8 +204,7 @@ class BatchDownloadPipeline(Pipeline):
                 "existing batch job. If it is not given it will create a new batch job."
             ),
         )
-        patch_list: None = None
-        input_patch_file: None = None
+
         skip_existing: Literal[False] = False
 
     config: Schema
@@ -239,8 +243,9 @@ class BatchDownloadPipeline(Pipeline):
             analysis_sleep_time=self.config.monitoring_analysis_sleep_time,
         )
 
-        LOGGER.info("Using feature manifest to update the batch grid")
-        self._update_batch_grid(batch_request.request_id)
+        if self.config.patch_list is not None:
+            LOGGER.info("Constructing the patch list from the feature manifest and execution database")
+            self._save_patch_list(self.config.patch_list, batch_request.request_id)
 
         tiles_dict = self._get_tiles_per_status(batch_request.request_id)
         processed = tiles_dict.get("DONE", [])
@@ -296,20 +301,33 @@ class BatchDownloadPipeline(Pipeline):
         grid_path = fs.path.join(grid_folder, self.area_manager.config.grid_filename)
         save_grid(grid, grid_path, self.storage)
 
-    def _update_batch_grid(self, batch_request_id: str) -> None:
-        """Updates the batch grid using the features manifest."""
-        grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key)
-        grid_path = fs.path.join(grid_folder, self.area_manager.config.grid_filename)
-        grid = load_grid(grid_path, self.storage)
+    def _load_execution_db(self, batch_request_id: str) -> pd.DataFrame:
+        """Loads the execution database from the output folder."""
+        db_folder = self.storage.get_folder(self.config.output_folder_key)
+        db_path = fs.path.join(db_folder, f"execution-{batch_request_id}.sqlite")
+        with LocalFile(db_path, mode="r", filesystem=self.storage.filesystem) as local_file:
+            conn = sqlite3.connect(local_file.path)
+            db_df = pd.read_sql("SELECT * FROM features", conn)
+            db_df["delivered"] = db_df["delivered"].astype(bool)
+            return db_df
 
+    def _save_patch_list(self, patch_list_schema: PatchListSchema, batch_request_id: str) -> None:
+        """Creates the patch list using the features manifest."""
         fm_folder = self.storage.get_folder(self.config.output_folder_key)
         fm_path = fs.path.join(fm_folder, f"featureManifest-{batch_request_id}.gpkg")
         fm = load_grid(fm_path, self.storage)
+        db_df = self._load_execution_db(batch_request_id)
 
-        for crs, crs_grid in grid.items():
-            grid[crs] = crs_grid[crs_grid[self.NAME_COLUMN].isin(fm[crs][self.NAME_COLUMN].unique())]
+        patch_list = set()
+        for fm_gdf in fm.values():
+            patch_list |= set(fm_gdf[self.NAME_COLUMN].tolist())
 
-        save_grid(grid, grid_path, self.storage)
+        not_delivered = set(db_df[~db_df["delivered"]]["name"].tolist())
+        patch_list -= not_delivered
+
+        patch_list_folder = self.storage.get_folder(patch_list_schema.input_folder_key)
+        patch_list_path = fs.path.combine(patch_list_folder, patch_list_schema.filename)
+        save_names(self.storage.filesystem, patch_list_path, list(patch_list))
 
     def _create_new_batch_request(self) -> BatchProcessRequest:
         """Defines a new batch request."""
@@ -413,9 +431,5 @@ class BatchDownloadPipeline(Pipeline):
         FATAL: Feature has failed X amount of times and will not be retried.
         PENDING: The feature is waiting to be processed.
         """
-        db_folder = self.storage.get_folder(self.config.output_folder_key)
-        db_path = fs.path.join(db_folder, f"execution-{batch_request_id}.sqlite")
-        with LocalFile(db_path, mode="r", filesystem=self.storage.filesystem) as local_file:
-            conn = sqlite3.connect(local_file.path)
-            db_df = pd.read_sql("SELECT * FROM features", conn)
-            return db_df.groupby("status").name.apply(list).to_dict()
+        db_df = self._load_execution_db(batch_request_id)
+        return db_df.groupby("status").name.apply(list).to_dict()
