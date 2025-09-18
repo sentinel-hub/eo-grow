@@ -295,6 +295,16 @@ class BatchDownloadPipeline(Pipeline):
         grid_path = fs.path.join(grid_folder, self.area_manager.config.grid_filename)
         save_grid(grid, grid_path, self.storage)
 
+    def _load_execution_db(self, batch_request_id: str) -> pd.DataFrame:
+        """Loads the execution database from the output folder."""
+        db_folder = self.storage.get_folder(self.config.output_folder_key)
+        db_path = fs.path.join(db_folder, f"execution-{batch_request_id}.sqlite")
+        with LocalFile(db_path, mode="r", filesystem=self.storage.filesystem) as local_file:
+            conn = sqlite3.connect(local_file.path)
+            df = pd.read_sql("SELECT * FROM features", conn)
+            df["delivered"] = df["delivered"].astype(bool)
+            return df
+
     def _update_batch_grid(self, batch_request_id: str) -> None:
         """Updates the batch grid using the features manifest."""
         grid_folder = self.storage.get_folder(self.area_manager.config.grid_folder_key)
@@ -412,9 +422,5 @@ class BatchDownloadPipeline(Pipeline):
         FATAL: Feature has failed X amount of times and will not be retried.
         PENDING: The feature is waiting to be processed.
         """
-        db_folder = self.storage.get_folder(self.config.output_folder_key)
-        db_path = fs.path.join(db_folder, f"execution-{batch_request_id}.sqlite")
-        with LocalFile(db_path, mode="r", filesystem=self.storage.filesystem) as local_file:
-            conn = sqlite3.connect(local_file.path)
-            db_df = pd.read_sql("SELECT * FROM features", conn)
-            return db_df.groupby("status").name.apply(list).to_dict()
+        db_df = self._load_execution_db(batch_request_id)
+        return db_df.groupby("status").name.apply(list).to_dict()
