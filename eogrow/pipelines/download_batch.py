@@ -245,7 +245,7 @@ class BatchDownloadPipeline(Pipeline):
 
         if self.config.patch_list is not None:
             LOGGER.info("Constructing the patch list from the feature manifest and execution database")
-            self._save_patch_list(batch_request.request_id)
+            self._save_patch_list(self.config.patch_list, batch_request.request_id)
 
         tiles_dict = self._get_tiles_per_status(batch_request.request_id)
         processed = tiles_dict.get("DONE", [])
@@ -311,7 +311,7 @@ class BatchDownloadPipeline(Pipeline):
             db_df["delivered"] = db_df["delivered"].astype(bool)
             return db_df
 
-    def _save_patch_list(self, batch_request_id: str) -> None:
+    def _save_patch_list(self, patch_list_schema: PatchListSchema, batch_request_id: str) -> None:
         """Creates the patch list using the features manifest."""
         fm_folder = self.storage.get_folder(self.config.output_folder_key)
         fm_path = fs.path.join(fm_folder, f"featureManifest-{batch_request_id}.gpkg")
@@ -325,8 +325,8 @@ class BatchDownloadPipeline(Pipeline):
         not_delivered = set(db_df[~db_df["delivered"]]["name"].tolist())
         patch_list -= not_delivered
 
-        patch_list_folder = self.storage.get_folder(self.config.patch_list.input_folder_key)
-        patch_list_path = fs.path.combine(patch_list_folder, self.config.patch_list.filename)
+        patch_list_folder = self.storage.get_folder(patch_list_schema.input_folder_key)
+        patch_list_path = fs.path.combine(patch_list_folder, patch_list_schema.filename)
         save_names(self.storage.filesystem, patch_list_path, list(patch_list))
 
     def _create_new_batch_request(self) -> BatchProcessRequest:
