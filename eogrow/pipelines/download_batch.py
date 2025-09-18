@@ -301,9 +301,9 @@ class BatchDownloadPipeline(Pipeline):
         db_path = fs.path.join(db_folder, f"execution-{batch_request_id}.sqlite")
         with LocalFile(db_path, mode="r", filesystem=self.storage.filesystem) as local_file:
             conn = sqlite3.connect(local_file.path)
-            df = pd.read_sql("SELECT * FROM features", conn)
-            df["delivered"] = df["delivered"].astype(bool)
-            return df
+            db_df = pd.read_sql("SELECT * FROM features", conn)
+            db_df["delivered"] = db_df["delivered"].astype(bool)
+            return db_df
 
     def _update_batch_grid(self, batch_request_id: str) -> None:
         """Updates the batch grid using the features manifest."""
