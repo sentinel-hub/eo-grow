@@ -199,8 +199,7 @@ class BatchDownloadPipeline(Pipeline):
                 "existing batch job. If it is not given it will create a new batch job."
             ),
         )
-        patch_list: None = None
-        input_patch_file: None = None
+
         skip_existing: Literal[False] = False
 
     config: Schema

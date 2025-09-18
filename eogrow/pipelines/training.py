@@ -66,8 +66,7 @@ class BaseTrainingPipeline(Pipeline, metaclass=abc.ABCMeta):
             default_factory=dict, description="Parameters to be provided to the model"
         )
         model_filename: str
-        patch_list: None = None
-        input_patch_file: None = None
+
         skip_existing: Literal[False] = False
 
     config: Schema
